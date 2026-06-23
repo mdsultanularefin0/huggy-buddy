@@ -32,7 +32,7 @@ const comboOptions = (id: string) =>
       const { data: products } = productIds.length
         ? await supabase.from("products").select("id,name,image_url").in("id", productIds)
         : { data: [] };
-      return { combo: combo as Combo, products: (products ?? []) as ProductMini[] };
+      return { combo: combo as unknown as Combo, products: (products ?? []) as ProductMini[] };
     },
   });
 
