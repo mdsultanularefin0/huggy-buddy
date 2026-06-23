@@ -48,15 +48,17 @@ function ProductPage() {
   const { id } = Route.useParams();
   const { data: product } = useSuspenseQuery(productOptions(id));
   const sizes = product?.sizes_json ?? [];
-  const [sizeIdx, setSizeIdx] = useState(0);
+  const [sizeIdx, setSizeIdx] = useState<number | null>(null);
   const [qty, setQty] = useState(1);
   const add = useCart((s) => s.add);
 
   if (!product) return null;
-  const chosen = sizes[sizeIdx];
+  const needsSize = sizes.length > 0;
+  const chosen = sizeIdx !== null ? sizes[sizeIdx] : undefined;
   const regular = chosen?.price ?? product.regular_price;
   const sale = chosen?.sale_price ?? product.sale_price;
   const price = effectivePrice(regular, sale);
+  const canAdd = product.in_stock && (!needsSize || sizeIdx !== null);
 
   const handleAdd = () => {
     const sizeLabel = chosen?.size_label ?? null;
@@ -126,8 +128,8 @@ function ProductPage() {
                 <span className="px-4 font-medium">{qty}</span>
                 <button onClick={() => setQty(qty + 1)} className="px-3 py-2 text-lg">+</button>
               </div>
-              <Button variant="hero" size="lg" className="flex-1" onClick={handleAdd} disabled={!product.in_stock}>
-                {product.in_stock ? "Add to cart" : "Out of stock"}
+              <Button variant="hero" size="lg" className="flex-1" onClick={handleAdd} disabled={!canAdd}>
+                {!product.in_stock ? "Out of stock" : needsSize && sizeIdx === null ? "Select a size" : "Add to cart"}
               </Button>
             </div>
           </div>
