@@ -1,0 +1,207 @@
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useSuspenseQuery, queryOptions, useMutation } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { useMemo, useState } from "react";
+import { ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { supabase } from "@/integrations/supabase/client";
+import { formatBDT } from "@/lib/currency";
+import { SiteHeader } from "@/components/site-header";
+import { useCart, cartSubtotal } from "@/lib/cart-store";
+import { createOrder } from "@/lib/checkout.functions";
+import { toast } from "sonner";
+
+type Zone = {
+  id: string; zone_name: string; fee_amount: number; free_shipping_threshold: number | null;
+};
+type PayMethod = { id: string; method_name: string };
+
+const checkoutOptions = queryOptions({
+  queryKey: ["checkout-config"],
+  queryFn: async () => {
+    const [zones, methods] = await Promise.all([
+      supabase.from("delivery_zones").select("id,zone_name,fee_amount,free_shipping_threshold")
+        .eq("is_active", true).order("sort_order", { ascending: true }),
+      supabase.from("payment_methods").select("id,method_name")
+        .eq("is_active", true).order("sort_order", { ascending: true }),
+    ]);
+    return {
+      zones: (zones.data ?? []) as Zone[],
+      methods: (methods.data ?? []) as PayMethod[],
+    };
+  },
+});
+
+export const Route = createFileRoute("/checkout")({
+  head: () => ({ meta: [{ title: "Checkout — Veloura Essence" }] }),
+  loader: ({ context }) => context.queryClient.ensureQueryData(checkoutOptions),
+  component: CheckoutPage,
+  errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
+  notFoundComponent: () => <div className="p-8">Not found</div>,
+});
+
+function CheckoutPage() {
+  const { data } = useSuspenseQuery(checkoutOptions);
+  const { items, clear } = useCart();
+  const navigate = useNavigate();
+  const createOrderFn = useServerFn(createOrder);
+
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [address, setAddress] = useState("");
+  const [zoneId, setZoneId] = useState(data.zones[0]?.id ?? "");
+  const [paymentMethod, setPaymentMethod] = useState(data.methods[0]?.method_name ?? "");
+  const [referralCode, setReferralCode] = useState("");
+
+  const subtotal = cartSubtotal(items);
+  const zone = useMemo(() => data.zones.find((z) => z.id === zoneId), [data.zones, zoneId]);
+  const shippingFee = useMemo(() => {
+    if (!zone) return 0;
+    const threshold = zone.free_shipping_threshold ?? 0;
+    return threshold > 0 && subtotal >= threshold ? 0 : zone.fee_amount;
+  }, [zone, subtotal]);
+  const total = subtotal + shippingFee;
+
+  const mutation = useMutation({
+    mutationFn: async () => {
+      return await createOrderFn({
+        data: {
+          customer: { name, phone, address, email: email || undefined },
+          deliveryZoneId: zoneId,
+          paymentMethod,
+          items,
+          referralCode: referralCode || undefined,
+        },
+      });
+    },
+    onSuccess: (res) => {
+      clear();
+      toast.success(`Order ${res.orderNumber} placed!`);
+      navigate({ to: "/order/$id", params: { id: res.id } });
+    },
+    onError: (err: Error) => toast.error(err.message || "Failed to place order"),
+  });
+
+  if (items.length === 0) {
+    return (
+      <div className="min-h-screen bg-background">
+        <SiteHeader />
+        <div className="max-w-md mx-auto px-6 py-20 text-center">
+          <p className="text-muted-foreground">Your cart is empty.</p>
+          <Link to="/" className="text-primary underline mt-4 inline-block">Continue shopping</Link>
+        </div>
+      </div>
+    );
+  }
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!zoneId || !paymentMethod) return toast.error("Pick delivery zone & payment");
+    if (name.trim().length < 2) return toast.error("Enter your full name");
+    if (phone.trim().length < 6) return toast.error("Enter a valid phone number");
+    if (address.trim().length < 5) return toast.error("Enter a delivery address");
+    mutation.mutate();
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      <SiteHeader />
+      <div className="max-w-6xl mx-auto px-6 py-10">
+        <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6">
+          <ArrowLeft className="w-4 h-4" /> Back to shop
+        </Link>
+        <h1 className="text-3xl font-semibold tracking-tight mb-8">Checkout</h1>
+
+        <form onSubmit={onSubmit} className="grid lg:grid-cols-[1fr_400px] gap-10">
+          <div className="space-y-8">
+            <section className="space-y-4">
+              <h2 className="font-semibold">Contact & Delivery</h2>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="name">Full name *</Label>
+                  <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
+                </div>
+                <div>
+                  <Label htmlFor="phone">Phone *</Label>
+                  <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} required placeholder="01XXXXXXXXX" />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="email">Email (optional)</Label>
+                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+              </div>
+              <div>
+                <Label htmlFor="address">Delivery address *</Label>
+                <Textarea id="address" rows={3} value={address} onChange={(e) => setAddress(e.target.value)} required />
+              </div>
+              <p className="text-xs text-muted-foreground">No account needed — guest checkout.</p>
+            </section>
+
+            <section className="space-y-3">
+              <h2 className="font-semibold">Delivery Zone</h2>
+              <div className="grid sm:grid-cols-2 gap-2">
+                {data.zones.map((z) => (
+                  <button
+                    key={z.id} type="button" onClick={() => setZoneId(z.id)}
+                    className={`text-left p-3 rounded-xl border transition-colors ${zoneId === z.id ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"}`}
+                  >
+                    <div className="font-medium text-sm">{z.zone_name}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {formatBDT(z.fee_amount)}
+                      {z.free_shipping_threshold ? ` · Free over ${formatBDT(z.free_shipping_threshold)}` : ""}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </section>
+
+            <section className="space-y-3">
+              <h2 className="font-semibold">Payment Method</h2>
+              <div className="grid sm:grid-cols-2 gap-2">
+                {data.methods.map((m) => (
+                  <button
+                    key={m.id} type="button" onClick={() => setPaymentMethod(m.method_name)}
+                    className={`text-left p-3 rounded-xl border transition-colors ${paymentMethod === m.method_name ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"}`}
+                  >
+                    <div className="font-medium text-sm">{m.method_name}</div>
+                  </button>
+                ))}
+              </div>
+            </section>
+
+            <section>
+              <Label htmlFor="ref">Referral code (optional)</Label>
+              <Input id="ref" value={referralCode} onChange={(e) => setReferralCode(e.target.value)} />
+            </section>
+          </div>
+
+          <aside className="lg:sticky lg:top-24 h-fit p-6 rounded-2xl border bg-card space-y-4">
+            <h2 className="font-semibold">Order Summary</h2>
+            <div className="space-y-2 max-h-72 overflow-y-auto">
+              {items.map((i) => (
+                <div key={i.lineId} className="flex justify-between text-sm">
+                  <span className="truncate pr-2">
+                    {i.name}{i.size ? ` (${i.size})` : ""} × {i.quantity}
+                  </span>
+                  <span className="font-medium">{formatBDT(i.unitPrice * i.quantity)}</span>
+                </div>
+              ))}
+            </div>
+            <div className="border-t pt-4 space-y-1 text-sm">
+              <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{formatBDT(subtotal)}</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">Shipping</span><span>{shippingFee === 0 ? "Free" : formatBDT(shippingFee)}</span></div>
+              <div className="flex justify-between font-semibold text-base pt-2"><span>Total</span><span>{formatBDT(total)}</span></div>
+            </div>
+            <Button type="submit" variant="hero" size="lg" className="w-full" disabled={mutation.isPending}>
+              {mutation.isPending ? "Placing order…" : `Place order — ${formatBDT(total)}`}
+            </Button>
+          </aside>
+        </form>
+      </div>
+    </div>
+  );
+}
