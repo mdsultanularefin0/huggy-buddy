@@ -38,6 +38,7 @@ export const Route = createFileRoute("/admin/orders")({ component: OrdersPage })
 
 function OrdersPage() {
   const qc = useQueryClient();
+  const updateOrder = useServerFn(updateOrderAdmin);
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
   const [search, setSearch] = useState("");
   const [viewing, setViewing] = useState<Order | null>(null);

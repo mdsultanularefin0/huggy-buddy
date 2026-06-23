@@ -24,6 +24,7 @@ export const Route = createFileRoute("/admin/customers")({ component: CustomersP
 
 function CustomersPage() {
   const qc = useQueryClient();
+  const updateCustomer = useServerFn(updateCustomerAdmin);
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState<Customer | null>(null);
   const [form, setForm] = useState({ name: "", risk_level: "normal" as RiskLevel, notes: "" });
