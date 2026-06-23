@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useEffect } from "react";
 import { Loader2, Eye, Truck } from "lucide-react";
 import { toast } from "sonner";
 import { formatBDT } from "@/lib/currency";
@@ -186,11 +187,12 @@ function OrderDetailDialog({
   const [tracking, setTracking] = useState("");
   const [notes, setNotes] = useState("");
 
-  // Sync local state when order changes
-  if (order && tracking === "" && notes === "" && (order.tracking_code || order.notes)) {
-    if (order.tracking_code) setTracking(order.tracking_code);
-    if (order.notes) setNotes(order.notes);
-  }
+  useEffect(() => {
+    if (order) {
+      setTracking(order.tracking_code ?? "");
+      setNotes(order.notes ?? "");
+    }
+  }, [order]);
 
   function close() {
     setTracking(""); setNotes("");
