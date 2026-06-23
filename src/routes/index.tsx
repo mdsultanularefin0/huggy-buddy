@@ -1,11 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
-import { Sparkles, ShieldCheck, Truck, Gift } from "lucide-react";
+import { Sparkles, Gift, Droplets, Package, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBDT, effectivePrice, hasSale } from "@/lib/currency";
 import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
 import { CartDrawer } from "@/components/cart-drawer";
+import { FlashTimer } from "@/components/flash-timer";
 
 type ProductRow = {
   id: string; name: string; description: string | null;
@@ -19,7 +21,11 @@ type ComboRow = {
   regular_price: number; sale_price: number | null;
   image_url: string | null; max_items_allowed: number | null;
 };
-type SiteSettings = { marquee_text: string | null; hero_image: string | null };
+type SiteSettings = {
+  marquee_text: string | null;
+  hero_image: string | null;
+  timer_reset_date: string | null;
+};
 
 const storefrontOptions = queryOptions({
   queryKey: ["storefront"],
@@ -27,7 +33,7 @@ const storefrontOptions = queryOptions({
     const [products, combos, settings] = await Promise.all([
       supabase.from("products").select("*").eq("is_active", true).order("created_at", { ascending: false }),
       supabase.from("combos").select("*").eq("is_active", true).order("created_at", { ascending: false }),
-      supabase.from("site_settings").select("marquee_text,hero_image").limit(1).maybeSingle(),
+      supabase.from("site_settings").select("marquee_text,hero_image,timer_reset_date").limit(1).maybeSingle(),
     ]);
     return {
       products: (products.data ?? []) as ProductRow[],
@@ -50,6 +56,13 @@ export const Route = createFileRoute("/")({
   notFoundComponent: () => <div className="p-8">Not found</div>,
 });
 
+const categories = [
+  { label: "Perfumes", hash: "perfumes", icon: Droplets, tint: "from-primary/15 to-accent/10" },
+  { label: "Combos", hash: "combos", icon: Package, tint: "from-accent/15 to-primary/10" },
+  { label: "Build Your Box", hash: "byob", icon: Layers, tint: "from-primary/20 to-accent/15" },
+  { label: "Gift Sets", hash: "combos", icon: Gift, tint: "from-accent/20 to-primary/10" },
+];
+
 function Landing() {
   const { data } = useSuspenseQuery(storefrontOptions);
   const marquee = data.settings?.marquee_text ?? "✦ Free delivery on orders over ৳400  ✦ Crafted in Bangladesh  ✦ Premium fragrances";
@@ -67,57 +80,84 @@ function Landing() {
 
       <SiteHeader />
 
-      <section className="bg-gradient-soft">
-        <div className="max-w-7xl mx-auto px-6 py-20 grid lg:grid-cols-2 gap-12 items-center">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-semibold mb-6">
+      {/* Hero */}
+      <section className="bg-gradient-soft relative">
+        <div className="max-w-7xl mx-auto px-6 pt-12 pb-24 lg:pb-32 grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
+          {/* Left: hero image, overlaps the next section */}
+          <div className="relative">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-semibold mb-5">
               <Sparkles className="w-3.5 h-3.5" /> New season collection
             </div>
             <h1 className="text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.05]">
               Fragrance, <br />
               <span className="text-gradient-luxe">crafted with care.</span>
             </h1>
-            <p className="text-lg text-muted-foreground mt-6 max-w-md">
-              Discover signature scents, curated combos, and build-your-own perfume boxes — delivered fresh across Bangladesh.
+            <p className="text-lg text-muted-foreground mt-5 max-w-md">
+              Signature scents, curated combos and build-your-own boxes — delivered fresh across Bangladesh.
             </p>
-            <div className="flex flex-wrap gap-3 mt-8">
+            <div className="flex flex-wrap gap-3 mt-7">
               <Link to="/" hash="perfumes"><Button variant="hero" size="xl">Shop the collection</Button></Link>
               <Link to="/" hash="byob"><Button variant="outline-luxe" size="xl">Build your box</Button></Link>
             </div>
-            <div className="grid grid-cols-3 gap-4 mt-12 max-w-md">
-              <Feature icon={<Truck className="w-4 h-4" />} label="Fast delivery" />
-              <Feature icon={<ShieldCheck className="w-4 h-4" />} label="100% authentic" />
-              <Feature icon={<Gift className="w-4 h-4" />} label="Combos & gifts" />
+
+            <div className="relative mt-10 lg:mt-12 z-10 -mb-32 lg:-mb-44">
+              <div className="aspect-[5/4] rounded-3xl bg-gradient-luxe shadow-luxe overflow-hidden">
+                {data.settings?.hero_image ? (
+                  <img src={data.settings.hero_image} alt="Featured fragrance" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-primary-foreground/90">
+                    <div className="text-center px-6">
+                      <Sparkles className="w-12 h-12 mx-auto mb-4" />
+                      <p className="text-sm uppercase tracking-widest opacity-80">Featured</p>
+                      <p className="text-2xl font-semibold mt-2">Coming soon</p>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
-          <div className="relative aspect-[4/5] rounded-3xl bg-gradient-luxe shadow-luxe overflow-hidden">
-            {data.settings?.hero_image ? (
-              <img src={data.settings.hero_image} alt="Featured fragrance" className="w-full h-full object-cover" />
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center text-center text-primary-foreground/90 px-8">
-                <div>
-                  <Sparkles className="w-12 h-12 mx-auto mb-4" />
-                  <p className="text-sm uppercase tracking-widest opacity-80">Featured</p>
-                  <p className="text-2xl font-semibold mt-2">Coming soon</p>
+          {/* Right: 2x2 category grid */}
+          <div className="grid grid-cols-2 gap-4 lg:gap-5">
+            {categories.map(({ label, hash, icon: Icon, tint }) => (
+              <Link
+                key={label}
+                to="/"
+                hash={hash}
+                className={`group relative aspect-square rounded-3xl border bg-gradient-to-br ${tint} p-5 flex flex-col justify-between overflow-hidden shadow-soft hover:shadow-luxe transition-shadow`}
+              >
+                <div className="w-11 h-11 rounded-2xl bg-card/70 backdrop-blur flex items-center justify-center text-primary shadow-soft">
+                  <Icon className="w-5 h-5" />
                 </div>
-              </div>
-            )}
+                <div>
+                  <p className="text-[10px] uppercase tracking-widest text-accent font-semibold">Shop</p>
+                  <p className="text-lg font-semibold tracking-tight mt-1">{label}</p>
+                </div>
+                <span className="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-white/20 blur-2xl group-hover:scale-125 transition-transform" />
+              </Link>
+            ))}
           </div>
         </div>
       </section>
 
+      {/* Flash sale */}
+      <section className="max-w-7xl mx-auto px-6 pt-24 lg:pt-32">
+        <FlashTimer resetDate={data.settings?.timer_reset_date ?? null} />
+      </section>
+
+      {/* Perfumes */}
       <section id="perfumes" className="max-w-7xl mx-auto px-6 py-20">
         <SectionHeader eyebrow="Signature" title="Individual Perfumes" />
         {data.products.length === 0 ? (
           <EmptyState text="Products will appear here once added in the admin panel." />
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {data.products.map((p) => <ProductCard key={p.id} product={p} />)}
           </div>
         )}
       </section>
 
+      {/* Combos */}
       <section id="combos" className="bg-gradient-soft">
         <div className="max-w-7xl mx-auto px-6 py-20">
           <SectionHeader eyebrow="Curated" title="Pre-Built Combos" />
@@ -131,6 +171,7 @@ function Landing() {
         </div>
       </section>
 
+      {/* BYOB */}
       <section id="byob" className="max-w-7xl mx-auto px-6 py-20">
         <SectionHeader eyebrow="Personal" title="Build Your Own Box" />
         {byob.length === 0 ? (
@@ -142,13 +183,7 @@ function Landing() {
         )}
       </section>
 
-      <footer className="border-t bg-card">
-        <div className="max-w-7xl mx-auto px-6 py-10 flex flex-col md:flex-row gap-4 items-center justify-between">
-          <p className="text-sm text-muted-foreground">© Veloura Essence. All rights reserved.</p>
-          <Link to="/auth" className="text-sm text-muted-foreground hover:text-foreground">Admin sign in</Link>
-        </div>
-      </footer>
-
+      <SiteFooter />
       <CartDrawer />
     </div>
   );
@@ -158,34 +193,46 @@ function ProductCard({ product }: { product: ProductRow }) {
   const minSize = product.sizes_json?.[0];
   const regular = minSize?.price ?? product.regular_price;
   const sale = minSize?.sale_price ?? product.sale_price;
+  const onSale = hasSale(regular, sale);
   const price = effectivePrice(regular, sale);
   return (
     <Link to="/product/$id" params={{ id: product.id }} className="group">
-      <div className="aspect-square rounded-2xl bg-muted overflow-hidden mb-3">
+      <div className="relative aspect-square rounded-2xl bg-muted overflow-hidden mb-3">
         {product.image_url ? (
           <img src={product.image_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-muted-foreground"><Sparkles className="w-8 h-8" /></div>
         )}
+        {onSale && (
+          <span className="absolute top-2 right-2 bg-sale text-sale-foreground text-[10px] font-bold uppercase tracking-wide px-2 py-1 rounded-full shadow-soft">
+            Sale!
+          </span>
+        )}
       </div>
       <h3 className="font-medium text-sm truncate">{product.name}</h3>
       <div className="flex items-baseline gap-2 mt-1">
-        <span className="font-semibold text-sm">{formatBDT(price)}</span>
-        {hasSale(regular, sale) && <span className="text-xs text-muted-foreground line-through">{formatBDT(regular)}</span>}
+        <span className={`font-semibold text-sm ${onSale ? "text-sale" : ""}`}>{formatBDT(price)}</span>
+        {onSale && <span className="text-xs text-muted-foreground line-through">{formatBDT(regular)}</span>}
       </div>
     </Link>
   );
 }
 
 function ComboCard({ combo, byob }: { combo: ComboRow; byob?: boolean }) {
+  const onSale = hasSale(combo.regular_price, combo.sale_price);
   const price = effectivePrice(combo.regular_price, combo.sale_price);
   return (
     <Link to="/combo/$id" params={{ id: combo.id }} className="group block rounded-2xl overflow-hidden bg-card border shadow-soft hover:shadow-luxe transition-shadow">
-      <div className="aspect-[4/3] bg-muted overflow-hidden">
+      <div className="relative aspect-[4/3] bg-muted overflow-hidden">
         {combo.image_url ? (
           <img src={combo.image_url} alt={combo.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-muted-foreground"><Gift className="w-10 h-10" /></div>
+        )}
+        {onSale && (
+          <span className="absolute top-3 right-3 bg-sale text-sale-foreground text-[10px] font-bold uppercase tracking-wide px-2 py-1 rounded-full shadow-soft">
+            Sale!
+          </span>
         )}
       </div>
       <div className="p-5">
@@ -193,22 +240,11 @@ function ComboCard({ combo, byob }: { combo: ComboRow; byob?: boolean }) {
         <h3 className="font-semibold tracking-tight mt-1">{combo.title}</h3>
         {combo.description && <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{combo.description}</p>}
         <div className="flex items-baseline gap-2 mt-3">
-          <span className="font-semibold">{formatBDT(price)}</span>
-          {hasSale(combo.regular_price, combo.sale_price) && (
-            <span className="text-xs text-muted-foreground line-through">{formatBDT(combo.regular_price)}</span>
-          )}
+          <span className={`font-semibold ${onSale ? "text-sale" : ""}`}>{formatBDT(price)}</span>
+          {onSale && <span className="text-xs text-muted-foreground line-through">{formatBDT(combo.regular_price)}</span>}
         </div>
       </div>
     </Link>
-  );
-}
-
-function Feature({ icon, label }: { icon: React.ReactNode; label: string }) {
-  return (
-    <div className="flex flex-col items-start gap-2">
-      <div className="w-8 h-8 rounded-lg bg-card border flex items-center justify-center text-primary shadow-soft">{icon}</div>
-      <span className="text-xs font-medium text-muted-foreground">{label}</span>
-    </div>
   );
 }
 
