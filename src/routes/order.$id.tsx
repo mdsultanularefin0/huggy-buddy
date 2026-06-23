@@ -2,9 +2,9 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
 import { formatBDT } from "@/lib/currency";
 import { SiteHeader } from "@/components/site-header";
+import { getOrderById } from "@/lib/orders.functions";
 
 type OrderRow = {
   id: string; order_number: string; total: number; subtotal: number;
@@ -17,11 +17,7 @@ const orderOptions = (id: string) =>
   queryOptions({
     queryKey: ["order", id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("orders")
-        .select("id,order_number,total,subtotal,shipping_fee,discount,payment_method,customer_json,items_json")
-        .eq("id", id).maybeSingle();
-      if (error) throw error;
+      const data = await getOrderById({ data: { id } });
       return data as unknown as OrderRow | null;
     },
   });
