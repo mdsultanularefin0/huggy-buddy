@@ -56,10 +56,12 @@ function CustomersPage() {
   const update = useMutation({
     mutationFn: async () => {
       if (!editing) return;
-      const { error } = await supabase.from("customers")
-        .update({ name: form.name || null, risk_level: form.risk_level, notes: form.notes || null })
-        .eq("id", editing.id);
-      if (error) throw error;
+      await updateCustomer({
+        data: {
+          id: editing.id,
+          patch: { name: form.name || null, risk_level: form.risk_level, notes: form.notes || null },
+        },
+      });
     },
     onSuccess: () => {
       toast.success("Customer updated");

@@ -54,8 +54,7 @@ function OrdersPage() {
   const update = useMutation({
     mutationFn: async (patch: Partial<Order> & { id: string }) => {
       const { id, ...rest } = patch;
-      const { error } = await supabase.from("orders").update(rest).eq("id", id);
-      if (error) throw error;
+      await updateOrder({ data: { id, patch: rest as Parameters<typeof updateOrder>[0]["data"]["patch"] } });
     },
     onSuccess: () => {
       toast.success("Order updated");
