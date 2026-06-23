@@ -117,8 +117,8 @@ export const createOrder = createServerFn({ method: "POST" })
         total,
         delivery_zone_id: zone.id,
         payment_method: data.paymentMethod,
-        payment_status: "pending",
-        order_status: "pending",
+        payment_status: "Pending",
+        order_status: "Pending",
         referral_used: refCode || null,
       })
       .select("id,order_number,total")
@@ -129,7 +129,7 @@ export const createOrder = createServerFn({ method: "POST" })
     if (refCode && discount > 0) {
       await supabaseAdmin
         .from("referral_usage")
-        .insert({ code: refCode, order_id: order.id, discount_applied: discount });
+        .insert({ referral_code: refCode, order_id: order.id });
     }
 
     return {
