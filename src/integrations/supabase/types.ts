@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_audit_logs: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          entity: string
+          entity_id: string | null
+          error: string | null
+          fields: string[]
+          id: string
+          payload: Json | null
+          status: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          entity: string
+          entity_id?: string | null
+          error?: string | null
+          fields?: string[]
+          id?: string
+          payload?: Json | null
+          status: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          entity?: string
+          entity_id?: string | null
+          error?: string | null
+          fields?: string[]
+          id?: string
+          payload?: Json | null
+          status?: string
+        }
+        Relationships: []
+      }
       combos: {
         Row: {
           combo_type: Database["public"]["Enums"]["combo_type"]
