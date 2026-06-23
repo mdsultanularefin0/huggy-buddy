@@ -57,7 +57,7 @@ function OrdersPage() {
   const update = useMutation({
     mutationFn: async (patch: Partial<Order> & { id: string }) => {
       const { id, ...rest } = patch;
-      await updateOrder({ data: { id, patch: rest as Parameters<typeof updateOrder>[0]["data"]["patch"] } });
+      await updateOrder({ data: { id, patch: rest } });
     },
     onSuccess: () => {
       toast.success("Order updated");
