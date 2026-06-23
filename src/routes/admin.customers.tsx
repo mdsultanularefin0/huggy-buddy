@@ -14,6 +14,8 @@ import { Loader2, AlertTriangle, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { formatBDT } from "@/lib/currency";
 import type { Database } from "@/integrations/supabase/types";
+import { useServerFn } from "@tanstack/react-start";
+import { updateCustomerAdmin } from "@/lib/admin-mutations.functions";
 
 type Customer = Database["public"]["Tables"]["customers"]["Row"];
 type RiskLevel = Database["public"]["Enums"]["risk_level"];
