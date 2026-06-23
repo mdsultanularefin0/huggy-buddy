@@ -125,7 +125,7 @@ function CombosPage() {
   async function handleUpload(file: File) {
     setUploading(true);
     try {
-      const url = await uploadImage(file, "combo-images");
+      const url = await uploadImage("combo-images", file);
       setForm((f) => ({ ...f, image_url: url }));
     } catch (e) {
       toast.error((e as Error).message);
