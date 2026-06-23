@@ -14,6 +14,8 @@ import { Loader2, AlertTriangle, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { formatBDT } from "@/lib/currency";
 import type { Database } from "@/integrations/supabase/types";
+import { useServerFn } from "@tanstack/react-start";
+import { updateCustomerAdmin } from "@/lib/admin-mutations.functions";
 
 type Customer = Database["public"]["Tables"]["customers"]["Row"];
 type RiskLevel = Database["public"]["Enums"]["risk_level"];
@@ -22,6 +24,7 @@ export const Route = createFileRoute("/admin/customers")({ component: CustomersP
 
 function CustomersPage() {
   const qc = useQueryClient();
+  const updateCustomer = useServerFn(updateCustomerAdmin);
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState<Customer | null>(null);
   const [form, setForm] = useState({ name: "", risk_level: "normal" as RiskLevel, notes: "" });
@@ -56,10 +59,12 @@ function CustomersPage() {
   const update = useMutation({
     mutationFn: async () => {
       if (!editing) return;
-      const { error } = await supabase.from("customers")
-        .update({ name: form.name || null, risk_level: form.risk_level, notes: form.notes || null })
-        .eq("id", editing.id);
-      if (error) throw error;
+      await updateCustomer({
+        data: {
+          id: editing.id,
+          patch: { name: form.name || null, risk_level: form.risk_level, notes: form.notes || null },
+        },
+      });
     },
     onSuccess: () => {
       toast.success("Customer updated");

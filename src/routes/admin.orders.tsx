@@ -15,6 +15,8 @@ import { Loader2, Eye, Truck } from "lucide-react";
 import { toast } from "sonner";
 import { formatBDT } from "@/lib/currency";
 import type { Database } from "@/integrations/supabase/types";
+import { useServerFn } from "@tanstack/react-start";
+import { updateOrderAdmin } from "@/lib/admin-mutations.functions";
 
 type Order = Database["public"]["Tables"]["orders"]["Row"];
 type OrderStatus = Database["public"]["Enums"]["order_status"];
@@ -36,6 +38,7 @@ export const Route = createFileRoute("/admin/orders")({ component: OrdersPage })
 
 function OrdersPage() {
   const qc = useQueryClient();
+  const updateOrder = useServerFn(updateOrderAdmin);
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
   const [search, setSearch] = useState("");
   const [viewing, setViewing] = useState<Order | null>(null);
@@ -54,8 +57,7 @@ function OrdersPage() {
   const update = useMutation({
     mutationFn: async (patch: Partial<Order> & { id: string }) => {
       const { id, ...rest } = patch;
-      const { error } = await supabase.from("orders").update(rest).eq("id", id);
-      if (error) throw error;
+      await updateOrder({ data: { id, patch: rest } });
     },
     onSuccess: () => {
       toast.success("Order updated");
