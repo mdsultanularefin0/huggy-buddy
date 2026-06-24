@@ -218,6 +218,19 @@ function Landing() {
   );
 }
 
+function FaviconSetter({ url }: { url?: string | null }) {
+  useEffect(() => {
+    if (!url || typeof document === "undefined") return;
+    const existing = document.querySelectorAll<HTMLLinkElement>("link[rel~='icon']");
+    existing.forEach((el) => el.parentNode?.removeChild(el));
+    const link = document.createElement("link");
+    link.rel = "icon";
+    link.href = url;
+    document.head.appendChild(link);
+  }, [url]);
+  return null;
+}
+
 function CtaButton({ children }: { children: React.ReactNode }) {
   return (
     <Button
