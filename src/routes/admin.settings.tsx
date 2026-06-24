@@ -9,6 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Loader2, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 import { uploadImage } from "@/lib/upload";
+import heroHand from "@/assets/hero-hand.png.asset.json";
+import heroMain from "@/assets/hero-main.png.asset.json";
 
 export const Route = createFileRoute("/admin/settings")({ component: SettingsPage });
 
