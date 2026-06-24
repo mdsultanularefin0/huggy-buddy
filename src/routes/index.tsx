@@ -256,7 +256,7 @@ function HeroCategoryCard({ cat }: { cat: CategoryRow }) {
     <Link
       to="/category/$slug"
       params={{ slug: cat.slug }}
-      className="group relative aspect-[3/4] rounded-2xl overflow-hidden shadow-soft bg-gradient-luxe block"
+      className="group relative aspect-[3/4] min-h-[260px] sm:min-h-[320px] lg:min-h-[400px] rounded-2xl overflow-hidden shadow-soft bg-muted block"
     >
       {cat.image_url ? (
         <img
@@ -265,16 +265,21 @@ function HeroCategoryCard({ cat }: { cat: CategoryRow }) {
           className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
       ) : (
-        <div className="absolute inset-0 flex items-center justify-center text-white/70">
+        <div className="absolute inset-0 flex items-center justify-center bg-muted text-muted-foreground">
           <Gift className="w-10 h-10" />
         </div>
       )}
-      <div className="absolute inset-x-0 bottom-0 bg-primary/75 backdrop-blur-sm py-2.5 text-center">
-        <p className="text-white text-sm md:text-base font-semibold tracking-tight truncate px-2">{cat.name}</p>
+      {/* readable dark gradient overlay at the bottom */}
+      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 py-3 text-center">
+        <p className="text-white text-sm md:text-base font-semibold tracking-tight truncate px-2 drop-shadow">
+          {cat.name}
+        </p>
       </div>
     </Link>
   );
 }
+
 
 function ProductCard({ product }: { product: ProductRow }) {
   const minSize = product.sizes_json?.[0];
