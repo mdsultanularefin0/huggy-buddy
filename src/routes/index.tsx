@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
-import { Sparkles, Gift, ArrowRight } from "lucide-react";
+import { Sparkles, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBDT, effectivePrice, hasSale } from "@/lib/currency";
@@ -8,6 +8,8 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { CartDrawer } from "@/components/cart-drawer";
 import { FlashTimer } from "@/components/flash-timer";
+import heroHand from "@/assets/hero-hand.png.asset.json";
+import heroMain from "@/assets/hero-main.png.asset.json";
 
 type ProductRow = {
   id: string; name: string; description: string | null;
