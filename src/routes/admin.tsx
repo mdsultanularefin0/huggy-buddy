@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard, Package, Boxes, Truck, CreditCard, ShoppingBag,
-  Users, Megaphone, Settings, LogOut, Sparkles, ScrollText,
+  Users, Megaphone, Settings, LogOut, Sparkles, ScrollText, Tags,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -23,6 +23,7 @@ const NAV: { to: string; label: string; icon: typeof LayoutDashboard; exact?: bo
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   
   { to: "/admin/products", label: "Products", icon: Package },
+  { to: "/admin/categories", label: "Categories", icon: Tags },
   { to: "/admin/combos", label: "Combos", icon: Boxes },
   { to: "/admin/zones", label: "Delivery Zones", icon: Truck },
   { to: "/admin/payments", label: "Payment Methods", icon: CreditCard },
