@@ -373,6 +373,8 @@ export type Database = {
       site_settings: {
         Row: {
           hero_image: string | null
+          hero_overlay_left: string | null
+          hero_overlay_right: string | null
           id: string
           marquee_text: string
           timer_reset_date: string
@@ -380,6 +382,8 @@ export type Database = {
         }
         Insert: {
           hero_image?: string | null
+          hero_overlay_left?: string | null
+          hero_overlay_right?: string | null
           id?: string
           marquee_text?: string
           timer_reset_date?: string
@@ -387,6 +391,8 @@ export type Database = {
         }
         Update: {
           hero_image?: string | null
+          hero_overlay_left?: string | null
+          hero_overlay_right?: string | null
           id?: string
           marquee_text?: string
           timer_reset_date?: string
