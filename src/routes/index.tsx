@@ -110,70 +110,69 @@ function Landing() {
       <FaviconSetter url={s?.site_icon_url} />
       <SiteHeader position={s?.header_position ?? "sticky"} logoUrl={s?.site_logo_url ?? null} />
 
-      {/* HERO — split bg (white top / gradient bottom), full-width marquee at the seam */}
-      <section className="relative w-full overflow-hidden bg-white">
-        {/* Background split: top 60% white, bottom 40% brand gradient */}
-        <div aria-hidden className="absolute inset-x-0 top-0 h-[60%] bg-white z-0" />
-        <div aria-hidden className="absolute inset-x-0 bottom-0 h-[40%] bg-gradient-to-r from-[#52277a] to-[#a555f0] z-0" />
+      {/* HERO — two stacked sections: white top, full-width marquee seam, gradient bottom */}
+      <section className="relative w-full overflow-hidden">
+        {/* TOP — solid white, images left, cards right */}
+        <div className="bg-white">
+          {(s?.hero_title || s?.hero_subtitle) && (
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 md:pt-8 text-center">
+              {s?.hero_title && <h1 className="text-3xl md:text-5xl font-semibold tracking-tight">{s.hero_title}</h1>}
+              {s?.hero_subtitle && <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">{s.hero_subtitle}</p>}
+            </div>
+          )}
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 md:pt-12 pb-6 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 items-end">
+            {/* LEFT — image stack with explicit height */}
+            <div className="relative w-full h-[400px] lg:h-[600px]">
+              {bgImg && (
+                <img
+                  src={bgImg}
+                  alt="Veloura Essence hero"
+                  className="absolute inset-0 w-full h-full object-contain object-bottom z-0 select-none"
+                  style={{ transform: `scale(${bgScale})`, transformOrigin: "bottom center" }}
+                  loading="eager"
+                />
+              )}
+              {fgImg && (
+                <img
+                  src={fgImg}
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute inset-0 w-full h-full object-contain object-bottom z-20 select-none drop-shadow-2xl"
+                  style={{ transform: `scale(${fgScale})`, transformOrigin: "bottom center" }}
+                />
+              )}
+            </div>
 
-        {(s?.hero_title || s?.hero_subtitle) && (
-          <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 pt-6 md:pt-8 text-center">
-            {s?.hero_title && <h1 className="text-3xl md:text-5xl font-semibold tracking-tight">{s.hero_title}</h1>}
-            {s?.hero_subtitle && <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">{s.hero_subtitle}</p>}
-          </div>
-        )}
-
-        <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 pt-8 md:pt-12 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 items-end">
-          {/* LEFT COLUMN — image stack with explicit height */}
-          <div className="relative w-full h-[500px] lg:h-[600px]">
-            {bgImg && (
-              <img
-                src={bgImg}
-                alt="Veloura Essence hero"
-                className="absolute inset-0 w-full h-full object-contain object-bottom z-0 select-none"
-                style={{ transform: `scale(${bgScale})`, transformOrigin: "bottom center" }}
-                loading="eager"
-              />
-            )}
-            {fgImg && (
-              <img
-                src={fgImg}
-                alt=""
-                aria-hidden="true"
-                className="absolute inset-0 w-full h-full object-contain object-bottom z-20 select-none drop-shadow-2xl"
-                style={{ transform: `scale(${1.25 * fgScale})`, transformOrigin: "bottom center" }}
-              />
-            )}
-          </div>
-
-          {/* RIGHT COLUMN — cards on top, CTA + timer at the bottom */}
-          <div className="relative z-20 flex flex-col gap-8 h-[500px] lg:h-[600px]">
+            {/* RIGHT — strict 4-col card grid */}
             <div className="grid grid-cols-4 gap-4 w-full">
               {(heroCategories.length > 0 ? heroCategories : DEFAULT_HERO_CARDS.map((c, i) => ({ id: String(i), name: c.title, slug: "", image_url: null, sort_order: i, is_active: true } as CategoryRow))).map((c) => (
                 <HeroCategoryCard key={c.id} cat={c} />
               ))}
             </div>
-            <div className="flex-1" />
-            <div className="flex items-center justify-between gap-4 flex-wrap">
-              <CtaWrap>
-                <Button
-                  size="lg"
-                  className="rounded-2xl bg-[#a555f0] hover:bg-[#b66ff5] text-white border-2 border-[#e9c8ff] px-10 py-6 text-lg font-semibold shadow-[0_0_35px_rgba(216,168,255,0.9)] transition-all"
-                >
-                  {ctaLabel}
-                </Button>
-              </CtaWrap>
-              <FlashTimer resetDate={s?.timer_reset_date ?? null} />
-            </div>
           </div>
         </div>
 
-        {/* Full-width marquee at the white/gradient seam (60% from top) */}
-        <div className="absolute left-0 w-full z-10 bg-primary text-primary-foreground overflow-hidden shadow-lg" style={{ top: "60%", transform: "translateY(-50%)" }}>
+        {/* MARQUEE — full-width seam between white and gradient */}
+        <div className="w-full bg-primary text-primary-foreground overflow-hidden shadow-lg">
           <div className="marquee-track whitespace-nowrap py-2.5 text-sm md:text-base font-bold tracking-wide">
             <span className="px-8">{marquee}</span>
             <span className="px-8">{marquee}</span>
             <span className="px-8">{marquee}</span>
+          </div>
+        </div>
+
+        {/* BOTTOM — brand gradient, CTA left, timer right */}
+        <div className="bg-gradient-to-r from-[#52277a] to-[#a555f0]">
+          <div className="flex flex-row justify-between items-center w-full max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-12 gap-4 flex-wrap">
+            <CtaWrap>
+              <Button
+                size="lg"
+                className="rounded-2xl bg-[#a555f0] hover:bg-[#b66ff5] text-white border-2 border-[#e9c8ff] px-10 py-6 text-lg font-semibold shadow-[0_0_35px_rgba(216,168,255,0.9)] transition-all"
+              >
+                {ctaLabel}
+              </Button>
+            </CtaWrap>
+            <FlashTimer resetDate={s?.timer_reset_date ?? null} />
           </div>
         </div>
       </section>
