@@ -15,7 +15,8 @@ export const Route = createFileRoute("/admin/homepage")({ component: HomepagePag
 function HomepagePage() {
   const qc = useQueryClient();
   const [heroImageUrl, setHeroImageUrl] = useState("");
-  const [uploading, setUploading] = useState(false);
+  const [overlayImageUrl, setOverlayImageUrl] = useState("");
+  const [uploading, setUploading] = useState<"hero" | "overlay" | null>(null);
 
   const { data: settings, isLoading } = useQuery({
     queryKey: ["admin", "site_settings"],
