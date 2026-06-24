@@ -20,7 +20,7 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-40 bg-primary text-primary-foreground border-b border-white/10">
-      <div className="w-full px-8 lg:px-16 h-16 flex items-center justify-between gap-6">
+      <div className="w-full px-4 sm:px-6 md:px-10 lg:px-16 xl:px-20 h-16 flex items-center justify-between gap-4 sm:gap-6">
         <Link to="/" className="flex items-center gap-2 shrink-0">
           <div className="w-9 h-9 rounded-xl bg-white/15 backdrop-blur flex items-center justify-center">
             <Sparkles className="w-5 h-5 text-accent" />
@@ -68,7 +68,7 @@ export function SiteHeader() {
         </div>
       </div>
       {mobileOpen && (
-        <div className="lg:hidden border-t border-white/10 bg-primary px-6 py-4 flex flex-col gap-3 text-sm">
+        <div className="lg:hidden border-t border-white/10 bg-primary px-4 sm:px-6 md:px-10 py-4 flex flex-col gap-3 text-sm">
           <Link to="/" onClick={() => setMobileOpen(false)} className="py-1">Home</Link>
           {links.map((l) => (
             <Link key={l.label} to={l.to} hash={l.hash} onClick={() => setMobileOpen(false)} className="py-1">{l.label}</Link>
