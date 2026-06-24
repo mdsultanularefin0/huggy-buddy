@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
-import { Sparkles, Gift } from "lucide-react";
+import { Sparkles, Gift, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBDT, effectivePrice, hasSale } from "@/lib/currency";
@@ -8,7 +8,6 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { CartDrawer } from "@/components/cart-drawer";
 import { FlashTimer } from "@/components/flash-timer";
-import heroCover from "@/assets/hero-cover.jpg.asset.json";
 
 type ProductRow = {
   id: string; name: string; description: string | null;
@@ -25,6 +24,8 @@ type ComboRow = {
 type SiteSettings = {
   marquee_text: string | null;
   hero_image: string | null;
+  hero_overlay_left: string | null;
+  hero_overlay_right: string | null;
   timer_reset_date: string | null;
 };
 
@@ -34,7 +35,7 @@ const storefrontOptions = queryOptions({
     const [products, combos, settings] = await Promise.all([
       supabase.from("products").select("*").eq("is_active", true).order("created_at", { ascending: false }),
       supabase.from("combos").select("*").eq("is_active", true).order("created_at", { ascending: false }),
-      supabase.from("site_settings").select("marquee_text,hero_image,timer_reset_date").limit(1).maybeSingle(),
+      supabase.from("site_settings").select("marquee_text,hero_image,hero_overlay_left,hero_overlay_right,timer_reset_date").limit(1).maybeSingle(),
     ]);
     return {
       products: (products.data ?? []) as ProductRow[],
@@ -68,28 +69,72 @@ function Landing() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="bg-primary text-primary-foreground py-2 overflow-hidden">
-        <div className="marquee-track text-sm font-medium tracking-wide whitespace-nowrap">
+      {/* Header chrome: brand-colored, full width, marquee with dual overlay images */}
+      <div className="relative bg-primary text-primary-foreground overflow-hidden">
+        <div className="marquee-track text-sm font-medium tracking-wide whitespace-nowrap py-2.5">
+          <span className="px-8">{marquee}</span>
           <span className="px-8">{marquee}</span>
           <span className="px-8">{marquee}</span>
         </div>
+        {data.settings?.hero_overlay_left && (
+          <img
+            src={data.settings.hero_overlay_left}
+            alt=""
+            aria-hidden="true"
+            className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 h-10 md:h-12 w-auto select-none drop-shadow-lg"
+          />
+        )}
+        {data.settings?.hero_overlay_right && (
+          <img
+            src={data.settings.hero_overlay_right}
+            alt=""
+            aria-hidden="true"
+            className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-10 md:h-12 w-auto select-none drop-shadow-lg"
+          />
+        )}
       </div>
 
       <SiteHeader />
 
-      {/* Hero banner */}
-      <section className="bg-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6">
-          <Link to="/" hash="perfumes" className="block rounded-3xl overflow-hidden shadow-luxe">
-            <img
-              src={heroCover.url}
-              alt="Veloura Essence — Flash Sale up to 200tk off"
-              className="w-full h-auto object-cover"
-              loading="eager"
-            />
-          </Link>
+      {/* Full-bleed brand hero */}
+      <section className="relative w-full bg-primary text-primary-foreground overflow-hidden">
+        {data.settings?.hero_image && (
+          <img
+            src={data.settings.hero_image}
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 w-full h-full object-cover opacity-30"
+          />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-accent/70 mix-blend-multiply" />
+        <div className="absolute -top-32 -right-24 w-[28rem] h-[28rem] rounded-full bg-accent/30 blur-3xl" />
+        <div className="absolute -bottom-32 -left-24 w-[28rem] h-[28rem] rounded-full bg-sale/20 blur-3xl" />
+
+        <div className="relative max-w-7xl mx-auto px-6 py-20 md:py-28 text-center">
+          <span className="inline-flex items-center gap-2 rounded-full bg-white/15 backdrop-blur px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em]">
+            <Sparkles className="w-3.5 h-3.5" /> Veloura Essence
+          </span>
+          <h1 className="mt-6 text-4xl md:text-6xl lg:text-7xl font-semibold tracking-tight leading-[1.05]">
+            Luxury fragrances,<br className="hidden md:block" /> crafted for Bangladesh
+          </h1>
+          <p className="mt-5 max-w-2xl mx-auto text-base md:text-lg text-primary-foreground/85">
+            Curated perfumes, dual combo deals, and build-your-own boxes — delivered to your door with free shipping over ৳400.
+          </p>
+          <div className="mt-8 flex items-center justify-center gap-3 flex-wrap">
+            <Link to="/" hash="perfumes">
+              <Button size="lg" className="bg-white text-primary hover:bg-white/90 rounded-full px-7">
+                Shop perfumes <ArrowRight className="w-4 h-4 ml-1" />
+              </Button>
+            </Link>
+            <Link to="/" hash="combos">
+              <Button size="lg" variant="outline" className="rounded-full px-7 border-white/40 bg-white/10 text-white hover:bg-white/20 hover:text-white">
+                Explore combos
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
+
 
       {/* Flash sale */}
       <section className="max-w-7xl mx-auto px-6 pt-12">

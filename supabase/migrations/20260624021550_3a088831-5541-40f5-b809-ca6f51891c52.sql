@@ -1,0 +1,1 @@
+ALTER TABLE public.site_settings ADD COLUMN IF NOT EXISTS hero_overlay_left text, ADD COLUMN IF NOT EXISTS hero_overlay_right text;
