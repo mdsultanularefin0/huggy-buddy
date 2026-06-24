@@ -38,6 +38,8 @@ function HomepageEditor() {
   const [hero, setHero] = useState<string | null>(null);
   const [heroBg, setHeroBg] = useState<string | null>(null);
   const [heroFg, setHeroFg] = useState<string | null>(null);
+  const [heroBgScale, setHeroBgScale] = useState(1);
+  const [heroFgScale, setHeroFgScale] = useState(1);
   const [overlayLeft, setOverlayLeft] = useState<string | null>(null);
   const [overlayRight, setOverlayRight] = useState<string | null>(null);
   const [resetDate, setResetDate] = useState("");
@@ -66,6 +68,8 @@ function HomepageEditor() {
     setHero((s.hero_image as string) ?? null);
     setHeroBg((s.hero_bg_image as string) ?? null);
     setHeroFg((s.hero_fg_image as string) ?? null);
+    setHeroBgScale(Number(s.hero_bg_scale ?? 1) || 1);
+    setHeroFgScale(Number(s.hero_fg_scale ?? 1) || 1);
     setOverlayLeft((s.hero_overlay_left as string) ?? null);
     setOverlayRight((s.hero_overlay_right as string) ?? null);
     setResetDate(((s.timer_reset_date as string) ?? "").slice(0, 16));
@@ -82,6 +86,8 @@ function HomepageEditor() {
         hero_image: hero,
         hero_bg_image: heroBg,
         hero_fg_image: heroFg,
+        hero_bg_scale: heroBgScale,
+        hero_fg_scale: heroFgScale,
         hero_overlay_left: overlayLeft,
         hero_overlay_right: overlayRight,
         hero_title: heroTitle || null,
@@ -296,27 +302,45 @@ function HomepageEditor() {
           <Textarea value={heroSubtitle} onChange={(e) => setHeroSubtitle(e.target.value)} rows={2} className="mt-1" />
         </div>
 
-        {imageSlots.map((slot) => (
-          <div key={slot.key}>
-            <Label>{slot.label}</Label>
-            <div className="mt-2 flex items-center gap-3">
-              {slot.value ? (
-                <div className="relative">
-                  <img src={slot.value} alt="" className="w-48 h-28 rounded-lg object-cover border bg-muted" />
-                  <button onClick={() => slot.setter(null)} className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center">
-                    <X className="w-3 h-3" />
-                  </button>
-                </div>
-              ) : (
-                <label className="w-48 h-28 rounded-lg border-2 border-dashed flex items-center justify-center cursor-pointer hover:bg-muted/50">
-                  {uploadingKey === slot.key ? <Loader2 className="w-5 h-5 animate-spin" /> : <div className="text-center"><Upload className="w-5 h-5 text-muted-foreground mx-auto" /><div className="text-xs text-muted-foreground mt-1">Upload</div></div>}
-                  <input type="file" accept="image/*" className="hidden" onChange={(e) => handleUpload(slot.key, e)} disabled={uploadingKey !== null} />
-                </label>
-              )}
+        {imageSlots.map((slot) => {
+          const scale = slot.key === "bg" ? heroBgScale : slot.key === "fg" ? heroFgScale : null;
+          const setScale = slot.key === "bg" ? setHeroBgScale : slot.key === "fg" ? setHeroFgScale : null;
+          return (
+            <div key={slot.key}>
+              <Label>{slot.label}</Label>
+              <div className="mt-2 flex items-center gap-3">
+                {slot.value ? (
+                  <div className="relative">
+                    <img src={slot.value} alt="" className="w-48 h-28 rounded-lg object-cover border bg-muted" />
+                    <button onClick={() => slot.setter(null)} className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="w-48 h-28 rounded-lg border-2 border-dashed flex items-center justify-center cursor-pointer hover:bg-muted/50">
+                    {uploadingKey === slot.key ? <Loader2 className="w-5 h-5 animate-spin" /> : <div className="text-center"><Upload className="w-5 h-5 text-muted-foreground mx-auto" /><div className="text-xs text-muted-foreground mt-1">Upload</div></div>}
+                    <input type="file" accept="image/*" className="hidden" onChange={(e) => handleUpload(slot.key, e)} disabled={uploadingKey !== null} />
+                  </label>
+                )}
+                {scale !== null && setScale && (
+                  <div className="flex-1 min-w-0">
+                    <Label className="text-xs">Zoom: <span className="font-mono">{scale.toFixed(2)}×</span></Label>
+                    <input
+                      type="range"
+                      min={0.5}
+                      max={2}
+                      step={0.05}
+                      value={scale}
+                      onChange={(e) => setScale(Number(e.target.value))}
+                      className="w-full mt-1"
+                    />
+                  </div>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">{slot.hint}</p>
             </div>
-            <p className="text-xs text-muted-foreground mt-1">{slot.hint}</p>
-          </div>
-        ))}
+          );
+        })}
       </Card>
 
       {/* CATEGORIES */}
