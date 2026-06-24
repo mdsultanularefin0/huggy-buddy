@@ -372,6 +372,7 @@ export type Database = {
       }
       site_settings: {
         Row: {
+          header_position: string
           hero_image: string | null
           hero_overlay_left: string | null
           hero_overlay_right: string | null
@@ -381,6 +382,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          header_position?: string
           hero_image?: string | null
           hero_overlay_left?: string | null
           hero_overlay_right?: string | null
@@ -390,6 +392,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          header_position?: string
           hero_image?: string | null
           hero_overlay_left?: string | null
           hero_overlay_right?: string | null

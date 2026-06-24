@@ -1,0 +1,1 @@
+ALTER TABLE public.site_settings ADD COLUMN IF NOT EXISTS header_position text NOT NULL DEFAULT 'sticky' CHECK (header_position IN ('sticky','static','floating'));
