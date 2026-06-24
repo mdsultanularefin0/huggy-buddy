@@ -31,7 +31,7 @@ const categoryPageOptions = (slug: string) => queryOptions({
       .eq("is_active", true)
       .order("created_at", { ascending: false });
     if (pe) throw pe;
-    const { data: settings } = await supabase.from("site_settings").select("site_logo_url").limit(1).maybeSingle();
+    const { data: settings } = await supabase.from("site_settings").select("site_logo_url,footer_logo_size,footer_logo_align").limit(1).maybeSingle();
     return { category: cat, products: (products ?? []) as ProductRow[], settings };
   },
 });
