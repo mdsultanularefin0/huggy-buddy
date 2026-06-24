@@ -214,7 +214,7 @@ function Landing() {
         )}
       </section>
 
-      <SiteFooter logoUrl={s?.site_logo_url ?? null} />
+      <SiteFooter logoUrl={s?.site_logo_url ?? null} logoSize={s?.footer_logo_size ?? null} logoAlign={s?.footer_logo_align ?? null} />
       <CartDrawer />
     </div>
   );
