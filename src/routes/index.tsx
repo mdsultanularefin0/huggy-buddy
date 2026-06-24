@@ -100,7 +100,7 @@ function Landing() {
           </div>
         </div>
 
-        <div className="relative z-20 w-full -mt-32 sm:-mt-40 lg:-mt-48 bg-gradient-to-r from-[#52277a] to-[#a555f0] text-white py-1.5 overflow-hidden shadow-lg">
+        <div className="relative z-20 w-full -mt-32 sm:-mt-40 lg:-mt-48 bg-gradient-to-r from-[#a555f0] to-[#52277a] text-white py-1.5 overflow-hidden shadow-lg">
           <div className="marquee-track text-xs sm:text-sm font-medium tracking-wide">
 
             {marqueeItems.map((t, i) => (
@@ -112,7 +112,7 @@ function Landing() {
           </div>
         </div>
 
-        <div className="w-full bg-gradient-to-r from-[#52277a] to-[#a555f0] py-8 lg:py-12 relative z-10">
+        <div className="w-full bg-gradient-to-r from-[#a555f0] to-[#52277a] py-8 lg:py-12 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full max-w-7xl mx-auto px-4 items-center">
             <div className="flex justify-end pr-8">
               <button
