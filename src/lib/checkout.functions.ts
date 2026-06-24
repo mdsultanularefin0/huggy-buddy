@@ -86,11 +86,14 @@ export const createOrder = createServerFn({ method: "POST" })
 
     const total = Math.max(0, subtotal + shippingFee - discount);
 
-    // Upsert customer by phone
+    // Upsert customer by normalized phone (handles "017...", "8801...", "+880 17...", etc.)
+    const normalizedPhone = normalizePhone(data.customer.phone);
+    const customerPayload = { ...data.customer, phone: normalizedPhone };
+
     const { data: existing } = await supabaseAdmin
       .from("customers")
       .select("id")
-      .eq("phone", data.customer.phone)
+      .eq("phone", normalizedPhone)
       .maybeSingle();
 
     let customerId = existing?.id;
@@ -101,13 +104,14 @@ export const createOrder = createServerFn({ method: "POST" })
           name: data.customer.name,
           address: data.customer.address,
           email: data.customer.email || null,
+          phone: normalizedPhone,
         })
         .eq("id", customerId);
     } else {
       const { data: created, error: cErr } = await supabaseAdmin
         .from("customers")
         .insert({
-          phone: data.customer.phone,
+          phone: normalizedPhone,
           name: data.customer.name,
           address: data.customer.address,
           email: data.customer.email || null,
