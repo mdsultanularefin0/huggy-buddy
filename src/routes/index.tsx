@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { Sparkles, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
