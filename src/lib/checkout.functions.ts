@@ -37,6 +37,22 @@ function generateOrderNumber() {
   return `VE-${ts}-${rand}`;
 }
 
+// Normalize Bangladeshi phone numbers to canonical +8801XXXXXXXXX form so
+// "01712345678", "8801712345678", "+880 1712-345678" all match the same customer.
+export function normalizePhone(input: string): string {
+  if (!input) return "";
+  let digits = input.replace(/\D/g, "");
+  if (digits.startsWith("00")) digits = digits.slice(2);
+  if (digits.startsWith("880")) {
+    // already has country code
+  } else if (digits.startsWith("0")) {
+    digits = "880" + digits.slice(1);
+  } else if (digits.length === 10 && digits.startsWith("1")) {
+    digits = "880" + digits;
+  }
+  return "+" + digits;
+}
+
 export const createOrder = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => CheckoutSchema.parse(data))
   .handler(async ({ data }) => {
@@ -70,11 +86,14 @@ export const createOrder = createServerFn({ method: "POST" })
 
     const total = Math.max(0, subtotal + shippingFee - discount);
 
-    // Upsert customer by phone
+    // Upsert customer by normalized phone (handles "017...", "8801...", "+880 17...", etc.)
+    const normalizedPhone = normalizePhone(data.customer.phone);
+    const customerPayload = { ...data.customer, phone: normalizedPhone };
+
     const { data: existing } = await supabaseAdmin
       .from("customers")
       .select("id")
-      .eq("phone", data.customer.phone)
+      .eq("phone", normalizedPhone)
       .maybeSingle();
 
     let customerId = existing?.id;
@@ -85,13 +104,14 @@ export const createOrder = createServerFn({ method: "POST" })
           name: data.customer.name,
           address: data.customer.address,
           email: data.customer.email || null,
+          phone: normalizedPhone,
         })
         .eq("id", customerId);
     } else {
       const { data: created, error: cErr } = await supabaseAdmin
         .from("customers")
         .insert({
-          phone: data.customer.phone,
+          phone: normalizedPhone,
           name: data.customer.name,
           address: data.customer.address,
           email: data.customer.email || null,
@@ -109,7 +129,7 @@ export const createOrder = createServerFn({ method: "POST" })
       .insert({
         order_number: orderNumber,
         customer_id: customerId,
-        customer_json: data.customer,
+        customer_json: customerPayload,
         items_json: data.items,
         subtotal,
         shipping_fee: shippingFee,
