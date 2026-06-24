@@ -119,17 +119,8 @@ function SettingsPage() {
           />
         </div>
 
-        <div className="border-t pt-6">
-          <BrandUpload
-            label="Homepage hero image"
-            hint="Shown in the left container on the homepage hero. Portrait 3:4 recommended."
-            url={heroImageUrl}
-            onUrlChange={setHeroImageUrl}
-            onFile={(f) => handleUpload("hero", f)}
-            busy={uploading === "hero"}
-            previewClass="bg-muted h-48"
-          />
-        </div>
+
+
 
         <div>
           <Label>Header position</Label>
