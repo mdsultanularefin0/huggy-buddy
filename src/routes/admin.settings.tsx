@@ -56,6 +56,7 @@ function SettingsPage() {
         header_position: headerPosition,
         site_logo_url: logoUrl || null,
         site_icon_url: iconUrl || null,
+        hero_image: heroImageUrl || null,
         footer_logo_size: footerLogoSize,
         footer_logo_align: footerLogoAlign,
       };
