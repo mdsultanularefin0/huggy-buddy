@@ -41,15 +41,15 @@ function Landing() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full max-w-7xl mx-auto py-8 items-stretch">
           <div className="relative w-full aspect-[16/10] lg:aspect-auto lg:h-full min-h-[260px] rounded-2xl overflow-hidden bg-gradient-to-br from-purple-100 to-purple-50" />
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 w-full">
             {slots.map((cat, i) => {
               const cardClass =
-                "relative w-full aspect-square rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-purple-200 to-purple-100 bg-cover bg-center";
+                "relative w-full aspect-[3/4] rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-purple-200 to-purple-100 bg-cover bg-center";
               const style = cat?.image_url
                 ? { backgroundImage: `url(${cat.image_url})` }
                 : undefined;
               const banner = (
-                <div className="absolute bottom-0 left-0 w-full bg-[#52277a]/70 backdrop-blur-sm py-3 px-2 text-center text-white text-base md:text-lg font-medium tracking-wide">
+                <div className="absolute bottom-0 left-0 w-full bg-[#52277a]/70 backdrop-blur-sm py-1.5 px-1 text-center text-white text-xs md:text-sm font-medium tracking-wide">
                   {cat?.name ?? "Coming soon"}
                 </div>
               );
