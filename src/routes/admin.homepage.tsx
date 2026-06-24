@@ -335,6 +335,11 @@ function HomepageEditor() {
             <p className="text-xs text-muted-foreground mt-1">{slot.hint}</p>
           </div>
         ))}
+
+        <div className="grid sm:grid-cols-2 gap-6 pt-2 border-t">
+          <TransformBlock title="Background image transform" scale={bgScale} setScale={setBgScale} x={bgX} setX={setBgX} y={bgY} setY={setBgY} />
+          <TransformBlock title="Foreground image transform" scale={fgScale} setScale={setFgScale} x={fgX} setX={setFgX} y={fgY} setY={setFgY} />
+        </div>
       </Card>
 
       {/* CATEGORIES */}
