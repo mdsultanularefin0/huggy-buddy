@@ -115,7 +115,7 @@ function Landing() {
             </div>
           </div>
           {/* Purple CTA band */}
-          <div className="bg-gradient-to-r from-primary via-primary to-accent/80 text-primary-foreground">
+          <div className="bg-primary text-primary-foreground">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-10 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
               <div className="flex justify-center md:justify-start md:pl-[18%]">
                 <Link to="/" hash="perfumes">
