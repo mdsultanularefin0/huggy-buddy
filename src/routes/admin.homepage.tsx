@@ -74,6 +74,12 @@ function HomepageEditor() {
     setHeroFg((s.hero_fg_image as string) ?? null);
     setOverlayLeft((s.hero_overlay_left as string) ?? null);
     setOverlayRight((s.hero_overlay_right as string) ?? null);
+    setBgScale(Number(s.hero_bg_scale ?? 100));
+    setBgX(Number(s.hero_bg_x ?? 0));
+    setBgY(Number(s.hero_bg_y ?? 0));
+    setFgScale(Number(s.hero_fg_scale ?? 100));
+    setFgX(Number(s.hero_fg_x ?? 0));
+    setFgY(Number(s.hero_fg_y ?? 0));
     setResetDate(((s.timer_reset_date as string) ?? "").slice(0, 16));
     setHeaderPosition(((s.header_position as "sticky" | "static" | "floating") ?? "sticky"));
     setCtaText((s.cta_band_text as string) ?? "");
