@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { Sparkles, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,8 @@ type SiteSettings = {
   cta_band_text: string | null;
   cta_band_button_label: string | null;
   cta_band_button_link: string | null;
+  site_logo_url: string | null;
+  site_icon_url: string | null;
 };
 
 const storefrontOptions = queryOptions({
@@ -87,7 +90,8 @@ function Landing() {
 
   return (
     <div className="min-h-screen bg-background">
-      <SiteHeader position={s?.header_position ?? "sticky"} />
+      <FaviconSetter url={s?.site_icon_url} />
+      <SiteHeader position={s?.header_position ?? "sticky"} logoUrl={s?.site_logo_url ?? null} />
 
       {/* HERO */}
       <section className="relative w-full bg-background">
@@ -212,6 +216,19 @@ function Landing() {
       <CartDrawer />
     </div>
   );
+}
+
+function FaviconSetter({ url }: { url?: string | null }) {
+  useEffect(() => {
+    if (!url || typeof document === "undefined") return;
+    const existing = document.querySelectorAll<HTMLLinkElement>("link[rel~='icon']");
+    existing.forEach((el) => el.parentNode?.removeChild(el));
+    const link = document.createElement("link");
+    link.rel = "icon";
+    link.href = url;
+    document.head.appendChild(link);
+  }, [url]);
+  return null;
 }
 
 function CtaButton({ children }: { children: React.ReactNode }) {
