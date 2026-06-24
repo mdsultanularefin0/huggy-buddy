@@ -37,6 +37,22 @@ function generateOrderNumber() {
   return `VE-${ts}-${rand}`;
 }
 
+// Normalize Bangladeshi phone numbers to canonical +8801XXXXXXXXX form so
+// "01712345678", "8801712345678", "+880 1712-345678" all match the same customer.
+export function normalizePhone(input: string): string {
+  if (!input) return "";
+  let digits = input.replace(/\D/g, "");
+  if (digits.startsWith("00")) digits = digits.slice(2);
+  if (digits.startsWith("880")) {
+    // already has country code
+  } else if (digits.startsWith("0")) {
+    digits = "880" + digits.slice(1);
+  } else if (digits.length === 10 && digits.startsWith("1")) {
+    digits = "880" + digits;
+  }
+  return "+" + digits;
+}
+
 export const createOrder = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => CheckoutSchema.parse(data))
   .handler(async ({ data }) => {
