@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { SiteHeader } from "@/components/site-header";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -12,11 +13,14 @@ export const Route = createFileRoute("/")({
 
 function Landing() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center px-6">
-        <h1 className="text-4xl md:text-6xl font-semibold tracking-tight">Veloura Essence</h1>
-        <p className="text-muted-foreground mt-4">Homepage coming soon.</p>
-      </div>
+    <div className="min-h-screen bg-background">
+      <SiteHeader />
+      <main className="flex items-center justify-center py-32 px-6 text-center">
+        <div>
+          <h1 className="text-4xl md:text-6xl font-semibold tracking-tight">Veloura Essence</h1>
+          <p className="text-muted-foreground mt-4">Homepage coming soon.</p>
+        </div>
+      </main>
     </div>
   );
 }

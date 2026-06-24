@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Sparkles, ShoppingCart, Menu, X } from "lucide-react";
+import { Sparkles, ShoppingCart, Menu, X, Search, User } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useCart, cartCount } from "@/lib/cart-store";
@@ -11,11 +11,11 @@ export function SiteHeader({ position = "sticky", logoUrl }: { position?: "stick
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const links = [
-    { to: "/" as const, hash: "perfumes", label: "Female Scent" },
-    { to: "/" as const, hash: "perfumes", label: "Male Scent" },
+    { to: "/" as const, label: "Home" },
+    { to: "/" as const, hash: "female", label: "Female Fragrance" },
+    { to: "/" as const, hash: "male", label: "Male Fragrance" },
     { to: "/" as const, hash: "combos", label: "Combo Pack" },
-    { to: "/" as const, hash: "byob", label: "Customize Combo" },
-    { to: "/" as const, hash: "footer", label: "Support" },
+    { to: "/" as const, hash: "byob", label: "Custom Combo" },
   ];
 
   const positionClass =
@@ -27,7 +27,8 @@ export function SiteHeader({ position = "sticky", logoUrl }: { position?: "stick
 
   return (
     <header className={positionClass}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4 sm:gap-6">
+      <div className="w-full px-6 lg:px-10 h-16 flex items-center justify-between gap-6">
+        {/* LEFT — logo */}
         <Link to="/" className="flex items-center gap-2 shrink-0">
           {logoUrl ? (
             <img src={logoUrl} alt="Site logo" className="h-9 w-auto object-contain" />
@@ -43,19 +44,35 @@ export function SiteHeader({ position = "sticky", logoUrl }: { position?: "stick
             </>
           )}
         </Link>
-        <nav className="hidden lg:flex items-center gap-7 text-sm font-medium text-primary-foreground/90">
-          <Link to="/" className="hover:text-white transition-colors">Home</Link>
+
+        {/* CENTER — nav */}
+        <nav className="hidden lg:flex items-center gap-8 text-sm font-medium text-primary-foreground/90 mx-auto">
           {links.map((l) => (
-            <Link key={l.label} to={l.to} hash={l.hash} className="hover:text-white transition-colors whitespace-nowrap">
+            <Link
+              key={l.label}
+              to={l.to}
+              hash={l.hash}
+              className="hover:text-white transition-colors whitespace-nowrap"
+            >
               {l.label}
             </Link>
           ))}
         </nav>
-        <div className="flex items-center gap-2">
-          <Link to="/auth" className="hidden md:inline-flex">
-            <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-white/10 hover:text-white">
-              Log in
-            </Button>
+
+        {/* RIGHT — search, profile, cart */}
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            aria-label="Search"
+            className="w-10 h-10 rounded-full hover:bg-white/10 text-primary-foreground flex items-center justify-center transition-colors"
+          >
+            <Search className="w-5 h-5" />
+          </button>
+          <Link
+            to="/auth"
+            aria-label="Profile"
+            className="w-10 h-10 rounded-full hover:bg-white/10 text-primary-foreground flex items-center justify-center transition-colors"
+          >
+            <User className="w-5 h-5" />
           </Link>
           <button
             onClick={open}
@@ -80,13 +97,14 @@ export function SiteHeader({ position = "sticky", logoUrl }: { position?: "stick
           </Button>
         </div>
       </div>
+
       {mobileOpen && (
-        <div className="lg:hidden border-t border-white/10 bg-primary px-4 sm:px-6 py-4 flex flex-col gap-3 text-sm">
-          <Link to="/" onClick={() => setMobileOpen(false)} className="py-1">Home</Link>
+        <div className="lg:hidden border-t border-white/10 bg-primary px-6 py-4 flex flex-col gap-3 text-sm">
           {links.map((l) => (
-            <Link key={l.label} to={l.to} hash={l.hash} onClick={() => setMobileOpen(false)} className="py-1">{l.label}</Link>
+            <Link key={l.label} to={l.to} hash={l.hash} onClick={() => setMobileOpen(false)} className="py-1">
+              {l.label}
+            </Link>
           ))}
-          <Link to="/auth" onClick={() => setMobileOpen(false)} className="py-1 text-primary-foreground/80">Log in</Link>
         </div>
       )}
     </header>
