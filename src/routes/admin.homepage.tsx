@@ -95,17 +95,42 @@ function HomepagePage() {
           <div className="flex gap-2">
             <Input value={heroImageUrl} onChange={(e) => setHeroImageUrl(e.target.value)} placeholder="Image URL" className="flex-1" />
             <label className="inline-flex items-center gap-1 cursor-pointer rounded-md border px-3 py-2 text-sm hover:bg-muted">
-              {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+              {uploading === "hero" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
               <span>Upload</span>
               <input
                 type="file"
                 accept="image/*"
                 className="hidden"
-                onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f); e.target.value = ""; }}
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f, "hero"); e.target.value = ""; }}
               />
             </label>
           </div>
           <p className="text-xs text-muted-foreground">Portrait 3:4 recommended. Shown in the left hero container on the homepage.</p>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Overlay image (sits on top of marquee & bottom section)</Label>
+          <div className="rounded-lg border flex items-center justify-center bg-muted h-64 overflow-hidden">
+            {overlayImageUrl ? (
+              <img src={overlayImageUrl} alt="Overlay" className="max-h-full max-w-full object-contain" />
+            ) : (
+              <span className="text-xs text-muted-foreground">No image</span>
+            )}
+          </div>
+          <div className="flex gap-2">
+            <Input value={overlayImageUrl} onChange={(e) => setOverlayImageUrl(e.target.value)} placeholder="Image URL" className="flex-1" />
+            <label className="inline-flex items-center gap-1 cursor-pointer rounded-md border px-3 py-2 text-sm hover:bg-muted">
+              {uploading === "overlay" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+              <span>Upload</span>
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f, "overlay"); e.target.value = ""; }}
+              />
+            </label>
+          </div>
+          <p className="text-xs text-muted-foreground">Transparent PNG recommended. Overlays the left hero column, extending across the marquee and bottom section.</p>
         </div>
 
         <div className="flex justify-end">
