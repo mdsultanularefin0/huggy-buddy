@@ -155,7 +155,7 @@ function Landing() {
 
 
       {/* Perfumes */}
-      <section id="perfumes" className="max-w-7xl mx-auto px-6 py-20">
+      <section id="perfumes" className="max-w-7xl mx-auto px-4 sm:px-6 py-20">
         <SectionHeader eyebrow="Signature" title="Individual Perfumes" />
         {data.products.length === 0 ? (
           <EmptyState text="Products will appear here once added in the admin panel." />
@@ -168,7 +168,7 @@ function Landing() {
 
       {/* Combos */}
       <section id="combos" className="bg-gradient-soft">
-        <div className="max-w-7xl mx-auto px-6 py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-20">
           <SectionHeader eyebrow="Curated" title="Pre-Built Combos" />
           {prebuilt.length === 0 ? (
             <EmptyState text="Combos will appear here once added in the admin panel." />
@@ -181,7 +181,7 @@ function Landing() {
       </section>
 
       {/* BYOB */}
-      <section id="byob" className="max-w-7xl mx-auto px-6 py-20">
+      <section id="byob" className="max-w-7xl mx-auto px-4 sm:px-6 py-20">
         <SectionHeader eyebrow="Personal" title="Build Your Own Box" />
         {byob.length === 0 ? (
           <EmptyState text="BYOB boxes will appear here once added in the admin panel." />
