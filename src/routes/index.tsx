@@ -112,7 +112,7 @@ function Landing() {
       <FaviconSetter url={s?.site_icon_url} />
       <SiteHeader position={s?.header_position ?? "sticky"} logoUrl={s?.site_logo_url ?? null} />
 
-      {/* HERO — split background, 4-card top row, model overlay on the left */}
+      {/* HERO */}
       <section className="relative w-full overflow-hidden bg-white">
         {(s?.hero_title || s?.hero_subtitle) && (
           <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 md:pt-8 text-center">
@@ -121,17 +121,17 @@ function Landing() {
           </div>
         )}
 
-        {/* TOP: full-width 4 cards, with extra left padding on desktop to make room for the model */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 md:pt-10 relative z-20">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:pl-[18%]">
+        {/* TOP: separated category cards */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 md:pt-10">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
             {(heroCategories.length > 0 ? heroCategories : DEFAULT_HERO_CARDS.map((c, i) => ({ id: String(i), name: c.title, slug: "", image_url: null, sort_order: i, is_active: true } as CategoryRow))).map((c) => (
               <HeroCategoryCard key={c.id} cat={c} />
             ))}
           </div>
         </div>
 
-        {/* Marquee — sits at the seam between white top and gradient bottom */}
-        <div className="relative bg-primary text-primary-foreground overflow-hidden z-10 mt-6 md:mt-10">
+        {/* Marquee */}
+        <div className="relative bg-primary text-primary-foreground overflow-hidden mt-8 md:mt-12">
           <div className="marquee-track whitespace-nowrap py-2.5 text-sm md:text-base font-bold tracking-wide">
             <span className="px-8">{marquee}</span>
             <span className="px-8">{marquee}</span>
@@ -139,13 +139,35 @@ function Landing() {
           </div>
         </div>
 
-        {/* BOTTOM: brand gradient, CTA on left, Flash timer on right */}
+        {/* BOTTOM: image container on the left, CTA + timer right next to it */}
         <div
-          className="relative z-20"
           style={{ background: "linear-gradient(to right, #52277a 0%, #a555f0 100%)" }}
         >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 md:py-16 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-            <div className="flex flex-col items-center md:items-start gap-4 md:pl-[22%]">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 md:py-12 grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-8 md:gap-10 items-center">
+            {/* Image container — both images locked to admin position/scale */}
+            <div className="relative w-full h-[360px] sm:h-[460px] md:h-[520px] lg:h-[600px] overflow-hidden">
+              {bgImg && (
+                <img
+                  src={bgImg}
+                  alt="Veloura Essence hero"
+                  className="absolute inset-0 w-full h-full object-contain object-bottom select-none pointer-events-none"
+                  style={{ transform: `translate(${s?.hero_bg_x ?? 0}%, ${s?.hero_bg_y ?? 0}%) scale(${(s?.hero_bg_scale ?? 100) / 100})`, transformOrigin: "center bottom" }}
+                  loading="eager"
+                />
+              )}
+              {fgImg && (
+                <img
+                  src={fgImg}
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute inset-0 w-full h-full object-contain object-bottom select-none pointer-events-none drop-shadow-2xl"
+                  style={{ transform: `translate(${s?.hero_fg_x ?? 0}%, ${s?.hero_fg_y ?? 0}%) scale(${(s?.hero_fg_scale ?? 100) / 100})`, transformOrigin: "center bottom" }}
+                />
+              )}
+            </div>
+
+            {/* CTA column — right next to the image container, not overlapping */}
+            <div className="flex flex-col items-center md:items-start gap-6">
               {s?.cta_band_text && (
                 <p className="text-white/90 text-sm md:text-base max-w-md text-center md:text-left">{s.cta_band_text}</p>
               )}
@@ -157,33 +179,8 @@ function Landing() {
                   {ctaLabel}
                 </Button>
               </CtaWrap>
-            </div>
-            <div className="flex justify-center md:justify-end">
               <FlashTimer resetDate={s?.timer_reset_date ?? null} />
             </div>
-          </div>
-        </div>
-
-        {/* Model + bottle overlay — spans full hero height, anchored bottom-left */}
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-full md:w-1/2 lg:w-[42%] z-30">
-          <div className="relative w-full h-full">
-            {bgImg && (
-              <img
-                src={bgImg}
-                alt="Veloura Essence hero"
-                className="absolute bottom-0 left-0 h-full w-auto max-w-none object-contain object-left-bottom select-none"
-                loading="eager"
-              />
-            )}
-            {fgImg && (
-              <img
-                src={fgImg}
-                alt=""
-                aria-hidden="true"
-                className="absolute bottom-0 left-0 h-[115%] w-auto max-w-none object-contain object-left-bottom select-none drop-shadow-2xl"
-                style={{ marginLeft: "-6%", marginBottom: "-4%" }}
-              />
-            )}
           </div>
         </div>
       </section>
