@@ -39,7 +39,7 @@ function Landing() {
       <SiteHeader />
       <main className="w-full">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-4 w-full py-8 items-stretch px-6">
-          <div className="relative w-full max-w-md mx-auto lg:mx-0 aspect-[3/4] min-h-[260px] rounded-2xl overflow-hidden bg-gradient-to-br from-purple-100 to-purple-50" />
+          <div className="relative w-full max-w-[280px] mx-auto lg:mx-0 aspect-[3/4] rounded-2xl overflow-hidden bg-gradient-to-br from-purple-100 to-purple-50" />
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full lg:max-w-[720px] mx-auto">
 
