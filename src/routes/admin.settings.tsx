@@ -21,6 +21,7 @@ function SettingsPage() {
   const [overlayLeft, setOverlayLeft] = useState<string | null>(null);
   const [overlayRight, setOverlayRight] = useState<string | null>(null);
   const [resetDate, setResetDate] = useState("");
+  const [headerPosition, setHeaderPosition] = useState<"sticky" | "static" | "floating">("sticky");
   const [uploadingKey, setUploadingKey] = useState<string | null>(null);
 
   const { data: settings, isLoading } = useQuery({
@@ -39,6 +40,7 @@ function SettingsPage() {
       setOverlayLeft(settings.hero_overlay_left);
       setOverlayRight(settings.hero_overlay_right);
       setResetDate(settings.timer_reset_date?.slice(0, 16) ?? "");
+      setHeaderPosition(((settings as { header_position?: string }).header_position as "sticky" | "static" | "floating") ?? "sticky");
     }
   }, [settings]);
 
@@ -49,6 +51,7 @@ function SettingsPage() {
         hero_image: hero,
         hero_overlay_left: overlayLeft,
         hero_overlay_right: overlayRight,
+        header_position: headerPosition,
         timer_reset_date: resetDate ? new Date(resetDate).toISOString() : new Date().toISOString(),
       };
       if (settings?.id) {
@@ -130,6 +133,23 @@ function SettingsPage() {
             <p className="text-xs text-muted-foreground mt-1">{slot.hint}</p>
           </div>
         ))}
+
+        <div>
+          <Label>Header position</Label>
+          <div className="mt-2 grid grid-cols-3 gap-2">
+            {(["sticky", "static", "floating"] as const).map((p) => (
+              <button
+                key={p}
+                type="button"
+                onClick={() => setHeaderPosition(p)}
+                className={`rounded-lg border px-3 py-2 text-sm font-medium capitalize transition-colors ${headerPosition === p ? "bg-primary text-primary-foreground border-primary" : "bg-background hover:bg-muted"}`}
+              >
+                {p}
+              </button>
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground mt-1"><b>Sticky</b> follows scroll and reserves space (no overlap). <b>Static</b> scrolls away with the page. <b>Floating</b> overlays the hero (transparent until scrolled).</p>
+        </div>
 
         <div>
           <Label htmlFor="reset">Countdown timer reset</Label>

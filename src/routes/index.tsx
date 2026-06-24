@@ -28,6 +28,7 @@ type SiteSettings = {
   hero_image: string | null;
   hero_overlay_left: string | null;
   hero_overlay_right: string | null;
+  header_position: "sticky" | "static" | "floating" | null;
   timer_reset_date: string | null;
 };
 
@@ -37,7 +38,7 @@ const storefrontOptions = queryOptions({
     const [products, combos, settings] = await Promise.all([
       supabase.from("products").select("*").eq("is_active", true).order("created_at", { ascending: false }),
       supabase.from("combos").select("*").eq("is_active", true).order("created_at", { ascending: false }),
-      supabase.from("site_settings").select("marquee_text,hero_image,hero_overlay_left,hero_overlay_right,timer_reset_date").limit(1).maybeSingle(),
+      supabase.from("site_settings").select("marquee_text,hero_image,hero_overlay_left,hero_overlay_right,header_position,timer_reset_date").limit(1).maybeSingle(),
     ]);
     return {
       products: (products.data ?? []) as ProductRow[],
@@ -76,7 +77,7 @@ function Landing() {
 
   return (
     <div className="min-h-screen bg-background">
-      <SiteHeader />
+      <SiteHeader position={data.settings?.header_position ?? "sticky"} />
 
       {/* HERO — white panel: main image on left, 4 combo cards on right */}
       <section className="relative w-full bg-background">
