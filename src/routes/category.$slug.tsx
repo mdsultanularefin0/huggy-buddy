@@ -31,7 +31,8 @@ const categoryPageOptions = (slug: string) => queryOptions({
       .eq("is_active", true)
       .order("created_at", { ascending: false });
     if (pe) throw pe;
-    return { category: cat, products: (products ?? []) as ProductRow[] };
+    const { data: settings } = await supabase.from("site_settings").select("site_logo_url").limit(1).maybeSingle();
+    return { category: cat, products: (products ?? []) as ProductRow[], settings };
   },
 });
 
@@ -109,7 +110,7 @@ function CategoryPage() {
           </div>
         )}
       </section>
-      <SiteFooter />
+      <SiteFooter logoUrl={data.settings?.site_logo_url ?? null} />
       <CartDrawer />
     </div>
   );

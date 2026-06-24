@@ -212,7 +212,7 @@ function Landing() {
         )}
       </section>
 
-      <SiteFooter />
+      <SiteFooter logoUrl={s?.site_logo_url ?? null} />
       <CartDrawer />
     </div>
   );

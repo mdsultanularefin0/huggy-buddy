@@ -1,16 +1,22 @@
 import { Link } from "@tanstack/react-router";
 import { Sparkles, ShieldCheck, Truck, Phone, Mail, MapPin, Banknote, Wallet } from "lucide-react";
 
-export function SiteFooter() {
+export function SiteFooter({ logoUrl }: { logoUrl?: string | null } = {}) {
   return (
     <footer className="bg-gradient-to-b from-background to-secondary/40 border-t mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14 grid gap-10 md:grid-cols-2 lg:grid-cols-4">
         <div>
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-9 h-9 rounded-xl bg-gradient-luxe flex items-center justify-center shadow-soft">
-              <Sparkles className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <span className="text-lg font-semibold tracking-tight">Veloura Essence</span>
+            {logoUrl ? (
+              <img src={logoUrl} alt="Veloura Essence" className="h-9 w-auto object-contain" />
+            ) : (
+              <>
+                <div className="w-9 h-9 rounded-xl bg-gradient-luxe flex items-center justify-center shadow-soft">
+                  <Sparkles className="w-5 h-5 text-primary-foreground" />
+                </div>
+                <span className="text-lg font-semibold tracking-tight">Veloura Essence</span>
+              </>
+            )}
           </div>
           <p className="text-sm text-muted-foreground leading-relaxed">
             Curated luxury fragrances and build-your-own perfume boxes, crafted for the modern Bangladesh.
