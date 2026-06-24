@@ -40,6 +40,12 @@ function HomepageEditor() {
   const [heroFg, setHeroFg] = useState<string | null>(null);
   const [overlayLeft, setOverlayLeft] = useState<string | null>(null);
   const [overlayRight, setOverlayRight] = useState<string | null>(null);
+  const [bgScale, setBgScale] = useState(100);
+  const [bgX, setBgX] = useState(0);
+  const [bgY, setBgY] = useState(0);
+  const [fgScale, setFgScale] = useState(100);
+  const [fgX, setFgX] = useState(0);
+  const [fgY, setFgY] = useState(0);
   const [resetDate, setResetDate] = useState("");
   const [headerPosition, setHeaderPosition] = useState<"sticky" | "static" | "floating">("sticky");
   const [ctaText, setCtaText] = useState("");
