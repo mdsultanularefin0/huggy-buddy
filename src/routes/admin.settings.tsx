@@ -37,12 +37,14 @@ function SettingsPage() {
         header_position?: string;
         site_logo_url?: string | null;
         site_icon_url?: string | null;
+        hero_image?: string | null;
         footer_logo_size?: number | null;
         footer_logo_align?: string | null;
       };
       setHeaderPosition((s.header_position as "sticky" | "static" | "floating") ?? "sticky");
       setLogoUrl(s.site_logo_url ?? "");
       setIconUrl(s.site_icon_url ?? "");
+      setHeroImageUrl(s.hero_image ?? "");
       setFooterLogoSize(s.footer_logo_size ?? 36);
       setFooterLogoAlign((s.footer_logo_align as "left" | "center" | "right") ?? "left");
     }
