@@ -76,12 +76,14 @@ function SettingsPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  async function handleUpload(kind: "logo" | "icon", file: File) {
+  async function handleUpload(kind: "logo" | "icon" | "hero", file: File) {
     try {
       setUploading(kind);
       const url = await uploadImage("hero-images", file);
-      if (kind === "logo") setLogoUrl(url); else setIconUrl(url);
-      toast.success(`${kind === "logo" ? "Logo" : "Icon"} uploaded — click Save to apply`);
+      if (kind === "logo") setLogoUrl(url);
+      else if (kind === "icon") setIconUrl(url);
+      else setHeroImageUrl(url);
+      toast.success(`Image uploaded — click Save to apply`);
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
