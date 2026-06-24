@@ -77,7 +77,7 @@ function Landing() {
 
   return (
     <div className="min-h-screen bg-background">
-      <SiteHeader />
+      <SiteHeader position={data.settings?.header_position ?? "sticky"} />
 
       {/* HERO — white panel: main image on left, 4 combo cards on right */}
       <section className="relative w-full bg-background">
