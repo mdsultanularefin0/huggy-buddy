@@ -106,26 +106,24 @@ function Landing() {
       <FaviconSetter url={s?.site_icon_url} />
       <SiteHeader position={s?.header_position ?? "sticky"} logoUrl={s?.site_logo_url ?? null} />
 
-      {/* HERO — unified master wrapper */}
-      <section
-        className="relative w-full overflow-hidden"
-        style={{ background: "linear-gradient(135deg, #52277a 0%, #a555f0 100%)" }}
-      >
+      {/* HERO — unified master wrapper with split background */}
+      <section className="relative w-full overflow-hidden bg-white">
         {(s?.hero_title || s?.hero_subtitle) && (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 md:pt-8 text-center text-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 md:pt-8 text-center">
             {s?.hero_title && <h1 className="text-3xl md:text-5xl font-semibold tracking-tight">{s.hero_title}</h1>}
-            {s?.hero_subtitle && <p className="text-white/80 mt-2 max-w-2xl mx-auto">{s.hero_subtitle}</p>}
+            {s?.hero_subtitle && <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">{s.hero_subtitle}</p>}
           </div>
         )}
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 md:pt-10 grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10 items-stretch relative z-30">
-          {/* LEFT: unified image container (bg + fg share the same box) */}
-          <div className="relative w-full min-h-[420px] sm:min-h-[520px] lg:min-h-[600px]">
+        {/* TOP: white background, model + 4 cards */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 md:pt-10 grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10 items-end relative z-30">
+          {/* LEFT: anchored bottom-left image stack */}
+          <div className="relative w-full min-h-[440px] sm:min-h-[560px] lg:min-h-[640px]">
             {bgImg && (
               <img
                 src={bgImg}
                 alt="Veloura Essence hero"
-                className="absolute bottom-0 left-0 w-full h-full object-contain object-bottom select-none z-0"
+                className="absolute bottom-0 left-0 w-full h-full object-contain object-left-bottom select-none z-0"
                 loading="eager"
               />
             )}
@@ -134,22 +132,22 @@ function Landing() {
                 src={fgImg}
                 alt=""
                 aria-hidden="true"
-                className="pointer-events-none select-none absolute bottom-0 left-0 w-[120%] object-contain object-bottom z-20 drop-shadow-2xl"
-                style={{ marginLeft: "-10%", marginBottom: "-8%" }}
+                className="pointer-events-none select-none absolute bottom-0 left-0 w-[170%] max-w-none object-contain object-left-bottom z-20 drop-shadow-2xl"
+                style={{ marginLeft: "-25%", marginBottom: "-6%" }}
               />
             )}
           </div>
 
-          {/* RIGHT: 4 category cards, stretched */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 self-center w-full">
+          {/* RIGHT: 4 category cards, large, photo-backed */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 self-end w-full pb-6">
             {(heroCategories.length > 0 ? heroCategories : DEFAULT_HERO_CARDS.map((c, i) => ({ id: String(i), name: c.title, slug: "", image_url: null, sort_order: i, is_active: true } as CategoryRow))).map((c) => (
               <HeroCategoryCard key={c.id} cat={c} />
             ))}
           </div>
         </div>
 
-        {/* Marquee — cuts across middle, behind the foreground bottle */}
-        <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 bg-primary text-primary-foreground overflow-hidden z-10">
+        {/* Marquee — sits at the seam between white top and gradient bottom */}
+        <div className="relative bg-primary text-primary-foreground overflow-hidden z-10">
           <div className="marquee-track whitespace-nowrap py-2.5 text-sm md:text-base font-bold tracking-wide">
             <span className="px-8">{marquee}</span>
             <span className="px-8">{marquee}</span>
@@ -157,23 +155,28 @@ function Landing() {
           </div>
         </div>
 
-        {/* Bottom CTA row inside the same wrapper */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-12 grid grid-cols-1 md:grid-cols-2 gap-6 items-center relative z-30">
-          <div className="flex flex-col items-center md:items-start gap-4 md:pl-[42%]">
-            {s?.cta_band_text && (
-              <p className="text-white/90 text-sm md:text-base max-w-md text-center md:text-left">{s.cta_band_text}</p>
-            )}
-            <CtaWrap>
-              <Button
-                size="lg"
-                className="rounded-2xl bg-transparent border-2 border-[#d8a8ff] text-white hover:bg-white/10 px-10 py-6 text-xl font-semibold shadow-[0_0_30px_rgba(216,168,255,0.65)] transition-all"
-              >
-                {ctaLabel}
-              </Button>
-            </CtaWrap>
-          </div>
-          <div className="flex justify-center md:justify-end">
-            <FlashTimer resetDate={s?.timer_reset_date ?? null} />
+        {/* BOTTOM: brand gradient, timer + CTA */}
+        <div
+          className="relative z-30"
+          style={{ background: "linear-gradient(to right, #52277a 0%, #a555f0 100%)" }}
+        >
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-12 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+            <div className="flex flex-col items-center md:items-start gap-4 md:pl-[42%]">
+              {s?.cta_band_text && (
+                <p className="text-white/90 text-sm md:text-base max-w-md text-center md:text-left">{s.cta_band_text}</p>
+              )}
+              <CtaWrap>
+                <Button
+                  size="lg"
+                  className="rounded-2xl bg-[#a555f0] hover:bg-[#b66ff5] text-white border-2 border-[#e9c8ff] px-10 py-6 text-xl font-semibold shadow-[0_0_35px_rgba(216,168,255,0.9)] transition-all"
+                >
+                  {ctaLabel}
+                </Button>
+              </CtaWrap>
+            </div>
+            <div className="flex justify-center md:justify-end">
+              <FlashTimer resetDate={s?.timer_reset_date ?? null} />
+            </div>
           </div>
         </div>
       </section>
@@ -253,7 +256,7 @@ function HeroCategoryCard({ cat }: { cat: CategoryRow }) {
     <Link
       to="/category/$slug"
       params={{ slug: cat.slug }}
-      className="group relative aspect-[3/4] rounded-2xl overflow-hidden shadow-soft bg-gradient-luxe block"
+      className="group relative aspect-[3/4] min-h-[260px] sm:min-h-[320px] lg:min-h-[400px] rounded-2xl overflow-hidden shadow-soft bg-muted block"
     >
       {cat.image_url ? (
         <img
@@ -262,16 +265,21 @@ function HeroCategoryCard({ cat }: { cat: CategoryRow }) {
           className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
       ) : (
-        <div className="absolute inset-0 flex items-center justify-center text-white/70">
+        <div className="absolute inset-0 flex items-center justify-center bg-muted text-muted-foreground">
           <Gift className="w-10 h-10" />
         </div>
       )}
-      <div className="absolute inset-x-0 bottom-0 bg-primary/75 backdrop-blur-sm py-2.5 text-center">
-        <p className="text-white text-sm md:text-base font-semibold tracking-tight truncate px-2">{cat.name}</p>
+      {/* readable dark gradient overlay at the bottom */}
+      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 py-3 text-center">
+        <p className="text-white text-sm md:text-base font-semibold tracking-tight truncate px-2 drop-shadow">
+          {cat.name}
+        </p>
       </div>
     </Link>
   );
 }
+
 
 function ProductCard({ product }: { product: ProductRow }) {
   const minSize = product.sizes_json?.[0];
