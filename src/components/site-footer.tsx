@@ -4,7 +4,7 @@ import { Sparkles, ShieldCheck, Truck, Phone, Mail, MapPin, Banknote, Wallet } f
 export function SiteFooter() {
   return (
     <footer className="bg-gradient-to-b from-background to-secondary/40 border-t mt-20">
-      <div className="max-w-7xl mx-auto px-6 py-14 grid gap-10 md:grid-cols-2 lg:grid-cols-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14 grid gap-10 md:grid-cols-2 lg:grid-cols-4">
         <div>
           <div className="flex items-center gap-2 mb-4">
             <div className="w-9 h-9 rounded-xl bg-gradient-luxe flex items-center justify-center shadow-soft">
@@ -55,7 +55,7 @@ export function SiteFooter() {
         </div>
       </div>
       <div className="border-t">
-        <div className="max-w-7xl mx-auto px-6 py-5 flex flex-col md:flex-row gap-3 items-center justify-between text-xs text-muted-foreground">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5 flex flex-col md:flex-row gap-3 items-center justify-between text-xs text-muted-foreground">
           <p>© {new Date().getFullYear()} Veloura Essence. All rights reserved.</p>
           <Link to="/auth" className="hover:text-foreground">Admin sign in</Link>
         </div>
