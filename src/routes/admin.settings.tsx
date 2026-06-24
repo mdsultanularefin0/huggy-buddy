@@ -135,6 +135,23 @@ function SettingsPage() {
         ))}
 
         <div>
+          <Label>Header position</Label>
+          <div className="mt-2 grid grid-cols-3 gap-2">
+            {(["sticky", "static", "floating"] as const).map((p) => (
+              <button
+                key={p}
+                type="button"
+                onClick={() => setHeaderPosition(p)}
+                className={`rounded-lg border px-3 py-2 text-sm font-medium capitalize transition-colors ${headerPosition === p ? "bg-primary text-primary-foreground border-primary" : "bg-background hover:bg-muted"}`}
+              >
+                {p}
+              </button>
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground mt-1"><b>Sticky</b> follows scroll and reserves space (no overlap). <b>Static</b> scrolls away with the page. <b>Floating</b> overlays the hero (transparent until scrolled).</p>
+        </div>
+
+        <div>
           <Label htmlFor="reset">Countdown timer reset</Label>
           <Input id="reset" type="datetime-local" value={resetDate} onChange={(e) => setResetDate(e.target.value)} className="mt-1" />
           <p className="text-xs text-muted-foreground mt-1">The storefront promo countdown resets from this moment.</p>
