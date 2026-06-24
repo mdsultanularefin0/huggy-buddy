@@ -106,41 +106,50 @@ function Landing() {
       <FaviconSetter url={s?.site_icon_url} />
       <SiteHeader position={s?.header_position ?? "sticky"} logoUrl={s?.site_logo_url ?? null} />
 
-      {/* HERO */}
-      <section className="relative w-full bg-background overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 md:pt-8">
-          {(s?.hero_title || s?.hero_subtitle) && (
-            <div className="text-center mb-6 md:mb-8">
-              {s?.hero_title && <h1 className="text-3xl md:text-5xl font-semibold tracking-tight">{s.hero_title}</h1>}
-              {s?.hero_subtitle && <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">{s.hero_subtitle}</p>}
-            </div>
-          )}
+      {/* HERO — unified master wrapper */}
+      <section
+        className="relative w-full overflow-hidden"
+        style={{ background: "linear-gradient(135deg, #52277a 0%, #a555f0 100%)" }}
+      >
+        {(s?.hero_title || s?.hero_subtitle) && (
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 md:pt-8 text-center text-white">
+            {s?.hero_title && <h1 className="text-3xl md:text-5xl font-semibold tracking-tight">{s.hero_title}</h1>}
+            {s?.hero_subtitle && <p className="text-white/80 mt-2 max-w-2xl mx-auto">{s.hero_subtitle}</p>}
+          </div>
+        )}
 
-          {/* Top row: left model image + right 4 cards */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10 items-stretch">
-            {/* LEFT: background model only (foreground overlay drawn later, absolutely positioned) */}
-            <div className="relative w-full aspect-[4/5] sm:aspect-[5/4] lg:aspect-[4/5] rounded-3xl overflow-hidden bg-gradient-luxe">
-              {bgImg && (
-                <img
-                  src={bgImg}
-                  alt="Veloura Essence hero"
-                  className="absolute inset-0 w-full h-full object-cover object-center select-none"
-                  loading="eager"
-                />
-              )}
-            </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 md:pt-10 grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10 items-stretch relative z-30">
+          {/* LEFT: unified image container (bg + fg share the same box) */}
+          <div className="relative w-full min-h-[420px] sm:min-h-[520px] lg:min-h-[600px]">
+            {bgImg && (
+              <img
+                src={bgImg}
+                alt="Veloura Essence hero"
+                className="absolute bottom-0 left-0 w-full h-full object-contain object-bottom select-none z-0"
+                loading="eager"
+              />
+            )}
+            {fgImg && (
+              <img
+                src={fgImg}
+                alt=""
+                aria-hidden="true"
+                className="pointer-events-none select-none absolute bottom-0 left-0 w-[120%] object-contain object-bottom z-20 drop-shadow-2xl"
+                style={{ marginLeft: "-10%", marginBottom: "-8%" }}
+              />
+            )}
+          </div>
 
-            {/* RIGHT: single horizontal row of 4 category cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4 self-center">
-              {(heroCategories.length > 0 ? heroCategories : DEFAULT_HERO_CARDS.map((c, i) => ({ id: String(i), name: c.title, slug: "", image_url: null, sort_order: i, is_active: true } as CategoryRow))).map((c) => (
-                <HeroCategoryCard key={c.id} cat={c} />
-              ))}
-            </div>
+          {/* RIGHT: 4 category cards, stretched */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 self-center w-full">
+            {(heroCategories.length > 0 ? heroCategories : DEFAULT_HERO_CARDS.map((c, i) => ({ id: String(i), name: c.title, slug: "", image_url: null, sort_order: i, is_active: true } as CategoryRow))).map((c) => (
+              <HeroCategoryCard key={c.id} cat={c} />
+            ))}
           </div>
         </div>
 
-        {/* Marquee strip */}
-        <div className="relative mt-6 md:mt-8 bg-primary text-primary-foreground overflow-hidden">
+        {/* Marquee — cuts across middle, behind the foreground bottle */}
+        <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 bg-primary text-primary-foreground overflow-hidden z-10">
           <div className="marquee-track whitespace-nowrap py-2.5 text-sm md:text-base font-bold tracking-wide">
             <span className="px-8">{marquee}</span>
             <span className="px-8">{marquee}</span>
@@ -148,38 +157,27 @@ function Landing() {
           </div>
         </div>
 
-        {/* Bottom band: gradient with single Order Now button + timer */}
-        <div className="relative" style={{ background: "linear-gradient(135deg, #52277a 0%, #a555f0 100%)" }}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 md:py-14 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-            <div className="flex flex-col items-center md:items-start gap-4 md:pl-[42%]">
-              {s?.cta_band_text && (
-                <p className="text-white/90 text-sm md:text-base max-w-md text-center md:text-left">{s.cta_band_text}</p>
-              )}
-              <CtaWrap>
-                <Button
-                  size="lg"
-                  className="rounded-2xl bg-transparent border-2 border-[#d8a8ff] text-white hover:bg-white/10 px-10 py-6 text-xl font-semibold shadow-[0_0_30px_rgba(216,168,255,0.65)] transition-all"
-                >
-                  {ctaLabel}
-                </Button>
-              </CtaWrap>
-            </div>
-            <div className="flex justify-center md:justify-end">
-              <FlashTimer resetDate={s?.timer_reset_date ?? null} />
-            </div>
+        {/* Bottom CTA row inside the same wrapper */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-12 grid grid-cols-1 md:grid-cols-2 gap-6 items-center relative z-30">
+          <div className="flex flex-col items-center md:items-start gap-4 md:pl-[42%]">
+            {s?.cta_band_text && (
+              <p className="text-white/90 text-sm md:text-base max-w-md text-center md:text-left">{s.cta_band_text}</p>
+            )}
+            <CtaWrap>
+              <Button
+                size="lg"
+                className="rounded-2xl bg-transparent border-2 border-[#d8a8ff] text-white hover:bg-white/10 px-10 py-6 text-xl font-semibold shadow-[0_0_30px_rgba(216,168,255,0.65)] transition-all"
+              >
+                {ctaLabel}
+              </Button>
+            </CtaWrap>
           </div>
-
-          {/* Foreground hand/bottle — anchored bottom-left, overlaps model + marquee + this band */}
-          {fgImg && (
-            <img
-              src={fgImg}
-              alt=""
-              aria-hidden="true"
-              className="pointer-events-none select-none absolute left-0 sm:left-[2%] bottom-0 z-20 h-[120%] sm:h-[150%] md:h-[170%] w-auto object-contain drop-shadow-2xl"
-            />
-          )}
+          <div className="flex justify-center md:justify-end">
+            <FlashTimer resetDate={s?.timer_reset_date ?? null} />
+          </div>
         </div>
       </section>
+
 
 
       {/* Perfumes */}
