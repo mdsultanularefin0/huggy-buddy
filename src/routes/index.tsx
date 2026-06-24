@@ -57,12 +57,8 @@ export const Route = createFileRoute("/")({
   notFoundComponent: () => <div className="p-8">Not found</div>,
 });
 
-const categories = [
-  { label: "Perfumes", hash: "perfumes", icon: Droplets, tint: "from-primary/15 to-accent/10" },
-  { label: "Combos", hash: "combos", icon: Package, tint: "from-accent/15 to-primary/10" },
-  { label: "Build Your Box", hash: "byob", icon: Layers, tint: "from-primary/20 to-accent/15" },
-  { label: "Gift Sets", hash: "combos", icon: Gift, tint: "from-accent/20 to-primary/10" },
-];
+
+
 
 function Landing() {
   const { data } = useSuspenseQuery(storefrontOptions);
