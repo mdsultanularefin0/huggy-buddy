@@ -110,87 +110,70 @@ function Landing() {
       <FaviconSetter url={s?.site_icon_url} />
       <SiteHeader position={s?.header_position ?? "sticky"} logoUrl={s?.site_logo_url ?? null} />
 
-      {/* HERO — strict 2-column grid: left = image stack, right = cards + marquee + CTA + timer */}
-      <section
-        className="relative w-full overflow-hidden"
-        style={{ background: "linear-gradient(135deg, #52277a 0%, #a555f0 100%)" }}
-      >
+      {/* HERO — split bg (white top / gradient bottom), full-width marquee at the seam */}
+      <section className="relative w-full overflow-hidden bg-white">
+        {/* Background split: top 60% white, bottom 40% brand gradient */}
+        <div aria-hidden className="absolute inset-x-0 top-0 h-[60%] bg-white z-0" />
+        <div aria-hidden className="absolute inset-x-0 bottom-0 h-[40%] bg-gradient-to-r from-[#52277a] to-[#a555f0] z-0" />
+
         {(s?.hero_title || s?.hero_subtitle) && (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 md:pt-8 text-center text-white">
+          <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 pt-6 md:pt-8 text-center">
             {s?.hero_title && <h1 className="text-3xl md:text-5xl font-semibold tracking-tight">{s.hero_title}</h1>}
-            {s?.hero_subtitle && <p className="text-white/85 mt-2 max-w-2xl mx-auto">{s.hero_subtitle}</p>}
+            {s?.hero_subtitle && <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">{s.hero_subtitle}</p>}
           </div>
         )}
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-12 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 items-stretch">
-          {/* LEFT COLUMN — locked image stack */}
-          <div className="pointer-events-none relative w-full min-h-[420px] sm:min-h-[520px] lg:min-h-[640px] overflow-hidden">
-            {/* z-0: background model */}
+        <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 pt-8 md:pt-12 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 items-end">
+          {/* LEFT COLUMN — image stack with explicit height */}
+          <div className="relative w-full h-[500px] lg:h-[600px]">
             {bgImg && (
               <img
                 src={bgImg}
                 alt="Veloura Essence hero"
-                className="absolute bottom-0 left-0 h-full w-auto max-w-none object-contain origin-bottom-left select-none z-0"
-                style={{ transform: `scale(${bgScale})` }}
+                className="absolute inset-0 w-full h-full object-contain object-bottom z-0 select-none"
+                style={{ transform: `scale(${bgScale})`, transformOrigin: "bottom center" }}
                 loading="eager"
               />
             )}
-            {/* z-10: marquee strip — sits behind the foreground bottle */}
-            <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 bg-primary text-primary-foreground overflow-hidden z-10 shadow-lg">
-              <div className="marquee-track whitespace-nowrap py-2.5 text-sm md:text-base font-bold tracking-wide">
-                <span className="px-8">{marquee}</span>
-                <span className="px-8">{marquee}</span>
-                <span className="px-8">{marquee}</span>
-              </div>
-            </div>
-            {/* z-20: foreground bottle / hand */}
             {fgImg && (
               <img
                 src={fgImg}
                 alt=""
                 aria-hidden="true"
-                className="absolute bottom-0 left-0 h-full w-auto max-w-none object-contain origin-bottom-left select-none drop-shadow-2xl z-20"
-                style={{ transform: `scale(${fgScale})` }}
+                className="absolute inset-0 w-full h-full object-contain object-bottom z-20 select-none drop-shadow-2xl"
+                style={{ transform: `scale(${1.25 * fgScale})`, transformOrigin: "bottom center" }}
               />
             )}
           </div>
 
-          {/* RIGHT COLUMN — cards, marquee seam, CTA, timer */}
-          <div className="relative z-30 flex flex-col gap-6">
-            {/* 4 category cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+          {/* RIGHT COLUMN — cards on top, CTA + timer at the bottom */}
+          <div className="relative z-20 flex flex-col gap-8 h-[500px] lg:h-[600px]">
+            <div className="grid grid-cols-4 gap-4 w-full">
               {(heroCategories.length > 0 ? heroCategories : DEFAULT_HERO_CARDS.map((c, i) => ({ id: String(i), name: c.title, slug: "", image_url: null, sort_order: i, is_active: true } as CategoryRow))).map((c) => (
                 <HeroCategoryCard key={c.id} cat={c} />
               ))}
             </div>
-
-            {/* marquee echo on right column for continuity */}
-            <div className="bg-primary text-primary-foreground rounded-xl overflow-hidden shadow-lg">
-              <div className="marquee-track whitespace-nowrap py-2.5 text-sm md:text-base font-bold tracking-wide">
-                <span className="px-8">{marquee}</span>
-                <span className="px-8">{marquee}</span>
-              </div>
-            </div>
-
-            {/* CTA — lives ONLY in the right column, below marquee */}
-            <div className="flex flex-col items-center md:items-start gap-4">
-              {s?.cta_band_text && (
-                <p className="text-white/90 text-sm md:text-base max-w-md text-center md:text-left">{s.cta_band_text}</p>
-              )}
+            <div className="flex-1" />
+            <div className="flex items-center justify-between gap-4 flex-wrap">
               <CtaWrap>
                 <Button
                   size="lg"
-                  className="rounded-2xl bg-[#a555f0] hover:bg-[#b66ff5] text-white border-2 border-[#e9c8ff] px-12 py-7 text-xl font-semibold shadow-[0_0_35px_rgba(216,168,255,0.9)] transition-all"
+                  className="rounded-2xl bg-[#a555f0] hover:bg-[#b66ff5] text-white border-2 border-[#e9c8ff] px-10 py-6 text-lg font-semibold shadow-[0_0_35px_rgba(216,168,255,0.9)] transition-all"
                 >
                   {ctaLabel}
                 </Button>
               </CtaWrap>
-            </div>
-
-            {/* timer */}
-            <div className="flex justify-center md:justify-start">
               <FlashTimer resetDate={s?.timer_reset_date ?? null} />
             </div>
+          </div>
+        </div>
+
+        {/* Full-width marquee at the white/gradient seam (60% from top) */}
+        <div className="absolute left-0 w-full z-10 bg-primary text-primary-foreground overflow-hidden shadow-lg" style={{ top: "60%", transform: "translateY(-50%)" }}>
+          <div className="marquee-track whitespace-nowrap py-2.5 text-sm md:text-base font-bold tracking-wide">
+            <span className="px-8">{marquee}</span>
+            <span className="px-8">{marquee}</span>
+            <span className="px-8">{marquee}</span>
           </div>
         </div>
       </section>
