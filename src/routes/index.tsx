@@ -106,7 +106,7 @@ function Landing() {
       <FaviconSetter url={s?.site_icon_url} />
       <SiteHeader position={s?.header_position ?? "sticky"} logoUrl={s?.site_logo_url ?? null} />
 
-      {/* HERO — unified master wrapper with split background */}
+      {/* HERO — split background, 4-card top row, model overlay on the left */}
       <section className="relative w-full overflow-hidden bg-white">
         {(s?.hero_title || s?.hero_subtitle) && (
           <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 md:pt-8 text-center">
@@ -115,31 +115,9 @@ function Landing() {
           </div>
         )}
 
-        {/* TOP: white background, model + 4 cards */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 md:pt-10 grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10 items-end relative z-30">
-          {/* LEFT: anchored bottom-left image stack */}
-          <div className="relative w-full min-h-[440px] sm:min-h-[560px] lg:min-h-[640px]">
-            {bgImg && (
-              <img
-                src={bgImg}
-                alt="Veloura Essence hero"
-                className="absolute bottom-0 left-0 w-full h-full object-contain object-left-bottom select-none z-0"
-                loading="eager"
-              />
-            )}
-            {fgImg && (
-              <img
-                src={fgImg}
-                alt=""
-                aria-hidden="true"
-                className="pointer-events-none select-none absolute bottom-0 left-0 w-[170%] max-w-none object-contain object-left-bottom z-20 drop-shadow-2xl"
-                style={{ marginLeft: "-25%", marginBottom: "-6%" }}
-              />
-            )}
-          </div>
-
-          {/* RIGHT: 4 category cards, large, photo-backed */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 self-end w-full pb-6">
+        {/* TOP: full-width 4 cards, with extra left padding on desktop to make room for the model */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 md:pt-10 relative z-20">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:pl-[18%]">
             {(heroCategories.length > 0 ? heroCategories : DEFAULT_HERO_CARDS.map((c, i) => ({ id: String(i), name: c.title, slug: "", image_url: null, sort_order: i, is_active: true } as CategoryRow))).map((c) => (
               <HeroCategoryCard key={c.id} cat={c} />
             ))}
@@ -147,7 +125,7 @@ function Landing() {
         </div>
 
         {/* Marquee — sits at the seam between white top and gradient bottom */}
-        <div className="relative bg-primary text-primary-foreground overflow-hidden z-10">
+        <div className="relative bg-primary text-primary-foreground overflow-hidden z-10 mt-6 md:mt-10">
           <div className="marquee-track whitespace-nowrap py-2.5 text-sm md:text-base font-bold tracking-wide">
             <span className="px-8">{marquee}</span>
             <span className="px-8">{marquee}</span>
@@ -155,20 +133,20 @@ function Landing() {
           </div>
         </div>
 
-        {/* BOTTOM: brand gradient, timer + CTA */}
+        {/* BOTTOM: brand gradient, CTA on left, Flash timer on right */}
         <div
-          className="relative z-30"
+          className="relative z-20"
           style={{ background: "linear-gradient(to right, #52277a 0%, #a555f0 100%)" }}
         >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-12 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-            <div className="flex flex-col items-center md:items-start gap-4 md:pl-[42%]">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 md:py-16 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+            <div className="flex flex-col items-center md:items-start gap-4 md:pl-[22%]">
               {s?.cta_band_text && (
                 <p className="text-white/90 text-sm md:text-base max-w-md text-center md:text-left">{s.cta_band_text}</p>
               )}
               <CtaWrap>
                 <Button
                   size="lg"
-                  className="rounded-2xl bg-[#a555f0] hover:bg-[#b66ff5] text-white border-2 border-[#e9c8ff] px-10 py-6 text-xl font-semibold shadow-[0_0_35px_rgba(216,168,255,0.9)] transition-all"
+                  className="rounded-2xl bg-[#a555f0] hover:bg-[#b66ff5] text-white border-2 border-[#e9c8ff] px-12 py-7 text-xl font-semibold shadow-[0_0_35px_rgba(216,168,255,0.9)] transition-all"
                 >
                   {ctaLabel}
                 </Button>
@@ -179,7 +157,31 @@ function Landing() {
             </div>
           </div>
         </div>
+
+        {/* Model + bottle overlay — spans full hero height, anchored bottom-left */}
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-full md:w-1/2 lg:w-[42%] z-30">
+          <div className="relative w-full h-full">
+            {bgImg && (
+              <img
+                src={bgImg}
+                alt="Veloura Essence hero"
+                className="absolute bottom-0 left-0 h-full w-auto max-w-none object-contain object-left-bottom select-none"
+                loading="eager"
+              />
+            )}
+            {fgImg && (
+              <img
+                src={fgImg}
+                alt=""
+                aria-hidden="true"
+                className="absolute bottom-0 left-0 h-[115%] w-auto max-w-none object-contain object-left-bottom select-none drop-shadow-2xl"
+                style={{ marginLeft: "-6%", marginBottom: "-4%" }}
+              />
+            )}
+          </div>
+        </div>
       </section>
+
 
 
 
