@@ -469,3 +469,119 @@ function HomepageEditor() {
     </div>
   );
 }
+
+type Device = "mobile" | "tablet" | "desktop";
+const DEVICE_WIDTHS: Record<Device, number> = { mobile: 390, tablet: 768, desktop: 1180 };
+
+function LivePreview({
+  heroTitle, heroSubtitle, heroImage, overlayLeft, overlayRight,
+  marquee, ctaText, ctaLabel, categories,
+}: {
+  heroTitle: string; heroSubtitle: string;
+  heroImage: string | null; overlayLeft: string | null; overlayRight: string | null;
+  marquee: string; ctaText: string; ctaLabel: string;
+  categories: Category[];
+}) {
+  const [device, setDevice] = useState<Device>("desktop");
+  const width = DEVICE_WIDTHS[device];
+  const text = marquee || "Free delivery on orders over ৳400";
+  const heroCats = categories.filter((c) => c.is_active).slice(0, 4);
+  const devices: { id: Device; label: string; Icon: typeof Smartphone }[] = [
+    { id: "mobile", label: "Mobile", Icon: Smartphone },
+    { id: "tablet", label: "Tablet", Icon: Tablet },
+    { id: "desktop", label: "Desktop", Icon: Monitor },
+  ];
+
+  return (
+    <Card className="overflow-hidden shadow-card sticky top-16 z-20">
+      <div className="flex items-center justify-between gap-3 px-4 py-2 border-b bg-muted/40">
+        <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold">Live preview · unsaved</p>
+        <div className="flex items-center gap-1 rounded-md border bg-background p-0.5">
+          {devices.map(({ id, label, Icon }) => (
+            <button
+              key={id}
+              type="button"
+              onClick={() => setDevice(id)}
+              aria-label={label}
+              aria-pressed={device === id}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-colors ${device === id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}
+            >
+              <Icon className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">{label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="bg-muted/20 p-4 overflow-x-auto">
+        <div className="mx-auto bg-background rounded-lg border shadow-sm overflow-hidden transition-all" style={{ width, maxWidth: "100%" }}>
+          {/* Mini header */}
+          <div className="bg-primary text-primary-foreground px-3 py-2 flex items-center justify-between text-[10px]">
+            <span className="font-bold tracking-wider text-accent">VELOURA</span>
+            <span className="opacity-70">Home · Combos · Cart</span>
+          </div>
+          {/* Hero */}
+          <div className="px-3 pt-3">
+            {(heroTitle || heroSubtitle) && (
+              <div className="text-center mb-2">
+                {heroTitle && <p className="text-sm font-semibold tracking-tight">{heroTitle}</p>}
+                {heroSubtitle && <p className="text-[9px] text-muted-foreground mt-0.5 line-clamp-2">{heroSubtitle}</p>}
+              </div>
+            )}
+            <div className="grid grid-cols-12 gap-2 items-center">
+              <div className="col-span-5">
+                {heroImage ? (
+                  <img src={heroImage} alt="" className="w-full h-auto object-contain max-h-40" />
+                ) : (
+                  <div className="aspect-square bg-muted rounded" />
+                )}
+              </div>
+              <div className="col-span-7 grid grid-cols-4 gap-1.5">
+                {(heroCats.length > 0 ? heroCats : Array.from({ length: 4 })).map((c, i) => {
+                  const cat = c as Category | undefined;
+                  return (
+                    <div key={cat?.id ?? i} className="relative aspect-[3/4] rounded-lg bg-gradient-luxe overflow-hidden">
+                      {cat?.image_url ? (
+                        <img src={cat.image_url} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center text-white/70"><Gift className="w-4 h-4" /></div>
+                      )}
+                      <div className="absolute inset-x-0 bottom-0 bg-primary/75 backdrop-blur-sm py-1 text-center">
+                        <p className="text-white text-[8px] font-semibold truncate px-1">{cat?.name ?? "Category"}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+          {/* Marquee + CTA */}
+          <div className="relative mt-3">
+            <div className="bg-primary text-primary-foreground overflow-hidden">
+              <div className="whitespace-nowrap py-1.5 text-[10px] font-semibold tracking-wide pl-[12%] overflow-hidden text-ellipsis">
+                <span className="px-4">{text}</span>
+                <span className="px-4">{text}</span>
+              </div>
+            </div>
+            <div className="bg-primary text-primary-foreground px-3 py-3 flex items-center justify-between gap-2">
+              <div className="pl-[12%]">
+                {ctaText && <p className="text-[9px] text-white/80 mb-1 line-clamp-2">{ctaText}</p>}
+                <button className="rounded-md border border-white/70 text-white text-[10px] px-3 py-1 font-semibold">
+                  {ctaLabel || "Order Now"}
+                </button>
+              </div>
+              <div className="text-[9px] text-white/80 font-mono">00:00:00</div>
+            </div>
+            {overlayLeft && (
+              <img src={overlayLeft} alt="" aria-hidden className="pointer-events-none select-none absolute left-0 -top-6 h-24 w-auto z-10 drop-shadow-2xl" />
+            )}
+            {overlayRight && (
+              <img src={overlayRight} alt="" aria-hidden className="pointer-events-none select-none absolute right-0 -top-6 h-24 w-auto z-10 drop-shadow-2xl scale-x-[-1]" />
+            )}
+          </div>
+        </div>
+        <p className="text-center text-[10px] text-muted-foreground mt-2">{width}px · reflects unsaved changes</p>
+      </div>
+    </Card>
+  );
+}
+
