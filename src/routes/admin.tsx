@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard, Package, Boxes, Truck, CreditCard, ShoppingBag,
-  Users, Megaphone, Settings, LogOut, Sparkles, ScrollText,
+  Users, Megaphone, Settings, LogOut, Sparkles, ScrollText, Tags,
 } from "lucide-react";
 import { toast } from "sonner";
 
