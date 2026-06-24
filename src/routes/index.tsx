@@ -58,49 +58,49 @@ function Landing() {
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <main className="w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-4 w-full py-8 items-stretch px-6">
-          <div
-            className="relative w-full max-w-[280px] mx-auto lg:mx-0 aspect-[3/4] rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-purple-100 to-purple-50 bg-cover bg-center"
-            style={heroImage ? { backgroundImage: `url(${heroImage})` } : undefined}
-          />
+        <div className="relative w-full px-6 pt-8">
+          <div className="lg:grid lg:grid-cols-[1fr_2fr] lg:gap-4 lg:items-start">
+            <div
+              className="relative w-full max-w-[280px] mx-auto lg:mx-0 aspect-[3/4] rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-purple-100 to-purple-50 bg-cover bg-center mb-6 lg:mb-0"
+              style={heroImage ? { backgroundImage: `url(${heroImage})` } : undefined}
+            />
 
-
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full lg:max-w-[720px] mx-auto">
-
-            {slots.map((cat, i) => {
-              const cardClass =
-                "relative w-full aspect-square rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-purple-200 to-purple-100 bg-cover bg-center";
-              const style = cat?.image_url
-                ? { backgroundImage: `url(${cat.image_url})` }
-                : undefined;
-              const banner = (
-                <div className="absolute bottom-0 left-0 w-full bg-[#52277a]/70 backdrop-blur-sm py-1.5 px-1 text-center text-white text-xs md:text-sm font-medium tracking-wide">
-                  {cat?.name ?? "Coming soon"}
-                </div>
-              );
-              if (!cat) {
-                return (
-                  <div key={i} className={cardClass}>
-                    {banner}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full lg:max-w-[720px] mx-auto">
+              {slots.map((cat, i) => {
+                const cardClass =
+                  "relative w-full aspect-square rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-purple-200 to-purple-100 bg-cover bg-center";
+                const style = cat?.image_url
+                  ? { backgroundImage: `url(${cat.image_url})` }
+                  : undefined;
+                const banner = (
+                  <div className="absolute bottom-0 left-0 w-full bg-[#52277a]/70 backdrop-blur-sm py-1.5 px-1 text-center text-white text-xs md:text-sm font-medium tracking-wide">
+                    {cat?.name ?? "Coming soon"}
                   </div>
                 );
-              }
-              return (
-                <Link
-                  key={cat.id}
-                  to="/category/$slug"
-                  params={{ slug: cat.slug }}
-                  className={cardClass}
-                  style={style}
-                >
-                  {banner}
-                </Link>
-              );
-            })}
+                if (!cat) {
+                  return (
+                    <div key={i} className={cardClass}>
+                      {banner}
+                    </div>
+                  );
+                }
+                return (
+                  <Link
+                    key={cat.id}
+                    to="/category/$slug"
+                    params={{ slug: cat.slug }}
+                    className={cardClass}
+                    style={style}
+                  >
+                    {banner}
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         </div>
 
-        <div className="relative w-full -mt-16 sm:-mt-20 lg:-mt-24 z-10 bg-[#52277a] text-white py-3 overflow-hidden shadow-lg">
+        <div className="relative w-full mt-8 z-10 bg-[#52277a] text-white py-3 overflow-hidden shadow-lg">
           <div className="marquee-track text-sm sm:text-base font-medium tracking-wide">
             {marqueeItems.map((t, i) => (
               <span key={i} className="px-8 inline-flex items-center gap-8">
