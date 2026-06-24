@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useCart, cartCount } from "@/lib/cart-store";
 
-export function SiteHeader({ position = "sticky" }: { position?: "sticky" | "static" | "floating" } = {}) {
+export function SiteHeader({ position = "sticky", logoUrl }: { position?: "sticky" | "static" | "floating"; logoUrl?: string | null } = {}) {
   const items = useCart((s) => s.items);
   const open = useCart((s) => s.open);
   const count = cartCount(items);
@@ -29,13 +29,19 @@ export function SiteHeader({ position = "sticky" }: { position?: "sticky" | "sta
     <header className={positionClass}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4 sm:gap-6">
         <Link to="/" className="flex items-center gap-2 shrink-0">
-          <div className="w-9 h-9 rounded-xl bg-white/15 backdrop-blur flex items-center justify-center">
-            <Sparkles className="w-5 h-5 text-accent" />
-          </div>
-          <div className="leading-none">
-            <div className="font-display text-base font-bold tracking-wide text-accent">VELOURA</div>
-            <div className="text-[9px] tracking-[0.3em] text-primary-foreground/80">ESSENCE</div>
-          </div>
+          {logoUrl ? (
+            <img src={logoUrl} alt="Site logo" className="h-9 w-auto object-contain" />
+          ) : (
+            <>
+              <div className="w-9 h-9 rounded-xl bg-white/15 backdrop-blur flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-accent" />
+              </div>
+              <div className="leading-none">
+                <div className="font-display text-base font-bold tracking-wide text-accent">VELOURA</div>
+                <div className="text-[9px] tracking-[0.3em] text-primary-foreground/80">ESSENCE</div>
+              </div>
+            </>
+          )}
         </Link>
         <nav className="hidden lg:flex items-center gap-7 text-sm font-medium text-primary-foreground/90">
           <Link to="/" className="hover:text-white transition-colors">Home</Link>
