@@ -60,10 +60,22 @@ function Landing() {
       <SiteHeader />
       <main className="w-full">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-4 w-full pt-8 items-start px-6">
-          <div
-            className="relative w-full max-w-[280px] mx-auto lg:mx-0 aspect-[3/4] rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-purple-100 to-purple-50 bg-cover bg-center"
-            style={heroImage ? { backgroundImage: `url(${heroImage})` } : undefined}
-          />
+          <div className="relative w-full h-[400px] md:h-[500px] z-40">
+            {heroImage && (
+              <img
+                src={heroImage}
+                alt="Model"
+                className="absolute bottom-0 left-0 w-full h-full object-contain object-bottom z-0"
+              />
+            )}
+            {heroOverlay && (
+              <img
+                src={heroOverlay}
+                alt="Product Overlay"
+                className="absolute bottom-[-10%] left-0 w-full h-[110%] object-contain object-bottom z-50 pointer-events-none"
+              />
+            )}
+          </div>
 
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full lg:max-w-[720px] mx-auto">
