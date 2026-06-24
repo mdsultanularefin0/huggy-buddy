@@ -30,6 +30,7 @@ const empty = {
   is_active: true,
   in_stock: true,
   sizes_json: [] as Size[],
+  category_id: null as string | null,
 };
 
 function ProductsPage() {
@@ -48,6 +49,15 @@ function ProductsPage() {
     },
   });
 
+  const { data: categories = [] } = useQuery({
+    queryKey: ["admin", "categories"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("categories").select("id,name").order("sort_order");
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const save = useMutation({
     mutationFn: async () => {
       const payload = {
@@ -59,6 +69,7 @@ function ProductsPage() {
         is_active: form.is_active,
         in_stock: form.in_stock,
         sizes_json: form.sizes_json as never,
+        category_id: form.category_id,
       };
       if (editing) {
         const { error } = await supabase.from("products").update(payload).eq("id", editing.id);
@@ -105,6 +116,7 @@ function ProductsPage() {
       is_active: p.is_active,
       in_stock: p.in_stock,
       sizes_json: (Array.isArray(p.sizes_json) ? p.sizes_json : []) as Size[],
+      category_id: (p as Product & { category_id: string | null }).category_id ?? null,
     });
     setOpen(true);
   }
@@ -219,6 +231,20 @@ function ProductsPage() {
             <div>
               <Label htmlFor="desc">Description</Label>
               <Textarea id="desc" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} className="mt-1" />
+            </div>
+            <div>
+              <Label htmlFor="cat">Category</Label>
+              <select
+                id="cat"
+                value={form.category_id ?? ""}
+                onChange={(e) => setForm({ ...form, category_id: e.target.value || null })}
+                className="mt-1 w-full h-10 rounded-md border bg-background px-3 text-sm"
+              >
+                <option value="">— None —</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>

@@ -53,6 +53,39 @@ export type Database = {
         }
         Relationships: []
       }
+      categories: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string | null
+          is_active: boolean
+          name: string
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name: string
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name?: string
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       combos: {
         Row: {
           combo_type: Database["public"]["Enums"]["combo_type"]
@@ -274,6 +307,7 @@ export type Database = {
       }
       products: {
         Row: {
+          category_id: string | null
           created_at: string
           description: string | null
           id: string
@@ -287,6 +321,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          category_id?: string | null
           created_at?: string
           description?: string | null
           id?: string
@@ -300,6 +335,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          category_id?: string | null
           created_at?: string
           description?: string | null
           id?: string
@@ -312,7 +348,15 @@ export type Database = {
           sizes_json?: Json
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       referral_codes: {
         Row: {
@@ -372,30 +416,48 @@ export type Database = {
       }
       site_settings: {
         Row: {
+          cta_band_button_label: string | null
+          cta_band_button_link: string | null
+          cta_band_text: string | null
           header_position: string
+          hero_cta_label: string | null
           hero_image: string | null
           hero_overlay_left: string | null
           hero_overlay_right: string | null
+          hero_subtitle: string | null
+          hero_title: string | null
           id: string
           marquee_text: string
           timer_reset_date: string
           updated_at: string
         }
         Insert: {
+          cta_band_button_label?: string | null
+          cta_band_button_link?: string | null
+          cta_band_text?: string | null
           header_position?: string
+          hero_cta_label?: string | null
           hero_image?: string | null
           hero_overlay_left?: string | null
           hero_overlay_right?: string | null
+          hero_subtitle?: string | null
+          hero_title?: string | null
           id?: string
           marquee_text?: string
           timer_reset_date?: string
           updated_at?: string
         }
         Update: {
+          cta_band_button_label?: string | null
+          cta_band_button_link?: string | null
+          cta_band_text?: string | null
           header_position?: string
+          hero_cta_label?: string | null
           hero_image?: string | null
           hero_overlay_left?: string | null
           hero_overlay_right?: string | null
+          hero_subtitle?: string | null
+          hero_title?: string | null
           id?: string
           marquee_text?: string
           timer_reset_date?: string
