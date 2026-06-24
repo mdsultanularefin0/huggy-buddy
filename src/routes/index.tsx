@@ -51,6 +51,7 @@ function Landing() {
   const { data: hero } = useSuspenseQuery(heroSettingsQuery);
   const slots = Array.from({ length: 4 }, (_, i) => categories[i]);
   const heroImage = hero?.hero_image ?? null;
+  const heroOverlay = hero?.hero_3d_overlay_image ?? null;
   const marqueeText = (hero?.marquee_text ?? "Free shipping over ₹999 · New arrivals every week · Premium fragrances handcrafted").trim();
   const marqueeItems = Array.from({ length: 8 }, () => marqueeText);
 
