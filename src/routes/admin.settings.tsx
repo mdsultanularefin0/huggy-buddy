@@ -21,6 +21,7 @@ function SettingsPage() {
   const [overlayLeft, setOverlayLeft] = useState<string | null>(null);
   const [overlayRight, setOverlayRight] = useState<string | null>(null);
   const [resetDate, setResetDate] = useState("");
+  const [headerPosition, setHeaderPosition] = useState<"sticky" | "static" | "floating">("sticky");
   const [uploadingKey, setUploadingKey] = useState<string | null>(null);
 
   const { data: settings, isLoading } = useQuery({
