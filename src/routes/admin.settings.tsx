@@ -94,11 +94,13 @@ function SettingsPage() {
   ];
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="max-w-5xl mx-auto space-y-6">
       <div>
         <h1 className="text-3xl font-semibold tracking-tight">Site Settings</h1>
         <p className="text-muted-foreground mt-1">Storefront hero, marquee, overlays, and countdown timer.</p>
       </div>
+
+      <HeroPreview marquee={marquee} hero={hero} overlayLeft={overlayLeft} overlayRight={overlayRight} />
 
       <Card className="p-6 space-y-5 shadow-card">
         <div>
