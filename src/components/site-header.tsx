@@ -68,7 +68,7 @@ export function SiteHeader() {
         </div>
       </div>
       {mobileOpen && (
-        <div className="lg:hidden border-t border-white/10 bg-primary px-6 py-4 flex flex-col gap-3 text-sm">
+        <div className="lg:hidden border-t border-white/10 bg-primary px-4 sm:px-6 md:px-10 py-4 flex flex-col gap-3 text-sm">
           <Link to="/" onClick={() => setMobileOpen(false)} className="py-1">Home</Link>
           {links.map((l) => (
             <Link key={l.label} to={l.to} hash={l.hash} onClick={() => setMobileOpen(false)} className="py-1">{l.label}</Link>
