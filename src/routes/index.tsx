@@ -99,6 +99,17 @@ function Landing() {
             })}
           </div>
         </div>
+
+        <div className="relative w-full -mt-16 sm:-mt-20 lg:-mt-24 z-10 bg-[#52277a] text-white py-3 overflow-hidden shadow-lg">
+          <div className="marquee-track text-sm sm:text-base font-medium tracking-wide">
+            {marqueeItems.map((t, i) => (
+              <span key={i} className="px-8 inline-flex items-center gap-8">
+                {t}
+                <span className="opacity-60">✦</span>
+              </span>
+            ))}
+          </div>
+        </div>
       </main>
     </div>
   );
