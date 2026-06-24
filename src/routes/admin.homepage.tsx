@@ -68,6 +68,8 @@ function HomepageEditor() {
     setHero((s.hero_image as string) ?? null);
     setHeroBg((s.hero_bg_image as string) ?? null);
     setHeroFg((s.hero_fg_image as string) ?? null);
+    setHeroBgScale(Number(s.hero_bg_scale ?? 1) || 1);
+    setHeroFgScale(Number(s.hero_fg_scale ?? 1) || 1);
     setOverlayLeft((s.hero_overlay_left as string) ?? null);
     setOverlayRight((s.hero_overlay_right as string) ?? null);
     setResetDate(((s.timer_reset_date as string) ?? "").slice(0, 16));
