@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useCart, cartCount } from "@/lib/cart-store";
 
-export function SiteHeader() {
+export function SiteHeader({ position = "sticky" }: { position?: "sticky" | "static" | "floating" } = {}) {
   const items = useCart((s) => s.items);
   const open = useCart((s) => s.open);
   const count = cartCount(items);
@@ -18,8 +18,15 @@ export function SiteHeader() {
     { to: "/" as const, hash: "footer", label: "Support" },
   ];
 
+  const positionClass =
+    position === "floating"
+      ? "absolute inset-x-0 top-0 z-40 bg-primary/80 backdrop-blur-md text-primary-foreground border-b border-white/10"
+      : position === "static"
+      ? "relative z-40 bg-primary text-primary-foreground border-b border-white/10"
+      : "sticky top-0 z-40 bg-primary text-primary-foreground border-b border-white/10";
+
   return (
-    <header className="sticky top-0 z-40 bg-primary text-primary-foreground border-b border-white/10">
+    <header className={positionClass}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4 sm:gap-6">
         <Link to="/" className="flex items-center gap-2 shrink-0">
           <div className="w-9 h-9 rounded-xl bg-white/15 backdrop-blur flex items-center justify-center">
