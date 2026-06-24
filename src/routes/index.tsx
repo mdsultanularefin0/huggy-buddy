@@ -31,6 +31,8 @@ type CategoryRow = {
 type SiteSettings = {
   marquee_text: string | null;
   hero_image: string | null;
+  hero_bg_image: string | null;
+  hero_fg_image: string | null;
   hero_overlay_left: string | null;
   hero_overlay_right: string | null;
   header_position: "sticky" | "static" | "floating" | null;
@@ -104,25 +106,69 @@ function Landing() {
               {s?.hero_subtitle && <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">{s.hero_subtitle}</p>}
             </div>
           )}
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 items-center">
-            <div className="md:col-span-5 relative">
-              <img
-                src={s?.hero_image ?? heroMain.url}
-                alt="Veloura Essence signature perfume"
-                className="w-full h-auto object-contain select-none"
-                loading="eager"
-              />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10 items-center">
+            {/* LEFT: layered hero stack (bg z-0, marquee z-10, fg z-20) */}
+            <div className="relative w-full aspect-[4/5] sm:aspect-[5/4] lg:aspect-[4/5] overflow-visible">
+              {/* Layer 1 — background figure */}
+              <div className="absolute inset-0 z-0 rounded-3xl overflow-hidden bg-gradient-luxe">
+                {(s?.hero_bg_image ?? s?.hero_image ?? heroMain.url) && (
+                  <img
+                    src={s?.hero_bg_image ?? s?.hero_image ?? heroMain.url}
+                    alt="Veloura Essence hero"
+                    className="absolute inset-0 w-full h-full object-cover object-center select-none"
+                    loading="eager"
+                  />
+                )}
+              </div>
+
+              {/* Layer 2 — marquee strip crossing the middle */}
+              <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 z-10 bg-primary text-primary-foreground overflow-hidden shadow-luxe">
+                <div className="marquee-track whitespace-nowrap py-2 sm:py-2.5 text-sm md:text-base font-semibold tracking-wide">
+                  <span className="px-8">{marquee}</span>
+                  <span className="px-8">{marquee}</span>
+                  <span className="px-8">{marquee}</span>
+                </div>
+              </div>
+
+              {/* Layer 3 — foreground transparent overlay (hand/bottle) */}
+              {(s?.hero_fg_image ?? heroHand.url) && (
+                <img
+                  src={s?.hero_fg_image ?? heroHand.url}
+                  alt=""
+                  aria-hidden="true"
+                  className="pointer-events-none select-none absolute z-20 left-1/2 -translate-x-1/2 bottom-[-6%] sm:bottom-[-8%] h-[78%] sm:h-[80%] w-auto object-contain drop-shadow-2xl"
+                />
+              )}
             </div>
-            <div className="md:col-span-7 grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-              {heroCategories.length > 0
-                ? heroCategories.map((c) => <HeroCategoryCard key={c.id} cat={c} />)
-                : DEFAULT_HERO_CARDS.map((c) => (
-                    <div key={c.title} className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-soft bg-gradient-luxe">
-                      <div className="absolute inset-x-0 bottom-0 bg-primary/70 backdrop-blur-sm py-2.5 text-center">
-                        <p className="text-white text-sm md:text-base font-semibold tracking-tight">{c.title}</p>
+
+            {/* RIGHT: category cards + Order Now */}
+            <div className="flex flex-col gap-5">
+              <div className="grid grid-cols-2 gap-3 md:gap-4">
+                {heroCategories.length > 0
+                  ? heroCategories.map((c) => <HeroCategoryCard key={c.id} cat={c} />)
+                  : DEFAULT_HERO_CARDS.map((c) => (
+                      <div key={c.title} className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-soft bg-gradient-luxe">
+                        <div className="absolute inset-x-0 bottom-0 bg-primary/70 backdrop-blur-sm py-2.5 text-center">
+                          <p className="text-white text-sm md:text-base font-semibold tracking-tight">{c.title}</p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+              </div>
+              <div className="flex justify-center lg:justify-start">
+                {ctaLink.startsWith("/#") ? (
+                  <Link to="/" hash={ctaLink.slice(2)}>
+                    <Button size="lg" className="rounded-2xl bg-primary text-primary-foreground hover:bg-primary/90 px-10 py-6 text-lg font-semibold shadow-luxe">{ctaLabel}</Button>
+                  </Link>
+                ) : ctaLink ? (
+                  <a href={ctaLink}>
+                    <Button size="lg" className="rounded-2xl bg-primary text-primary-foreground hover:bg-primary/90 px-10 py-6 text-lg font-semibold shadow-luxe">{ctaLabel}</Button>
+                  </a>
+                ) : (
+                  <Link to="/" hash="perfumes">
+                    <Button size="lg" className="rounded-2xl bg-primary text-primary-foreground hover:bg-primary/90 px-10 py-6 text-lg font-semibold shadow-luxe">{ctaLabel}</Button>
+                  </Link>
+                )}
+              </div>
             </div>
           </div>
         </div>
