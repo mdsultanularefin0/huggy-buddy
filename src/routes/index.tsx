@@ -111,6 +111,38 @@ function Landing() {
             ))}
           </div>
         </div>
+
+        <div className="w-full bg-gradient-to-r from-[#52277a] to-[#a555f0] py-8 lg:py-12 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full max-w-7xl mx-auto px-4 items-center">
+            <div className="flex justify-end pr-8">
+              <button
+                type="button"
+                className="bg-[#52277a]/60 backdrop-blur-sm border-2 border-[#a555f0] shadow-[0_0_15px_rgba(165,85,240,0.5)] rounded-xl px-8 py-3 text-white font-bold text-lg hover:bg-[#52277a]/80 transition"
+              >
+                Order Now
+              </button>
+            </div>
+
+            <div className="w-full max-w-md mx-auto lg:mx-0 bg-white rounded-2xl overflow-hidden shadow-2xl">
+              <div className="bg-[#fbc02d] w-full py-3 text-center">
+                <span className="text-white font-bold text-lg md:text-xl">Flash Sale! Up to 200Tk Off!</span>
+              </div>
+              <div className="bg-white w-full py-4 px-6 flex justify-between text-center">
+                {[
+                  { label: "Days", value: "00" },
+                  { label: "Hours", value: "00" },
+                  { label: "Minutes", value: "00" },
+                  { label: "Seconds", value: "00" },
+                ].map((b) => (
+                  <div key={b.label}>
+                    <div className="text-3xl md:text-4xl font-bold text-[#52277a]">{b.value}</div>
+                    <div className="text-xs text-gray-500 uppercase tracking-widest mt-1">{b.label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </main>
     </div>
   );
