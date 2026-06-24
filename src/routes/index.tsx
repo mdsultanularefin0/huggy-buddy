@@ -17,6 +17,19 @@ const categoriesQuery = queryOptions({
   },
 });
 
+const heroSettingsQuery = queryOptions({
+  queryKey: ["public", "site_settings", "hero"],
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from("site_settings")
+      .select("hero_image")
+      .limit(1)
+      .maybeSingle();
+    if (error) throw error;
+    return data;
+  },
+});
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
