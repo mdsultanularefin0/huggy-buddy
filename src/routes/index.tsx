@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
-import { Sparkles, Gift, ArrowRight } from "lucide-react";
+import { Sparkles, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBDT, effectivePrice, hasSale } from "@/lib/currency";
@@ -8,6 +8,8 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { CartDrawer } from "@/components/cart-drawer";
 import { FlashTimer } from "@/components/flash-timer";
+import heroHand from "@/assets/hero-hand.png.asset.json";
+import heroMain from "@/assets/hero-main.png.asset.json";
 
 type ProductRow = {
   id: string; name: string; description: string | null;
@@ -67,79 +69,89 @@ function Landing() {
   const prebuilt = data.combos.filter((c) => c.combo_type === "prebuilt");
   const byob = data.combos.filter((c) => c.combo_type === "byob");
 
+  // Top 4 featured combos shown as hero cards (right-side grid)
+  const featuredCombos = data.combos.slice(0, 4);
+  const overlayLeft = data.settings?.hero_overlay_left ?? heroHand.url;
+  const overlayRight = data.settings?.hero_overlay_right;
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Header chrome: brand-colored, full width, marquee with dual overlay images */}
-      <div className="relative bg-primary text-primary-foreground overflow-hidden">
-        <div className="marquee-track text-sm font-medium tracking-wide whitespace-nowrap py-2.5">
-          <span className="px-8">{marquee}</span>
-          <span className="px-8">{marquee}</span>
-          <span className="px-8">{marquee}</span>
-        </div>
-        {data.settings?.hero_overlay_left && (
-          <img
-            src={data.settings.hero_overlay_left}
-            alt=""
-            aria-hidden="true"
-            className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 h-10 md:h-12 w-auto select-none drop-shadow-lg"
-          />
-        )}
-        {data.settings?.hero_overlay_right && (
-          <img
-            src={data.settings.hero_overlay_right}
-            alt=""
-            aria-hidden="true"
-            className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-10 md:h-12 w-auto select-none drop-shadow-lg"
-          />
-        )}
-      </div>
-
       <SiteHeader />
 
-      {/* Full-bleed brand hero */}
-      <section className="relative w-full bg-primary text-primary-foreground overflow-hidden">
-        {data.settings?.hero_image && (
-          <img
-            src={data.settings.hero_image}
-            alt=""
-            aria-hidden="true"
-            className="absolute inset-0 w-full h-full object-cover opacity-30"
-          />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-accent/70 mix-blend-multiply" />
-        <div className="absolute -top-32 -right-24 w-[28rem] h-[28rem] rounded-full bg-accent/30 blur-3xl" />
-        <div className="absolute -bottom-32 -left-24 w-[28rem] h-[28rem] rounded-full bg-sale/20 blur-3xl" />
-
-        <div className="relative max-w-7xl mx-auto px-6 py-20 md:py-28 text-center">
-          <span className="inline-flex items-center gap-2 rounded-full bg-white/15 backdrop-blur px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em]">
-            <Sparkles className="w-3.5 h-3.5" /> Veloura Essence
-          </span>
-          <h1 className="mt-6 text-4xl md:text-6xl lg:text-7xl font-semibold tracking-tight leading-[1.05]">
-            Luxury fragrances,<br className="hidden md:block" /> crafted for Bangladesh
-          </h1>
-          <p className="mt-5 max-w-2xl mx-auto text-base md:text-lg text-primary-foreground/85">
-            Curated perfumes, dual combo deals, and build-your-own boxes — delivered to your door with free shipping over ৳400.
-          </p>
-          <div className="mt-8 flex items-center justify-center gap-3 flex-wrap">
-            <Link to="/" hash="perfumes">
-              <Button size="lg" className="bg-white text-primary hover:bg-white/90 rounded-full px-7">
-                Shop perfumes <ArrowRight className="w-4 h-4 ml-1" />
-              </Button>
-            </Link>
-            <Link to="/" hash="combos">
-              <Button size="lg" variant="outline" className="rounded-full px-7 border-white/40 bg-white/10 text-white hover:bg-white/20 hover:text-white">
-                Explore combos
-              </Button>
-            </Link>
+      {/* HERO — white panel: main image on left, 4 combo cards on right */}
+      <section className="relative w-full bg-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 md:pt-8">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 items-center">
+            <div className="md:col-span-5 relative">
+              <img
+                src={data.settings?.hero_image ?? heroMain.url}
+                alt="Veloura Essence signature perfume"
+                className="w-full h-auto object-contain select-none"
+                loading="eager"
+              />
+            </div>
+            <div className="md:col-span-7 grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+              {featuredCombos.length > 0
+                ? featuredCombos.map((c) => <HeroComboCard key={c.id} combo={c} />)
+                : DEFAULT_HERO_CARDS.map((c) => (
+                    <div key={c.title} className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-soft bg-gradient-luxe">
+                      <div className="absolute inset-x-0 bottom-0 bg-primary/70 backdrop-blur-sm py-2.5 text-center">
+                        <p className="text-white text-sm md:text-base font-semibold tracking-tight">{c.title}</p>
+                      </div>
+                    </div>
+                  ))}
+            </div>
           </div>
+        </div>
+
+        {/* Marquee strip with left-bleeding hand overlay */}
+        <div className="relative mt-6 md:mt-8">
+          <div className="bg-primary text-primary-foreground overflow-hidden">
+            <div className="marquee-track whitespace-nowrap py-2.5 text-sm md:text-base font-semibold tracking-wide pl-[14%] md:pl-[12%]">
+              <span className="px-8">{marquee}</span>
+              <span className="px-8">{marquee}</span>
+              <span className="px-8">{marquee}</span>
+            </div>
+          </div>
+          {/* Purple CTA band */}
+          <div className="bg-gradient-to-r from-primary via-primary to-accent/80 text-primary-foreground">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-10 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+              <div className="flex justify-center md:justify-start md:pl-[18%]">
+                <Link to="/" hash="perfumes">
+                  <Button
+                    size="lg"
+                    className="rounded-2xl bg-transparent border-2 border-white/70 text-white hover:bg-white hover:text-primary px-10 py-6 text-xl font-semibold shadow-[0_0_30px_rgba(255,255,255,0.25)] transition-all"
+                  >
+                    Order Now
+                  </Button>
+                </Link>
+              </div>
+              <div className="flex justify-center md:justify-end">
+                <FlashTimer resetDate={data.settings?.timer_reset_date ?? null} />
+              </div>
+            </div>
+          </div>
+          {/* Dual overlay images bleeding from marquee strip downward */}
+          {overlayLeft && (
+            <img
+              src={overlayLeft}
+              alt=""
+              aria-hidden="true"
+              className="pointer-events-none select-none absolute left-0 -top-10 md:-top-20 h-[180px] md:h-[340px] w-auto z-10 drop-shadow-2xl"
+            />
+          )}
+          {overlayRight && (
+            <img
+              src={overlayRight}
+              alt=""
+              aria-hidden="true"
+              className="pointer-events-none select-none absolute right-0 -top-10 md:-top-20 h-[180px] md:h-[340px] w-auto z-10 drop-shadow-2xl scale-x-[-1]"
+            />
+          )}
         </div>
       </section>
 
 
-      {/* Flash sale */}
-      <section className="max-w-7xl mx-auto px-6 pt-12">
-        <FlashTimer resetDate={data.settings?.timer_reset_date ?? null} />
-      </section>
 
       {/* Perfumes */}
       <section id="perfumes" className="max-w-7xl mx-auto px-6 py-20">
@@ -243,6 +255,44 @@ function ComboCard({ combo, byob }: { combo: ComboRow; byob?: boolean }) {
     </Link>
   );
 }
+
+
+
+
+const DEFAULT_HERO_CARDS = [
+  { title: "Summer Combo" },
+  { title: "Girl's Secret" },
+  { title: "Student Budget" },
+  { title: "Gift Ready" },
+];
+
+function HeroComboCard({ combo }: { combo: ComboRow }) {
+  return (
+    <Link
+      to="/combo/$id"
+      params={{ id: combo.id }}
+      className="group relative aspect-[3/4] rounded-2xl overflow-hidden shadow-soft bg-gradient-luxe block"
+    >
+      {combo.image_url ? (
+        <img
+          src={combo.image_url}
+          alt={combo.title}
+          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+        />
+      ) : (
+        <div className="absolute inset-0 flex items-center justify-center text-white/70">
+          <Gift className="w-10 h-10" />
+        </div>
+      )}
+      <div className="absolute inset-x-0 bottom-0 bg-primary/75 backdrop-blur-sm py-2.5 text-center">
+        <p className="text-white text-sm md:text-base font-semibold tracking-tight truncate px-2">
+          {combo.title}
+        </p>
+      </div>
+    </Link>
+  );
+}
+
 
 function SectionHeader({ eyebrow, title }: { eyebrow: string; title: string }) {
   return (
