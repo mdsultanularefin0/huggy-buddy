@@ -254,7 +254,42 @@ function ComboCard({ combo, byob }: { combo: ComboRow; byob?: boolean }) {
       </div>
     </Link>
   );
+
+
+const DEFAULT_HERO_CARDS = [
+  { title: "Summer Combo" },
+  { title: "Girl's Secret" },
+  { title: "Student Budget" },
+  { title: "Gift Ready" },
+];
+
+function HeroComboCard({ combo }: { combo: ComboRow }) {
+  return (
+    <Link
+      to="/combo/$id"
+      params={{ id: combo.id }}
+      className="group relative aspect-[3/4] rounded-2xl overflow-hidden shadow-soft bg-gradient-luxe block"
+    >
+      {combo.image_url ? (
+        <img
+          src={combo.image_url}
+          alt={combo.title}
+          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+        />
+      ) : (
+        <div className="absolute inset-0 flex items-center justify-center text-white/70">
+          <Gift className="w-10 h-10" />
+        </div>
+      )}
+      <div className="absolute inset-x-0 bottom-0 bg-primary/75 backdrop-blur-sm py-2.5 text-center">
+        <p className="text-white text-sm md:text-base font-semibold tracking-tight truncate px-2">
+          {combo.title}
+        </p>
+      </div>
+    </Link>
+  );
 }
+
 
 function SectionHeader({ eyebrow, title }: { eyebrow: string; title: string }) {
   return (
