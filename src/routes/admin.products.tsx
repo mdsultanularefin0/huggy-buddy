@@ -30,6 +30,7 @@ const empty = {
   is_active: true,
   in_stock: true,
   sizes_json: [] as Size[],
+  category_id: null as string | null,
 };
 
 function ProductsPage() {
