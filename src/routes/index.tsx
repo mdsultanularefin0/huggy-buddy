@@ -81,63 +81,17 @@ function Landing() {
 
       <SiteHeader />
 
-      {/* Hero */}
-      <section className="bg-gradient-soft relative">
-        <div className="max-w-7xl mx-auto px-6 pt-12 pb-24 lg:pb-32 grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
-          {/* Left: hero image, overlaps the next section */}
-          <div className="relative">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-semibold mb-5">
-              <Sparkles className="w-3.5 h-3.5" /> New season collection
-            </div>
-            <h1 className="text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.05]">
-              Fragrance, <br />
-              <span className="text-gradient-luxe">crafted with care.</span>
-            </h1>
-            <p className="text-lg text-muted-foreground mt-5 max-w-md">
-              Signature scents, curated combos and build-your-own boxes — delivered fresh across Bangladesh.
-            </p>
-            <div className="flex flex-wrap gap-3 mt-7">
-              <Link to="/" hash="perfumes"><Button variant="hero" size="xl">Shop the collection</Button></Link>
-              <Link to="/" hash="byob"><Button variant="outline-luxe" size="xl">Build your box</Button></Link>
-            </div>
-
-            <div className="relative mt-10 lg:mt-12 z-10 -mb-32 lg:-mb-44">
-              <div className="aspect-[5/4] rounded-3xl bg-gradient-luxe shadow-luxe overflow-hidden">
-                {data.settings?.hero_image ? (
-                  <img src={data.settings.hero_image} alt="Featured fragrance" className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-primary-foreground/90">
-                    <div className="text-center px-6">
-                      <Sparkles className="w-12 h-12 mx-auto mb-4" />
-                      <p className="text-sm uppercase tracking-widest opacity-80">Featured</p>
-                      <p className="text-2xl font-semibold mt-2">Coming soon</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Right: 2x2 category grid */}
-          <div className="grid grid-cols-2 gap-4 lg:gap-5">
-            {categories.map(({ label, hash, icon: Icon, tint }) => (
-              <Link
-                key={label}
-                to="/"
-                hash={hash}
-                className={`group relative aspect-square rounded-3xl border bg-gradient-to-br ${tint} p-5 flex flex-col justify-between overflow-hidden shadow-soft hover:shadow-luxe transition-shadow`}
-              >
-                <div className="w-11 h-11 rounded-2xl bg-card/70 backdrop-blur flex items-center justify-center text-primary shadow-soft">
-                  <Icon className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase tracking-widest text-accent font-semibold">Shop</p>
-                  <p className="text-lg font-semibold tracking-tight mt-1">{label}</p>
-                </div>
-                <span className="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-white/20 blur-2xl group-hover:scale-125 transition-transform" />
-              </Link>
-            ))}
-          </div>
+      {/* Hero banner */}
+      <section className="bg-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6">
+          <Link to="/" hash="perfumes" className="block rounded-3xl overflow-hidden shadow-luxe">
+            <img
+              src={heroCover.url}
+              alt="Veloura Essence — Flash Sale up to 200tk off"
+              className="w-full h-auto object-cover"
+              loading="eager"
+            />
+          </Link>
         </div>
       </section>
 
