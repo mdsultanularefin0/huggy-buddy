@@ -86,6 +86,8 @@ function HomepageEditor() {
         hero_image: hero,
         hero_bg_image: heroBg,
         hero_fg_image: heroFg,
+        hero_bg_scale: heroBgScale,
+        hero_fg_scale: heroFgScale,
         hero_overlay_left: overlayLeft,
         hero_overlay_right: overlayRight,
         hero_title: heroTitle || null,
