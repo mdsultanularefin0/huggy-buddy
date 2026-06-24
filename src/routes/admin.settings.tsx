@@ -135,6 +135,50 @@ function SettingsPage() {
           <p className="text-xs text-muted-foreground mt-1"><b>Sticky</b> follows scroll and reserves space. <b>Static</b> scrolls away. <b>Floating</b> overlays the hero.</p>
         </div>
 
+        <div className="border-t pt-6 space-y-4">
+          <div>
+            <Label className="text-base">Footer logo</Label>
+            <p className="text-xs text-muted-foreground">Size and alignment of the logo in the site footer.</p>
+          </div>
+          <div className="grid sm:grid-cols-2 gap-6">
+            <div>
+              <Label>Size: <span className="font-mono">{footerLogoSize}px</span></Label>
+              <input
+                type="range"
+                min={20}
+                max={96}
+                step={2}
+                value={footerLogoSize}
+                onChange={(e) => setFooterLogoSize(Number(e.target.value))}
+                className="w-full mt-2"
+              />
+            </div>
+            <div>
+              <Label>Alignment</Label>
+              <div className="mt-2 grid grid-cols-3 gap-2">
+                {(["left", "center", "right"] as const).map((a) => (
+                  <button
+                    key={a}
+                    type="button"
+                    onClick={() => setFooterLogoAlign(a)}
+                    className={`rounded-lg border px-3 py-2 text-sm font-medium capitalize transition-colors ${footerLogoAlign === a ? "bg-primary text-primary-foreground border-primary" : "bg-background hover:bg-muted"}`}
+                  >
+                    {a}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          {logoUrl && (
+            <div className="rounded-lg border bg-muted/30 p-4">
+              <div className={`flex items-center ${footerLogoAlign === "center" ? "justify-center" : footerLogoAlign === "right" ? "justify-end" : "justify-start"}`}>
+                <img src={logoUrl} alt="Footer preview" style={{ height: footerLogoSize }} className="w-auto object-contain" />
+              </div>
+              <p className="text-xs text-muted-foreground mt-2 text-center">Footer preview</p>
+            </div>
+          )}
+        </div>
+
         <div className="flex justify-end">
           <Button variant="luxe" onClick={() => save.mutate()} disabled={save.isPending}>
             {save.isPending && <Loader2 className="w-4 h-4 animate-spin mr-1" />}Save settings
