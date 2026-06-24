@@ -423,14 +423,8 @@ export type Database = {
           footer_logo_size: number
           header_position: string
           hero_bg_image: string | null
-          hero_bg_scale: number
-          hero_bg_x: number
-          hero_bg_y: number
           hero_cta_label: string | null
           hero_fg_image: string | null
-          hero_fg_scale: number
-          hero_fg_x: number
-          hero_fg_y: number
           hero_image: string | null
           hero_overlay_left: string | null
           hero_overlay_right: string | null
@@ -451,14 +445,8 @@ export type Database = {
           footer_logo_size?: number
           header_position?: string
           hero_bg_image?: string | null
-          hero_bg_scale?: number
-          hero_bg_x?: number
-          hero_bg_y?: number
           hero_cta_label?: string | null
           hero_fg_image?: string | null
-          hero_fg_scale?: number
-          hero_fg_x?: number
-          hero_fg_y?: number
           hero_image?: string | null
           hero_overlay_left?: string | null
           hero_overlay_right?: string | null
@@ -479,14 +467,8 @@ export type Database = {
           footer_logo_size?: number
           header_position?: string
           hero_bg_image?: string | null
-          hero_bg_scale?: number
-          hero_bg_x?: number
-          hero_bg_y?: number
           hero_cta_label?: string | null
           hero_fg_image?: string | null
-          hero_fg_scale?: number
-          hero_fg_x?: number
-          hero_fg_y?: number
           hero_image?: string | null
           hero_overlay_left?: string | null
           hero_overlay_right?: string | null

@@ -40,12 +40,6 @@ function HomepageEditor() {
   const [heroFg, setHeroFg] = useState<string | null>(null);
   const [overlayLeft, setOverlayLeft] = useState<string | null>(null);
   const [overlayRight, setOverlayRight] = useState<string | null>(null);
-  const [bgScale, setBgScale] = useState(100);
-  const [bgX, setBgX] = useState(0);
-  const [bgY, setBgY] = useState(0);
-  const [fgScale, setFgScale] = useState(100);
-  const [fgX, setFgX] = useState(0);
-  const [fgY, setFgY] = useState(0);
   const [resetDate, setResetDate] = useState("");
   const [headerPosition, setHeaderPosition] = useState<"sticky" | "static" | "floating">("sticky");
   const [ctaText, setCtaText] = useState("");
@@ -74,12 +68,6 @@ function HomepageEditor() {
     setHeroFg((s.hero_fg_image as string) ?? null);
     setOverlayLeft((s.hero_overlay_left as string) ?? null);
     setOverlayRight((s.hero_overlay_right as string) ?? null);
-    setBgScale(Number(s.hero_bg_scale ?? 100));
-    setBgX(Number(s.hero_bg_x ?? 0));
-    setBgY(Number(s.hero_bg_y ?? 0));
-    setFgScale(Number(s.hero_fg_scale ?? 100));
-    setFgX(Number(s.hero_fg_x ?? 0));
-    setFgY(Number(s.hero_fg_y ?? 0));
     setResetDate(((s.timer_reset_date as string) ?? "").slice(0, 16));
     setHeaderPosition(((s.header_position as "sticky" | "static" | "floating") ?? "sticky"));
     setCtaText((s.cta_band_text as string) ?? "");
@@ -96,12 +84,6 @@ function HomepageEditor() {
         hero_fg_image: heroFg,
         hero_overlay_left: overlayLeft,
         hero_overlay_right: overlayRight,
-        hero_bg_scale: bgScale,
-        hero_bg_x: bgX,
-        hero_bg_y: bgY,
-        hero_fg_scale: fgScale,
-        hero_fg_x: fgX,
-        hero_fg_y: fgY,
         hero_title: heroTitle || null,
         hero_subtitle: heroSubtitle || null,
         hero_cta_label: heroCtaLabel || null,
@@ -335,11 +317,6 @@ function HomepageEditor() {
             <p className="text-xs text-muted-foreground mt-1">{slot.hint}</p>
           </div>
         ))}
-
-        <div className="grid sm:grid-cols-2 gap-6 pt-2 border-t">
-          <TransformBlock title="Background image transform" scale={bgScale} setScale={setBgScale} x={bgX} setX={setBgX} y={bgY} setY={setBgY} />
-          <TransformBlock title="Foreground image transform" scale={fgScale} setScale={setFgScale} x={fgX} setX={setFgX} y={fgY} setY={setFgY} />
-        </div>
       </Card>
 
       {/* CATEGORIES */}
@@ -617,30 +594,4 @@ function LivePreview({
     </Card>
   );
 }
-
-function TransformBlock({ title, scale, setScale, x, setX, y, setY }: {
-  title: string;
-  scale: number; setScale: (n: number) => void;
-  x: number; setX: (n: number) => void;
-  y: number; setY: (n: number) => void;
-}) {
-  const Row = ({ label, value, min, max, step, onChange, suffix }: { label: string; value: number; min: number; max: number; step: number; onChange: (n: number) => void; suffix: string }) => (
-    <div>
-      <div className="flex items-center justify-between text-xs">
-        <span className="font-medium">{label}</span>
-        <span className="text-muted-foreground tabular-nums">{value}{suffix}</span>
-      </div>
-      <input type="range" min={min} max={max} step={step} value={value} onChange={(e) => onChange(Number(e.target.value))} className="w-full accent-primary" />
-    </div>
-  );
-  return (
-    <div className="space-y-2">
-      <p className="text-sm font-semibold">{title}</p>
-      <Row label="Zoom" value={scale} min={20} max={300} step={1} onChange={setScale} suffix="%" />
-      <Row label="Horizontal" value={x} min={-100} max={100} step={1} onChange={setX} suffix="%" />
-      <Row label="Vertical" value={y} min={-100} max={100} step={1} onChange={setY} suffix="%" />
-    </div>
-  );
-}
-
 

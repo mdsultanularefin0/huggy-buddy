@@ -1,7 +1,0 @@
-ALTER TABLE public.site_settings
-  ADD COLUMN IF NOT EXISTS hero_bg_scale numeric NOT NULL DEFAULT 100,
-  ADD COLUMN IF NOT EXISTS hero_bg_x numeric NOT NULL DEFAULT 0,
-  ADD COLUMN IF NOT EXISTS hero_bg_y numeric NOT NULL DEFAULT 0,
-  ADD COLUMN IF NOT EXISTS hero_fg_scale numeric NOT NULL DEFAULT 100,
-  ADD COLUMN IF NOT EXISTS hero_fg_x numeric NOT NULL DEFAULT 0,
-  ADD COLUMN IF NOT EXISTS hero_fg_y numeric NOT NULL DEFAULT 0;
