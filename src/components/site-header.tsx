@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Sparkles, ShoppingBag, Menu, X } from "lucide-react";
+import { Sparkles, ShoppingCart, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useCart, cartCount } from "@/lib/cart-store";
@@ -11,56 +11,69 @@ export function SiteHeader() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const links = [
-    { to: "/", hash: "perfumes", label: "Shop" },
-    { to: "/", hash: "combos", label: "Combos" },
-    { to: "/", hash: "byob", label: "Build Your Box" },
+    { to: "/" as const, hash: "perfumes", label: "Female Scent" },
+    { to: "/" as const, hash: "perfumes", label: "Male Scent" },
+    { to: "/" as const, hash: "combos", label: "Combo Pack" },
+    { to: "/" as const, hash: "byob", label: "Customize Combo" },
+    { to: "/" as const, hash: "footer", label: "Support" },
   ];
 
   return (
-    <header className="sticky top-0 z-40 backdrop-blur-xl bg-background/60 border-b border-border/60 supports-[backdrop-filter]:bg-background/40">
-      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-xl bg-gradient-luxe flex items-center justify-center shadow-soft">
-            <Sparkles className="w-5 h-5 text-primary-foreground" />
+    <header className="sticky top-0 z-40 bg-primary text-primary-foreground border-b border-white/10">
+      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between gap-6">
+        <Link to="/" className="flex items-center gap-2 shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-white/15 backdrop-blur flex items-center justify-center">
+            <Sparkles className="w-5 h-5 text-accent" />
           </div>
-          <span className="text-lg font-semibold tracking-tight">Veloura Essence</span>
+          <div className="leading-none">
+            <div className="font-display text-base font-bold tracking-wide text-accent">VELOURA</div>
+            <div className="text-[9px] tracking-[0.3em] text-primary-foreground/80">ESSENCE</div>
+          </div>
         </Link>
-        <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
-          <Link to="/" className="hover:text-foreground">Home</Link>
+        <nav className="hidden lg:flex items-center gap-7 text-sm font-medium text-primary-foreground/90">
+          <Link to="/" className="hover:text-white transition-colors">Home</Link>
           {links.map((l) => (
-            <Link key={l.label} to={l.to} hash={l.hash} className="hover:text-foreground">{l.label}</Link>
+            <Link key={l.label} to={l.to} hash={l.hash} className="hover:text-white transition-colors whitespace-nowrap">
+              {l.label}
+            </Link>
           ))}
         </nav>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" onClick={open} className="relative" aria-label="Open cart">
-            <ShoppingBag className="w-5 h-5" />
+          <Link to="/auth" className="hidden md:inline-flex">
+            <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-white/10 hover:text-white">
+              Log in
+            </Button>
+          </Link>
+          <button
+            onClick={open}
+            aria-label="Open cart"
+            className="relative w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center hover:bg-white/90 transition-colors"
+          >
+            <ShoppingCart className="w-5 h-5" />
             {count > 0 && (
               <span className="absolute -top-1 -right-1 bg-accent text-accent-foreground text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center px-1 font-semibold">
                 {count}
               </span>
             )}
-          </Button>
+          </button>
           <Button
             variant="ghost"
             size="sm"
-            className="md:hidden"
+            className="lg:hidden text-primary-foreground hover:bg-white/10 hover:text-white"
             onClick={() => setMobileOpen((v) => !v)}
             aria-label="Toggle menu"
           >
             {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </Button>
-          <Link to="/auth" className="hidden md:inline-flex">
-            <Button variant="outline-luxe" size="sm">Admin</Button>
-          </Link>
         </div>
       </div>
       {mobileOpen && (
-        <div className="md:hidden border-t border-border/60 bg-background/90 backdrop-blur-xl px-6 py-4 flex flex-col gap-3 text-sm">
+        <div className="lg:hidden border-t border-white/10 bg-primary px-6 py-4 flex flex-col gap-3 text-sm">
           <Link to="/" onClick={() => setMobileOpen(false)} className="py-1">Home</Link>
           {links.map((l) => (
             <Link key={l.label} to={l.to} hash={l.hash} onClick={() => setMobileOpen(false)} className="py-1">{l.label}</Link>
           ))}
-          <Link to="/auth" onClick={() => setMobileOpen(false)} className="py-1 text-muted-foreground">Admin</Link>
+          <Link to="/auth" onClick={() => setMobileOpen(false)} className="py-1 text-primary-foreground/80">Log in</Link>
         </div>
       )}
     </header>
