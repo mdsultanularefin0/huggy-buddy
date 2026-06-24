@@ -22,7 +22,7 @@ const heroSettingsQuery = queryOptions({
   queryFn: async () => {
     const { data, error } = await supabase
       .from("site_settings")
-      .select("hero_image, marquee_text")
+      .select("hero_image, hero_overlay_left, marquee_text")
       .limit(1)
       .maybeSingle();
     if (error) throw error;
@@ -51,6 +51,7 @@ function Landing() {
   const { data: hero } = useSuspenseQuery(heroSettingsQuery);
   const slots = Array.from({ length: 4 }, (_, i) => categories[i]);
   const heroImage = hero?.hero_image ?? null;
+  const overlayImage = hero?.hero_overlay_left ?? null;
   const marqueeText = (hero?.marquee_text ?? "Free shipping over ₹999 · New arrivals every week · Premium fragrances handcrafted").trim();
   const marqueeItems = Array.from({ length: 8 }, () => marqueeText);
 
@@ -59,10 +60,19 @@ function Landing() {
       <SiteHeader />
       <main className="w-full">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-4 w-full pt-8 items-start px-6">
-          <div
-            className="relative w-full max-w-[280px] mx-auto lg:mx-0 aspect-[3/4] rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-purple-100 to-purple-50 bg-cover bg-center"
-            style={heroImage ? { backgroundImage: `url(${heroImage})` } : undefined}
-          />
+          <div className="relative w-full max-w-[280px] mx-auto lg:mx-0 z-30">
+            <div
+              className="relative w-full aspect-[3/4] rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-purple-100 to-purple-50 bg-cover bg-center"
+              style={heroImage ? { backgroundImage: `url(${heroImage})` } : undefined}
+            />
+            {overlayImage && (
+              <img
+                src={overlayImage}
+                alt=""
+                className="pointer-events-none absolute left-1/2 -translate-x-1/2 top-1/3 w-[160%] max-w-none object-contain drop-shadow-2xl"
+              />
+            )}
+          </div>
 
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full lg:max-w-[720px] mx-auto">
