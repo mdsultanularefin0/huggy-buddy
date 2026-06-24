@@ -58,7 +58,7 @@ function Landing() {
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <main className="w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-4 w-full py-8 items-stretch px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-4 w-full pt-8 items-start px-6">
           <div
             className="relative w-full max-w-[280px] mx-auto lg:mx-0 aspect-[3/4] rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-purple-100 to-purple-50 bg-cover bg-center"
             style={heroImage ? { backgroundImage: `url(${heroImage})` } : undefined}
@@ -100,7 +100,7 @@ function Landing() {
           </div>
         </div>
 
-        <div className="relative w-full -mt-16 sm:-mt-20 lg:-mt-24 z-10 bg-[#52277a] text-white py-3 overflow-hidden shadow-lg">
+        <div className="relative w-full mt-8 bg-[#52277a] text-white py-3 overflow-hidden shadow-lg">
           <div className="marquee-track text-sm sm:text-base font-medium tracking-wide">
             {marqueeItems.map((t, i) => (
               <span key={i} className="px-8 inline-flex items-center gap-8">
