@@ -40,6 +40,7 @@ function SettingsPage() {
       setOverlayLeft(settings.hero_overlay_left);
       setOverlayRight(settings.hero_overlay_right);
       setResetDate(settings.timer_reset_date?.slice(0, 16) ?? "");
+      setHeaderPosition(((settings as { header_position?: string }).header_position as "sticky" | "static" | "floating") ?? "sticky");
     }
   }, [settings]);
 
@@ -50,6 +51,7 @@ function SettingsPage() {
         hero_image: hero,
         hero_overlay_left: overlayLeft,
         hero_overlay_right: overlayRight,
+        header_position: headerPosition,
         timer_reset_date: resetDate ? new Date(resetDate).toISOString() : new Date().toISOString(),
       };
       if (settings?.id) {
