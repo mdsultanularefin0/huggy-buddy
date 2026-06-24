@@ -25,6 +25,8 @@ type ComboRow = {
 type SiteSettings = {
   marquee_text: string | null;
   hero_image: string | null;
+  hero_overlay_left: string | null;
+  hero_overlay_right: string | null;
   timer_reset_date: string | null;
 };
 
