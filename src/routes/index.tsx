@@ -33,6 +33,8 @@ type SiteSettings = {
   hero_image: string | null;
   hero_bg_image: string | null;
   hero_fg_image: string | null;
+  hero_bg_scale: number | null;
+  hero_fg_scale: number | null;
   hero_overlay_left: string | null;
   hero_overlay_right: string | null;
   header_position: "sticky" | "static" | "floating" | null;
