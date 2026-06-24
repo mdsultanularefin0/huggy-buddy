@@ -129,7 +129,7 @@ export const createOrder = createServerFn({ method: "POST" })
       .insert({
         order_number: orderNumber,
         customer_id: customerId,
-        customer_json: data.customer,
+        customer_json: customerPayload,
         items_json: data.items,
         subtotal,
         shipping_fee: shippingFee,
