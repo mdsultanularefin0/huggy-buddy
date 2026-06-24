@@ -17,10 +17,9 @@ function SettingsPage() {
   const [headerPosition, setHeaderPosition] = useState<"sticky" | "static" | "floating">("sticky");
   const [logoUrl, setLogoUrl] = useState("");
   const [iconUrl, setIconUrl] = useState("");
-  const [heroImageUrl, setHeroImageUrl] = useState("");
   const [footerLogoSize, setFooterLogoSize] = useState(36);
   const [footerLogoAlign, setFooterLogoAlign] = useState<"left" | "center" | "right">("left");
-  const [uploading, setUploading] = useState<"logo" | "icon" | "hero" | null>(null);
+  const [uploading, setUploading] = useState<"logo" | "icon" | null>(null);
 
   const { data: settings, isLoading } = useQuery({
     queryKey: ["admin", "site_settings"],
