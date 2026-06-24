@@ -112,7 +112,7 @@ function Landing() {
           </div>
         </div>
 
-        <div className="w-full bg-gradient-to-r from-[#52277a] to-[#a555f0] py-8 lg:py-12 relative z-10">
+        <div className="w-full bg-gradient-to-r from-[#52277a] to-[#a555f0] py-4 lg:py-6 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full max-w-7xl mx-auto px-4 items-center">
             <div className="flex justify-end pr-8">
               <button
