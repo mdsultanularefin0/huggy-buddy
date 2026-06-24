@@ -8,6 +8,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { CartDrawer } from "@/components/cart-drawer";
 import { FlashTimer } from "@/components/flash-timer";
+import heroCover from "@/assets/hero-cover.jpg.asset.json";
 
 type ProductRow = {
   id: string; name: string; description: string | null;
