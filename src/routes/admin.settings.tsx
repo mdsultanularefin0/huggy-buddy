@@ -4,15 +4,20 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2 } from "lucide-react";
+import { Loader2, Upload } from "lucide-react";
 import { toast } from "sonner";
+import { uploadImage } from "@/lib/upload";
 
 export const Route = createFileRoute("/admin/settings")({ component: SettingsPage });
 
 function SettingsPage() {
   const qc = useQueryClient();
   const [headerPosition, setHeaderPosition] = useState<"sticky" | "static" | "floating">("sticky");
+  const [logoUrl, setLogoUrl] = useState("");
+  const [iconUrl, setIconUrl] = useState("");
+  const [uploading, setUploading] = useState<"logo" | "icon" | null>(null);
 
   const { data: settings, isLoading } = useQuery({
     queryKey: ["admin", "site_settings"],
@@ -25,13 +30,16 @@ function SettingsPage() {
 
   useEffect(() => {
     if (settings) {
-      setHeaderPosition(((settings as { header_position?: string }).header_position as "sticky" | "static" | "floating") ?? "sticky");
+      const s = settings as { header_position?: string; site_logo_url?: string | null; site_icon_url?: string | null };
+      setHeaderPosition((s.header_position as "sticky" | "static" | "floating") ?? "sticky");
+      setLogoUrl(s.site_logo_url ?? "");
+      setIconUrl(s.site_icon_url ?? "");
     }
   }, [settings]);
 
   const save = useMutation({
     mutationFn: async () => {
-      const payload = { header_position: headerPosition };
+      const payload = { header_position: headerPosition, site_logo_url: logoUrl || null, site_icon_url: iconUrl || null };
       if (settings?.id) {
         const { error } = await supabase.from("site_settings").update(payload).eq("id", settings.id);
         if (error) throw error;
@@ -48,6 +56,19 @@ function SettingsPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  async function handleUpload(kind: "logo" | "icon", file: File) {
+    try {
+      setUploading(kind);
+      const url = await uploadImage("hero-images", file);
+      if (kind === "logo") setLogoUrl(url); else setIconUrl(url);
+      toast.success(`${kind === "logo" ? "Logo" : "Icon"} uploaded — click Save to apply`);
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setUploading(null);
+    }
+  }
+
   if (isLoading) {
     return <div className="p-12 text-center text-muted-foreground"><Loader2 className="w-5 h-5 animate-spin inline mr-2" /> Loading…</div>;
   }
@@ -59,7 +80,28 @@ function SettingsPage() {
         <p className="text-muted-foreground mt-1">Global site configuration. Hero, marquee, categories, and CTA band have moved to the <Link to="/admin/homepage" className="underline font-medium">Homepage Editor</Link>.</p>
       </div>
 
-      <Card className="p-6 space-y-5 shadow-card">
+      <Card className="p-6 space-y-6 shadow-card">
+        <div className="grid sm:grid-cols-2 gap-6">
+          <BrandUpload
+            label="Site logo"
+            hint="Shown in the header. PNG/SVG with transparent background recommended."
+            url={logoUrl}
+            onUrlChange={setLogoUrl}
+            onFile={(f) => handleUpload("logo", f)}
+            busy={uploading === "logo"}
+            previewClass="bg-primary p-3 h-20"
+          />
+          <BrandUpload
+            label="Site icon (favicon)"
+            hint="Browser tab icon. Square PNG, 256×256 or larger."
+            url={iconUrl}
+            onUrlChange={setIconUrl}
+            onFile={(f) => handleUpload("icon", f)}
+            busy={uploading === "icon"}
+            previewClass="bg-muted p-3 h-20"
+          />
+        </div>
+
         <div>
           <Label>Header position</Label>
           <div className="mt-2 grid grid-cols-3 gap-2">
@@ -74,7 +116,7 @@ function SettingsPage() {
               </button>
             ))}
           </div>
-          <p className="text-xs text-muted-foreground mt-1"><b>Sticky</b> follows scroll and reserves space (no overlap). <b>Static</b> scrolls away with the page. <b>Floating</b> overlays the hero (transparent until scrolled).</p>
+          <p className="text-xs text-muted-foreground mt-1"><b>Sticky</b> follows scroll and reserves space. <b>Static</b> scrolls away. <b>Floating</b> overlays the hero.</p>
         </div>
 
         <div className="flex justify-end">
@@ -83,6 +125,38 @@ function SettingsPage() {
           </Button>
         </div>
       </Card>
+    </div>
+  );
+}
+
+function BrandUpload({ label, hint, url, onUrlChange, onFile, busy, previewClass }: {
+  label: string;
+  hint: string;
+  url: string;
+  onUrlChange: (v: string) => void;
+  onFile: (f: File) => void;
+  busy: boolean;
+  previewClass: string;
+}) {
+  return (
+    <div className="space-y-2">
+      <Label>{label}</Label>
+      <div className={`rounded-lg border flex items-center justify-center ${previewClass}`}>
+        {url ? (
+          <img src={url} alt={label} className="max-h-full max-w-full object-contain" />
+        ) : (
+          <span className="text-xs text-muted-foreground">No image</span>
+        )}
+      </div>
+      <div className="flex gap-2">
+        <Input value={url} onChange={(e) => onUrlChange(e.target.value)} placeholder="Image URL" className="flex-1" />
+        <label className="inline-flex items-center gap-1 cursor-pointer rounded-md border px-3 py-2 text-sm hover:bg-muted">
+          {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+          <span>Upload</span>
+          <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) onFile(f); e.target.value = ""; }} />
+        </label>
+      </div>
+      <p className="text-xs text-muted-foreground">{hint}</p>
     </div>
   );
 }
