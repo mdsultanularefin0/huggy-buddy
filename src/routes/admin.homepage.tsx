@@ -108,3 +108,39 @@ function HomepagePage() {
     </div>
   );
 }
+
+function HeroUpload({ label, hint, url, onUrlChange, onFile, busy }: {
+  label: string;
+  hint: string;
+  url: string;
+  onUrlChange: (v: string) => void;
+  onFile: (f: File) => void;
+  busy: boolean;
+}) {
+  return (
+    <div className="space-y-2">
+      <Label>{label}</Label>
+      <div className="rounded-lg border flex items-center justify-center bg-muted h-64 overflow-hidden">
+        {url ? (
+          <img src={url} alt={label} className="max-h-full max-w-full object-contain" />
+        ) : (
+          <span className="text-xs text-muted-foreground">No image</span>
+        )}
+      </div>
+      <div className="flex gap-2">
+        <Input value={url} onChange={(e) => onUrlChange(e.target.value)} placeholder="Image URL" className="flex-1" />
+        <label className="inline-flex items-center gap-1 cursor-pointer rounded-md border px-3 py-2 text-sm hover:bg-muted">
+          {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+          <span>Upload</span>
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => { const f = e.target.files?.[0]; if (f) onFile(f); e.target.value = ""; }}
+          />
+        </label>
+      </div>
+      <p className="text-xs text-muted-foreground">{hint}</p>
+    </div>
+  );
+}
