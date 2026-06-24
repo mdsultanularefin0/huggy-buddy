@@ -22,7 +22,7 @@ const heroSettingsQuery = queryOptions({
   queryFn: async () => {
     const { data, error } = await supabase
       .from("site_settings")
-      .select("hero_image")
+      .select("hero_image, marquee_text")
       .limit(1)
       .maybeSingle();
     if (error) throw error;
@@ -51,6 +51,8 @@ function Landing() {
   const { data: hero } = useSuspenseQuery(heroSettingsQuery);
   const slots = Array.from({ length: 4 }, (_, i) => categories[i]);
   const heroImage = hero?.hero_image ?? null;
+  const marqueeText = (hero?.marquee_text ?? "Free shipping over ₹999 · New arrivals every week · Premium fragrances handcrafted").trim();
+  const marqueeItems = Array.from({ length: 8 }, () => marqueeText);
 
   return (
     <div className="min-h-screen bg-background">
@@ -95,6 +97,17 @@ function Landing() {
                 </Link>
               );
             })}
+          </div>
+        </div>
+
+        <div className="relative w-full -mt-16 sm:-mt-20 lg:-mt-24 z-10 bg-[#52277a] text-white py-3 overflow-hidden shadow-lg">
+          <div className="marquee-track text-sm sm:text-base font-medium tracking-wide">
+            {marqueeItems.map((t, i) => (
+              <span key={i} className="px-8 inline-flex items-center gap-8">
+                {t}
+                <span className="opacity-60">✦</span>
+              </span>
+            ))}
           </div>
         </div>
       </main>
