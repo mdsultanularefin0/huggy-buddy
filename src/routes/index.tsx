@@ -37,7 +37,10 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Veloura Essence — premium fragrances." },
     ],
   }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(categoriesQuery),
+  loader: ({ context }) => Promise.all([
+    context.queryClient.ensureQueryData(categoriesQuery),
+    context.queryClient.ensureQueryData(heroSettingsQuery),
+  ]),
   component: Landing,
   errorComponent: ({ error }) => <div className="p-8 text-center text-destructive">{error.message}</div>,
   notFoundComponent: () => <div className="p-8 text-center">Not found.</div>,
