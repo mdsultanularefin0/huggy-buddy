@@ -31,7 +31,7 @@ const categoryPageOptions = (slug: string) => queryOptions({
       .eq("is_active", true)
       .order("created_at", { ascending: false });
     if (pe) throw pe;
-    const { data: settings } = await supabase.from("site_settings").select("site_logo_url").limit(1).maybeSingle();
+    const { data: settings } = await supabase.from("site_settings").select("site_logo_url,footer_logo_size,footer_logo_align").limit(1).maybeSingle();
     return { category: cat, products: (products ?? []) as ProductRow[], settings };
   },
 });
@@ -110,7 +110,7 @@ function CategoryPage() {
           </div>
         )}
       </section>
-      <SiteFooter logoUrl={data.settings?.site_logo_url ?? null} />
+      <SiteFooter logoUrl={data.settings?.site_logo_url ?? null} logoSize={data.settings?.footer_logo_size ?? null} logoAlign={(data.settings?.footer_logo_align as "left" | "center" | "right" | null) ?? null} />
       <CartDrawer />
     </div>
   );

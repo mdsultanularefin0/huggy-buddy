@@ -17,6 +17,8 @@ function SettingsPage() {
   const [headerPosition, setHeaderPosition] = useState<"sticky" | "static" | "floating">("sticky");
   const [logoUrl, setLogoUrl] = useState("");
   const [iconUrl, setIconUrl] = useState("");
+  const [footerLogoSize, setFooterLogoSize] = useState(36);
+  const [footerLogoAlign, setFooterLogoAlign] = useState<"left" | "center" | "right">("left");
   const [uploading, setUploading] = useState<"logo" | "icon" | null>(null);
 
   const { data: settings, isLoading } = useQuery({
@@ -30,16 +32,30 @@ function SettingsPage() {
 
   useEffect(() => {
     if (settings) {
-      const s = settings as { header_position?: string; site_logo_url?: string | null; site_icon_url?: string | null };
+      const s = settings as {
+        header_position?: string;
+        site_logo_url?: string | null;
+        site_icon_url?: string | null;
+        footer_logo_size?: number | null;
+        footer_logo_align?: string | null;
+      };
       setHeaderPosition((s.header_position as "sticky" | "static" | "floating") ?? "sticky");
       setLogoUrl(s.site_logo_url ?? "");
       setIconUrl(s.site_icon_url ?? "");
+      setFooterLogoSize(s.footer_logo_size ?? 36);
+      setFooterLogoAlign((s.footer_logo_align as "left" | "center" | "right") ?? "left");
     }
   }, [settings]);
 
   const save = useMutation({
     mutationFn: async () => {
-      const payload = { header_position: headerPosition, site_logo_url: logoUrl || null, site_icon_url: iconUrl || null };
+      const payload = {
+        header_position: headerPosition,
+        site_logo_url: logoUrl || null,
+        site_icon_url: iconUrl || null,
+        footer_logo_size: footerLogoSize,
+        footer_logo_align: footerLogoAlign,
+      };
       if (settings?.id) {
         const { error } = await supabase.from("site_settings").update(payload).eq("id", settings.id);
         if (error) throw error;
@@ -117,6 +133,50 @@ function SettingsPage() {
             ))}
           </div>
           <p className="text-xs text-muted-foreground mt-1"><b>Sticky</b> follows scroll and reserves space. <b>Static</b> scrolls away. <b>Floating</b> overlays the hero.</p>
+        </div>
+
+        <div className="border-t pt-6 space-y-4">
+          <div>
+            <Label className="text-base">Footer logo</Label>
+            <p className="text-xs text-muted-foreground">Size and alignment of the logo in the site footer.</p>
+          </div>
+          <div className="grid sm:grid-cols-2 gap-6">
+            <div>
+              <Label>Size: <span className="font-mono">{footerLogoSize}px</span></Label>
+              <input
+                type="range"
+                min={20}
+                max={96}
+                step={2}
+                value={footerLogoSize}
+                onChange={(e) => setFooterLogoSize(Number(e.target.value))}
+                className="w-full mt-2"
+              />
+            </div>
+            <div>
+              <Label>Alignment</Label>
+              <div className="mt-2 grid grid-cols-3 gap-2">
+                {(["left", "center", "right"] as const).map((a) => (
+                  <button
+                    key={a}
+                    type="button"
+                    onClick={() => setFooterLogoAlign(a)}
+                    className={`rounded-lg border px-3 py-2 text-sm font-medium capitalize transition-colors ${footerLogoAlign === a ? "bg-primary text-primary-foreground border-primary" : "bg-background hover:bg-muted"}`}
+                  >
+                    {a}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          {logoUrl && (
+            <div className="rounded-lg border bg-muted/30 p-4">
+              <div className={`flex items-center ${footerLogoAlign === "center" ? "justify-center" : footerLogoAlign === "right" ? "justify-end" : "justify-start"}`}>
+                <img src={logoUrl} alt="Footer preview" style={{ height: footerLogoSize }} className="w-auto object-contain" />
+              </div>
+              <p className="text-xs text-muted-foreground mt-2 text-center">Footer preview</p>
+            </div>
+          )}
         </div>
 
         <div className="flex justify-end">

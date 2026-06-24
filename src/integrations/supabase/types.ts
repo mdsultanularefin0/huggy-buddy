@@ -419,6 +419,8 @@ export type Database = {
           cta_band_button_label: string | null
           cta_band_button_link: string | null
           cta_band_text: string | null
+          footer_logo_align: string
+          footer_logo_size: number
           header_position: string
           hero_cta_label: string | null
           hero_image: string | null
@@ -437,6 +439,8 @@ export type Database = {
           cta_band_button_label?: string | null
           cta_band_button_link?: string | null
           cta_band_text?: string | null
+          footer_logo_align?: string
+          footer_logo_size?: number
           header_position?: string
           hero_cta_label?: string | null
           hero_image?: string | null
@@ -455,6 +459,8 @@ export type Database = {
           cta_band_button_label?: string | null
           cta_band_button_link?: string | null
           cta_band_text?: string | null
+          footer_logo_align?: string
+          footer_logo_size?: number
           header_position?: string
           hero_cta_label?: string | null
           hero_image?: string | null

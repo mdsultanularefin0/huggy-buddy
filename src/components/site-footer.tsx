@@ -1,14 +1,29 @@
 import { Link } from "@tanstack/react-router";
 import { Sparkles, ShieldCheck, Truck, Phone, Mail, MapPin, Banknote, Wallet } from "lucide-react";
 
-export function SiteFooter({ logoUrl }: { logoUrl?: string | null } = {}) {
+type FooterAlign = "left" | "center" | "right";
+
+export function SiteFooter({
+  logoUrl,
+  logoSize = 36,
+  logoAlign = "left",
+}: {
+  logoUrl?: string | null;
+  logoSize?: number | null;
+  logoAlign?: FooterAlign | null;
+} = {}) {
+  const size = logoSize ?? 36;
+  const align: FooterAlign = (logoAlign ?? "left") as FooterAlign;
+  const justify = align === "center" ? "justify-center" : align === "right" ? "justify-end" : "justify-start";
+  const textAlign = align === "center" ? "text-center" : align === "right" ? "text-right" : "text-left";
+
   return (
     <footer className="bg-gradient-to-b from-background to-secondary/40 border-t mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14 grid gap-10 md:grid-cols-2 lg:grid-cols-4">
-        <div>
-          <div className="flex items-center gap-2 mb-4">
+        <div className={textAlign}>
+          <div className={`flex items-center gap-2 mb-4 ${justify}`}>
             {logoUrl ? (
-              <img src={logoUrl} alt="Veloura Essence" className="h-9 w-auto object-contain" />
+              <img src={logoUrl} alt="Veloura Essence" style={{ height: size }} className="w-auto object-contain" />
             ) : (
               <>
                 <div className="w-9 h-9 rounded-xl bg-gradient-luxe flex items-center justify-center shadow-soft">

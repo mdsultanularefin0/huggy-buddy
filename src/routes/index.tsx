@@ -43,6 +43,8 @@ type SiteSettings = {
   cta_band_button_link: string | null;
   site_logo_url: string | null;
   site_icon_url: string | null;
+  footer_logo_size: number | null;
+  footer_logo_align: "left" | "center" | "right" | null;
 };
 
 const storefrontOptions = queryOptions({
@@ -212,7 +214,7 @@ function Landing() {
         )}
       </section>
 
-      <SiteFooter logoUrl={s?.site_logo_url ?? null} />
+      <SiteFooter logoUrl={s?.site_logo_url ?? null} logoSize={s?.footer_logo_size ?? null} logoAlign={s?.footer_logo_align ?? null} />
       <CartDrawer />
     </div>
   );
