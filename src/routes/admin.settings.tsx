@@ -16,8 +16,10 @@ function SettingsPage() {
   const qc = useQueryClient();
   const [marquee, setMarquee] = useState("");
   const [hero, setHero] = useState<string | null>(null);
+  const [overlayLeft, setOverlayLeft] = useState<string | null>(null);
+  const [overlayRight, setOverlayRight] = useState<string | null>(null);
   const [resetDate, setResetDate] = useState("");
-  const [uploading, setUploading] = useState(false);
+  const [uploadingKey, setUploadingKey] = useState<string | null>(null);
 
   const { data: settings, isLoading } = useQuery({
     queryKey: ["admin", "site_settings"],
@@ -32,6 +34,8 @@ function SettingsPage() {
     if (settings) {
       setMarquee(settings.marquee_text);
       setHero(settings.hero_image);
+      setOverlayLeft(settings.hero_overlay_left);
+      setOverlayRight(settings.hero_overlay_right);
       setResetDate(settings.timer_reset_date?.slice(0, 16) ?? "");
     }
   }, [settings]);
@@ -41,6 +45,8 @@ function SettingsPage() {
       const payload = {
         marquee_text: marquee,
         hero_image: hero,
+        hero_overlay_left: overlayLeft,
+        hero_overlay_right: overlayRight,
         timer_reset_date: resetDate ? new Date(resetDate).toISOString() : new Date().toISOString(),
       };
       if (settings?.id) {
@@ -54,21 +60,24 @@ function SettingsPage() {
     onSuccess: () => {
       toast.success("Settings saved");
       qc.invalidateQueries({ queryKey: ["admin", "site_settings"] });
-      qc.invalidateQueries({ queryKey: ["site_settings"] });
+      qc.invalidateQueries({ queryKey: ["storefront"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
 
-  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleUpload(key: "hero" | "left" | "right", e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    setUploading(true);
+    setUploadingKey(key);
     try {
-      setHero(await uploadImage("hero-images", file));
+      const url = await uploadImage("hero-images", file);
+      if (key === "hero") setHero(url);
+      if (key === "left") setOverlayLeft(url);
+      if (key === "right") setOverlayRight(url);
     } catch (err) {
       toast.error((err as Error).message);
     } finally {
-      setUploading(false);
+      setUploadingKey(null);
     }
   }
 
@@ -76,11 +85,17 @@ function SettingsPage() {
     return <div className="p-12 text-center text-muted-foreground"><Loader2 className="w-5 h-5 animate-spin inline mr-2" /> Loading…</div>;
   }
 
+  const slots: { key: "hero" | "left" | "right"; label: string; value: string | null; setter: (v: string | null) => void; hint: string }[] = [
+    { key: "hero", label: "Hero background image (optional)", value: hero, setter: setHero, hint: "Optional background image layered behind the hero. Leave empty for a clean brand-colored hero." },
+    { key: "left", label: "Marquee overlay — left", value: overlayLeft, setter: setOverlayLeft, hint: "Floats over the left side of the marquee banner. PNG with transparency works best." },
+    { key: "right", label: "Marquee overlay — right", value: overlayRight, setter: setOverlayRight, hint: "Floats over the right side of the marquee banner. PNG with transparency works best." },
+  ];
+
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
         <h1 className="text-3xl font-semibold tracking-tight">Site Settings</h1>
-        <p className="text-muted-foreground mt-1">Storefront hero, marquee, and countdown timer.</p>
+        <p className="text-muted-foreground mt-1">Storefront hero, marquee, overlays, and countdown timer.</p>
       </div>
 
       <Card className="p-6 space-y-5 shadow-card">
@@ -90,24 +105,27 @@ function SettingsPage() {
           <p className="text-xs text-muted-foreground mt-1">Shown as the scrolling announcement at the top of the storefront.</p>
         </div>
 
-        <div>
-          <Label>Hero image</Label>
-          <div className="mt-2 flex items-center gap-3">
-            {hero ? (
-              <div className="relative">
-                <img src={hero} alt="" className="w-48 h-28 rounded-lg object-cover border" />
-                <button onClick={() => setHero(null)} className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center">
-                  <X className="w-3 h-3" />
-                </button>
-              </div>
-            ) : (
-              <label className="w-48 h-28 rounded-lg border-2 border-dashed flex items-center justify-center cursor-pointer hover:bg-muted/50">
-                {uploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <div className="text-center"><Upload className="w-5 h-5 text-muted-foreground mx-auto" /><div className="text-xs text-muted-foreground mt-1">Upload hero</div></div>}
-                <input type="file" accept="image/*" className="hidden" onChange={handleUpload} disabled={uploading} />
-              </label>
-            )}
+        {slots.map((slot) => (
+          <div key={slot.key}>
+            <Label>{slot.label}</Label>
+            <div className="mt-2 flex items-center gap-3">
+              {slot.value ? (
+                <div className="relative">
+                  <img src={slot.value} alt="" className="w-48 h-28 rounded-lg object-cover border bg-muted" />
+                  <button onClick={() => slot.setter(null)} className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center">
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ) : (
+                <label className="w-48 h-28 rounded-lg border-2 border-dashed flex items-center justify-center cursor-pointer hover:bg-muted/50">
+                  {uploadingKey === slot.key ? <Loader2 className="w-5 h-5 animate-spin" /> : <div className="text-center"><Upload className="w-5 h-5 text-muted-foreground mx-auto" /><div className="text-xs text-muted-foreground mt-1">Upload</div></div>}
+                  <input type="file" accept="image/*" className="hidden" onChange={(e) => handleUpload(slot.key, e)} disabled={uploadingKey !== null} />
+                </label>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">{slot.hint}</p>
           </div>
-        </div>
+        ))}
 
         <div>
           <Label htmlFor="reset">Countdown timer reset</Label>
