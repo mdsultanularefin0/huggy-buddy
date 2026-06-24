@@ -15,7 +15,8 @@ export const Route = createFileRoute("/admin/homepage")({ component: HomepagePag
 function HomepagePage() {
   const qc = useQueryClient();
   const [heroImageUrl, setHeroImageUrl] = useState("");
-  const [uploading, setUploading] = useState(false);
+  const [overlayImageUrl, setOverlayImageUrl] = useState("");
+  const [uploading, setUploading] = useState<null | "hero" | "overlay">(null);
 
   const { data: settings, isLoading } = useQuery({
     queryKey: ["admin", "site_settings"],
@@ -28,14 +29,18 @@ function HomepagePage() {
 
   useEffect(() => {
     if (settings) {
-      const s = settings as { hero_image?: string | null };
+      const s = settings as { hero_image?: string | null; hero_overlay_left?: string | null };
       setHeroImageUrl(s.hero_image ?? "");
+      setOverlayImageUrl(s.hero_overlay_left ?? "");
     }
   }, [settings]);
 
   const save = useMutation({
     mutationFn: async () => {
-      const payload = { hero_image: heroImageUrl || null };
+      const payload = {
+        hero_image: heroImageUrl || null,
+        hero_overlay_left: overlayImageUrl || null,
+      };
       if (settings?.id) {
         const { error } = await supabase.from("site_settings").update(payload).eq("id", settings.id);
         if (error) throw error;
@@ -52,16 +57,17 @@ function HomepagePage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  async function handleUpload(file: File) {
+  async function handleUpload(file: File, target: "hero" | "overlay") {
     try {
-      setUploading(true);
+      setUploading(target);
       const url = await uploadImage("hero-images", file);
-      setHeroImageUrl(url);
+      if (target === "hero") setHeroImageUrl(url);
+      else setOverlayImageUrl(url);
       toast.success("Image uploaded — click Save to apply");
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
-      setUploading(false);
+      setUploading(null);
     }
   }
 
