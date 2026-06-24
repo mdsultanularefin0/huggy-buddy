@@ -31,7 +31,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Landing() {
-  const { data: categories = [] } = useQuery(categoriesQuery);
+  const { data: categories = [] } = useSuspenseQuery(categoriesQuery);
   const slots = Array.from({ length: 4 }, (_, i) => categories[i]);
 
   return (
