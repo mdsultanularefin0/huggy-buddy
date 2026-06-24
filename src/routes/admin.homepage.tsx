@@ -255,6 +255,19 @@ function HomepageEditor() {
         </Button>
       </div>
 
+      <LivePreview
+        heroTitle={heroTitle}
+        heroSubtitle={heroSubtitle}
+        heroImage={hero}
+        overlayLeft={overlayLeft}
+        overlayRight={overlayRight}
+        marquee={marquee}
+        ctaText={ctaText}
+        ctaLabel={ctaBtnLabel || heroCtaLabel}
+        categories={categories}
+      />
+
+
       {/* HERO */}
       <Card className="p-6 space-y-5 shadow-card">
         <h2 className="text-lg font-semibold">Hero section</h2>
