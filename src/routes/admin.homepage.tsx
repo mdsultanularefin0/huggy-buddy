@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Loader2, Upload, X, Plus, Pencil, Trash2, ArrowUp, ArrowDown } from "lucide-react";
+import { Loader2, Upload, X, Plus, Pencil, Trash2, ArrowUp, ArrowDown, Smartphone, Tablet, Monitor, Gift } from "lucide-react";
 import { toast } from "sonner";
 import { uploadImage } from "@/lib/upload";
 import type { Database } from "@/integrations/supabase/types";
