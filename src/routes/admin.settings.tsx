@@ -17,6 +17,8 @@ function SettingsPage() {
   const [headerPosition, setHeaderPosition] = useState<"sticky" | "static" | "floating">("sticky");
   const [logoUrl, setLogoUrl] = useState("");
   const [iconUrl, setIconUrl] = useState("");
+  const [footerLogoSize, setFooterLogoSize] = useState(36);
+  const [footerLogoAlign, setFooterLogoAlign] = useState<"left" | "center" | "right">("left");
   const [uploading, setUploading] = useState<"logo" | "icon" | null>(null);
 
   const { data: settings, isLoading } = useQuery({
@@ -30,16 +32,30 @@ function SettingsPage() {
 
   useEffect(() => {
     if (settings) {
-      const s = settings as { header_position?: string; site_logo_url?: string | null; site_icon_url?: string | null };
+      const s = settings as {
+        header_position?: string;
+        site_logo_url?: string | null;
+        site_icon_url?: string | null;
+        footer_logo_size?: number | null;
+        footer_logo_align?: string | null;
+      };
       setHeaderPosition((s.header_position as "sticky" | "static" | "floating") ?? "sticky");
       setLogoUrl(s.site_logo_url ?? "");
       setIconUrl(s.site_icon_url ?? "");
+      setFooterLogoSize(s.footer_logo_size ?? 36);
+      setFooterLogoAlign((s.footer_logo_align as "left" | "center" | "right") ?? "left");
     }
   }, [settings]);
 
   const save = useMutation({
     mutationFn: async () => {
-      const payload = { header_position: headerPosition, site_logo_url: logoUrl || null, site_icon_url: iconUrl || null };
+      const payload = {
+        header_position: headerPosition,
+        site_logo_url: logoUrl || null,
+        site_icon_url: iconUrl || null,
+        footer_logo_size: footerLogoSize,
+        footer_logo_align: footerLogoAlign,
+      };
       if (settings?.id) {
         const { error } = await supabase.from("site_settings").update(payload).eq("id", settings.id);
         if (error) throw error;
