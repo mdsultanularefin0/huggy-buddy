@@ -20,7 +20,7 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-40 bg-primary text-primary-foreground border-b border-white/10">
-      <div className="w-full px-6 lg:px-10 h-16 flex items-center justify-between gap-6">
+      <div className="w-full px-8 lg:px-16 h-16 flex items-center justify-between gap-6">
         <Link to="/" className="flex items-center gap-2 shrink-0">
           <div className="w-9 h-9 rounded-xl bg-white/15 backdrop-blur flex items-center justify-center">
             <Sparkles className="w-5 h-5 text-accent" />
