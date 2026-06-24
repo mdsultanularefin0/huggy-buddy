@@ -38,6 +38,8 @@ function HomepageEditor() {
   const [hero, setHero] = useState<string | null>(null);
   const [heroBg, setHeroBg] = useState<string | null>(null);
   const [heroFg, setHeroFg] = useState<string | null>(null);
+  const [heroBgScale, setHeroBgScale] = useState(1);
+  const [heroFgScale, setHeroFgScale] = useState(1);
   const [overlayLeft, setOverlayLeft] = useState<string | null>(null);
   const [overlayRight, setOverlayRight] = useState<string | null>(null);
   const [resetDate, setResetDate] = useState("");
