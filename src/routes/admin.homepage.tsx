@@ -29,8 +29,9 @@ function HomepagePage() {
 
   useEffect(() => {
     if (settings) {
-      const s = settings as { hero_image?: string | null };
+      const s = settings as { hero_image?: string | null; hero_3d_overlay_image?: string | null };
       setHeroImageUrl(s.hero_image ?? "");
+      setOverlayImageUrl(s.hero_3d_overlay_image ?? "");
     }
   }, [settings]);
 
