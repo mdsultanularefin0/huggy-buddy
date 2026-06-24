@@ -40,6 +40,8 @@ type SiteSettings = {
   cta_band_text: string | null;
   cta_band_button_label: string | null;
   cta_band_button_link: string | null;
+  site_logo_url: string | null;
+  site_icon_url: string | null;
 };
 
 const storefrontOptions = queryOptions({
@@ -87,7 +89,8 @@ function Landing() {
 
   return (
     <div className="min-h-screen bg-background">
-      <SiteHeader position={s?.header_position ?? "sticky"} />
+      <FaviconSetter url={s?.site_icon_url} />
+      <SiteHeader position={s?.header_position ?? "sticky"} logoUrl={s?.site_logo_url ?? null} />
 
       {/* HERO */}
       <section className="relative w-full bg-background">
