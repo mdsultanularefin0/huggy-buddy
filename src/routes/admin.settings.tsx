@@ -36,14 +36,12 @@ function SettingsPage() {
         header_position?: string;
         site_logo_url?: string | null;
         site_icon_url?: string | null;
-        hero_image?: string | null;
         footer_logo_size?: number | null;
         footer_logo_align?: string | null;
       };
       setHeaderPosition((s.header_position as "sticky" | "static" | "floating") ?? "sticky");
       setLogoUrl(s.site_logo_url ?? "");
       setIconUrl(s.site_icon_url ?? "");
-      setHeroImageUrl(s.hero_image ?? "");
       setFooterLogoSize(s.footer_logo_size ?? 36);
       setFooterLogoAlign((s.footer_logo_align as "left" | "center" | "right") ?? "left");
     }
@@ -55,7 +53,6 @@ function SettingsPage() {
         header_position: headerPosition,
         site_logo_url: logoUrl || null,
         site_icon_url: iconUrl || null,
-        hero_image: heroImageUrl || null,
         footer_logo_size: footerLogoSize,
         footer_logo_align: footerLogoAlign,
       };
@@ -75,13 +72,12 @@ function SettingsPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  async function handleUpload(kind: "logo" | "icon" | "hero", file: File) {
+  async function handleUpload(kind: "logo" | "icon", file: File) {
     try {
       setUploading(kind);
       const url = await uploadImage("hero-images", file);
       if (kind === "logo") setLogoUrl(url);
-      else if (kind === "icon") setIconUrl(url);
-      else setHeroImageUrl(url);
+      else setIconUrl(url);
       toast.success(`Image uploaded — click Save to apply`);
     } catch (e) {
       toast.error((e as Error).message);
