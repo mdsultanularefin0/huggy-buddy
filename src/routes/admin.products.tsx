@@ -49,6 +49,15 @@ function ProductsPage() {
     },
   });
 
+  const { data: categories = [] } = useQuery({
+    queryKey: ["admin", "categories"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("categories").select("id,name").order("sort_order");
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const save = useMutation({
     mutationFn: async () => {
       const payload = {
@@ -60,6 +69,7 @@ function ProductsPage() {
         is_active: form.is_active,
         in_stock: form.in_stock,
         sizes_json: form.sizes_json as never,
+        category_id: form.category_id,
       };
       if (editing) {
         const { error } = await supabase.from("products").update(payload).eq("id", editing.id);
@@ -106,6 +116,7 @@ function ProductsPage() {
       is_active: p.is_active,
       in_stock: p.in_stock,
       sizes_json: (Array.isArray(p.sizes_json) ? p.sizes_json : []) as Size[],
+      category_id: (p as Product & { category_id: string | null }).category_id ?? null,
     });
     setOpen(true);
   }
