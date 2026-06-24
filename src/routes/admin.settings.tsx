@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Upload, X } from "lucide-react";
+import { Loader2, Upload, X, Smartphone, Tablet, Monitor } from "lucide-react";
 import { toast } from "sonner";
 import { uploadImage } from "@/lib/upload";
 import heroHand from "@/assets/hero-hand.png.asset.json";
@@ -147,48 +147,76 @@ function SettingsPage() {
   );
 }
 
+type Device = "mobile" | "tablet" | "desktop";
+const DEVICE_WIDTHS: Record<Device, number> = { mobile: 390, tablet: 768, desktop: 1280 };
+
 function HeroPreview({ marquee, hero, overlayLeft, overlayRight }: { marquee: string; hero: string | null; overlayLeft: string | null; overlayRight: string | null }) {
+  const [device, setDevice] = useState<Device>("desktop");
   const left = overlayLeft ?? heroHand.url;
   const main = hero ?? heroMain.url;
   const text = marquee || "✦ Free delivery on orders over ৳400  ✦ Crafted in Bangladesh  ✦ Premium fragrances";
+  const width = DEVICE_WIDTHS[device];
+  const devices: { id: Device; label: string; Icon: typeof Smartphone }[] = [
+    { id: "mobile", label: "Mobile", Icon: Smartphone },
+    { id: "tablet", label: "Tablet", Icon: Tablet },
+    { id: "desktop", label: "Desktop", Icon: Monitor },
+  ];
+
   return (
     <Card className="overflow-hidden shadow-card">
-      <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/40">
+      <div className="flex items-center justify-between gap-3 px-4 py-2 border-b bg-muted/40">
         <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold">Live preview</p>
-        <p className="text-xs text-muted-foreground">Updates instantly — not saved yet</p>
+        <div className="flex items-center gap-1 rounded-md border bg-background p-0.5">
+          {devices.map(({ id, label, Icon }) => (
+            <button
+              key={id}
+              type="button"
+              onClick={() => setDevice(id)}
+              aria-label={label}
+              aria-pressed={device === id}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-colors ${device === id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}
+            >
+              <Icon className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">{label}</span>
+            </button>
+          ))}
+        </div>
       </div>
-      <div className="bg-background">
-        <div className="px-4 pt-4">
-          <div className="grid grid-cols-12 gap-3 items-center">
-            <div className="col-span-5">
-              <img src={main} alt="" className="w-full h-auto object-contain max-h-48" />
-            </div>
-            <div className="col-span-7 grid grid-cols-4 gap-2">
-              {["Summer", "Secret", "Budget", "Gift"].map((t) => (
-                <div key={t} className="relative aspect-[3/4] rounded-xl bg-gradient-luxe overflow-hidden">
-                  <div className="absolute inset-x-0 bottom-0 bg-primary/75 backdrop-blur-sm py-1.5 text-center">
-                    <p className="text-white text-[10px] font-semibold truncate px-1">{t}</p>
+      <div className="bg-muted/20 p-4 overflow-x-auto">
+        <div className="mx-auto bg-background rounded-lg border shadow-sm overflow-hidden transition-all" style={{ width, maxWidth: "100%" }}>
+          <div className="px-3 pt-3">
+            <div className="grid grid-cols-12 gap-2 items-center">
+              <div className="col-span-5">
+                <img src={main} alt="" className="w-full h-auto object-contain max-h-48" />
+              </div>
+              <div className="col-span-7 grid grid-cols-4 gap-1.5">
+                {["Summer", "Secret", "Budget", "Gift"].map((t) => (
+                  <div key={t} className="relative aspect-[3/4] rounded-lg bg-gradient-luxe overflow-hidden">
+                    <div className="absolute inset-x-0 bottom-0 bg-primary/75 backdrop-blur-sm py-1 text-center">
+                      <p className="text-white text-[8px] font-semibold truncate px-1">{t}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-        <div className="relative mt-4">
-          <div className="bg-primary text-primary-foreground overflow-hidden">
-            <div className="whitespace-nowrap py-2 text-xs font-semibold tracking-wide pl-[12%] overflow-hidden text-ellipsis">
-              <span className="px-6">{text}</span>
-              <span className="px-6">{text}</span>
+          <div className="relative mt-3">
+            <div className="bg-primary text-primary-foreground overflow-hidden">
+              <div className="whitespace-nowrap py-1.5 text-[10px] font-semibold tracking-wide pl-[12%] overflow-hidden text-ellipsis">
+                <span className="px-4">{text}</span>
+                <span className="px-4">{text}</span>
+              </div>
             </div>
+            <div className="bg-gradient-to-r from-primary via-primary to-accent/80 h-12" />
+            {left && (
+              <img src={left} alt="" aria-hidden className="pointer-events-none select-none absolute left-0 -top-5 h-20 w-auto z-10 drop-shadow-2xl" />
+            )}
+            {overlayRight && (
+              <img src={overlayRight} alt="" aria-hidden className="pointer-events-none select-none absolute right-0 -top-5 h-20 w-auto z-10 drop-shadow-2xl scale-x-[-1]" />
+            )}
           </div>
-          <div className="bg-gradient-to-r from-primary via-primary to-accent/80 h-16" />
-          {left && (
-            <img src={left} alt="" aria-hidden className="pointer-events-none select-none absolute left-0 -top-6 h-24 w-auto z-10 drop-shadow-2xl" />
-          )}
-          {overlayRight && (
-            <img src={overlayRight} alt="" aria-hidden className="pointer-events-none select-none absolute right-0 -top-6 h-24 w-auto z-10 drop-shadow-2xl scale-x-[-1]" />
-          )}
         </div>
+        <p className="text-center text-[10px] text-muted-foreground mt-2">{width}px wide · not saved yet</p>
       </div>
     </Card>
   );
