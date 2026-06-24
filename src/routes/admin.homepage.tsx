@@ -36,6 +36,8 @@ function HomepageEditor() {
   const [heroSubtitle, setHeroSubtitle] = useState("");
   const [heroCtaLabel, setHeroCtaLabel] = useState("");
   const [hero, setHero] = useState<string | null>(null);
+  const [heroBg, setHeroBg] = useState<string | null>(null);
+  const [heroFg, setHeroFg] = useState<string | null>(null);
   const [overlayLeft, setOverlayLeft] = useState<string | null>(null);
   const [overlayRight, setOverlayRight] = useState<string | null>(null);
   const [resetDate, setResetDate] = useState("");
@@ -62,6 +64,8 @@ function HomepageEditor() {
     setHeroSubtitle((s.hero_subtitle as string) ?? "");
     setHeroCtaLabel((s.hero_cta_label as string) ?? "");
     setHero((s.hero_image as string) ?? null);
+    setHeroBg((s.hero_bg_image as string) ?? null);
+    setHeroFg((s.hero_fg_image as string) ?? null);
     setOverlayLeft((s.hero_overlay_left as string) ?? null);
     setOverlayRight((s.hero_overlay_right as string) ?? null);
     setResetDate(((s.timer_reset_date as string) ?? "").slice(0, 16));
@@ -76,6 +80,8 @@ function HomepageEditor() {
       const payload = {
         marquee_text: marquee,
         hero_image: hero,
+        hero_bg_image: heroBg,
+        hero_fg_image: heroFg,
         hero_overlay_left: overlayLeft,
         hero_overlay_right: overlayRight,
         hero_title: heroTitle || null,
@@ -104,13 +110,15 @@ function HomepageEditor() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  async function handleUpload(key: "hero" | "left" | "right", e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleUpload(key: "hero" | "bg" | "fg" | "left" | "right", e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploadingKey(key);
     try {
       const url = await uploadImage("hero-images", file);
       if (key === "hero") setHero(url);
+      if (key === "bg") setHeroBg(url);
+      if (key === "fg") setHeroFg(url);
       if (key === "left") setOverlayLeft(url);
       if (key === "right") setOverlayRight(url);
     } catch (err) {
@@ -236,10 +244,12 @@ function HomepageEditor() {
     );
   }
 
-  const imageSlots: { key: "hero" | "left" | "right"; label: string; value: string | null; setter: (v: string | null) => void; hint: string }[] = [
-    { key: "hero", label: "Hero main image", value: hero, setter: setHero, hint: "Featured product/lifestyle image on the left of the hero." },
-    { key: "left", label: "Marquee overlay — left", value: overlayLeft, setter: setOverlayLeft, hint: "Floats over the left edge of the marquee. PNG with transparency works best." },
-    { key: "right", label: "Marquee overlay — right", value: overlayRight, setter: setOverlayRight, hint: "Floats over the right edge of the marquee." },
+  const imageSlots: { key: "hero" | "bg" | "fg" | "left" | "right"; label: string; value: string | null; setter: (v: string | null) => void; hint: string }[] = [
+    { key: "bg", label: "Hero background image", value: heroBg, setter: setHeroBg, hint: "Layer 1 (z-0). The model/figure that sits behind the marquee text." },
+    { key: "fg", label: "Hero foreground overlay", value: heroFg, setter: setHeroFg, hint: "Layer 3 (z-20). Transparent PNG of the hand/bottle that breaks through the marquee." },
+    { key: "hero", label: "Hero main image (legacy)", value: hero, setter: setHero, hint: "Fallback used if background image is empty." },
+    { key: "left", label: "Marquee overlay — left", value: overlayLeft, setter: setOverlayLeft, hint: "Floats over the left edge of the section-wide marquee." },
+    { key: "right", label: "Marquee overlay — right", value: overlayRight, setter: setOverlayRight, hint: "Floats over the right edge of the section-wide marquee." },
   ];
 
   return (
