@@ -17,6 +17,19 @@ const categoriesQuery = queryOptions({
   },
 });
 
+const heroSettingsQuery = queryOptions({
+  queryKey: ["public", "site_settings", "hero"],
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from("site_settings")
+      .select("hero_image")
+      .limit(1)
+      .maybeSingle();
+    if (error) throw error;
+    return data;
+  },
+});
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -24,7 +37,10 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Veloura Essence — premium fragrances." },
     ],
   }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(categoriesQuery),
+  loader: ({ context }) => Promise.all([
+    context.queryClient.ensureQueryData(categoriesQuery),
+    context.queryClient.ensureQueryData(heroSettingsQuery),
+  ]),
   component: Landing,
   errorComponent: ({ error }) => <div className="p-8 text-center text-destructive">{error.message}</div>,
   notFoundComponent: () => <div className="p-8 text-center">Not found.</div>,
@@ -32,14 +48,20 @@ export const Route = createFileRoute("/")({
 
 function Landing() {
   const { data: categories = [] } = useSuspenseQuery(categoriesQuery);
+  const { data: hero } = useSuspenseQuery(heroSettingsQuery);
   const slots = Array.from({ length: 4 }, (_, i) => categories[i]);
+  const heroImage = hero?.hero_image ?? null;
 
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <main className="w-full">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-4 w-full py-8 items-stretch px-6">
-          <div className="relative w-full max-w-[280px] mx-auto lg:mx-0 aspect-[3/4] rounded-2xl overflow-hidden bg-gradient-to-br from-purple-100 to-purple-50" />
+          <div
+            className="relative w-full max-w-[280px] mx-auto lg:mx-0 aspect-[3/4] rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-purple-100 to-purple-50 bg-cover bg-center"
+            style={heroImage ? { backgroundImage: `url(${heroImage})` } : undefined}
+          />
+
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full lg:max-w-[720px] mx-auto">
 
