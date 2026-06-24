@@ -428,6 +428,8 @@ export type Database = {
           hero_title: string | null
           id: string
           marquee_text: string
+          site_icon_url: string | null
+          site_logo_url: string | null
           timer_reset_date: string
           updated_at: string
         }
@@ -444,6 +446,8 @@ export type Database = {
           hero_title?: string | null
           id?: string
           marquee_text?: string
+          site_icon_url?: string | null
+          site_logo_url?: string | null
           timer_reset_date?: string
           updated_at?: string
         }
@@ -460,6 +464,8 @@ export type Database = {
           hero_title?: string | null
           id?: string
           marquee_text?: string
+          site_icon_url?: string | null
+          site_logo_url?: string | null
           timer_reset_date?: string
           updated_at?: string
         }
