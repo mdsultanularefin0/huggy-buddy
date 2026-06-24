@@ -36,7 +36,7 @@ const storefrontOptions = queryOptions({
     const [products, combos, settings] = await Promise.all([
       supabase.from("products").select("*").eq("is_active", true).order("created_at", { ascending: false }),
       supabase.from("combos").select("*").eq("is_active", true).order("created_at", { ascending: false }),
-      supabase.from("site_settings").select("marquee_text,hero_image,timer_reset_date").limit(1).maybeSingle(),
+      supabase.from("site_settings").select("marquee_text,hero_image,hero_overlay_left,hero_overlay_right,timer_reset_date").limit(1).maybeSingle(),
     ]);
     return {
       products: (products.data ?? []) as ProductRow[],
