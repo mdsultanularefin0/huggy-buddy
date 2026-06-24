@@ -31,6 +31,8 @@ type CategoryRow = {
 type SiteSettings = {
   marquee_text: string | null;
   hero_image: string | null;
+  hero_bg_image: string | null;
+  hero_fg_image: string | null;
   hero_overlay_left: string | null;
   hero_overlay_right: string | null;
   header_position: "sticky" | "static" | "floating" | null;
