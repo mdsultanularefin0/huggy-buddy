@@ -83,14 +83,23 @@ export const Route = createFileRoute("/")({
 function Landing() {
   const { data } = useSuspenseQuery(storefrontOptions);
   const s = data.settings;
-  const marquee = s?.marquee_text ?? "✦ Free delivery on orders over ৳400  ✦ Crafted in Bangladesh  ✦ Premium fragrances";
+  const marquee = s?.marquee_text ?? "VELOURA ESSENCE NOW MORE AFFORDABLE, STARTING ONLY AT 200 BDT";
   const prebuilt = data.combos.filter((c) => c.combo_type === "prebuilt");
   const byob = data.combos.filter((c) => c.combo_type === "byob");
   const heroCategories = data.categories.slice(0, 4);
-  const overlayLeft = s?.hero_overlay_left ?? heroHand.url;
-  const overlayRight = s?.hero_overlay_right;
+  const bgImg = s?.hero_bg_image ?? s?.hero_image ?? heroMain.url;
+  const fgImg = s?.hero_fg_image ?? heroHand.url;
   const ctaLabel = s?.cta_band_button_label ?? s?.hero_cta_label ?? "Order Now";
   const ctaLink = s?.cta_band_button_link ?? "";
+
+  const CtaWrap = ({ children }: { children: React.ReactNode }) =>
+    ctaLink.startsWith("/#") ? (
+      <Link to="/" hash={ctaLink.slice(2)}>{children}</Link>
+    ) : ctaLink ? (
+      <a href={ctaLink}>{children}</a>
+    ) : (
+      <Link to="/" hash="perfumes">{children}</Link>
+    );
 
   return (
     <div className="min-h-screen bg-background">
@@ -98,7 +107,7 @@ function Landing() {
       <SiteHeader position={s?.header_position ?? "sticky"} logoUrl={s?.site_logo_url ?? null} />
 
       {/* HERO */}
-      <section className="relative w-full bg-background">
+      <section className="relative w-full bg-background overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 md:pt-8">
           {(s?.hero_title || s?.hero_subtitle) && (
             <div className="text-center mb-6 md:mb-8">
@@ -106,121 +115,72 @@ function Landing() {
               {s?.hero_subtitle && <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">{s.hero_subtitle}</p>}
             </div>
           )}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10 items-center">
-            {/* LEFT: layered hero stack (bg z-0, marquee z-10, fg z-20) */}
-            <div className="relative w-full aspect-[4/5] sm:aspect-[5/4] lg:aspect-[4/5] overflow-visible">
-              {/* Layer 1 — background figure */}
-              <div className="absolute inset-0 z-0 rounded-3xl overflow-hidden bg-gradient-luxe">
-                {(s?.hero_bg_image ?? s?.hero_image ?? heroMain.url) && (
-                  <img
-                    src={s?.hero_bg_image ?? s?.hero_image ?? heroMain.url}
-                    alt="Veloura Essence hero"
-                    className="absolute inset-0 w-full h-full object-cover object-center select-none"
-                    loading="eager"
-                  />
-                )}
-              </div>
 
-              {/* Layer 2 — marquee strip crossing the middle */}
-              <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 z-10 bg-primary text-primary-foreground overflow-hidden shadow-luxe">
-                <div className="marquee-track whitespace-nowrap py-2 sm:py-2.5 text-sm md:text-base font-semibold tracking-wide">
-                  <span className="px-8">{marquee}</span>
-                  <span className="px-8">{marquee}</span>
-                  <span className="px-8">{marquee}</span>
-                </div>
-              </div>
-
-              {/* Layer 3 — foreground transparent overlay (hand/bottle) */}
-              {(s?.hero_fg_image ?? heroHand.url) && (
+          {/* Top row: left model image + right 4 cards */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10 items-stretch">
+            {/* LEFT: background model only (foreground overlay drawn later, absolutely positioned) */}
+            <div className="relative w-full aspect-[4/5] sm:aspect-[5/4] lg:aspect-[4/5] rounded-3xl overflow-hidden bg-gradient-luxe">
+              {bgImg && (
                 <img
-                  src={s?.hero_fg_image ?? heroHand.url}
-                  alt=""
-                  aria-hidden="true"
-                  className="pointer-events-none select-none absolute z-20 left-1/2 -translate-x-1/2 bottom-[-6%] sm:bottom-[-8%] h-[78%] sm:h-[80%] w-auto object-contain drop-shadow-2xl"
+                  src={bgImg}
+                  alt="Veloura Essence hero"
+                  className="absolute inset-0 w-full h-full object-cover object-center select-none"
+                  loading="eager"
                 />
               )}
             </div>
 
-            {/* RIGHT: category cards + Order Now */}
-            <div className="flex flex-col gap-5">
-              <div className="grid grid-cols-2 gap-3 md:gap-4">
-                {heroCategories.length > 0
-                  ? heroCategories.map((c) => <HeroCategoryCard key={c.id} cat={c} />)
-                  : DEFAULT_HERO_CARDS.map((c) => (
-                      <div key={c.title} className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-soft bg-gradient-luxe">
-                        <div className="absolute inset-x-0 bottom-0 bg-primary/70 backdrop-blur-sm py-2.5 text-center">
-                          <p className="text-white text-sm md:text-base font-semibold tracking-tight">{c.title}</p>
-                        </div>
-                      </div>
-                    ))}
-              </div>
-              <div className="flex justify-center lg:justify-start">
-                {ctaLink.startsWith("/#") ? (
-                  <Link to="/" hash={ctaLink.slice(2)}>
-                    <Button size="lg" className="rounded-2xl bg-primary text-primary-foreground hover:bg-primary/90 px-10 py-6 text-lg font-semibold shadow-luxe">{ctaLabel}</Button>
-                  </Link>
-                ) : ctaLink ? (
-                  <a href={ctaLink}>
-                    <Button size="lg" className="rounded-2xl bg-primary text-primary-foreground hover:bg-primary/90 px-10 py-6 text-lg font-semibold shadow-luxe">{ctaLabel}</Button>
-                  </a>
-                ) : (
-                  <Link to="/" hash="perfumes">
-                    <Button size="lg" className="rounded-2xl bg-primary text-primary-foreground hover:bg-primary/90 px-10 py-6 text-lg font-semibold shadow-luxe">{ctaLabel}</Button>
-                  </Link>
-                )}
-              </div>
+            {/* RIGHT: single horizontal row of 4 category cards */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4 self-center">
+              {(heroCategories.length > 0 ? heroCategories : DEFAULT_HERO_CARDS.map((c, i) => ({ id: String(i), name: c.title, slug: "", image_url: null, sort_order: i, is_active: true } as CategoryRow))).map((c) => (
+                <HeroCategoryCard key={c.id} cat={c} />
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Marquee strip + CTA band */}
-        <div className="relative mt-6 md:mt-8">
-          <div className="bg-primary text-primary-foreground overflow-hidden">
-            <div className="marquee-track whitespace-nowrap py-2.5 text-sm md:text-base font-semibold tracking-wide pl-[14%] md:pl-[12%]">
-              <span className="px-8">{marquee}</span>
-              <span className="px-8">{marquee}</span>
-              <span className="px-8">{marquee}</span>
+        {/* Marquee strip */}
+        <div className="relative mt-6 md:mt-8 bg-primary text-primary-foreground overflow-hidden">
+          <div className="marquee-track whitespace-nowrap py-2.5 text-sm md:text-base font-bold tracking-wide">
+            <span className="px-8">{marquee}</span>
+            <span className="px-8">{marquee}</span>
+            <span className="px-8">{marquee}</span>
+          </div>
+        </div>
+
+        {/* Bottom band: gradient with single Order Now button + timer */}
+        <div className="relative" style={{ background: "linear-gradient(135deg, #52277a 0%, #a555f0 100%)" }}>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 md:py-14 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+            <div className="flex flex-col items-center md:items-start gap-4 md:pl-[42%]">
+              {s?.cta_band_text && (
+                <p className="text-white/90 text-sm md:text-base max-w-md text-center md:text-left">{s.cta_band_text}</p>
+              )}
+              <CtaWrap>
+                <Button
+                  size="lg"
+                  className="rounded-2xl bg-transparent border-2 border-[#d8a8ff] text-white hover:bg-white/10 px-10 py-6 text-xl font-semibold shadow-[0_0_30px_rgba(216,168,255,0.65)] transition-all"
+                >
+                  {ctaLabel}
+                </Button>
+              </CtaWrap>
+            </div>
+            <div className="flex justify-center md:justify-end">
+              <FlashTimer resetDate={s?.timer_reset_date ?? null} />
             </div>
           </div>
-          <div className="bg-primary text-primary-foreground">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-10 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-              <div className="flex flex-col items-center md:items-start gap-3 md:pl-[18%]">
-                {s?.cta_band_text && (
-                  <p className="text-white/90 text-sm md:text-base max-w-md text-center md:text-left">{s.cta_band_text}</p>
-                )}
-                {ctaLink.startsWith("/#") ? (
-                  <Link to="/" hash={ctaLink.slice(2)}>
-                    <CtaButton>{ctaLabel}</CtaButton>
-                  </Link>
-                ) : ctaLink ? (
-                  <a href={ctaLink}><CtaButton>{ctaLabel}</CtaButton></a>
-                ) : (
-                  <Link to="/" hash="perfumes"><CtaButton>{ctaLabel}</CtaButton></Link>
-                )}
-              </div>
-              <div className="flex justify-center md:justify-end">
-                <FlashTimer resetDate={s?.timer_reset_date ?? null} />
-              </div>
-            </div>
-          </div>
-          {overlayLeft && (
+
+          {/* Foreground hand/bottle — anchored bottom-left, overlaps model + marquee + this band */}
+          {fgImg && (
             <img
-              src={overlayLeft}
+              src={fgImg}
               alt=""
               aria-hidden="true"
-              className="pointer-events-none select-none absolute left-0 -top-10 md:-top-20 h-[180px] md:h-[340px] w-auto z-10 drop-shadow-2xl"
-            />
-          )}
-          {overlayRight && (
-            <img
-              src={overlayRight}
-              alt=""
-              aria-hidden="true"
-              className="pointer-events-none select-none absolute right-0 -top-10 md:-top-20 h-[180px] md:h-[340px] w-auto z-10 drop-shadow-2xl scale-x-[-1]"
+              className="pointer-events-none select-none absolute left-0 sm:left-[2%] bottom-0 z-20 h-[120%] sm:h-[150%] md:h-[170%] w-auto object-contain drop-shadow-2xl"
             />
           )}
         </div>
       </section>
+
 
       {/* Perfumes */}
       <section id="perfumes" className="max-w-7xl mx-auto px-4 sm:px-6 py-20">
