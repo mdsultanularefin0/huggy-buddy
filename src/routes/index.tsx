@@ -114,7 +114,7 @@ function Landing() {
           </div>
         </div>
 
-        <div className="relative z-20 w-full -mt-32 sm:-mt-40 lg:-mt-48 bg-gradient-to-r from-[#a555f0] to-[#52277a] text-white py-1.5 overflow-hidden shadow-lg">
+        <div className="w-full bg-[#a555f0] py-3 relative z-10 overflow-hidden shadow-lg text-white -mt-32 sm:-mt-40 lg:-mt-48">
           <div className="marquee-track text-xs sm:text-sm font-medium tracking-wide">
 
             {marqueeItems.map((t, i) => (
