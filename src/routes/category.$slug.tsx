@@ -110,7 +110,7 @@ function CategoryPage() {
           </div>
         )}
       </section>
-      <SiteFooter />
+      <SiteFooter logoUrl={data.settings?.site_logo_url ?? null} />
       <CartDrawer />
     </div>
   );
