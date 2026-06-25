@@ -158,7 +158,7 @@ function Landing() {
               <div aria-hidden />
               <div className="relative w-full lg:max-w-[720px] mx-auto">
                 {flashTimer}
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[calc(100%+1rem)]">
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[calc(100%+1rem)] z-40">
                   {orderNowButton}
                 </div>
               </div>
