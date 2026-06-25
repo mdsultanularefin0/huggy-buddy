@@ -186,7 +186,7 @@ function Landing() {
             {flashTimer}
           </div>
           {marquee}
-          <div className="w-full bg-gradient-to-r from-[#52277a] to-[#a555f0] pt-6 pb-[calc(1.5rem+var(--safe-bottom))] relative z-10">
+          <div className="w-full bg-gradient-to-r from-[#52277a] to-[#a555f0] pt-6 pb-[calc(4rem+var(--safe-bottom))] sm:pb-[calc(6rem+var(--safe-bottom))] relative z-10">
             <div className="w-full max-w-7xl mx-auto pl-[max(1rem,var(--safe-left))] pr-[max(1rem,var(--safe-right))] sm:pl-[max(1.5rem,var(--safe-left))] sm:pr-[max(1.5rem,var(--safe-right))]">
               {mobileCategoryCards}
             </div>
