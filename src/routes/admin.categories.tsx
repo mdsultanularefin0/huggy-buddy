@@ -180,6 +180,7 @@ function CategoriesPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-8" />
                 <TableHead>Image</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Slug</TableHead>
@@ -190,7 +191,18 @@ function CategoriesPage() {
             </TableHeader>
             <TableBody>
               {categories.map((c) => (
-                <TableRow key={c.id}>
+                <TableRow
+                  key={c.id}
+                  draggable
+                  onDragStart={() => setDragId(c.id)}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={() => handleDrop(c.id)}
+                  onDragEnd={() => setDragId(null)}
+                  className={`cursor-move ${dragId === c.id ? "opacity-50" : ""}`}
+                >
+                  <TableCell className="text-muted-foreground">
+                    <GripVertical className="w-4 h-4" />
+                  </TableCell>
                   <TableCell>
                     {c.image_url ? (
                       <img src={c.image_url} alt={c.name} className="w-12 h-12 object-cover rounded" />
@@ -220,6 +232,7 @@ function CategoriesPage() {
           </Table>
         )}
       </Card>
+      <p className="text-xs text-muted-foreground -mt-2">Drag rows to reorder. The top 3 active categories show on mobile/tablet; top 4 on desktop.</p>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-lg">
