@@ -89,6 +89,45 @@ function CategoriesPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const reorder = useMutation({
+    mutationFn: async (ordered: Category[]) => {
+      const updates = ordered.map((c, i) =>
+        supabase.from("categories").update({ sort_order: i }).eq("id", c.id),
+      );
+      const results = await Promise.all(updates);
+      const firstErr = results.find((r) => r.error)?.error;
+      if (firstErr) throw firstErr;
+    },
+    onMutate: async (ordered) => {
+      await qc.cancelQueries({ queryKey: ["admin", "categories"] });
+      const prev = qc.getQueryData<Category[]>(["admin", "categories"]);
+      qc.setQueryData<Category[]>(["admin", "categories"], ordered.map((c, i) => ({ ...c, sort_order: i })));
+      return { prev };
+    },
+    onError: (e: Error, _v, ctx) => {
+      if (ctx?.prev) qc.setQueryData(["admin", "categories"], ctx.prev);
+      toast.error(e.message);
+    },
+    onSuccess: () => {
+      toast.success("Order updated");
+      qc.invalidateQueries({ queryKey: ["admin", "categories"] });
+      qc.invalidateQueries({ queryKey: ["public", "categories"] });
+    },
+  });
+
+  const [dragId, setDragId] = useState<string | null>(null);
+  function handleDrop(targetId: string) {
+    if (!dragId || dragId === targetId) return;
+    const list = [...categories];
+    const from = list.findIndex((c) => c.id === dragId);
+    const to = list.findIndex((c) => c.id === targetId);
+    if (from < 0 || to < 0) return;
+    const [moved] = list.splice(from, 1);
+    list.splice(to, 0, moved);
+    setDragId(null);
+    reorder.mutate(list);
+  }
+
   function startNew() {
     setEditing(null);
     setForm(empty);
