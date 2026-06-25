@@ -170,7 +170,8 @@ function Landing() {
           {marquee}
           <div className="w-full bg-gradient-to-r from-[#52277a] to-[#a555f0] py-6 relative z-10">
             <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto px-4 sm:px-6">
-              <div className="pl-[calc(50%+1rem)]">
+              <div className="grid grid-cols-[1fr_1fr] gap-4">
+                <div aria-hidden />
                 {orderNowButton}
               </div>
               {categoryCards}
