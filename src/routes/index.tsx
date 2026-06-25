@@ -183,7 +183,7 @@ function Landing() {
         <div className="lg:hidden">
           <div className="grid grid-cols-[1fr_1fr] gap-4 w-full pt-8 items-start pl-[max(1rem,var(--safe-left))] pr-[max(1rem,var(--safe-right))] sm:pl-[max(1.5rem,var(--safe-left))] sm:pr-[max(1.5rem,var(--safe-right))]">
             {heroImageBlock}
-            <div className="md:mt-16">{flashTimer}</div>
+            <div className="sm:mt-10 md:mt-20">{flashTimer}</div>
           </div>
           {marquee}
           <div className="w-full bg-gradient-to-r from-[#52277a] to-[#a555f0] pt-[calc(4rem+var(--safe-bottom))] sm:pt-[calc(6rem+var(--safe-bottom))] pb-6 flex items-end relative z-10">
