@@ -71,8 +71,9 @@ function Landing() {
     </div>
   );
 
-  const renderCategoryCards = (items: typeof slots, cols: "3" | "4") => (
-    <div className={`grid grid-cols-${cols === "4" ? "2 sm:grid-cols-4" : "3"} gap-3 sm:gap-4 w-full lg:max-w-[720px] mx-auto`}>
+  const renderCategoryCards = (items: typeof slots, gridClass: string) => (
+    <div className={`grid ${gridClass} gap-3 sm:gap-4 w-full lg:max-w-[720px] mx-auto`}>
+
       {items.map((cat, i) => {
         const cardClass =
           "relative w-full aspect-square rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-purple-200 to-purple-100 bg-cover bg-center";
