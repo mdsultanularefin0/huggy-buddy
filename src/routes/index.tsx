@@ -113,19 +113,16 @@ function Landing() {
       <div className="bg-[#fbc02d] w-full py-1.5 lg:py-3 text-center px-2">
         <span className="text-white font-bold text-xs sm:text-sm lg:text-xl">Flash Sale! Up to 200Tk Off!</span>
       </div>
-      <div className="bg-white w-full py-2 px-2 lg:py-4 lg:px-6 flex justify-between gap-1 text-center">
+      <div className="bg-white w-full py-2 px-2 lg:py-4 lg:px-6 flex justify-between text-center">
         {[
-          { label: "Days", short: "D", value: "00" },
-          { label: "Hours", short: "H", value: "00" },
-          { label: "Minutes", short: "M", value: "00" },
-          { label: "Seconds", short: "S", value: "00" },
+          { label: "Days", value: "00" },
+          { label: "Hours", value: "00" },
+          { label: "Minutes", value: "00" },
+          { label: "Seconds", value: "00" },
         ].map((b) => (
-          <div key={b.label} className="flex-1 min-w-0">
+          <div key={b.label}>
             <div className="text-base sm:text-xl lg:text-4xl font-bold text-[#52277a]">{b.value}</div>
-            <div className="text-[9px] sm:text-[10px] lg:text-xs text-gray-500 uppercase tracking-widest mt-0.5 lg:mt-1">
-              <span className="sm:hidden">{b.short}</span>
-              <span className="hidden sm:inline">{b.label}</span>
-            </div>
+            <div className="text-[9px] sm:text-[10px] lg:text-xs text-gray-500 uppercase tracking-widest mt-0.5 lg:mt-1">{b.label}</div>
           </div>
         ))}
       </div>
@@ -169,15 +166,15 @@ function Landing() {
 
         {/* Mobile / Tablet layout */}
         <div className="lg:hidden">
-          <div className="grid grid-cols-[1fr_1fr] sm:grid-cols-[1fr_2fr] gap-4 w-full pt-8 items-start px-4 sm:px-6">
+          <div className="grid grid-cols-[1fr_1fr] gap-4 w-full pt-8 items-start px-4 sm:px-6">
             {heroImageBlock}
-            <div className="flex items-center h-full">{flashTimer}</div>
+            {flashTimer}
           </div>
           {marquee}
           <div className="w-full bg-gradient-to-r from-[#52277a] to-[#a555f0] py-6 relative z-10">
-            <div className="grid grid-cols-[1fr_1fr] sm:grid-cols-[1fr_2fr] gap-4 w-full px-4 sm:px-6 items-center">
+            <div className="grid grid-cols-3 gap-4 w-full max-w-7xl mx-auto px-4 sm:px-6">
               <div aria-hidden />
-              <div className="flex flex-col gap-6">
+              <div className="col-span-2 flex flex-col gap-6">
                 {orderNowButton}
                 {categoryCards}
               </div>
