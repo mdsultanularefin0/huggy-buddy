@@ -59,10 +59,15 @@ function Landing() {
       <SiteHeader />
       <main className="w-full">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-4 w-full pt-8 items-start px-6">
-          <div
-            className="relative w-full max-w-[280px] mx-auto lg:mx-0 aspect-[3/4] rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-purple-100 to-purple-50 bg-cover bg-center"
-            style={heroImage ? { backgroundImage: `url(${heroImage})` } : undefined}
-          />
+          <div className="relative w-full max-w-[280px] mx-auto lg:mx-0 aspect-[3/4]">
+            <div
+              className="absolute inset-0 z-0 rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-purple-100 to-purple-50 bg-cover bg-center"
+              style={heroImage ? { backgroundImage: `url(${heroImage})` } : undefined}
+            />
+            <div className="absolute inset-0 z-30 rounded-2xl overflow-hidden bg-cover bg-center pointer-events-none" />
+          </div>
+
+
 
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full lg:max-w-[720px] mx-auto">
