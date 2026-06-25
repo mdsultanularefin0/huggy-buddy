@@ -109,7 +109,7 @@ function Landing() {
   );
 
   const flashTimer = (
-    <div className="w-full max-w-md lg:max-w-none mx-auto bg-white rounded-xl lg:rounded-2xl overflow-hidden shadow-2xl">
+    <div className="w-full max-w-md mx-auto bg-white rounded-xl lg:rounded-2xl overflow-hidden shadow-2xl">
       <div className="bg-[#fbc02d] w-full py-1.5 lg:py-3 text-center px-2">
         <span className="text-white font-bold text-xs sm:text-sm lg:text-xl">Flash Sale! Up to 200Tk Off!</span>
       </div>
@@ -156,9 +156,9 @@ function Landing() {
           <div className="w-full bg-gradient-to-r from-[#52277a] to-[#a555f0] py-6 relative z-10">
             <div className="grid grid-cols-[1fr_2fr] gap-4 w-full px-6 items-center">
               <div aria-hidden />
-              <div className="relative w-full lg:max-w-[720px] mx-auto">
+              <div className="relative w-full">
                 <div className="absolute left-0 top-1/2 -translate-y-1/2 z-10">{orderNowButton}</div>
-                {flashTimer}
+                <div className="w-full lg:max-w-[720px] mx-auto">{flashTimer}</div>
               </div>
             </div>
           </div>
