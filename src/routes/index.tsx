@@ -177,9 +177,9 @@ function Landing() {
 
         {/* Mobile / Tablet layout */}
         <div className="lg:hidden">
-          <div className="flex flex-col sm:grid sm:grid-cols-[1fr_1fr] gap-6 sm:gap-4 w-full pt-8 items-center sm:items-start px-4 sm:px-6">
+          <div className="grid grid-cols-[1fr_1fr] gap-3 sm:gap-4 w-full pt-8 items-start px-4 sm:px-6">
             {heroImageBlock}
-            <div className="flex w-full justify-center">{flashTimer}</div>
+            <div className="flex justify-center items-center h-full">{flashTimer}</div>
           </div>
           {marquee}
           <div className="w-full bg-gradient-to-r from-[#52277a] to-[#a555f0] py-6 relative z-10">
