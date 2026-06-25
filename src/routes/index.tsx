@@ -115,7 +115,7 @@ function Landing() {
           Flash Sale! Up to 200Tk Off!
         </h3>
       </div>
-      <div className="grid grid-cols-4 py-3 sm:py-4 px-1 sm:px-2">
+      <div className="grid grid-cols-4 py-2.5 sm:py-4 px-1 sm:px-2">
         {[
           { label: "Days", value: "00" },
           { label: "Hours", value: "00" },
@@ -124,12 +124,12 @@ function Landing() {
         ].map((b, i, arr) => (
           <div
             key={b.label}
-            className={`flex flex-col items-center min-w-0 ${i < arr.length - 1 ? "border-r border-gray-100" : ""}`}
+            className={`flex flex-col items-center min-w-0 ${i < arr.length - 1 ? "border-r border-gray-200" : ""}`}
           >
-            <span className={`text-2xl sm:text-3xl lg:text-4xl font-black leading-none tabular-nums ${b.accent ? "text-[#E11D48]" : "text-gray-900"}`}>
+            <span className={`text-lg sm:text-3xl lg:text-4xl font-black leading-none tabular-nums ${b.accent ? "text-[#E11D48]" : "text-gray-900"}`}>
               {b.value}
             </span>
-            <span className="text-[9px] sm:text-[10px] font-semibold text-gray-400 uppercase mt-1.5 tracking-wider">
+            <span className="text-[8px] sm:text-[10px] font-semibold text-gray-400 uppercase mt-1 sm:mt-1.5 tracking-wider">
               {b.label}
             </span>
           </div>
