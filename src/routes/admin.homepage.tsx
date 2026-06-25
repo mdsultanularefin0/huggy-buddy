@@ -15,7 +15,8 @@ export const Route = createFileRoute("/admin/homepage")({ component: HomepagePag
 function HomepagePage() {
   const qc = useQueryClient();
   const [heroImageUrl, setHeroImageUrl] = useState("");
-  const [uploading, setUploading] = useState(false);
+  const [heroOverlayUrl, setHeroOverlayUrl] = useState("");
+  const [uploading, setUploading] = useState<null | "hero" | "overlay">(null);
 
   const { data: settings, isLoading } = useQuery({
     queryKey: ["admin", "site_settings"],
@@ -28,14 +29,15 @@ function HomepagePage() {
 
   useEffect(() => {
     if (settings) {
-      const s = settings as { hero_image?: string | null };
+      const s = settings as { hero_image?: string | null; hero_overlay_image?: string | null };
       setHeroImageUrl(s.hero_image ?? "");
+      setHeroOverlayUrl(s.hero_overlay_image ?? "");
     }
   }, [settings]);
 
   const save = useMutation({
     mutationFn: async () => {
-      const payload = { hero_image: heroImageUrl || null };
+      const payload = { hero_image: heroImageUrl || null, hero_overlay_image: heroOverlayUrl || null };
       if (settings?.id) {
         const { error } = await supabase.from("site_settings").update(payload).eq("id", settings.id);
         if (error) throw error;
@@ -52,18 +54,20 @@ function HomepagePage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  async function handleUpload(file: File) {
+  async function handleUpload(file: File, kind: "hero" | "overlay") {
     try {
-      setUploading(true);
+      setUploading(kind);
       const url = await uploadImage("hero-images", file);
-      setHeroImageUrl(url);
+      if (kind === "hero") setHeroImageUrl(url);
+      else setHeroOverlayUrl(url);
       toast.success("Image uploaded — click Save to apply");
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
-      setUploading(false);
+      setUploading(null);
     }
   }
+
 
   if (isLoading) {
     return <div className="p-12 text-center text-muted-foreground"><Loader2 className="w-5 h-5 animate-spin inline mr-2" /> Loading…</div>;
