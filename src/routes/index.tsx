@@ -166,15 +166,15 @@ function Landing() {
 
         {/* Mobile / Tablet layout */}
         <div className="lg:hidden">
-          <div className="grid grid-cols-[1fr_1fr] gap-4 w-full pt-8 items-start px-4 sm:px-6">
+          <div className="grid grid-cols-[1fr_1fr] sm:grid-cols-[1fr_2fr] gap-4 w-full pt-8 items-start px-4 sm:px-6">
             {heroImageBlock}
-            {flashTimer}
+            <div className="flex items-center h-full">{flashTimer}</div>
           </div>
           {marquee}
           <div className="w-full bg-gradient-to-r from-[#52277a] to-[#a555f0] py-6 relative z-10">
-            <div className="grid grid-cols-3 gap-4 w-full max-w-7xl mx-auto px-4 sm:px-6">
+            <div className="grid grid-cols-[1fr_1fr] sm:grid-cols-[1fr_2fr] gap-4 w-full px-4 sm:px-6 items-center">
               <div aria-hidden />
-              <div className="col-span-2 flex flex-col gap-6">
+              <div className="flex flex-col gap-6">
                 {orderNowButton}
                 {categoryCards}
               </div>
