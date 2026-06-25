@@ -113,7 +113,7 @@ function Landing() {
   );
 
   const flashTimer = (
-    <div className="w-full max-w-[340px] mx-auto bg-white rounded-xl shadow-xl overflow-hidden">
+    <div className="w-full max-w-[340px] lg:max-w-none mx-auto bg-white rounded-xl shadow-xl overflow-hidden">
       <div className="bg-[#fbc02d] py-1.5 px-2 lg:py-2 lg:px-3 text-center border-b border-black/5">
         <h3 className="text-[10px] lg:text-[13px] font-black text-gray-900 uppercase tracking-wide">
           Flash Sale! Up to 200Tk Off!
