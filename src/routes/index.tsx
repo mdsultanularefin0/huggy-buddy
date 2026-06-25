@@ -22,13 +22,14 @@ const heroSettingsQuery = queryOptions({
   queryFn: async () => {
     const { data, error } = await supabase
       .from("site_settings")
-      .select("hero_image, marquee_text")
+      .select("hero_image, hero_overlay_image, marquee_text")
       .limit(1)
       .maybeSingle();
     if (error) throw error;
     return data;
   },
 });
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
