@@ -149,16 +149,17 @@ function Landing() {
       <main className="w-full">
         {/* Desktop layout */}
         <div className="hidden lg:block">
-          <div className="grid grid-cols-[1fr_2fr] gap-4 w-full pt-8 items-start px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full max-w-7xl mx-auto px-4 items-end pt-8">
             {heroImageBlock}
             {categoryCards}
           </div>
           {marquee}
           <div className="w-full bg-gradient-to-r from-[#52277a] to-[#a555f0] py-6 relative z-10">
-            <div className="grid grid-cols-[1fr_2fr] gap-4 w-full px-6 items-center">
-              <div aria-hidden />
-              <div className="grid grid-cols-2 gap-8 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full max-w-7xl mx-auto px-4 items-end">
+              <div className="flex w-full justify-end lg:pr-8">
                 {orderNowButton}
+              </div>
+              <div className="w-full max-w-md mx-auto lg:mx-0">
                 {flashTimer}
               </div>
             </div>
