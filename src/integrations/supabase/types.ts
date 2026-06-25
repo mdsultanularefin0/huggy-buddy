@@ -433,6 +433,7 @@ export type Database = {
           hero_fg_x: number
           hero_fg_y: number
           hero_image: string | null
+          hero_overlay_image: string | null
           hero_overlay_left: string | null
           hero_overlay_right: string | null
           hero_subtitle: string | null
@@ -462,6 +463,7 @@ export type Database = {
           hero_fg_x?: number
           hero_fg_y?: number
           hero_image?: string | null
+          hero_overlay_image?: string | null
           hero_overlay_left?: string | null
           hero_overlay_right?: string | null
           hero_subtitle?: string | null
@@ -491,6 +493,7 @@ export type Database = {
           hero_fg_x?: number
           hero_fg_y?: number
           hero_image?: string | null
+          hero_overlay_image?: string | null
           hero_overlay_left?: string | null
           hero_overlay_right?: string | null
           hero_subtitle?: string | null

@@ -22,13 +22,14 @@ const heroSettingsQuery = queryOptions({
   queryFn: async () => {
     const { data, error } = await supabase
       .from("site_settings")
-      .select("hero_image, marquee_text")
+      .select("hero_image, hero_overlay_image, marquee_text")
       .limit(1)
       .maybeSingle();
     if (error) throw error;
     return data;
   },
 });
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -51,6 +52,8 @@ function Landing() {
   const { data: hero } = useSuspenseQuery(heroSettingsQuery);
   const slots = Array.from({ length: 4 }, (_, i) => categories[i]);
   const heroImage = hero?.hero_image ?? null;
+  const heroOverlay = hero?.hero_overlay_image ?? null;
+
   const marqueeText = (hero?.marquee_text ?? "Free shipping over ₹999 · New arrivals every week · Premium fragrances handcrafted").trim();
   const marqueeItems = Array.from({ length: 8 }, () => marqueeText);
 
@@ -64,7 +67,11 @@ function Landing() {
               className="absolute inset-0 z-0 rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-purple-100 to-purple-50 bg-cover bg-center"
               style={heroImage ? { backgroundImage: `url(${heroImage})` } : undefined}
             />
-            <div className="absolute inset-0 z-30 rounded-2xl overflow-hidden bg-cover bg-center pointer-events-none" />
+            <div
+              className="absolute inset-0 z-30 rounded-2xl overflow-hidden bg-contain bg-no-repeat bg-center pointer-events-none"
+              style={heroOverlay ? { backgroundImage: `url(${heroOverlay})` } : undefined}
+            />
+
           </div>
 
 

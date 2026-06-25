@@ -15,7 +15,8 @@ export const Route = createFileRoute("/admin/homepage")({ component: HomepagePag
 function HomepagePage() {
   const qc = useQueryClient();
   const [heroImageUrl, setHeroImageUrl] = useState("");
-  const [uploading, setUploading] = useState(false);
+  const [heroOverlayUrl, setHeroOverlayUrl] = useState("");
+  const [uploading, setUploading] = useState<null | "hero" | "overlay">(null);
 
   const { data: settings, isLoading } = useQuery({
     queryKey: ["admin", "site_settings"],
@@ -28,14 +29,15 @@ function HomepagePage() {
 
   useEffect(() => {
     if (settings) {
-      const s = settings as { hero_image?: string | null };
+      const s = settings as { hero_image?: string | null; hero_overlay_image?: string | null };
       setHeroImageUrl(s.hero_image ?? "");
+      setHeroOverlayUrl(s.hero_overlay_image ?? "");
     }
   }, [settings]);
 
   const save = useMutation({
     mutationFn: async () => {
-      const payload = { hero_image: heroImageUrl || null };
+      const payload = { hero_image: heroImageUrl || null, hero_overlay_image: heroOverlayUrl || null };
       if (settings?.id) {
         const { error } = await supabase.from("site_settings").update(payload).eq("id", settings.id);
         if (error) throw error;
@@ -52,18 +54,20 @@ function HomepagePage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  async function handleUpload(file: File) {
+  async function handleUpload(file: File, kind: "hero" | "overlay") {
     try {
-      setUploading(true);
+      setUploading(kind);
       const url = await uploadImage("hero-images", file);
-      setHeroImageUrl(url);
+      if (kind === "hero") setHeroImageUrl(url);
+      else setHeroOverlayUrl(url);
       toast.success("Image uploaded — click Save to apply");
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
-      setUploading(false);
+      setUploading(null);
     }
   }
+
 
   if (isLoading) {
     return <div className="p-12 text-center text-muted-foreground"><Loader2 className="w-5 h-5 animate-spin inline mr-2" /> Loading…</div>;
@@ -89,18 +93,45 @@ function HomepagePage() {
           <div className="flex gap-2">
             <Input value={heroImageUrl} onChange={(e) => setHeroImageUrl(e.target.value)} placeholder="Image URL" className="flex-1" />
             <label className="inline-flex items-center gap-1 cursor-pointer rounded-md border px-3 py-2 text-sm hover:bg-muted">
-              {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+              {uploading === "hero" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
               <span>Upload</span>
               <input
                 type="file"
                 accept="image/*"
                 className="hidden"
-                onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f); e.target.value = ""; }}
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f, "hero"); e.target.value = ""; }}
               />
             </label>
           </div>
           <p className="text-xs text-muted-foreground">Portrait 3:4 recommended. Shown in the left hero container on the homepage.</p>
         </div>
+
+        <div className="space-y-2">
+          <Label>Hero overlay image (transparent layer on top)</Label>
+          <div className="rounded-lg border flex items-center justify-center bg-[conic-gradient(at_top_left,_#eee_25%,_#fff_0,_#fff_50%,_#eee_0,_#eee_75%,_#fff_0)] bg-[length:16px_16px] h-64 overflow-hidden">
+            {heroOverlayUrl ? (
+              <img src={heroOverlayUrl} alt="Hero overlay" className="max-h-full max-w-full object-contain" />
+            ) : (
+              <span className="text-xs text-muted-foreground">No overlay</span>
+            )}
+          </div>
+          <div className="flex gap-2">
+            <Input value={heroOverlayUrl} onChange={(e) => setHeroOverlayUrl(e.target.value)} placeholder="Overlay image URL" className="flex-1" />
+            <label className="inline-flex items-center gap-1 cursor-pointer rounded-md border px-3 py-2 text-sm hover:bg-muted">
+              {uploading === "overlay" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+              <span>Upload</span>
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f, "overlay"); e.target.value = ""; }}
+              />
+            </label>
+          </div>
+          <p className="text-xs text-muted-foreground">Transparent PNG recommended, same 3:4 aspect. Rendered above the marquee on top of the hero.</p>
+        </div>
+
+
 
         <div className="flex justify-end">
           <Button variant="luxe" onClick={() => save.mutate()} disabled={save.isPending}>
