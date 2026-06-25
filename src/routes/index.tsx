@@ -190,7 +190,7 @@ function Landing() {
             <div className="grid grid-cols-3 gap-4 w-full max-w-7xl mx-auto px-4 sm:px-6">
               <div aria-hidden />
               <div className="col-span-2 flex flex-col gap-6">
-                {categoryCards}
+                {mobileCategoryCards}
               </div>
             </div>
           </div>
