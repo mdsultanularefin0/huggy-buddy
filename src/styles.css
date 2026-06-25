@@ -5,6 +5,14 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Safe-area insets with explicit 0px fallback for browsers that don't support env() */
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+}
+
 /* ============================================================
  * Veloura Essence — Luxury Perfume Design System
  * Deep Purple (#52277a) primary, Light Purple (#a555f0) accent,
