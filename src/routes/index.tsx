@@ -98,8 +98,8 @@ function Landing() {
       })}
     </div>
   );
-  const categoryCards = renderCategoryCards(slots, "4");
-  const mobileCategoryCards = renderCategoryCards(mobileSlots, "3");
+  const categoryCards = renderCategoryCards(slots, "grid-cols-2 sm:grid-cols-4");
+  const mobileCategoryCards = renderCategoryCards(mobileSlots, "grid-cols-3");
 
   const orderNowButton = (
     <div className="flex justify-center lg:justify-start">
