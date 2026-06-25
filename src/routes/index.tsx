@@ -114,12 +114,12 @@ function Landing() {
 
   const flashTimer = (
     <div className="w-full max-w-[340px] mx-auto bg-white rounded-xl shadow-xl overflow-hidden">
-      <div className="bg-[#fbc02d] py-1.5 px-2 md:py-2 md:px-3 text-center border-b border-black/5">
-        <h3 className="text-[10px] md:text-[12px] lg:text-[13px] font-black text-gray-900 uppercase tracking-wide">
+      <div className="bg-[#fbc02d] py-1.5 px-2 lg:py-2 lg:px-3 text-center border-b border-black/5">
+        <h3 className="text-[10px] lg:text-[13px] font-black text-gray-900 uppercase tracking-wide">
           Flash Sale! Up to 200Tk Off!
         </h3>
       </div>
-      <div className="grid grid-cols-4 py-2 px-1 md:py-3 md:px-2 lg:py-4">
+      <div className="grid grid-cols-4 py-2 px-1 lg:py-4 lg:px-2">
         {[
           { label: "Days", value: "00" },
           { label: "Hours", value: "00" },
@@ -130,10 +130,10 @@ function Landing() {
             key={b.label}
             className={`flex flex-col items-center ${i < arr.length - 1 ? "border-r border-gray-100" : ""}`}
           >
-            <span className={`text-base md:text-2xl lg:text-3xl font-black leading-none ${b.accent ? "text-[#E11D48]" : "text-gray-900"}`}>
+            <span className={`text-base lg:text-3xl font-black leading-none ${b.accent ? "text-[#E11D48]" : "text-gray-900"}`}>
               {b.value}
             </span>
-            <span className="text-[8px] md:text-[11px] lg:text-[10px] font-semibold text-gray-400 uppercase mt-1 md:mt-1.5 tracking-wider">
+            <span className="text-[8px] lg:text-[10px] font-semibold text-gray-400 uppercase mt-1 lg:mt-1.5 tracking-wider">
               {b.label}
             </span>
           </div>
@@ -181,7 +181,7 @@ function Landing() {
 
         {/* Mobile / Tablet layout */}
         <div className="lg:hidden">
-          <div className="grid grid-cols-[1fr_1fr] gap-4 w-full pt-8 items-start md:items-center pl-[max(1rem,var(--safe-left))] pr-[max(1rem,var(--safe-right))] sm:pl-[max(1.5rem,var(--safe-left))] sm:pr-[max(1.5rem,var(--safe-right))]">
+          <div className="grid grid-cols-[1fr_1fr] gap-4 w-full pt-8 items-start pl-[max(1rem,var(--safe-left))] pr-[max(1rem,var(--safe-right))] sm:pl-[max(1.5rem,var(--safe-left))] sm:pr-[max(1.5rem,var(--safe-right))]">
             {heroImageBlock}
             {flashTimer}
           </div>
