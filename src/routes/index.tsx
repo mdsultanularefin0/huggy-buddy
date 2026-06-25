@@ -114,12 +114,12 @@ function Landing() {
 
   const flashTimer = (
     <div className="w-full max-w-[340px] mx-auto bg-white rounded-xl shadow-xl overflow-hidden">
-      <div className="bg-[#fbc02d] py-2 px-3 text-center border-b border-black/5">
-        <h3 className="text-[13px] font-black text-gray-900 uppercase tracking-wide">
+      <div className="bg-[#fbc02d] py-1.5 px-2 lg:py-2 lg:px-3 text-center border-b border-black/5">
+        <h3 className="text-[10px] lg:text-[13px] font-black text-gray-900 uppercase tracking-wide">
           Flash Sale! Up to 200Tk Off!
         </h3>
       </div>
-      <div className="grid grid-cols-4 py-4 px-2">
+      <div className="grid grid-cols-4 py-2 px-1 lg:py-4 lg:px-2">
         {[
           { label: "Days", value: "00" },
           { label: "Hours", value: "00" },
@@ -130,10 +130,10 @@ function Landing() {
             key={b.label}
             className={`flex flex-col items-center ${i < arr.length - 1 ? "border-r border-gray-100" : ""}`}
           >
-            <span className={`text-3xl font-black leading-none ${b.accent ? "text-[#E11D48]" : "text-gray-900"}`}>
+            <span className={`text-base lg:text-3xl font-black leading-none ${b.accent ? "text-[#E11D48]" : "text-gray-900"}`}>
               {b.value}
             </span>
-            <span className="text-[10px] font-semibold text-gray-400 uppercase mt-1.5 tracking-wider">
+            <span className="text-[8px] lg:text-[10px] font-semibold text-gray-400 uppercase mt-1 lg:mt-1.5 tracking-wider">
               {b.label}
             </span>
           </div>
@@ -187,11 +187,8 @@ function Landing() {
           </div>
           {marquee}
           <div className="w-full bg-gradient-to-r from-[#52277a] to-[#a555f0] py-6 relative z-10">
-            <div className="grid grid-cols-3 gap-4 w-full max-w-7xl mx-auto px-4 sm:px-6">
-              <div aria-hidden />
-              <div className="col-span-2 flex flex-col gap-6">
-                {mobileCategoryCards}
-              </div>
+            <div className="w-full max-w-7xl mx-auto px-4 sm:px-6">
+              {mobileCategoryCards}
             </div>
           </div>
         </div>
