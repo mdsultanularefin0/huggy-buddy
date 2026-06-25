@@ -51,6 +51,7 @@ function Landing() {
   const { data: categories = [] } = useSuspenseQuery(categoriesQuery);
   const { data: hero } = useSuspenseQuery(heroSettingsQuery);
   const slots = Array.from({ length: 4 }, (_, i) => categories[i]);
+  const mobileSlots = Array.from({ length: 3 }, (_, i) => categories[i]);
   const heroImage = hero?.hero_image ?? null;
   const heroOverlay = hero?.hero_overlay_image ?? null;
 
@@ -70,9 +71,10 @@ function Landing() {
     </div>
   );
 
-  const categoryCards = (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 w-full lg:max-w-[720px] mx-auto">
-      {slots.map((cat, i) => {
+  const renderCategoryCards = (items: typeof slots, gridClass: string) => (
+    <div className={`grid ${gridClass} gap-3 sm:gap-4 w-full lg:max-w-[720px] mx-auto`}>
+
+      {items.map((cat, i) => {
         const cardClass =
           "relative w-full aspect-square rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-purple-200 to-purple-100 bg-cover bg-center";
         const style = cat?.image_url ? { backgroundImage: `url(${cat.image_url})` } : undefined;
@@ -96,6 +98,8 @@ function Landing() {
       })}
     </div>
   );
+  const categoryCards = renderCategoryCards(slots, "grid-cols-2 sm:grid-cols-4");
+  const mobileCategoryCards = renderCategoryCards(mobileSlots, "grid-cols-3");
 
   const orderNowButton = (
     <div className="flex justify-center lg:justify-start">
@@ -186,7 +190,7 @@ function Landing() {
             <div className="grid grid-cols-3 gap-4 w-full max-w-7xl mx-auto px-4 sm:px-6">
               <div aria-hidden />
               <div className="col-span-2 flex flex-col gap-6">
-                {categoryCards}
+                {mobileCategoryCards}
               </div>
             </div>
           </div>
