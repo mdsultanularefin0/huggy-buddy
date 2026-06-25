@@ -98,7 +98,7 @@ function Landing() {
   );
 
   const orderNowButton = (
-    <div className="flex justify-center lg:justify-start">
+    <div className="flex justify-center lg:justify-end lg:pr-8">
       <button
         type="button"
         className="bg-[#52277a]/60 backdrop-blur-sm border-2 border-[#a555f0] shadow-[0_0_15px_rgba(165,85,240,0.5)] rounded-xl px-4 py-2 text-sm lg:px-8 lg:py-3 lg:text-lg text-white font-bold hover:bg-[#52277a]/80 transition"
@@ -154,7 +154,7 @@ function Landing() {
           </div>
           {marquee}
           <div className="w-full bg-gradient-to-r from-[#52277a] to-[#a555f0] py-6 relative z-10">
-            <div className="grid grid-cols-[1fr_2fr] gap-4 w-full px-6 items-center">
+            <div className="grid grid-cols-2 gap-8 w-full max-w-7xl mx-auto px-4 items-center">
               {orderNowButton}
               {flashTimer}
             </div>
