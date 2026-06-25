@@ -71,7 +71,7 @@ function Landing() {
   );
 
   const categoryCards = (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full lg:max-w-[720px] mx-auto">
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 w-full lg:max-w-[720px] mx-auto">
       {slots.map((cat, i) => {
         const cardClass =
           "relative w-full aspect-square rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-purple-200 to-purple-100 bg-cover bg-center";
@@ -98,10 +98,10 @@ function Landing() {
   );
 
   const orderNowButton = (
-    <div className="flex justify-center lg:justify-end lg:pr-8">
+    <div className="flex justify-end lg:pr-8">
       <button
         type="button"
-        className="bg-[#52277a]/60 backdrop-blur-sm border-2 border-[#a555f0] shadow-[0_0_15px_rgba(165,85,240,0.5)] rounded-xl px-8 py-3 text-white font-bold text-lg hover:bg-[#52277a]/80 transition"
+        className="bg-[#52277a]/60 backdrop-blur-sm border-2 border-[#a555f0] shadow-[0_0_15px_rgba(165,85,240,0.5)] rounded-xl px-4 py-2 text-sm lg:px-8 lg:py-3 lg:text-lg text-white font-bold hover:bg-[#52277a]/80 transition"
       >
         Order Now
       </button>
@@ -109,11 +109,11 @@ function Landing() {
   );
 
   const flashTimer = (
-    <div className="w-full max-w-md mx-auto lg:mx-0 bg-white rounded-2xl overflow-hidden shadow-2xl">
-      <div className="bg-[#fbc02d] w-full py-3 text-center">
-        <span className="text-white font-bold text-lg md:text-xl">Flash Sale! Up to 200Tk Off!</span>
+    <div className="w-full max-w-md mx-auto lg:mx-0 bg-white rounded-xl lg:rounded-2xl overflow-hidden shadow-2xl">
+      <div className="bg-[#fbc02d] w-full py-1.5 lg:py-3 text-center px-2">
+        <span className="text-white font-bold text-xs sm:text-sm lg:text-xl">Flash Sale! Up to 200Tk Off!</span>
       </div>
-      <div className="bg-white w-full py-4 px-6 flex justify-between text-center">
+      <div className="bg-white w-full py-2 px-2 lg:py-4 lg:px-6 flex justify-between text-center">
         {[
           { label: "Days", value: "00" },
           { label: "Hours", value: "00" },
@@ -121,8 +121,8 @@ function Landing() {
           { label: "Seconds", value: "00" },
         ].map((b) => (
           <div key={b.label}>
-            <div className="text-3xl md:text-4xl font-bold text-[#52277a]">{b.value}</div>
-            <div className="text-xs text-gray-500 uppercase tracking-widest mt-1">{b.label}</div>
+            <div className="text-base sm:text-xl lg:text-4xl font-bold text-[#52277a]">{b.value}</div>
+            <div className="text-[9px] sm:text-[10px] lg:text-xs text-gray-500 uppercase tracking-widest mt-0.5 lg:mt-1">{b.label}</div>
           </div>
         ))}
       </div>
