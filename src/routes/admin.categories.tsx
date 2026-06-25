@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, Loader2, Upload, X } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Upload, X, GripVertical } from "lucide-react";
 import { toast } from "sonner";
 import { uploadImage } from "@/lib/upload";
 import type { Database } from "@/integrations/supabase/types";
@@ -89,6 +89,45 @@ function CategoriesPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const reorder = useMutation({
+    mutationFn: async (ordered: Category[]) => {
+      const updates = ordered.map((c, i) =>
+        supabase.from("categories").update({ sort_order: i }).eq("id", c.id),
+      );
+      const results = await Promise.all(updates);
+      const firstErr = results.find((r) => r.error)?.error;
+      if (firstErr) throw firstErr;
+    },
+    onMutate: async (ordered) => {
+      await qc.cancelQueries({ queryKey: ["admin", "categories"] });
+      const prev = qc.getQueryData<Category[]>(["admin", "categories"]);
+      qc.setQueryData<Category[]>(["admin", "categories"], ordered.map((c, i) => ({ ...c, sort_order: i })));
+      return { prev };
+    },
+    onError: (e: Error, _v, ctx) => {
+      if (ctx?.prev) qc.setQueryData(["admin", "categories"], ctx.prev);
+      toast.error(e.message);
+    },
+    onSuccess: () => {
+      toast.success("Order updated");
+      qc.invalidateQueries({ queryKey: ["admin", "categories"] });
+      qc.invalidateQueries({ queryKey: ["public", "categories"] });
+    },
+  });
+
+  const [dragId, setDragId] = useState<string | null>(null);
+  function handleDrop(targetId: string) {
+    if (!dragId || dragId === targetId) return;
+    const list = [...categories];
+    const from = list.findIndex((c) => c.id === dragId);
+    const to = list.findIndex((c) => c.id === targetId);
+    if (from < 0 || to < 0) return;
+    const [moved] = list.splice(from, 1);
+    list.splice(to, 0, moved);
+    setDragId(null);
+    reorder.mutate(list);
+  }
+
   function startNew() {
     setEditing(null);
     setForm(empty);
@@ -141,6 +180,7 @@ function CategoriesPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-8" />
                 <TableHead>Image</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Slug</TableHead>
@@ -151,7 +191,18 @@ function CategoriesPage() {
             </TableHeader>
             <TableBody>
               {categories.map((c) => (
-                <TableRow key={c.id}>
+                <TableRow
+                  key={c.id}
+                  draggable
+                  onDragStart={() => setDragId(c.id)}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={() => handleDrop(c.id)}
+                  onDragEnd={() => setDragId(null)}
+                  className={`cursor-move ${dragId === c.id ? "opacity-50" : ""}`}
+                >
+                  <TableCell className="text-muted-foreground">
+                    <GripVertical className="w-4 h-4" />
+                  </TableCell>
                   <TableCell>
                     {c.image_url ? (
                       <img src={c.image_url} alt={c.name} className="w-12 h-12 object-cover rounded" />
@@ -181,6 +232,7 @@ function CategoriesPage() {
           </Table>
         )}
       </Card>
+      <p className="text-xs text-muted-foreground -mt-2">Drag rows to reorder. The top 3 active categories show on mobile/tablet; top 4 on desktop.</p>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-lg">
