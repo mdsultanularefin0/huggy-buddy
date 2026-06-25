@@ -156,9 +156,9 @@ function Landing() {
           <div className="w-full bg-gradient-to-r from-[#52277a] to-[#a555f0] py-6 relative z-10">
             <div className="grid grid-cols-[1fr_2fr] gap-4 w-full px-6 items-center">
               <div aria-hidden />
-              <div className="w-full lg:max-w-[720px] mx-auto flex items-center gap-4">
+              <div className="w-full flex items-center gap-4">
                 {orderNowButton}
-                <div className="flex-1">{flashTimer}</div>
+                <div className="flex-1 lg:max-w-[720px] mx-auto">{flashTimer}</div>
               </div>
             </div>
           </div>
