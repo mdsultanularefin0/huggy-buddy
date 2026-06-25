@@ -155,11 +155,15 @@ function Landing() {
           </div>
           {marquee}
           <div className="w-full bg-gradient-to-r from-[#52277a] to-[#a555f0] py-6 relative z-10">
-            <div className="grid grid-cols-2 gap-8 w-full max-w-7xl mx-auto px-4 items-center">
-              {orderNowButton}
-              {flashTimer}
+            <div className="grid grid-cols-[1fr_2fr] gap-4 w-full px-6 items-center">
+              <div aria-hidden />
+              <div className="grid grid-cols-2 gap-8 items-center">
+                {orderNowButton}
+                {flashTimer}
+              </div>
             </div>
           </div>
+
         </div>
 
         {/* Mobile / Tablet layout */}
