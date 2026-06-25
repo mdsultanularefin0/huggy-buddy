@@ -169,7 +169,7 @@ function Landing() {
           <div className="w-full bg-gradient-to-r from-[#52277a] to-[#a555f0] py-6 relative z-10">
             <div className="grid grid-cols-[1fr_2fr] gap-4 w-full px-6 items-center">
               <div aria-hidden />
-              <div className="relative w-full lg:max-w-[720px] mx-auto">
+              <div className="relative w-full">
                 {flashTimer}
                 <div className="hidden xl:block absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[calc(100%+1rem)]">
                   {orderNowButton}
