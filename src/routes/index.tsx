@@ -98,7 +98,7 @@ function Landing() {
   );
 
   const orderNowButton = (
-    <div className="flex justify-center lg:justify-end lg:pr-8">
+    <div className="flex justify-center lg:justify-start">
       <button
         type="button"
         className="bg-[#52277a]/60 backdrop-blur-sm border-2 border-[#a555f0] shadow-[0_0_15px_rgba(165,85,240,0.5)] rounded-xl px-4 py-2 text-sm lg:px-8 lg:py-3 lg:text-lg text-white font-bold hover:bg-[#52277a]/80 transition"
