@@ -109,20 +109,29 @@ function Landing() {
   );
 
   const flashTimer = (
-    <div className="w-full max-w-md mx-auto bg-white rounded-xl lg:rounded-2xl overflow-hidden shadow-2xl">
-      <div className="bg-[#fbc02d] w-full py-1.5 lg:py-3 text-center px-2">
-        <span className="text-white font-bold text-xs sm:text-sm lg:text-xl">Flash Sale! Up to 200Tk Off!</span>
+    <div className="w-full max-w-[340px] mx-auto bg-white rounded-xl shadow-xl overflow-hidden">
+      <div className="bg-[#fbc02d] py-2 px-3 text-center border-b border-black/5">
+        <h3 className="text-[13px] font-black text-gray-900 uppercase tracking-wide">
+          Flash Sale! Up to 200Tk Off!
+        </h3>
       </div>
-      <div className="bg-white w-full py-2 px-2 lg:py-4 lg:px-6 flex justify-between text-center">
+      <div className="grid grid-cols-4 py-4 px-2">
         {[
           { label: "Days", value: "00" },
           { label: "Hours", value: "00" },
-          { label: "Minutes", value: "00" },
-          { label: "Seconds", value: "00" },
-        ].map((b) => (
-          <div key={b.label}>
-            <div className="text-base sm:text-xl lg:text-4xl font-bold text-[#52277a]">{b.value}</div>
-            <div className="text-[9px] sm:text-[10px] lg:text-xs text-gray-500 uppercase tracking-widest mt-0.5 lg:mt-1">{b.label}</div>
+          { label: "Mins", value: "00" },
+          { label: "Secs", value: "00", accent: true },
+        ].map((b, i, arr) => (
+          <div
+            key={b.label}
+            className={`flex flex-col items-center ${i < arr.length - 1 ? "border-r border-gray-100" : ""}`}
+          >
+            <span className={`text-3xl font-black leading-none ${b.accent ? "text-[#E11D48]" : "text-gray-900"}`}>
+              {b.value}
+            </span>
+            <span className="text-[10px] font-semibold text-gray-400 uppercase mt-1.5 tracking-wider">
+              {b.label}
+            </span>
           </div>
         ))}
       </div>
