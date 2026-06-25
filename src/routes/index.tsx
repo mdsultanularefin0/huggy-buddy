@@ -71,7 +71,7 @@ function Landing() {
   );
 
   const categoryCards = (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full lg:max-w-[720px] mx-auto">
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 w-full lg:max-w-[720px] mx-auto">
       {slots.map((cat, i) => {
         const cardClass =
           "relative w-full aspect-square rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-purple-200 to-purple-100 bg-cover bg-center";
