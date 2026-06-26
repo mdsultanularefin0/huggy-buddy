@@ -318,6 +318,7 @@ export type Database = {
           regular_price: number
           sale_price: number | null
           sizes_json: Json
+          slug: string
           updated_at: string
         }
         Insert: {
@@ -332,6 +333,7 @@ export type Database = {
           regular_price?: number
           sale_price?: number | null
           sizes_json?: Json
+          slug: string
           updated_at?: string
         }
         Update: {
@@ -346,6 +348,7 @@ export type Database = {
           regular_price?: number
           sale_price?: number | null
           sizes_json?: Json
+          slug?: string
           updated_at?: string
         }
         Relationships: [

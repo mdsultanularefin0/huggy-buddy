@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBDT } from "@/lib/currency";
 import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
 import { useCart, cartSubtotal } from "@/lib/cart-store";
 import { createOrder } from "@/lib/checkout.functions";
 import { toast } from "sonner";
@@ -94,6 +95,7 @@ function CheckoutPage() {
           <p className="text-muted-foreground">Your cart is empty.</p>
           <Link to="/" className="text-primary underline mt-4 inline-block">Continue shopping</Link>
         </div>
+        <SiteFooter />
       </div>
     );
   }
@@ -202,6 +204,7 @@ function CheckoutPage() {
           </aside>
         </form>
       </div>
+      <SiteFooter />
     </div>
   );
 }

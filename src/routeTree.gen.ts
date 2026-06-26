@@ -9,12 +9,15 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as ProductsRouteImport } from './routes/products'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
-import { Route as ProductIdRouteImport } from './routes/product.$id'
+import { Route as ProductSlugRouteImport } from './routes/product.$slug'
 import { Route as OrderIdRouteImport } from './routes/order.$id'
 import { Route as ComboIdRouteImport } from './routes/combo.$id'
 import { Route as CategorySlugRouteImport } from './routes/category.$slug'
@@ -30,6 +33,21 @@ import { Route as AdminCombosRouteImport } from './routes/admin.combos'
 import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
 import { Route as AdminAuditLogsRouteImport } from './routes/admin.audit-logs'
 
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductsRoute = ProductsRouteImport.update({
+  id: '/products',
+  path: '/products',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CheckoutRoute = CheckoutRouteImport.update({
   id: '/checkout',
   path: '/checkout',
@@ -55,9 +73,9 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
-const ProductIdRoute = ProductIdRouteImport.update({
-  id: '/product/$id',
-  path: '/product/$id',
+const ProductSlugRoute = ProductSlugRouteImport.update({
+  id: '/product/$slug',
+  path: '/product/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OrderIdRoute = OrderIdRouteImport.update({
@@ -136,6 +154,9 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/checkout': typeof CheckoutRoute
+  '/privacy': typeof PrivacyRoute
+  '/products': typeof ProductsRoute
+  '/terms': typeof TermsRoute
   '/admin/audit-logs': typeof AdminAuditLogsRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/combos': typeof AdminCombosRoute
@@ -150,13 +171,16 @@ export interface FileRoutesByFullPath {
   '/category/$slug': typeof CategorySlugRoute
   '/combo/$id': typeof ComboIdRoute
   '/order/$id': typeof OrderIdRoute
-  '/product/$id': typeof ProductIdRoute
+  '/product/$slug': typeof ProductSlugRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/checkout': typeof CheckoutRoute
+  '/privacy': typeof PrivacyRoute
+  '/products': typeof ProductsRoute
+  '/terms': typeof TermsRoute
   '/admin/audit-logs': typeof AdminAuditLogsRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/combos': typeof AdminCombosRoute
@@ -171,7 +195,7 @@ export interface FileRoutesByTo {
   '/category/$slug': typeof CategorySlugRoute
   '/combo/$id': typeof ComboIdRoute
   '/order/$id': typeof OrderIdRoute
-  '/product/$id': typeof ProductIdRoute
+  '/product/$slug': typeof ProductSlugRoute
   '/admin': typeof AdminIndexRoute
 }
 export interface FileRoutesById {
@@ -180,6 +204,9 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/checkout': typeof CheckoutRoute
+  '/privacy': typeof PrivacyRoute
+  '/products': typeof ProductsRoute
+  '/terms': typeof TermsRoute
   '/admin/audit-logs': typeof AdminAuditLogsRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/combos': typeof AdminCombosRoute
@@ -194,7 +221,7 @@ export interface FileRoutesById {
   '/category/$slug': typeof CategorySlugRoute
   '/combo/$id': typeof ComboIdRoute
   '/order/$id': typeof OrderIdRoute
-  '/product/$id': typeof ProductIdRoute
+  '/product/$slug': typeof ProductSlugRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRouteTypes {
@@ -204,6 +231,9 @@ export interface FileRouteTypes {
     | '/admin'
     | '/auth'
     | '/checkout'
+    | '/privacy'
+    | '/products'
+    | '/terms'
     | '/admin/audit-logs'
     | '/admin/categories'
     | '/admin/combos'
@@ -218,13 +248,16 @@ export interface FileRouteTypes {
     | '/category/$slug'
     | '/combo/$id'
     | '/order/$id'
-    | '/product/$id'
+    | '/product/$slug'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/checkout'
+    | '/privacy'
+    | '/products'
+    | '/terms'
     | '/admin/audit-logs'
     | '/admin/categories'
     | '/admin/combos'
@@ -239,7 +272,7 @@ export interface FileRouteTypes {
     | '/category/$slug'
     | '/combo/$id'
     | '/order/$id'
-    | '/product/$id'
+    | '/product/$slug'
     | '/admin'
   id:
     | '__root__'
@@ -247,6 +280,9 @@ export interface FileRouteTypes {
     | '/admin'
     | '/auth'
     | '/checkout'
+    | '/privacy'
+    | '/products'
+    | '/terms'
     | '/admin/audit-logs'
     | '/admin/categories'
     | '/admin/combos'
@@ -261,7 +297,7 @@ export interface FileRouteTypes {
     | '/category/$slug'
     | '/combo/$id'
     | '/order/$id'
-    | '/product/$id'
+    | '/product/$slug'
     | '/admin/'
   fileRoutesById: FileRoutesById
 }
@@ -270,14 +306,38 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   AuthRoute: typeof AuthRoute
   CheckoutRoute: typeof CheckoutRoute
+  PrivacyRoute: typeof PrivacyRoute
+  ProductsRoute: typeof ProductsRoute
+  TermsRoute: typeof TermsRoute
   CategorySlugRoute: typeof CategorySlugRoute
   ComboIdRoute: typeof ComboIdRoute
   OrderIdRoute: typeof OrderIdRoute
-  ProductIdRoute: typeof ProductIdRoute
+  ProductSlugRoute: typeof ProductSlugRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/products': {
+      id: '/products'
+      path: '/products'
+      fullPath: '/products'
+      preLoaderRoute: typeof ProductsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/checkout': {
       id: '/checkout'
       path: '/checkout'
@@ -313,11 +373,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/product/$id': {
-      id: '/product/$id'
-      path: '/product/$id'
-      fullPath: '/product/$id'
-      preLoaderRoute: typeof ProductIdRouteImport
+    '/product/$slug': {
+      id: '/product/$slug'
+      path: '/product/$slug'
+      fullPath: '/product/$slug'
+      preLoaderRoute: typeof ProductSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/order/$id': {
@@ -458,10 +518,13 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   AuthRoute: AuthRoute,
   CheckoutRoute: CheckoutRoute,
+  PrivacyRoute: PrivacyRoute,
+  ProductsRoute: ProductsRoute,
+  TermsRoute: TermsRoute,
   CategorySlugRoute: CategorySlugRoute,
   ComboIdRoute: ComboIdRoute,
   OrderIdRoute: OrderIdRoute,
-  ProductIdRoute: ProductIdRoute,
+  ProductSlugRoute: ProductSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
