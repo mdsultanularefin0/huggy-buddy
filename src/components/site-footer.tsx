@@ -42,9 +42,13 @@ export function SiteFooter({
           <h4 className="text-sm font-semibold mb-4">Quick Links</h4>
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li><Link to="/" className="hover:text-foreground">Home</Link></li>
-            <li><Link to="/" hash="perfumes" className="hover:text-foreground">Perfumes</Link></li>
-            <li><Link to="/" hash="combos" className="hover:text-foreground">Combos</Link></li>
-            <li><Link to="/" hash="byob" className="hover:text-foreground">Build Your Box</Link></li>
+            <li><Link to="/products" className="hover:text-foreground">All Fragrances</Link></li>
+            <li><Link to="/category/$slug" params={{ slug: "female-fragrance" }} className="hover:text-foreground">Female Fragrance</Link></li>
+            <li><Link to="/category/$slug" params={{ slug: "male-fragrance" }} className="hover:text-foreground">Male Fragrance</Link></li>
+            <li><Link to="/category/$slug" params={{ slug: "combo-packs" }} className="hover:text-foreground">Combo Packs</Link></li>
+            <li><Link to="/category/$slug" params={{ slug: "custom-combo" }} className="hover:text-foreground">Custom Combo</Link></li>
+            <li><Link to="/terms" className="hover:text-foreground">Terms &amp; Conditions</Link></li>
+            <li><Link to="/privacy" className="hover:text-foreground">Privacy Policy</Link></li>
           </ul>
         </div>
 

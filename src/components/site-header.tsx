@@ -34,11 +34,12 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
   }, [iconUrl]);
 
   const links = [
-    { to: "/" as const, label: "Home" },
-    { to: "/" as const, hash: "female", label: "Female Fragrance" },
-    { to: "/" as const, hash: "male", label: "Male Fragrance" },
-    { to: "/" as const, hash: "combos", label: "Combo Pack" },
-    { to: "/" as const, hash: "byob", label: "Custom Combo" },
+    { to: "/" as const, label: "Home", params: undefined },
+    { to: "/products" as const, label: "All Fragrances", params: undefined },
+    { to: "/category/$slug" as const, params: { slug: "female-fragrance" }, label: "Female Fragrance" },
+    { to: "/category/$slug" as const, params: { slug: "male-fragrance" }, label: "Male Fragrance" },
+    { to: "/category/$slug" as const, params: { slug: "combo-packs" }, label: "Combo Pack" },
+    { to: "/category/$slug" as const, params: { slug: "custom-combo" }, label: "Custom Combo" },
   ];
 
   const positionClass =
@@ -80,7 +81,7 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
             <Link
               key={l.label}
               to={l.to}
-              hash={l.hash}
+              params={l.params as never}
               className="hover:text-white transition-colors whitespace-nowrap"
             >
               {l.label}
@@ -130,7 +131,7 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
       {mobileOpen && (
         <div className="lg:hidden border-t border-white/10 bg-primary px-6 py-4 flex flex-col gap-3 text-sm">
           {links.map((l) => (
-            <Link key={l.label} to={l.to} hash={l.hash} onClick={() => setMobileOpen(false)} className="py-1">
+            <Link key={l.label} to={l.to} params={l.params as never} onClick={() => setMobileOpen(false)} className="py-1">
               {l.label}
             </Link>
           ))}
