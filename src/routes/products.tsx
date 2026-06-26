@@ -7,6 +7,7 @@ import { formatBDT, effectivePrice, hasSale } from "@/lib/currency";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { CartDrawer } from "@/components/cart-drawer";
+import { ProductCard } from "@/components/product-card";
 
 type ProductRow = {
   id: string;
