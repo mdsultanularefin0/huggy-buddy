@@ -73,6 +73,8 @@ function AdminLayout() {
 function AdminSidebar({ email }: { email: string }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
+  const { data: branding } = useQuery(brandingQueryOptions);
+  const logoUrl = branding?.site_logo_url ?? null;
 
   const isActive = (to: string, exact?: boolean) =>
     exact ? pathname === to : pathname === to || pathname.startsWith(to + "/");
