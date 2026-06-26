@@ -84,7 +84,7 @@ function ProductPage() {
   const handleAdd = () => {
     const sizeLabel = chosen?.size_label ?? null;
     add({
-      lineId: `product:${product.id}:${sizeLabel ?? "default"}`,
+      lineId: `product:${product.slug}:${sizeLabel ?? "default"}`,
       kind: "product",
       refId: product.id,
       name: product.name,
@@ -94,7 +94,7 @@ function ProductPage() {
       quantity: qty,
       size: sizeLabel,
     });
-    toast.success("Added to cart");
+    toast.success(`${product.name}${sizeLabel ? ` (${sizeLabel})` : ""} × ${qty} added to cart`);
   };
 
   return (
