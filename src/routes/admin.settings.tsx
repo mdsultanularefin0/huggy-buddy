@@ -46,20 +46,26 @@ function SettingsPage() {
 
   useEffect(() => {
     if (settings) {
-      const s = settings as {
-        header_position?: string;
-        site_logo_url?: string | null;
-        site_icon_url?: string | null;
-        header_logo_size?: number | null;
-        footer_logo_size?: number | null;
-        footer_logo_align?: string | null;
-      };
-      setHeaderPosition((s.header_position as "sticky" | "static" | "floating") ?? "sticky");
-      setLogoUrl(s.site_logo_url ?? "");
-      setIconUrl(s.site_icon_url ?? "");
-      setHeaderLogoSize(s.header_logo_size ?? 36);
-      setFooterLogoSize(s.footer_logo_size ?? 36);
-      setFooterLogoAlign((s.footer_logo_align as "left" | "center" | "right") ?? "left");
+      const s = settings as Record<string, unknown>;
+      const str = (k: string) => (typeof s[k] === "string" ? (s[k] as string) : "");
+      setHeaderPosition(((s.header_position as string) ?? "sticky") as "sticky" | "static" | "floating");
+      setLogoUrl(str("site_logo_url"));
+      setIconUrl(str("site_icon_url"));
+      setHeaderLogoSize((s.header_logo_size as number | null) ?? 36);
+      setFooterLogoSize((s.footer_logo_size as number | null) ?? 36);
+      setFooterLogoAlign(((s.footer_logo_align as string) ?? "left") as "left" | "center" | "right");
+      setShopName(str("shop_name"));
+      setShopTagline(str("shop_tagline"));
+      setShopEmail(str("shop_email"));
+      setShopPhone(str("shop_phone"));
+      setShopAddress(str("shop_address"));
+      setShopHours(str("shop_hours"));
+      setSocialFacebook(str("social_facebook"));
+      setSocialInstagram(str("social_instagram"));
+      setSocialTwitter(str("social_twitter"));
+      setSocialYoutube(str("social_youtube"));
+      setSocialTiktok(str("social_tiktok"));
+      setSocialWhatsapp(str("social_whatsapp"));
     }
   }, [settings]);
 
@@ -72,6 +78,18 @@ function SettingsPage() {
         header_logo_size: headerLogoSize,
         footer_logo_size: footerLogoSize,
         footer_logo_align: footerLogoAlign,
+        shop_name: shopName || null,
+        shop_tagline: shopTagline || null,
+        shop_email: shopEmail || null,
+        shop_phone: shopPhone || null,
+        shop_address: shopAddress || null,
+        shop_hours: shopHours || null,
+        social_facebook: socialFacebook || null,
+        social_instagram: socialInstagram || null,
+        social_twitter: socialTwitter || null,
+        social_youtube: socialYoutube || null,
+        social_tiktok: socialTiktok || null,
+        social_whatsapp: socialWhatsapp || null,
       };
       if (settings?.id) {
         const { error } = await supabase.from("site_settings").update(payload).eq("id", settings.id);
