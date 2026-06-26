@@ -18,6 +18,7 @@ function SettingsPage() {
   const [headerPosition, setHeaderPosition] = useState<"sticky" | "static" | "floating">("sticky");
   const [logoUrl, setLogoUrl] = useState("");
   const [iconUrl, setIconUrl] = useState("");
+  const [headerLogoSize, setHeaderLogoSize] = useState(36);
   const [footerLogoSize, setFooterLogoSize] = useState(36);
   const [footerLogoAlign, setFooterLogoAlign] = useState<"left" | "center" | "right">("left");
   const [uploading, setUploading] = useState<"logo" | "icon" | null>(null);
