@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useCart, cartCount } from "@/lib/cart-store";
 import { supabase } from "@/integrations/supabase/client";
 
-export function SiteHeader({ position = "sticky", logoUrl }: { position?: "sticky" | "static" | "floating"; logoUrl?: string | null } = {}) {
+export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { position?: "sticky" | "static" | "floating"; logoUrl?: string | null; logoSize?: number | null } = {}) {
   const items = useCart((s) => s.items);
   const open = useCart((s) => s.open);
   const count = cartCount(items);
