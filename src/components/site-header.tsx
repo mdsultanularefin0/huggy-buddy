@@ -81,7 +81,7 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
             <Link
               key={l.label}
               to={l.to}
-              hash={l.hash}
+              params={l.params as never}
               className="hover:text-white transition-colors whitespace-nowrap"
             >
               {l.label}
