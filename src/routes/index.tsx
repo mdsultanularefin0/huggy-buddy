@@ -245,6 +245,7 @@ function Landing() {
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <main className="w-full">
+        <h1 className="sr-only">Veloura Essence — Premium Luxury Fragrances in Bangladesh</h1>
         {/* Desktop layout */}
         <div className="hidden lg:block">
           <div className="grid grid-cols-[1fr_2fr] gap-4 w-full max-w-[1600px] mx-auto pt-8 items-start px-6 lg:pl-12 xl:pl-20 2xl:pl-32">
