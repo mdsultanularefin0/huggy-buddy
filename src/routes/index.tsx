@@ -151,6 +151,9 @@ function useCountdown(targetMs: number | null) {
 function Landing() {
   const { data: allCategories = [] } = useSuspenseQuery(categoriesQuery);
   const { data: hero } = useSuspenseQuery(heroSettingsQuery);
+  const { data: branding } = useQuery(brandingQueryOptions);
+  const footerLogo = branding?.site_logo_url ?? branding?.site_icon_url ?? null;
+
 
   const selectedIds = (hero?.homepage_category_ids ?? []) as string[];
   const categories = selectedIds.length
