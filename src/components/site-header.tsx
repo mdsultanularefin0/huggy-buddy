@@ -70,6 +70,9 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
               alt="Site logo"
               style={{ height: effectiveLogoSize }}
               className="w-auto object-contain"
+              fetchPriority="high"
+              loading="eager"
+              decoding="async"
             />
           ) : null}
         </Link>
