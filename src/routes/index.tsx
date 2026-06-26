@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { SiteHeader } from "@/components/site-header";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -10,8 +11,7 @@ const categoriesQuery = queryOptions({
       .from("categories")
       .select("id, name, slug, image_url, sort_order")
       .eq("is_active", true)
-      .order("sort_order", { ascending: true })
-      .limit(4);
+      .order("sort_order", { ascending: true });
     if (error) throw error;
     return data;
   },
@@ -22,7 +22,9 @@ const heroSettingsQuery = queryOptions({
   queryFn: async () => {
     const { data, error } = await supabase
       .from("site_settings")
-      .select("hero_image, hero_overlay_image, marquee_text")
+      .select(
+        "hero_image, hero_overlay_image, marquee_text, homepage_category_ids, flash_timer_title, flash_timer_enabled, flash_timer_auto_reset, flash_timer_duration_days, timer_reset_date",
+      )
       .limit(1)
       .maybeSingle();
     if (error) throw error;
@@ -47,9 +49,33 @@ export const Route = createFileRoute("/")({
   notFoundComponent: () => <div className="p-8 text-center">Not found.</div>,
 });
 
+function useCountdown(targetMs: number | null) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  if (!targetMs) return { days: "00", hours: "00", mins: "00", secs: "00" };
+  const diff = Math.max(0, targetMs - now);
+  const days = Math.floor(diff / 86_400_000);
+  const hours = Math.floor((diff % 86_400_000) / 3_600_000);
+  const mins = Math.floor((diff % 3_600_000) / 60_000);
+  const secs = Math.floor((diff % 60_000) / 1000);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return { days: pad(days), hours: pad(hours), mins: pad(mins), secs: pad(secs) };
+}
+
 function Landing() {
-  const { data: categories = [] } = useSuspenseQuery(categoriesQuery);
+  const { data: allCategories = [] } = useSuspenseQuery(categoriesQuery);
   const { data: hero } = useSuspenseQuery(heroSettingsQuery);
+
+  const selectedIds = (hero?.homepage_category_ids ?? []) as string[];
+  const categories = selectedIds.length
+    ? selectedIds
+        .map((id) => allCategories.find((c) => c.id === id))
+        .filter((c): c is (typeof allCategories)[number] => Boolean(c))
+    : allCategories.slice(0, 4);
+
   const slots = Array.from({ length: 4 }, (_, i) => categories[i]);
   const mobileSlots = Array.from({ length: 3 }, (_, i) => categories[i]);
   const heroImage = hero?.hero_image ?? null;
@@ -57,6 +83,27 @@ function Landing() {
 
   const marqueeText = (hero?.marquee_text ?? "Free shipping over ₹999 · New arrivals every week · Premium fragrances handcrafted").trim();
   const marqueeItems = Array.from({ length: 8 }, () => marqueeText);
+
+  // Flash timer target
+  const timerEnabled = hero?.flash_timer_enabled ?? true;
+  const autoReset = hero?.flash_timer_auto_reset ?? false;
+  const durationDays = hero?.flash_timer_duration_days ?? 7;
+  const resetDateStr = hero?.timer_reset_date ?? null;
+  let targetMs: number | null = null;
+  if (timerEnabled && resetDateStr) {
+    const base = new Date(resetDateStr).getTime();
+    const nowMs = Date.now();
+    if (base > nowMs) {
+      targetMs = base;
+    } else if (autoReset && durationDays > 0) {
+      const periodMs = durationDays * 86_400_000;
+      const elapsed = nowMs - base;
+      const cycles = Math.floor(elapsed / periodMs) + 1;
+      targetMs = base + cycles * periodMs;
+    }
+  }
+  const countdown = useCountdown(targetMs);
+  const flashTitle = hero?.flash_timer_title ?? "Flash Sale! Up to 200Tk Off!";
 
   const heroImageBlock = (
     <div className="relative w-full max-w-[280px] mx-auto lg:mx-0 aspect-[3/4]">
@@ -112,19 +159,19 @@ function Landing() {
     </div>
   );
 
-  const flashTimer = (
+  const flashTimer = timerEnabled ? (
     <div className="w-full max-w-[340px] sm:max-w-[440px] md:max-w-[560px] mx-auto bg-white rounded-xl shadow-xl overflow-hidden">
       <div className="bg-[#fbc02d] py-1.5 px-2 lg:py-2 lg:px-3 text-center border-b border-black/5">
         <h3 className="text-[10px] lg:text-[13px] font-black text-gray-900 uppercase tracking-wide">
-          Flash Sale! Up to 200Tk Off!
+          {flashTitle}
         </h3>
       </div>
       <div className="grid grid-cols-4 py-2 px-1 lg:py-4 lg:px-2">
         {[
-          { label: "Days", value: "00" },
-          { label: "Hours", value: "00" },
-          { label: "Mins", value: "00" },
-          { label: "Secs", value: "00", accent: true },
+          { label: "Days", value: countdown.days },
+          { label: "Hours", value: countdown.hours },
+          { label: "Mins", value: countdown.mins },
+          { label: "Secs", value: countdown.secs, accent: true },
         ].map((b, i, arr) => (
           <div
             key={b.label}
@@ -140,7 +187,7 @@ function Landing() {
         ))}
       </div>
     </div>
-  );
+  ) : null;
 
   const marquee = (
     <div className="relative z-20 w-full -mt-32 sm:-mt-40 lg:-mt-48 bg-gradient-to-r from-[#a555f0] to-[#52277a] text-white py-1.5 overflow-hidden shadow-lg">
