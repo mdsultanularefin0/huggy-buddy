@@ -76,7 +76,8 @@ function SettingsPage() {
   async function handleUpload(kind: "logo" | "icon", file: File) {
     try {
       setUploading(kind);
-      const url = await uploadImage("hero-images", file);
+      const optimized = await validateAndOptimizeBrandImage(kind, file);
+      const url = await uploadImage("hero-images", optimized);
       if (kind === "logo") setLogoUrl(url);
       else setIconUrl(url);
       toast.success(`Image uploaded — click Save to apply`);
