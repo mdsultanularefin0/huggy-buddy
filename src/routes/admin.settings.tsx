@@ -348,3 +348,13 @@ function Field({ label, value, onChange, placeholder, type, textarea }: {
     </div>
   );
 }
+
+function SaveBar({ pending, onSave }: { pending: boolean; onSave: () => void }) {
+  return (
+    <div className="flex justify-end border-t pt-6">
+      <Button variant="luxe" onClick={onSave} disabled={pending}>
+        {pending && <Loader2 className="w-4 h-4 animate-spin mr-1" />}Save settings
+      </Button>
+    </div>
+  );
+}
