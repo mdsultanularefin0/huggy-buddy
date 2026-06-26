@@ -40,6 +40,7 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
     { to: "/category/$slug" as const, params: { slug: "male-fragrance" }, label: "Male Fragrance" },
     { to: "/category/$slug" as const, params: { slug: "combo-packs" }, label: "Combo Pack" },
     { to: "/category/$slug" as const, params: { slug: "custom-combo" }, label: "Custom Combo" },
+    { to: "/contact" as const, label: "Contact", params: undefined },
   ];
 
   const positionClass =
