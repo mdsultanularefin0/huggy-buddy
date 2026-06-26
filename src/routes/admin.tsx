@@ -43,13 +43,10 @@ function AdminLayout() {
     if (!loading && !user) navigate({ to: "/auth", search: { redirect: "/admin" } });
   }, [loading, user, navigate]);
 
-  if (loading || (user && isAdmin === null)) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-muted-foreground text-sm">
-        Loading admin panel…
-      </div>
-    );
-  }
+  // Block rendering until session AND role check have both resolved.
+  // Without this, isAdmin briefly reads as false and flashes the NotAnAdmin screen.
+  const checkingRole = !!user && isAdmin === null;
+  if (loading || checkingRole) return <AdminLoading />;
   if (!user) return null;
   if (isAdmin === false) return <NotAnAdmin email={user.email ?? ""} />;
 
