@@ -203,6 +203,7 @@ function CheckoutPage() {
           </aside>
         </form>
       </div>
+      <SiteFooter />
     </div>
   );
 }
