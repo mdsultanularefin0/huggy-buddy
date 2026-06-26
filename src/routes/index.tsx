@@ -72,7 +72,7 @@ function Landing() {
   );
 
   const renderCategoryCards = (items: typeof slots, gridClass: string) => (
-    <div className={`grid ${gridClass} gap-3 sm:gap-4 w-full lg:max-w-[720px] mx-auto`}>
+    <div className={`grid ${gridClass} gap-3 sm:gap-4 w-full lg:max-w-[720px] xl:max-w-[900px] 2xl:max-w-[1100px] mx-auto`}>
 
       {items.map((cat, i) => {
         const cardClass =
@@ -113,7 +113,7 @@ function Landing() {
   );
 
   const flashTimer = (
-    <div className="w-full max-w-[340px] mx-auto bg-white rounded-xl shadow-xl overflow-hidden">
+    <div className="w-full max-w-[340px] xl:max-w-[460px] 2xl:max-w-[560px] mx-auto bg-white rounded-xl shadow-xl overflow-hidden">
       <div className="bg-[#fbc02d] py-1.5 px-2 lg:py-2 lg:px-3 text-center border-b border-black/5">
         <h3 className="text-[10px] lg:text-[13px] font-black text-gray-900 uppercase tracking-wide">
           Flash Sale! Up to 200Tk Off!
@@ -169,7 +169,7 @@ function Landing() {
           <div className="w-full bg-gradient-to-r from-[#52277a] to-[#a555f0] py-6 relative z-10">
             <div className="grid grid-cols-[1fr_2fr] gap-4 w-full px-6 items-center">
               <div aria-hidden />
-              <div className="relative w-full lg:max-w-[720px] mx-auto">
+              <div className="relative w-full lg:max-w-[720px] xl:max-w-[900px] 2xl:max-w-[1100px] mx-auto">
                 {flashTimer}
                 <div className="hidden xl:block absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[calc(100%+1rem)]">
                   {orderNowButton}
