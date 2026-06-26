@@ -95,6 +95,7 @@ function CheckoutPage() {
           <p className="text-muted-foreground">Your cart is empty.</p>
           <Link to="/" className="text-primary underline mt-4 inline-block">Continue shopping</Link>
         </div>
+        <SiteFooter />
       </div>
     );
   }
