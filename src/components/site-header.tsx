@@ -34,11 +34,12 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
   }, [iconUrl]);
 
   const links = [
-    { to: "/" as const, label: "Home" },
-    { to: "/" as const, hash: "female", label: "Female Fragrance" },
-    { to: "/" as const, hash: "male", label: "Male Fragrance" },
-    { to: "/" as const, hash: "combos", label: "Combo Pack" },
-    { to: "/" as const, hash: "byob", label: "Custom Combo" },
+    { to: "/" as const, label: "Home", params: undefined },
+    { to: "/products" as const, label: "All Fragrances", params: undefined },
+    { to: "/category/$slug" as const, params: { slug: "female-fragrance" }, label: "Female Fragrance" },
+    { to: "/category/$slug" as const, params: { slug: "male-fragrance" }, label: "Male Fragrance" },
+    { to: "/category/$slug" as const, params: { slug: "combo-packs" }, label: "Combo Pack" },
+    { to: "/category/$slug" as const, params: { slug: "custom-combo" }, label: "Custom Combo" },
   ];
 
   const positionClass =
