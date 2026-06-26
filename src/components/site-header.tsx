@@ -131,7 +131,7 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
       {mobileOpen && (
         <div className="lg:hidden border-t border-white/10 bg-primary px-6 py-4 flex flex-col gap-3 text-sm">
           {links.map((l) => (
-            <Link key={l.label} to={l.to} hash={l.hash} onClick={() => setMobileOpen(false)} className="py-1">
+            <Link key={l.label} to={l.to} params={l.params as never} onClick={() => setMobileOpen(false)} className="py-1">
               {l.label}
             </Link>
           ))}
