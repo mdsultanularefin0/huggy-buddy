@@ -59,7 +59,7 @@ function Landing() {
   const marqueeItems = Array.from({ length: 8 }, () => marqueeText);
 
   const heroImageBlock = (
-    <div className="relative w-full max-w-[280px] xl:max-w-[340px] 2xl:max-w-[400px] mx-auto lg:mx-0 aspect-[3/4]">
+    <div className="relative w-full max-w-[280px] mx-auto lg:mx-0 aspect-[3/4]">
       <div
         className="absolute inset-0 z-0 rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-purple-100 to-purple-50 bg-cover bg-center"
         style={heroImage ? { backgroundImage: `url(${heroImage})` } : undefined}
@@ -72,7 +72,7 @@ function Landing() {
   );
 
   const renderCategoryCards = (items: typeof slots, gridClass: string) => (
-    <div className={`grid ${gridClass} gap-3 sm:gap-4 w-full sm:max-w-[640px] md:max-w-[860px] lg:max-w-[720px] xl:max-w-[880px] 2xl:max-w-[1040px] mx-auto`}>
+    <div className={`grid ${gridClass} gap-3 sm:gap-4 w-full sm:max-w-[640px] md:max-w-[860px] lg:max-w-[720px] mx-auto`}>
 
       {items.map((cat, i) => {
         const cardClass =
@@ -161,22 +161,18 @@ function Landing() {
       <main className="w-full">
         {/* Desktop layout */}
         <div className="hidden lg:block">
-          <div className="mx-auto w-full max-w-[1400px] 2xl:max-w-[1600px]">
-            <div className="grid grid-cols-[1fr_2fr] gap-4 w-full pt-8 items-start px-6 lg:pl-12 xl:pl-20 2xl:pl-32">
-              {heroImageBlock}
-              {categoryCards}
-            </div>
+          <div className="grid grid-cols-[1fr_2fr] gap-4 w-full pt-8 items-start px-6 lg:pl-12 xl:pl-20 2xl:pl-32">
+            {heroImageBlock}
+            {categoryCards}
           </div>
           {marquee}
           <div className="w-full bg-gradient-to-r from-[#52277a] to-[#a555f0] py-6 relative z-10">
-            <div className="mx-auto w-full max-w-[1400px] 2xl:max-w-[1600px]">
-              <div className="grid grid-cols-[1fr_2fr] gap-4 w-full px-6 lg:pl-12 xl:pl-20 2xl:pl-32 items-center">
-                <div aria-hidden />
-                <div className="relative w-full lg:max-w-[720px] xl:max-w-[880px] 2xl:max-w-[1040px] mx-auto">
-                  {flashTimer}
-                  <div className="hidden xl:block absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[calc(100%+1rem)]">
-                    {orderNowButton}
-                  </div>
+            <div className="grid grid-cols-[1fr_2fr] gap-4 w-full px-6 items-center">
+              <div aria-hidden />
+              <div className="relative w-full lg:max-w-[720px] mx-auto">
+                {flashTimer}
+                <div className="hidden xl:block absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[calc(100%+1rem)]">
+                  {orderNowButton}
                 </div>
               </div>
             </div>
