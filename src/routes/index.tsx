@@ -3,7 +3,6 @@ import { useQuery, useSuspenseQuery, queryOptions } from "@tanstack/react-query"
 import { brandingQueryOptions } from "@/lib/branding-query";
 import { useEffect, useState } from "react";
 import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
 import {
   Accordion,
   AccordionContent,
@@ -490,7 +489,72 @@ function Landing() {
         </section>
       </main>
 
-      <SiteFooter logoUrl={footerLogo} />
+      {/* Premium Footer */}
+      <footer className="w-full bg-[#52277a] pt-16 pb-8 text-white">
+        <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+          <div>
+            {footerLogo ? (
+              <img
+                src={footerLogo}
+                alt="Veloura Essence"
+                className="h-10 sm:h-12 md:h-14 w-auto max-w-full max-h-16 object-contain"
+                loading="lazy"
+              />
+            ) : (
+              <h3 className="text-2xl font-bold tracking-wide">Veloura Essence</h3>
+            )}
+            <p className="text-gray-300 mt-4 leading-relaxed text-sm">
+              Redefining luxury fragrance in Bangladesh — crafted scents,
+              honest pricing, and an experience worthy of every occasion.
+            </p>
+          </div>
+          <div>
+            <h4 className="text-lg font-semibold mb-4">Shop</h4>
+            {["Female Scent", "Male Scent", "Combo Pack", "Customize Combo"].map((l) => (
+              <a key={l} href="#" className="text-gray-300 hover:text-white mb-2 block text-sm">
+                {l}
+              </a>
+            ))}
+          </div>
+          <div>
+            <h4 className="text-lg font-semibold mb-4">Support</h4>
+            {["Contact Us", "Shipping Policy", "Return Policy", "Track Order"].map((l) => (
+              <a key={l} href="#" className="text-gray-300 hover:text-white mb-2 block text-sm">
+                {l}
+              </a>
+            ))}
+          </div>
+          <div>
+            <h4 className="text-lg font-semibold mb-4">Stay Updated</h4>
+            <p className="text-gray-300 text-sm mb-3">
+              Get early access to drops and member-only offers.
+            </p>
+            <input
+              type="email"
+              placeholder="Your email"
+              className="bg-white/10 rounded-lg py-2 px-4 w-full text-white placeholder-gray-400 focus:outline-none"
+            />
+            <button className="bg-[#a555f0] text-white rounded-lg py-2 w-full mt-3 font-semibold hover:bg-[#9442e0] transition-colors">
+              Subscribe
+            </button>
+          </div>
+        </div>
+        <div className="max-w-7xl mx-auto px-4 mt-12 pt-8 border-t border-white/20 flex flex-col md:flex-row justify-between items-center text-sm text-gray-400 gap-4">
+          <p>© 2026 Veloura Essence. All rights reserved.</p>
+          <div className="flex items-center gap-4">
+            {["F", "I", "T", "Y"].map((s) => (
+              <a
+                key={s}
+                href="#"
+                aria-label={`Social ${s}`}
+                className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white text-sm font-semibold transition-colors"
+              >
+                {s}
+              </a>
+            ))}
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
