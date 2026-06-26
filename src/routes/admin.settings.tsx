@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { uploadImage } from "@/lib/upload";
@@ -22,6 +23,18 @@ function SettingsPage() {
   const [footerLogoSize, setFooterLogoSize] = useState(36);
   const [footerLogoAlign, setFooterLogoAlign] = useState<"left" | "center" | "right">("left");
   const [uploading, setUploading] = useState<"logo" | "icon" | null>(null);
+  const [shopName, setShopName] = useState("");
+  const [shopTagline, setShopTagline] = useState("");
+  const [shopEmail, setShopEmail] = useState("");
+  const [shopPhone, setShopPhone] = useState("");
+  const [shopAddress, setShopAddress] = useState("");
+  const [shopHours, setShopHours] = useState("");
+  const [socialFacebook, setSocialFacebook] = useState("");
+  const [socialInstagram, setSocialInstagram] = useState("");
+  const [socialTwitter, setSocialTwitter] = useState("");
+  const [socialYoutube, setSocialYoutube] = useState("");
+  const [socialTiktok, setSocialTiktok] = useState("");
+  const [socialWhatsapp, setSocialWhatsapp] = useState("");
 
   const { data: settings, isLoading } = useQuery({
     queryKey: ["admin", "site_settings"],
@@ -34,20 +47,26 @@ function SettingsPage() {
 
   useEffect(() => {
     if (settings) {
-      const s = settings as {
-        header_position?: string;
-        site_logo_url?: string | null;
-        site_icon_url?: string | null;
-        header_logo_size?: number | null;
-        footer_logo_size?: number | null;
-        footer_logo_align?: string | null;
-      };
-      setHeaderPosition((s.header_position as "sticky" | "static" | "floating") ?? "sticky");
-      setLogoUrl(s.site_logo_url ?? "");
-      setIconUrl(s.site_icon_url ?? "");
-      setHeaderLogoSize(s.header_logo_size ?? 36);
-      setFooterLogoSize(s.footer_logo_size ?? 36);
-      setFooterLogoAlign((s.footer_logo_align as "left" | "center" | "right") ?? "left");
+      const s = settings as Record<string, unknown>;
+      const str = (k: string) => (typeof s[k] === "string" ? (s[k] as string) : "");
+      setHeaderPosition(((s.header_position as string) ?? "sticky") as "sticky" | "static" | "floating");
+      setLogoUrl(str("site_logo_url"));
+      setIconUrl(str("site_icon_url"));
+      setHeaderLogoSize((s.header_logo_size as number | null) ?? 36);
+      setFooterLogoSize((s.footer_logo_size as number | null) ?? 36);
+      setFooterLogoAlign(((s.footer_logo_align as string) ?? "left") as "left" | "center" | "right");
+      setShopName(str("shop_name"));
+      setShopTagline(str("shop_tagline"));
+      setShopEmail(str("shop_email"));
+      setShopPhone(str("shop_phone"));
+      setShopAddress(str("shop_address"));
+      setShopHours(str("shop_hours"));
+      setSocialFacebook(str("social_facebook"));
+      setSocialInstagram(str("social_instagram"));
+      setSocialTwitter(str("social_twitter"));
+      setSocialYoutube(str("social_youtube"));
+      setSocialTiktok(str("social_tiktok"));
+      setSocialWhatsapp(str("social_whatsapp"));
     }
   }, [settings]);
 
@@ -60,6 +79,18 @@ function SettingsPage() {
         header_logo_size: headerLogoSize,
         footer_logo_size: footerLogoSize,
         footer_logo_align: footerLogoAlign,
+        shop_name: shopName || null,
+        shop_tagline: shopTagline || null,
+        shop_email: shopEmail || null,
+        shop_phone: shopPhone || null,
+        shop_address: shopAddress || null,
+        shop_hours: shopHours || null,
+        social_facebook: socialFacebook || null,
+        social_instagram: socialInstagram || null,
+        social_twitter: socialTwitter || null,
+        social_youtube: socialYoutube || null,
+        social_tiktok: socialTiktok || null,
+        social_whatsapp: socialWhatsapp || null,
       };
       if (settings?.id) {
         const { error } = await supabase.from("site_settings").update(payload).eq("id", settings.id);
@@ -124,6 +155,38 @@ function SettingsPage() {
             previewClass="bg-muted p-3 h-20"
           />
         </div>
+
+        <div className="border-t pt-6 space-y-4">
+          <div>
+            <Label className="text-base">Shop information</Label>
+            <p className="text-xs text-muted-foreground">Used on the Contact page, footer, and as fallback when no logo is set.</p>
+          </div>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <Field label="Shop name" value={shopName} onChange={setShopName} placeholder="Veloura Essence" />
+            <Field label="Tagline" value={shopTagline} onChange={setShopTagline} placeholder="Crafted scents, honest pricing." />
+            <Field label="Email" value={shopEmail} onChange={setShopEmail} placeholder="hello@example.com" type="email" />
+            <Field label="Phone" value={shopPhone} onChange={setShopPhone} placeholder="+880 1234-567890" />
+            <Field label="Address" value={shopAddress} onChange={setShopAddress} placeholder="Street, City" textarea />
+            <Field label="Opening hours" value={shopHours} onChange={setShopHours} placeholder="Mon–Sat, 10am–8pm" textarea />
+          </div>
+        </div>
+
+        <div className="border-t pt-6 space-y-4">
+          <div>
+            <Label className="text-base">Social media links</Label>
+            <p className="text-xs text-muted-foreground">Leave blank to hide an icon. Use full URLs (https://…).</p>
+          </div>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <Field label="Facebook" value={socialFacebook} onChange={setSocialFacebook} placeholder="https://facebook.com/yourpage" />
+            <Field label="Instagram" value={socialInstagram} onChange={setSocialInstagram} placeholder="https://instagram.com/handle" />
+            <Field label="Twitter / X" value={socialTwitter} onChange={setSocialTwitter} placeholder="https://x.com/handle" />
+            <Field label="YouTube" value={socialYoutube} onChange={setSocialYoutube} placeholder="https://youtube.com/@channel" />
+            <Field label="TikTok" value={socialTiktok} onChange={setSocialTiktok} placeholder="https://tiktok.com/@handle" />
+            <Field label="WhatsApp" value={socialWhatsapp} onChange={setSocialWhatsapp} placeholder="https://wa.me/8801234567890" />
+          </div>
+        </div>
+
+
 
 
 
@@ -249,6 +312,26 @@ function BrandUpload({ label, hint, url, onUrlChange, onFile, busy, previewClass
         </label>
       </div>
       <p className="text-xs text-muted-foreground">{hint}</p>
+    </div>
+  );
+}
+
+function Field({ label, value, onChange, placeholder, type, textarea }: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  type?: string;
+  textarea?: boolean;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <Label>{label}</Label>
+      {textarea ? (
+        <Textarea value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} rows={2} />
+      ) : (
+        <Input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} type={type ?? "text"} />
+      )}
     </div>
   );
 }

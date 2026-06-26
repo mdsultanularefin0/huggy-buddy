@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { Facebook, Instagram, Twitter, Youtube, Music2, MessageCircle, Mail, Phone, MapPin } from "lucide-react";
 import { brandingQueryOptions } from "@/lib/branding-query";
 
 const SHOP_LINKS = [
@@ -11,9 +12,9 @@ const SHOP_LINKS = [
 
 const SUPPORT_LINKS = [
   { label: "All Fragrances", to: "/products" as const },
+  { label: "Contact Us", to: "/contact" as const },
   { label: "Terms & Conditions", to: "/terms" as const },
   { label: "Privacy Policy", to: "/privacy" as const },
-  { label: "Admin Sign In", to: "/auth" as const },
 ];
 
 export function SiteFooter(_props: {
@@ -23,6 +24,20 @@ export function SiteFooter(_props: {
 } = {}) {
   const { data: branding } = useQuery(brandingQueryOptions);
   const footerLogo = branding?.site_logo_url ?? branding?.site_icon_url ?? null;
+  const shopName = branding?.shop_name ?? "Veloura Essence";
+  const tagline =
+    branding?.shop_tagline ??
+    "Redefining luxury fragrance in Bangladesh — crafted scents, honest pricing, and an experience worthy of every occasion.";
+
+  const socials: { href: string | null | undefined; label: string; Icon: typeof Facebook }[] = [
+    { href: branding?.social_facebook, label: "Facebook", Icon: Facebook },
+    { href: branding?.social_instagram, label: "Instagram", Icon: Instagram },
+    { href: branding?.social_twitter, label: "Twitter", Icon: Twitter },
+    { href: branding?.social_youtube, label: "YouTube", Icon: Youtube },
+    { href: branding?.social_tiktok, label: "TikTok", Icon: Music2 },
+    { href: branding?.social_whatsapp, label: "WhatsApp", Icon: MessageCircle },
+  ];
+  const activeSocials = socials.filter((s) => !!s.href);
 
   return (
     <footer className="w-full bg-[#52277a] pt-16 pb-8 text-white mt-20">
@@ -31,17 +46,25 @@ export function SiteFooter(_props: {
           {footerLogo ? (
             <img
               src={footerLogo}
-              alt="Veloura Essence"
+              alt={shopName}
               className="h-10 sm:h-12 md:h-14 w-auto max-w-full max-h-16 object-contain"
               loading="lazy"
             />
           ) : (
-            <h3 className="text-2xl font-bold tracking-wide">Veloura Essence</h3>
+            <h3 className="text-2xl font-bold tracking-wide">{shopName}</h3>
           )}
-          <p className="text-gray-300 mt-4 leading-relaxed text-sm">
-            Redefining luxury fragrance in Bangladesh — crafted scents, honest
-            pricing, and an experience worthy of every occasion.
-          </p>
+          <p className="text-gray-300 mt-4 leading-relaxed text-sm">{tagline}</p>
+          <div className="mt-5 space-y-2 text-sm text-gray-300">
+            {branding?.shop_address && (
+              <p className="flex items-start gap-2"><MapPin className="w-4 h-4 mt-0.5 shrink-0" /><span>{branding.shop_address}</span></p>
+            )}
+            {branding?.shop_phone && (
+              <p className="flex items-center gap-2"><Phone className="w-4 h-4 shrink-0" /><a href={`tel:${branding.shop_phone}`} className="hover:text-white">{branding.shop_phone}</a></p>
+            )}
+            {branding?.shop_email && (
+              <p className="flex items-center gap-2"><Mail className="w-4 h-4 shrink-0" /><a href={`mailto:${branding.shop_email}`} className="hover:text-white">{branding.shop_email}</a></p>
+            )}
+          </div>
         </div>
         <div>
           <h4 className="text-lg font-semibold mb-4">Shop</h4>
@@ -84,19 +107,23 @@ export function SiteFooter(_props: {
         </div>
       </div>
       <div className="max-w-7xl mx-auto px-4 mt-12 pt-8 border-t border-white/20 flex flex-col md:flex-row justify-between items-center text-sm text-gray-400 gap-4">
-        <p>© {new Date().getFullYear()} Veloura Essence. All rights reserved.</p>
-        <div className="flex items-center gap-4">
-          {["F", "I", "T", "Y"].map((s) => (
-            <a
-              key={s}
-              href="#"
-              aria-label={`Social ${s}`}
-              className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white text-sm font-semibold transition-colors"
-            >
-              {s}
-            </a>
-          ))}
-        </div>
+        <p>© {new Date().getFullYear()} {shopName}. All rights reserved.</p>
+        {activeSocials.length > 0 && (
+          <div className="flex items-center gap-3">
+            {activeSocials.map(({ href, label, Icon }) => (
+              <a
+                key={label}
+                href={href!}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={label}
+                className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+              >
+                <Icon className="w-4 h-4" />
+              </a>
+            ))}
+          </div>
+        )}
       </div>
     </footer>
   );

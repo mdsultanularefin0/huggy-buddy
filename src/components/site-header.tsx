@@ -40,6 +40,7 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
     { to: "/category/$slug" as const, params: { slug: "male-fragrance" }, label: "Male Fragrance" },
     { to: "/category/$slug" as const, params: { slug: "combo-packs" }, label: "Combo Pack" },
     { to: "/category/$slug" as const, params: { slug: "custom-combo" }, label: "Custom Combo" },
+    { to: "/contact" as const, label: "Contact", params: undefined },
   ];
 
   const positionClass =
@@ -70,7 +71,11 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
               style={{ height: effectiveLogoSize, width: effectiveLogoSize * 3 }}
               className="rounded-md bg-white/10 animate-pulse"
             />
-          ) : null}
+          ) : (
+            <span className="font-bold text-lg sm:text-xl tracking-wide text-primary-foreground">
+              {branding?.shop_name ?? "Veloura Essence"}
+            </span>
+          )}
         </Link>
 
 
