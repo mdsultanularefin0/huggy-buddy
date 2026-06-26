@@ -89,10 +89,16 @@ function AdminSidebar({ email }: { email: string }) {
     <Sidebar collapsible="icon">
       <SidebarHeader>
         <Link to="/admin" className="flex items-center gap-2 px-2 py-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-luxe flex items-center justify-center shadow-soft shrink-0">
-            <Sparkles className="w-4 h-4 text-primary-foreground" />
-          </div>
-          <span className="font-semibold text-sidebar-foreground truncate">Veloura</span>
+          {logoUrl ? (
+            <img src={logoUrl} alt="Site logo" className="h-8 w-auto object-contain shrink-0" />
+          ) : (
+            <>
+              <div className="w-8 h-8 rounded-lg bg-gradient-luxe flex items-center justify-center shadow-soft shrink-0">
+                <Sparkles className="w-4 h-4 text-primary-foreground" />
+              </div>
+              <span className="font-semibold text-sidebar-foreground truncate">Veloura</span>
+            </>
+          )}
         </Link>
       </SidebarHeader>
       <SidebarContent>
