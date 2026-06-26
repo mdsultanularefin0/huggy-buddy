@@ -449,8 +449,20 @@ export type Database = {
           homepage_category_ids: string[]
           id: string
           marquee_text: string
+          shop_address: string | null
+          shop_email: string | null
+          shop_hours: string | null
+          shop_name: string | null
+          shop_phone: string | null
+          shop_tagline: string | null
           site_icon_url: string | null
           site_logo_url: string | null
+          social_facebook: string | null
+          social_instagram: string | null
+          social_tiktok: string | null
+          social_twitter: string | null
+          social_whatsapp: string | null
+          social_youtube: string | null
           timer_reset_date: string
           updated_at: string
         }
@@ -485,8 +497,20 @@ export type Database = {
           homepage_category_ids?: string[]
           id?: string
           marquee_text?: string
+          shop_address?: string | null
+          shop_email?: string | null
+          shop_hours?: string | null
+          shop_name?: string | null
+          shop_phone?: string | null
+          shop_tagline?: string | null
           site_icon_url?: string | null
           site_logo_url?: string | null
+          social_facebook?: string | null
+          social_instagram?: string | null
+          social_tiktok?: string | null
+          social_twitter?: string | null
+          social_whatsapp?: string | null
+          social_youtube?: string | null
           timer_reset_date?: string
           updated_at?: string
         }
@@ -521,8 +545,20 @@ export type Database = {
           homepage_category_ids?: string[]
           id?: string
           marquee_text?: string
+          shop_address?: string | null
+          shop_email?: string | null
+          shop_hours?: string | null
+          shop_name?: string | null
+          shop_phone?: string | null
+          shop_tagline?: string | null
           site_icon_url?: string | null
           site_logo_url?: string | null
+          social_facebook?: string | null
+          social_instagram?: string | null
+          social_tiktok?: string | null
+          social_twitter?: string | null
+          social_whatsapp?: string | null
+          social_youtube?: string | null
           timer_reset_date?: string
           updated_at?: string
         }
