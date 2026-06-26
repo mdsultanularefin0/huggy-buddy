@@ -22,6 +22,18 @@ function SettingsPage() {
   const [footerLogoSize, setFooterLogoSize] = useState(36);
   const [footerLogoAlign, setFooterLogoAlign] = useState<"left" | "center" | "right">("left");
   const [uploading, setUploading] = useState<"logo" | "icon" | null>(null);
+  const [shopName, setShopName] = useState("");
+  const [shopTagline, setShopTagline] = useState("");
+  const [shopEmail, setShopEmail] = useState("");
+  const [shopPhone, setShopPhone] = useState("");
+  const [shopAddress, setShopAddress] = useState("");
+  const [shopHours, setShopHours] = useState("");
+  const [socialFacebook, setSocialFacebook] = useState("");
+  const [socialInstagram, setSocialInstagram] = useState("");
+  const [socialTwitter, setSocialTwitter] = useState("");
+  const [socialYoutube, setSocialYoutube] = useState("");
+  const [socialTiktok, setSocialTiktok] = useState("");
+  const [socialWhatsapp, setSocialWhatsapp] = useState("");
 
   const { data: settings, isLoading } = useQuery({
     queryKey: ["admin", "site_settings"],
