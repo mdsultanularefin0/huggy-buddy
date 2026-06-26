@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { useCart, cartCount } from "@/lib/cart-store";
-import { supabase } from "@/integrations/supabase/client";
+import { brandingQueryOptions } from "@/lib/branding-query";
 
 export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { position?: "sticky" | "static" | "floating"; logoUrl?: string | null; logoSize?: number | null } = {}) {
   const items = useCart((s) => s.items);
@@ -12,19 +12,7 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
   const count = cartCount(items);
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const { data: branding } = useQuery({
-    queryKey: ["storefront", "branding"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("site_settings")
-        .select("site_logo_url, site_icon_url, header_logo_size")
-        .limit(1)
-        .maybeSingle();
-      if (error) throw error;
-      return data;
-    },
-    staleTime: 60_000,
-  });
+  const { data: branding } = useQuery(brandingQueryOptions);
 
   const effectiveLogo = logoUrl ?? branding?.site_logo_url ?? null;
   const effectiveLogoSize = logoSize ?? branding?.header_logo_size ?? 36;
