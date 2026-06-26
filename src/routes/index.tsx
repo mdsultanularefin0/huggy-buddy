@@ -72,7 +72,7 @@ function Landing() {
   );
 
   const renderCategoryCards = (items: typeof slots, gridClass: string) => (
-    <div className={`grid ${gridClass} gap-3 sm:gap-4 w-full sm:max-w-[640px] md:max-w-[860px] lg:max-w-[720px] mx-auto`}>
+    <div className={`grid ${gridClass} gap-3 sm:gap-4 w-full sm:max-w-[640px] md:max-w-[860px] lg:max-w-[720px] mx-auto lg:ml-0`}>
 
       {items.map((cat, i) => {
         const cardClass =
@@ -102,7 +102,7 @@ function Landing() {
   const mobileCategoryCards = renderCategoryCards(mobileSlots, "grid-cols-3");
 
   const orderNowButton = (
-    <div className="flex justify-center lg:justify-start">
+    <div className="flex justify-center">
       <button
         type="button"
         className="bg-[#52277a]/60 backdrop-blur-sm border-2 border-[#a555f0] shadow-[0_0_15px_rgba(165,85,240,0.5)] rounded-xl px-4 py-2 text-sm lg:px-8 lg:py-3 lg:text-lg text-white font-bold hover:bg-[#52277a]/80 transition"
@@ -161,22 +161,22 @@ function Landing() {
       <main className="w-full">
         {/* Desktop layout */}
         <div className="hidden lg:block">
-          <div className="grid grid-cols-[1fr_2fr] gap-4 w-full pt-8 items-start px-6 lg:pl-12 xl:pl-20 2xl:pl-32">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full max-w-5xl mx-auto px-4 pt-8 items-start">
             {heroImageBlock}
             {categoryCards}
           </div>
           {marquee}
           <div className="w-full bg-gradient-to-r from-[#52277a] to-[#a555f0] py-6 relative z-10">
-            <div className="grid grid-cols-[1fr_2fr] gap-4 w-full px-6 items-center">
-              <div aria-hidden />
-              <div className="relative w-full lg:max-w-[720px] mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full max-w-5xl mx-auto px-4 items-center">
+              <div className="hidden lg:flex justify-center">
+                {orderNowButton}
+              </div>
+              <div className="relative w-full lg:max-w-[720px] mr-auto lg:mx-0">
                 {flashTimer}
-                <div className="hidden xl:block absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[calc(100%+1rem)]">
-                  {orderNowButton}
-                </div>
               </div>
             </div>
           </div>
+
         </div>
 
         {/* Mobile / Tablet layout */}
