@@ -72,7 +72,7 @@ function Landing() {
   );
 
   const renderCategoryCards = (items: typeof slots, gridClass: string) => (
-    <div className={`grid ${gridClass} gap-3 sm:gap-4 w-full sm:max-w-[640px] md:max-w-[860px] lg:max-w-[720px] mx-auto`}>
+    <div className={`grid ${gridClass} gap-3 sm:gap-4 w-full sm:max-w-[640px] md:max-w-[860px] lg:max-w-[720px] xl:max-w-[880px] 2xl:max-w-[1040px] mx-auto`}>
 
       {items.map((cat, i) => {
         const cardClass =
