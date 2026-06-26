@@ -161,18 +161,22 @@ function Landing() {
       <main className="w-full">
         {/* Desktop layout */}
         <div className="hidden lg:block">
-          <div className="grid grid-cols-[1fr_2fr] gap-4 w-full pt-8 items-start px-6 lg:pl-12 xl:pl-20 2xl:pl-32">
-            {heroImageBlock}
-            {categoryCards}
+          <div className="mx-auto w-full max-w-[1400px] 2xl:max-w-[1600px]">
+            <div className="grid grid-cols-[1fr_2fr] gap-4 w-full pt-8 items-start px-6 lg:pl-12 xl:pl-20 2xl:pl-32">
+              {heroImageBlock}
+              {categoryCards}
+            </div>
           </div>
           {marquee}
           <div className="w-full bg-gradient-to-r from-[#52277a] to-[#a555f0] py-6 relative z-10">
-            <div className="grid grid-cols-[1fr_2fr] gap-4 w-full px-6 items-center">
-              <div aria-hidden />
-              <div className="relative w-full lg:max-w-[720px] mx-auto">
-                {flashTimer}
-                <div className="hidden xl:block absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[calc(100%+1rem)]">
-                  {orderNowButton}
+            <div className="mx-auto w-full max-w-[1400px] 2xl:max-w-[1600px]">
+              <div className="grid grid-cols-[1fr_2fr] gap-4 w-full px-6 lg:pl-12 xl:pl-20 2xl:pl-32 items-center">
+                <div aria-hidden />
+                <div className="relative w-full lg:max-w-[720px] xl:max-w-[880px] 2xl:max-w-[1040px] mx-auto">
+                  {flashTimer}
+                  <div className="hidden xl:block absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[calc(100%+1rem)]">
+                    {orderNowButton}
+                  </div>
                 </div>
               </div>
             </div>
