@@ -457,6 +457,32 @@ function Landing() {
             </div>
           </div>
         </section>
+
+        {/* Frequently Asked Questions */}
+        <section className="w-full py-16 bg-gray-50" aria-labelledby="faq-heading">
+          <div className="max-w-3xl mx-auto px-4">
+            <div className="text-center mb-10">
+              <h2 id="faq-heading" className="text-3xl font-bold text-gray-900 inline-block pb-2 border-b-2 border-[#a555f0]">
+                Frequently Asked Questions
+              </h2>
+              <p className="text-gray-600 mt-4">
+                Everything you need to know about Veloura Essence fragrances, shipping, and care.
+              </p>
+            </div>
+            <Accordion type="single" collapsible className="w-full">
+              {HOMEPAGE_FAQS.map((f, i) => (
+                <AccordionItem key={f.q} value={`faq-${i}`} className="border-b border-gray-200">
+                  <AccordionTrigger className="text-left text-gray-900 font-semibold hover:text-[#52277a]">
+                    {f.q}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-gray-600 leading-relaxed">
+                    {f.a}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
+        </section>
       </main>
 
       {/* Premium Footer */}
