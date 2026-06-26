@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { uploadImage } from "@/lib/upload";
+import { validateAndOptimizeBrandImage } from "@/lib/image-validate";
 
 export const Route = createFileRoute("/admin/settings")({ component: SettingsPage });
 
