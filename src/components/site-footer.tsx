@@ -1,6 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Facebook, Instagram, Twitter, Youtube, Music2, MessageCircle, Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone, MapPin } from "lucide-react";
+import { FaFacebookF, FaInstagram, FaXTwitter, FaYoutube, FaTiktok, FaWhatsapp } from "react-icons/fa6";
+import type { IconType } from "react-icons";
 import { brandingQueryOptions } from "@/lib/branding-query";
 
 const SHOP_LINKS = [
