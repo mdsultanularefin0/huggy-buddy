@@ -161,7 +161,7 @@ function Landing() {
       <main className="w-full">
         {/* Desktop layout */}
         <div className="hidden lg:block">
-          <div className="grid grid-cols-[1fr_2fr] gap-4 w-full pt-8 items-start px-6 lg:pl-12 xl:pl-20 2xl:pl-32">
+          <div className="grid grid-cols-[1fr_2fr] gap-4 w-full max-w-7xl mx-auto pt-8 items-start px-6 lg:pl-12 xl:pl-20 2xl:pl-32">
             {heroImageBlock}
             {categoryCards}
           </div>
