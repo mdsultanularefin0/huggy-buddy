@@ -72,7 +72,7 @@ function Landing() {
   );
 
   const renderCategoryCards = (items: typeof slots, gridClass: string) => (
-    <div className={`grid ${gridClass} gap-3 sm:gap-4 w-full lg:max-w-[720px] mx-auto`}>
+    <div className={`grid ${gridClass} gap-3 sm:gap-4 w-full sm:max-w-[640px] md:max-w-[860px] lg:max-w-[720px] mx-auto`}>
 
       {items.map((cat, i) => {
         const cardClass =
@@ -113,7 +113,7 @@ function Landing() {
   );
 
   const flashTimer = (
-    <div className="w-full max-w-[340px] mx-auto bg-white rounded-xl shadow-xl overflow-hidden">
+    <div className="w-full max-w-[340px] sm:max-w-[440px] md:max-w-[560px] mx-auto bg-white rounded-xl shadow-xl overflow-hidden">
       <div className="bg-[#fbc02d] py-1.5 px-2 lg:py-2 lg:px-3 text-center border-b border-black/5">
         <h3 className="text-[10px] lg:text-[13px] font-black text-gray-900 uppercase tracking-wide">
           Flash Sale! Up to 200Tk Off!
