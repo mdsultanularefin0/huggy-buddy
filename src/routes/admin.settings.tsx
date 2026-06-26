@@ -155,6 +155,38 @@ function SettingsPage() {
           />
         </div>
 
+        <div className="border-t pt-6 space-y-4">
+          <div>
+            <Label className="text-base">Shop information</Label>
+            <p className="text-xs text-muted-foreground">Used on the Contact page, footer, and as fallback when no logo is set.</p>
+          </div>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <Field label="Shop name" value={shopName} onChange={setShopName} placeholder="Veloura Essence" />
+            <Field label="Tagline" value={shopTagline} onChange={setShopTagline} placeholder="Crafted scents, honest pricing." />
+            <Field label="Email" value={shopEmail} onChange={setShopEmail} placeholder="hello@example.com" type="email" />
+            <Field label="Phone" value={shopPhone} onChange={setShopPhone} placeholder="+880 1234-567890" />
+            <Field label="Address" value={shopAddress} onChange={setShopAddress} placeholder="Street, City" textarea />
+            <Field label="Opening hours" value={shopHours} onChange={setShopHours} placeholder="Mon–Sat, 10am–8pm" textarea />
+          </div>
+        </div>
+
+        <div className="border-t pt-6 space-y-4">
+          <div>
+            <Label className="text-base">Social media links</Label>
+            <p className="text-xs text-muted-foreground">Leave blank to hide an icon. Use full URLs (https://…).</p>
+          </div>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <Field label="Facebook" value={socialFacebook} onChange={setSocialFacebook} placeholder="https://facebook.com/yourpage" />
+            <Field label="Instagram" value={socialInstagram} onChange={setSocialInstagram} placeholder="https://instagram.com/handle" />
+            <Field label="Twitter / X" value={socialTwitter} onChange={setSocialTwitter} placeholder="https://x.com/handle" />
+            <Field label="YouTube" value={socialYoutube} onChange={setSocialYoutube} placeholder="https://youtube.com/@channel" />
+            <Field label="TikTok" value={socialTiktok} onChange={setSocialTiktok} placeholder="https://tiktok.com/@handle" />
+            <Field label="WhatsApp" value={socialWhatsapp} onChange={setSocialWhatsapp} placeholder="https://wa.me/8801234567890" />
+          </div>
+        </div>
+
+
+
 
 
 
