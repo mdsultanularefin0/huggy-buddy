@@ -26,10 +26,12 @@ export function useSession() {
 export function useIsAdmin(userId: string | undefined) {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   useEffect(() => {
+    if (userId === undefined) return; // wait for session to resolve
     if (!userId) {
       setIsAdmin(false);
       return;
     }
+    setIsAdmin(null); // reset while refetching for a new user
     supabase
       .from("user_roles")
       .select("role")
