@@ -497,7 +497,7 @@ function Landing() {
               <img
                 src={footerLogo}
                 alt="Veloura Essence"
-                className="h-12 w-auto object-contain"
+                className="h-10 sm:h-12 md:h-14 w-auto max-w-full max-h-16 object-contain"
                 loading="lazy"
               />
             ) : (
