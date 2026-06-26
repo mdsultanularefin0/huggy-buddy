@@ -1,40 +1,20 @@
 ## Goal
-Make every visible element on the homepage editable from a single Admin → Homepage Editor page, and replace the four hero combo placeholder cards with real **Categories** that have photos, names, and link to a category listing page.
+Remove the signed-URL hop for branding assets so the header logo loads as fast as the hero images.
 
-## What I'll build
+## Steps
 
-### 1. Database (one migration)
-- `categories` table: `name`, `slug` (unique), `image_url`, `sort_order`, `is_active`. GRANT select to `anon`/`authenticated`, full CRUD to `authenticated` + `service_role`. RLS: anyone can read active rows; only admins can write (via `has_role(auth.uid(),'admin')`).
-- `products.category_id` → `categories.id` (nullable, ON DELETE SET NULL).
-- Extend `site_settings` with homepage content fields: `hero_title`, `hero_subtitle`, `hero_cta_label`, `cta_band_text`, `cta_band_button_label`, `cta_band_button_link`.
+1. **Flip the bucket** — call `storage_update_bucket` to set `hero-images` to public. (Now allowed since you enabled the workspace policy.)
 
-### 2. Admin → Homepage Editor (`/admin/homepage`)
-A single page with sections:
-- **Hero** — title, subtitle, CTA label, hero background image (existing), left/right marquee overlays (existing).
-- **Marquee** — text + countdown reset (moved from settings).
-- **Category cards** — list of categories with drag-to-reorder, inline edit (name, image upload, active toggle), add/delete. These render as the four hero cards on the homepage.
-- **CTA band** — text + button label + link.
-- **Header position** — kept (sticky/static/floating).
-- Live device preview reused from current settings page.
+2. **Update `src/lib/upload.ts`** — replace the `createSignedUrl` call with `getPublicUrl`. Returns a permanent CDN URL with no token/expiry.
 
-Old `/admin/settings` keeps only secrets/system fields (or redirects to Homepage Editor if nothing else remains).
+   ```ts
+   const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(path);
+   return publicUrl;
+   ```
 
-### 3. Storefront
-- `src/routes/index.tsx` — hero cards read from `categories` (active, sorted), each linking to `/category/$slug`. All copy reads from `site_settings`.
-- `src/routes/category.$slug.tsx` — new page listing products where `category_id` matches the slug. Uses existing product card UI.
-- `src/routes/admin.products.tsx` — add category dropdown to product form.
+3. **Leave existing rows alone** — old signed URLs in `site_settings` still work until they expire. Next time the admin re-uploads the logo/icon, the new public URL gets saved. No migration needed.
 
-### 4. Cleanup
-- Remove combo-card-as-category code paths from homepage; combos remain for the combo feature itself.
-- Add nav link "Homepage" in admin sidebar.
-
-## Technical notes
-- All writes use authenticated supabase client + RLS (`has_role` admin check) — no service role needed.
-- Image uploads reuse `uploadImage("hero-images", file)` helper and the existing `hero-images` bucket.
-- Reorder = update `sort_order` integers in a single batch upsert.
-- Category page loader uses a public read-only server fn (publishable key client) so SSR/OG works.
-- Types regenerate after the migration approves; storefront edits land after that.
-
-## Files
-- New: `supabase/migrations/<ts>_categories_and_homepage.sql`, `src/routes/admin.homepage.tsx`, `src/routes/category.$slug.tsx`, `src/lib/categories.functions.ts`.
-- Edited: `src/routes/index.tsx`, `src/routes/admin.tsx` (nav), `src/routes/admin.settings.tsx` (slim down), `src/routes/admin.products.tsx` (category select).
+## Notes
+- `fetchPriority="high"` is already on the header `<img>` from the previous turn.
+- The `useQuery` for branding stays — it's still needed to read `site_logo_url` / `site_icon_url` / `header_logo_size` from `site_settings`. The slowness was the signed URL, not the query.
+- Other callers of `uploadImage` (product/combo images) also move to public URLs. If you want those buckets to stay private, say so and I'll scope the change to hero-images only.
