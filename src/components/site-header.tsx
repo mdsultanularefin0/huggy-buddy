@@ -17,7 +17,7 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
     queryFn: async () => {
       const { data, error } = await supabase
         .from("site_settings")
-        .select("site_logo_url, site_icon_url")
+        .select("site_logo_url, site_icon_url, header_logo_size")
         .limit(1)
         .maybeSingle();
       if (error) throw error;
@@ -27,6 +27,7 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
   });
 
   const effectiveLogo = logoUrl ?? branding?.site_logo_url ?? null;
+  const effectiveLogoSize = logoSize ?? branding?.header_logo_size ?? 36;
   const iconUrl = branding?.site_icon_url ?? null;
 
   useEffect(() => {
