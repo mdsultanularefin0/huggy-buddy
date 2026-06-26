@@ -166,49 +166,10 @@ export function ListingShell({
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filtered.map((p) => {
-                const min = p.sizes_json?.[0];
-                const reg = min?.price ?? p.regular_price;
-                const sale = min?.sale_price ?? p.sale_price;
-                const onSale = hasSale(reg, sale);
-                const price = effectivePrice(reg, sale);
-                return (
-                  <Link
-                    key={p.id}
-                    to="/product/$slug"
-                    params={{ slug: p.slug }}
-                    className="group block bg-white rounded-2xl overflow-hidden border border-gray-100 hover:shadow-lg transition-shadow"
-                  >
-                    <div className="relative aspect-square bg-gray-50 overflow-hidden">
-                      {p.image_url ? (
-                        <img
-                          src={p.image_url}
-                          alt={p.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-400">
-                          <Sparkles className="w-8 h-8" />
-                        </div>
-                      )}
-                      {onSale && (
-                        <span className="absolute top-2 right-2 bg-[#a555f0] text-white text-[10px] font-bold uppercase tracking-wide px-2 py-1 rounded-full">
-                          Sale
-                        </span>
-                      )}
-                    </div>
-                    <div className="p-4">
-                      <h3 className="font-medium text-sm text-gray-900 truncate">{p.name}</h3>
-                      <div className="flex items-baseline gap-2 mt-1">
-                        <span className={`font-semibold text-sm ${onSale ? "text-[#a555f0]" : "text-[#52277a]"}`}>
-                          {formatBDT(price)}
-                        </span>
-                        {onSale && <span className="text-xs text-gray-400 line-through">{formatBDT(reg)}</span>}
-                      </div>
-                    </div>
-                  </Link>
-                );
-              })}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filtered.map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
             </div>
           )}
         </div>
