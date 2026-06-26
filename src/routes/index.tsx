@@ -239,7 +239,200 @@ function Landing() {
             </div>
           </div>
         </div>
+
+        {/* Signature Collection */}
+        <section className="w-full py-16 bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold text-gray-900 inline-block pb-2 border-b-2 border-[#a555f0]">
+                Our Signature Collection
+              </h2>
+            </div>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mt-10">
+              {[
+                { name: "Velvet Oud", price: "৳1,490" },
+                { name: "Rose Nuit", price: "৳1,290" },
+                { name: "Amber Reverie", price: "৳1,590" },
+                { name: "Citrine Bloom", price: "৳1,190" },
+              ].map((p) => (
+                <div
+                  key={p.name}
+                  className="bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all overflow-hidden flex flex-col"
+                >
+                  <div className="aspect-[4/5] bg-gray-200 rounded-t-2xl object-cover" />
+                  <div className="p-4 text-center">
+                    <h3 className="font-semibold text-gray-800">{p.name}</h3>
+                    <p className="text-[#52277a] font-bold mt-1">{p.price}</p>
+                    <button className="w-full bg-[#52277a] text-white rounded-lg py-2 mt-3 hover:bg-[#3f1d5f] transition-colors">
+                      Add to Cart
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* The Art of Veloura */}
+        <section className="w-full py-20 bg-white">
+          <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="relative w-full h-[400px] lg:h-[500px] rounded-3xl overflow-hidden bg-gradient-to-br from-[#52277a]/20 via-gray-200 to-[#a555f0]/20 shadow-xl" />
+            <div>
+              <p className="uppercase tracking-widest text-[#a555f0] text-sm font-semibold">
+                Luxury in Every Drop
+              </p>
+              <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mt-2">
+                The Art of Veloura
+              </h2>
+              <p className="text-gray-600 leading-relaxed mt-4">
+                Crafted with high-concentration fragrance oils, each Veloura
+                scent unfolds in deliberate layers — opening bright, settling
+                into warmth, and lingering long after the day ends. We obsess
+                over staying power and silage so you don't have to, delivering
+                a true luxury experience at a price that respects you.
+              </p>
+              <button className="mt-6 px-8 py-3 rounded-xl border-2 border-[#52277a] text-[#52277a] hover:bg-[#52277a] hover:text-white transition-colors font-semibold">
+                Discover Our Story
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* Discover by Scent Profile */}
+        <section className="w-full py-16 bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="text-center max-w-2xl mx-auto">
+              <h2 className="text-3xl font-bold text-gray-900">
+                Discover Your Signature Note
+              </h2>
+              <p className="text-gray-600 mt-3">
+                Find the fragrance family that speaks to you — from sunlit
+                florals to deep, lingering woods.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
+              {[
+                { title: "Fresh & Floral", gradient: "from-pink-300 to-purple-300" },
+                { title: "Deep & Woody", gradient: "from-amber-700 to-stone-800" },
+                { title: "Sweet & Oriental", gradient: "from-orange-400 to-[#52277a]" },
+              ].map((c) => (
+                <div
+                  key={c.title}
+                  className={`relative h-80 rounded-2xl overflow-hidden group cursor-pointer bg-gradient-to-br ${c.gradient}`}
+                >
+                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors" />
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-white px-4">
+                    <h3 className="text-2xl font-bold tracking-wide">{c.title}</h3>
+                    <button className="mt-4 px-5 py-2 rounded-lg border border-white/70 text-sm font-semibold opacity-90 group-hover:opacity-100 group-hover:bg-white group-hover:text-[#52277a] transition">
+                      Shop Category
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Customer Whispers */}
+        <section className="w-full py-16 bg-white">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold text-gray-900">Customer Whispers</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-10">
+              {[
+                {
+                  quote:
+                    "It lasts all day and gets me compliments every single time. Absolute favorite.",
+                  name: "Ayesha R.",
+                  tag: "Verified Buyer · Summer Combo",
+                },
+                {
+                  quote:
+                    "Smells expensive in the best way. I've already reordered twice.",
+                  name: "Tanvir H.",
+                  tag: "Verified Buyer · Velvet Oud",
+                },
+                {
+                  quote:
+                    "The packaging, the scent, the staying power — every detail feels premium.",
+                  name: "Nadia K.",
+                  tag: "Verified Buyer · Rose Nuit",
+                },
+              ].map((t) => (
+                <div key={t.name} className="p-8 rounded-2xl bg-gray-50 border border-gray-100">
+                  <div className="text-[#fbc02d] text-lg mb-4">★★★★★</div>
+                  <p className="text-gray-600 italic mb-6">"{t.quote}"</p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-semibold text-gray-900">{t.name}</span>
+                    <span className="text-xs px-3 py-1 rounded-full bg-[#52277a]/10 text-[#52277a] font-medium">
+                      {t.tag}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
       </main>
+
+      {/* Premium Footer */}
+      <footer className="w-full bg-[#52277a] pt-16 pb-8 text-white">
+        <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+          <div>
+            <h3 className="text-2xl font-bold tracking-wide">Veloura Essence</h3>
+            <p className="text-gray-300 mt-4 leading-relaxed text-sm">
+              Redefining luxury fragrance in Bangladesh — crafted scents,
+              honest pricing, and an experience worthy of every occasion.
+            </p>
+          </div>
+          <div>
+            <h4 className="text-lg font-semibold mb-4">Shop</h4>
+            {["Female Scent", "Male Scent", "Combo Pack", "Customize Combo"].map((l) => (
+              <a key={l} href="#" className="text-gray-300 hover:text-white mb-2 block text-sm">
+                {l}
+              </a>
+            ))}
+          </div>
+          <div>
+            <h4 className="text-lg font-semibold mb-4">Support</h4>
+            {["Contact Us", "Shipping Policy", "Return Policy", "Track Order"].map((l) => (
+              <a key={l} href="#" className="text-gray-300 hover:text-white mb-2 block text-sm">
+                {l}
+              </a>
+            ))}
+          </div>
+          <div>
+            <h4 className="text-lg font-semibold mb-4">Stay Updated</h4>
+            <p className="text-gray-300 text-sm mb-3">
+              Get early access to drops and member-only offers.
+            </p>
+            <input
+              type="email"
+              placeholder="Your email"
+              className="bg-white/10 rounded-lg py-2 px-4 w-full text-white placeholder-gray-400 focus:outline-none"
+            />
+            <button className="bg-[#a555f0] text-white rounded-lg py-2 w-full mt-3 font-semibold hover:bg-[#9442e0] transition-colors">
+              Subscribe
+            </button>
+          </div>
+        </div>
+        <div className="max-w-7xl mx-auto px-4 mt-12 pt-8 border-t border-white/20 flex flex-col md:flex-row justify-between items-center text-sm text-gray-400 gap-4">
+          <p>© 2026 Veloura Essence. All rights reserved.</p>
+          <div className="flex items-center gap-4">
+            {["F", "I", "T", "Y"].map((s) => (
+              <a
+                key={s}
+                href="#"
+                aria-label={`Social ${s}`}
+                className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white text-sm font-semibold transition-colors"
+              >
+                {s}
+              </a>
+            ))}
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
