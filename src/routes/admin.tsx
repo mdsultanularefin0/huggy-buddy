@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard, Package, Boxes, Truck, CreditCard, ShoppingBag,
-  Users, Megaphone, Settings, LogOut, Sparkles, ScrollText, Tags, Home,
+  Users, Megaphone, Settings, LogOut, Sparkles, ScrollText, Tags, Home, Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -43,13 +43,10 @@ function AdminLayout() {
     if (!loading && !user) navigate({ to: "/auth", search: { redirect: "/admin" } });
   }, [loading, user, navigate]);
 
-  if (loading || (user && isAdmin === null)) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-muted-foreground text-sm">
-        Loading admin panel…
-      </div>
-    );
-  }
+  // Block rendering until session AND role check have both resolved.
+  // Without this, isAdmin briefly reads as false and flashes the NotAnAdmin screen.
+  const checkingRole = !!user && isAdmin === null;
+  if (loading || checkingRole) return <AdminLoading />;
   if (!user) return null;
   if (isAdmin === false) return <NotAnAdmin email={user.email ?? ""} />;
 
@@ -146,6 +143,19 @@ ON CONFLICT DO NOTHING;`}
             Sign out
           </Button>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function AdminLoading() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-soft">
+      <div className="flex flex-col items-center gap-3 text-muted-foreground">
+        <div className="w-12 h-12 rounded-2xl bg-gradient-luxe flex items-center justify-center shadow-luxe">
+          <Loader2 className="w-6 h-6 text-primary-foreground animate-spin" />
+        </div>
+        <p className="text-sm">Verifying admin access…</p>
       </div>
     </div>
   );
