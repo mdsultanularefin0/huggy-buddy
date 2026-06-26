@@ -63,8 +63,8 @@ export function SiteHeader({ position = "sticky", logoUrl }: { position?: "stick
       <div className="w-full px-6 lg:px-10 h-16 flex items-center justify-between gap-6">
         {/* LEFT — logo */}
         <Link to="/" className="flex items-center gap-2 shrink-0">
-          {logoUrl ? (
-            <img src={logoUrl} alt="Site logo" className="h-9 w-auto object-contain" />
+          {effectiveLogo ? (
+            <img src={effectiveLogo} alt="Site logo" className="h-9 w-auto object-contain" />
           ) : (
             <>
               <div className="w-9 h-9 rounded-xl bg-white/15 backdrop-blur flex items-center justify-center">
