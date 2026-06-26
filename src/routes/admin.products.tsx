@@ -60,8 +60,13 @@ function ProductsPage() {
 
   const save = useMutation({
     mutationFn: async () => {
+      const slugify = (s: string) =>
+        s.toLowerCase().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
+      const baseSlug = slugify(form.name) || `product-${Date.now()}`;
+      const slug = editing ? baseSlug : `${baseSlug}-${Math.random().toString(36).slice(2, 8)}`;
       const payload = {
         name: form.name,
+        slug,
         description: form.description || null,
         regular_price: Number(form.regular_price),
         sale_price: form.sale_price === null || form.sale_price === 0 ? null : Number(form.sale_price),
