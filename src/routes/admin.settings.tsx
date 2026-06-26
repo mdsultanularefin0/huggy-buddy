@@ -18,6 +18,7 @@ function SettingsPage() {
   const [headerPosition, setHeaderPosition] = useState<"sticky" | "static" | "floating">("sticky");
   const [logoUrl, setLogoUrl] = useState("");
   const [iconUrl, setIconUrl] = useState("");
+  const [headerLogoSize, setHeaderLogoSize] = useState(36);
   const [footerLogoSize, setFooterLogoSize] = useState(36);
   const [footerLogoAlign, setFooterLogoAlign] = useState<"left" | "center" | "right">("left");
   const [uploading, setUploading] = useState<"logo" | "icon" | null>(null);
@@ -37,12 +38,14 @@ function SettingsPage() {
         header_position?: string;
         site_logo_url?: string | null;
         site_icon_url?: string | null;
+        header_logo_size?: number | null;
         footer_logo_size?: number | null;
         footer_logo_align?: string | null;
       };
       setHeaderPosition((s.header_position as "sticky" | "static" | "floating") ?? "sticky");
       setLogoUrl(s.site_logo_url ?? "");
       setIconUrl(s.site_icon_url ?? "");
+      setHeaderLogoSize(s.header_logo_size ?? 36);
       setFooterLogoSize(s.footer_logo_size ?? 36);
       setFooterLogoAlign((s.footer_logo_align as "left" | "center" | "right") ?? "left");
     }
@@ -54,6 +57,7 @@ function SettingsPage() {
         header_position: headerPosition,
         site_logo_url: logoUrl || null,
         site_icon_url: iconUrl || null,
+        header_logo_size: headerLogoSize,
         footer_logo_size: footerLogoSize,
         footer_logo_align: footerLogoAlign,
       };
@@ -139,6 +143,28 @@ function SettingsPage() {
             ))}
           </div>
           <p className="text-xs text-muted-foreground mt-1"><b>Sticky</b> follows scroll and reserves space. <b>Static</b> scrolls away. <b>Floating</b> overlays the hero.</p>
+        </div>
+
+        <div className="border-t pt-6 space-y-3">
+          <div>
+            <Label className="text-base">Header logo size</Label>
+            <p className="text-xs text-muted-foreground">Zoom the logo shown in the site header.</p>
+          </div>
+          <Label>Size: <span className="font-mono">{headerLogoSize}px</span></Label>
+          <input
+            type="range"
+            min={20}
+            max={96}
+            step={2}
+            value={headerLogoSize}
+            onChange={(e) => setHeaderLogoSize(Number(e.target.value))}
+            className="w-full"
+          />
+          {logoUrl && (
+            <div className="rounded-lg border bg-primary p-4 flex items-center">
+              <img src={logoUrl} alt="Header preview" style={{ height: headerLogoSize }} className="w-auto object-contain" />
+            </div>
+          )}
         </div>
 
         <div className="border-t pt-6 space-y-4">

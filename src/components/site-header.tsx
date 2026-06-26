@@ -1,12 +1,12 @@
 import { Link } from "@tanstack/react-router";
-import { Sparkles, ShoppingCart, Menu, X, Search, User } from "lucide-react";
+import { ShoppingCart, Menu, X, Search, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { useCart, cartCount } from "@/lib/cart-store";
 import { supabase } from "@/integrations/supabase/client";
 
-export function SiteHeader({ position = "sticky", logoUrl }: { position?: "sticky" | "static" | "floating"; logoUrl?: string | null } = {}) {
+export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { position?: "sticky" | "static" | "floating"; logoUrl?: string | null; logoSize?: number | null } = {}) {
   const items = useCart((s) => s.items);
   const open = useCart((s) => s.open);
   const count = cartCount(items);
@@ -17,7 +17,7 @@ export function SiteHeader({ position = "sticky", logoUrl }: { position?: "stick
     queryFn: async () => {
       const { data, error } = await supabase
         .from("site_settings")
-        .select("site_logo_url, site_icon_url")
+        .select("site_logo_url, site_icon_url, header_logo_size")
         .limit(1)
         .maybeSingle();
       if (error) throw error;
@@ -27,6 +27,7 @@ export function SiteHeader({ position = "sticky", logoUrl }: { position?: "stick
   });
 
   const effectiveLogo = logoUrl ?? branding?.site_logo_url ?? null;
+  const effectiveLogoSize = logoSize ?? branding?.header_logo_size ?? 36;
   const iconUrl = branding?.site_icon_url ?? null;
 
   useEffect(() => {
@@ -62,21 +63,18 @@ export function SiteHeader({ position = "sticky", logoUrl }: { position?: "stick
     <header className={positionClass}>
       <div className="w-full px-6 lg:px-10 h-16 flex items-center justify-between gap-6">
         {/* LEFT — logo */}
-        <Link to="/" className="flex items-center gap-2 shrink-0">
+        <Link to="/" className="flex items-center gap-2 shrink-0" aria-label="Home">
           {effectiveLogo ? (
-            <img src={effectiveLogo} alt="Site logo" className="h-9 w-auto object-contain" />
-          ) : (
-            <>
-              <div className="w-9 h-9 rounded-xl bg-white/15 backdrop-blur flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-accent" />
-              </div>
-              <div className="leading-none">
-                <div className="font-display text-base font-bold tracking-wide text-accent">VELOURA</div>
-                <div className="text-[9px] tracking-[0.3em] text-primary-foreground/80">ESSENCE</div>
-              </div>
-            </>
-          )}
+            <img
+              src={effectiveLogo}
+              alt="Site logo"
+              style={{ height: effectiveLogoSize }}
+              className="w-auto object-contain"
+            />
+          ) : null}
         </Link>
+
+
 
         {/* CENTER — nav */}
         <nav className="hidden lg:flex items-center gap-8 text-sm font-medium text-primary-foreground/90 mx-auto">

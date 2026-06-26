@@ -425,6 +425,7 @@ export type Database = {
           flash_timer_title: string
           footer_logo_align: string
           footer_logo_size: number
+          header_logo_size: number
           header_position: string
           hero_3d_overlay_image: string | null
           hero_bg_image: string | null
@@ -460,6 +461,7 @@ export type Database = {
           flash_timer_title?: string
           footer_logo_align?: string
           footer_logo_size?: number
+          header_logo_size?: number
           header_position?: string
           hero_3d_overlay_image?: string | null
           hero_bg_image?: string | null
@@ -495,6 +497,7 @@ export type Database = {
           flash_timer_title?: string
           footer_logo_align?: string
           footer_logo_size?: number
+          header_logo_size?: number
           header_position?: string
           hero_3d_overlay_image?: string | null
           hero_bg_image?: string | null
