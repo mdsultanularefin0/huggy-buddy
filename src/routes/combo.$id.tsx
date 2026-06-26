@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBDT, effectivePrice, hasSale } from "@/lib/currency";
 import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
 import { CartDrawer } from "@/components/cart-drawer";
 import { useCart } from "@/lib/cart-store";
 import { toast } from "sonner";
@@ -170,6 +171,7 @@ function ComboPage() {
         </div>
       </div>
       <CartDrawer />
+      <SiteFooter />
     </div>
   );
 }

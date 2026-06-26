@@ -4,6 +4,7 @@ import { CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatBDT } from "@/lib/currency";
 import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
 import { getOrderById } from "@/lib/orders.functions";
 
 type OrderRow = {
@@ -93,6 +94,7 @@ function OrderPage() {
           <Link to="/"><Button variant="luxe">Continue shopping</Button></Link>
         </div>
       </div>
+      <SiteFooter />
     </div>
   );
 }

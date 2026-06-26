@@ -1,88 +1,101 @@
 import { Link } from "@tanstack/react-router";
-import { Sparkles, ShieldCheck, Truck, Phone, Mail, MapPin, Banknote, Wallet } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { brandingQueryOptions } from "@/lib/branding-query";
 
-type FooterAlign = "left" | "center" | "right";
+const SHOP_LINKS = [
+  { label: "Female Scent", slug: "female-fragrance" },
+  { label: "Male Scent", slug: "male-fragrance" },
+  { label: "Combo Pack", slug: "combo-packs" },
+  { label: "Customize Combo", slug: "custom-combo" },
+] as const;
 
-export function SiteFooter({
-  logoUrl,
-  logoSize = 36,
-  logoAlign = "left",
-}: {
+const SUPPORT_LINKS = [
+  { label: "All Fragrances", to: "/products" as const },
+  { label: "Terms & Conditions", to: "/terms" as const },
+  { label: "Privacy Policy", to: "/privacy" as const },
+  { label: "Admin Sign In", to: "/auth" as const },
+];
+
+export function SiteFooter(_props: {
   logoUrl?: string | null;
   logoSize?: number | null;
-  logoAlign?: FooterAlign | null;
+  logoAlign?: "left" | "center" | "right" | null;
 } = {}) {
-  const size = logoSize ?? 36;
-  const align: FooterAlign = (logoAlign ?? "left") as FooterAlign;
-  const justify = align === "center" ? "justify-center" : align === "right" ? "justify-end" : "justify-start";
-  const textAlign = align === "center" ? "text-center" : align === "right" ? "text-right" : "text-left";
+  const { data: branding } = useQuery(brandingQueryOptions);
+  const footerLogo = branding?.site_logo_url ?? branding?.site_icon_url ?? null;
 
   return (
-    <footer className="bg-gradient-to-b from-background to-secondary/40 border-t mt-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14 grid gap-10 md:grid-cols-2 lg:grid-cols-4">
-        <div className={textAlign}>
-          <div className={`flex items-center gap-2 mb-4 ${justify}`}>
-            {logoUrl ? (
-              <img src={logoUrl} alt="Veloura Essence" style={{ height: size }} className="w-auto object-contain" />
-            ) : (
-              <>
-                <div className="w-9 h-9 rounded-xl bg-gradient-luxe flex items-center justify-center shadow-soft">
-                  <Sparkles className="w-5 h-5 text-primary-foreground" />
-                </div>
-                <span className="text-lg font-semibold tracking-tight">Veloura Essence</span>
-              </>
-            )}
-          </div>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            Curated luxury fragrances and build-your-own perfume boxes, crafted for the modern Bangladesh.
+    <footer className="w-full bg-[#52277a] pt-16 pb-8 text-white mt-20">
+      <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+        <div>
+          {footerLogo ? (
+            <img
+              src={footerLogo}
+              alt="Veloura Essence"
+              className="h-10 sm:h-12 md:h-14 w-auto max-w-full max-h-16 object-contain"
+              loading="lazy"
+            />
+          ) : (
+            <h3 className="text-2xl font-bold tracking-wide">Veloura Essence</h3>
+          )}
+          <p className="text-gray-300 mt-4 leading-relaxed text-sm">
+            Redefining luxury fragrance in Bangladesh — crafted scents, honest
+            pricing, and an experience worthy of every occasion.
           </p>
         </div>
-
         <div>
-          <h4 className="text-sm font-semibold mb-4">Quick Links</h4>
-          <ul className="space-y-2 text-sm text-muted-foreground">
-            <li><Link to="/" className="hover:text-foreground">Home</Link></li>
-            <li><Link to="/products" className="hover:text-foreground">All Fragrances</Link></li>
-            <li><Link to="/category/$slug" params={{ slug: "female-fragrance" }} className="hover:text-foreground">Female Fragrance</Link></li>
-            <li><Link to="/category/$slug" params={{ slug: "male-fragrance" }} className="hover:text-foreground">Male Fragrance</Link></li>
-            <li><Link to="/category/$slug" params={{ slug: "combo-packs" }} className="hover:text-foreground">Combo Packs</Link></li>
-            <li><Link to="/category/$slug" params={{ slug: "custom-combo" }} className="hover:text-foreground">Custom Combo</Link></li>
-            <li><Link to="/terms" className="hover:text-foreground">Terms &amp; Conditions</Link></li>
-            <li><Link to="/privacy" className="hover:text-foreground">Privacy Policy</Link></li>
-          </ul>
+          <h4 className="text-lg font-semibold mb-4">Shop</h4>
+          {SHOP_LINKS.map((l) => (
+            <Link
+              key={l.slug}
+              to="/category/$slug"
+              params={{ slug: l.slug }}
+              className="text-gray-300 hover:text-white mb-2 block text-sm"
+            >
+              {l.label}
+            </Link>
+          ))}
         </div>
-
         <div>
-          <h4 className="text-sm font-semibold mb-4">Customer Support</h4>
-          <ul className="space-y-2 text-sm text-muted-foreground">
-            <li className="flex items-center gap-2"><Phone className="w-3.5 h-3.5" /> +880 1XXX-XXXXXX</li>
-            <li className="flex items-center gap-2"><Mail className="w-3.5 h-3.5" /> hello@veloura.bd</li>
-            <li className="flex items-center gap-2"><MapPin className="w-3.5 h-3.5" /> Dhaka, Bangladesh</li>
-            <li className="flex items-center gap-2"><Truck className="w-3.5 h-3.5" /> Nationwide delivery</li>
-          </ul>
+          <h4 className="text-lg font-semibold mb-4">Support</h4>
+          {SUPPORT_LINKS.map((l) => (
+            <Link
+              key={l.to}
+              to={l.to}
+              className="text-gray-300 hover:text-white mb-2 block text-sm"
+            >
+              {l.label}
+            </Link>
+          ))}
         </div>
-
         <div>
-          <h4 className="text-sm font-semibold mb-4 flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-primary" /> Secure Payments
-          </h4>
-          <div className="flex flex-wrap gap-2">
-            <div className="flex items-center gap-2 px-3 py-2 rounded-xl border bg-card shadow-soft">
-              <Wallet className="w-4 h-4 text-accent" />
-              <span className="text-xs font-medium">bKash</span>
-            </div>
-            <div className="flex items-center gap-2 px-3 py-2 rounded-xl border bg-card shadow-soft">
-              <Banknote className="w-4 h-4 text-primary" />
-              <span className="text-xs font-medium">Cash on Delivery</span>
-            </div>
-          </div>
-          <p className="text-xs text-muted-foreground mt-4">100% authentic · Easy returns within 7 days</p>
+          <h4 className="text-lg font-semibold mb-4">Stay Updated</h4>
+          <p className="text-gray-300 text-sm mb-3">
+            Get early access to drops and member-only offers.
+          </p>
+          <input
+            type="email"
+            placeholder="Your email"
+            className="bg-white/10 rounded-lg py-2 px-4 w-full text-white placeholder-gray-400 focus:outline-none"
+          />
+          <button className="bg-[#a555f0] text-white rounded-lg py-2 w-full mt-3 font-semibold hover:bg-[#9442e0] transition-colors">
+            Subscribe
+          </button>
         </div>
       </div>
-      <div className="border-t">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5 flex flex-col md:flex-row gap-3 items-center justify-between text-xs text-muted-foreground">
-          <p>© {new Date().getFullYear()} Veloura Essence. All rights reserved.</p>
-          <Link to="/auth" className="hover:text-foreground">Admin sign in</Link>
+      <div className="max-w-7xl mx-auto px-4 mt-12 pt-8 border-t border-white/20 flex flex-col md:flex-row justify-between items-center text-sm text-gray-400 gap-4">
+        <p>© {new Date().getFullYear()} Veloura Essence. All rights reserved.</p>
+        <div className="flex items-center gap-4">
+          {["F", "I", "T", "Y"].map((s) => (
+            <a
+              key={s}
+              href="#"
+              aria-label={`Social ${s}`}
+              className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white text-sm font-semibold transition-colors"
+            >
+              {s}
+            </a>
+          ))}
         </div>
       </div>
     </footer>
