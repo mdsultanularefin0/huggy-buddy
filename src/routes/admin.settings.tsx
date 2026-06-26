@@ -145,6 +145,28 @@ function SettingsPage() {
           <p className="text-xs text-muted-foreground mt-1"><b>Sticky</b> follows scroll and reserves space. <b>Static</b> scrolls away. <b>Floating</b> overlays the hero.</p>
         </div>
 
+        <div className="border-t pt-6 space-y-3">
+          <div>
+            <Label className="text-base">Header logo size</Label>
+            <p className="text-xs text-muted-foreground">Zoom the logo shown in the site header.</p>
+          </div>
+          <Label>Size: <span className="font-mono">{headerLogoSize}px</span></Label>
+          <input
+            type="range"
+            min={20}
+            max={96}
+            step={2}
+            value={headerLogoSize}
+            onChange={(e) => setHeaderLogoSize(Number(e.target.value))}
+            className="w-full"
+          />
+          {logoUrl && (
+            <div className="rounded-lg border bg-primary p-4 flex items-center">
+              <img src={logoUrl} alt="Header preview" style={{ height: headerLogoSize }} className="w-auto object-contain" />
+            </div>
+          )}
+        </div>
+
         <div className="border-t pt-6 space-y-4">
           <div>
             <Label className="text-base">Footer logo</Label>
