@@ -66,6 +66,34 @@ export const createOrder = createServerFn({ method: "POST" })
       .maybeSingle();
     if (zoneErr || !zone || !zone.is_active) throw new Error("Invalid delivery zone");
 
+    // Validate stock availability for every product line in the cart
+    const productIds = Array.from(
+      new Set(data.items.filter((i) => i.kind === "product").map((i) => i.refId)),
+    );
+    if (productIds.length > 0) {
+      const { data: stockRows, error: stockErr } = await supabaseAdmin
+        .from("products")
+        .select("id,name,in_stock,is_active")
+        .in("id", productIds);
+      if (stockErr) throw new Error("Could not verify stock");
+      const byId = new Map((stockRows ?? []).map((p) => [p.id, p]));
+      const unavailable: string[] = [];
+      for (const item of data.items) {
+        if (item.kind !== "product") continue;
+        const p = byId.get(item.refId);
+        if (!p || !p.is_active || !p.in_stock) {
+          unavailable.push(`${p?.name ?? item.name}${item.size ? ` (${item.size})` : ""}`);
+        }
+        if (item.quantity < 1 || item.quantity > 99) {
+          throw new Error(`Invalid quantity for ${item.name}`);
+        }
+      }
+      if (unavailable.length > 0) {
+        throw new Error(`Out of stock: ${unavailable.join(", ")}`);
+      }
+    }
+
+
     const subtotal = data.items.reduce((s, i) => s + i.unitPrice * i.quantity, 0);
     const freeThreshold = zone.free_shipping_threshold ?? 0;
     const shippingFee =
