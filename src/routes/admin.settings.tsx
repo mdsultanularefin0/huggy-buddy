@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { uploadImage } from "@/lib/upload";
+import { validateAndOptimizeBrandImage } from "@/lib/image-validate";
 
 export const Route = createFileRoute("/admin/settings")({ component: SettingsPage });
 
@@ -75,7 +76,8 @@ function SettingsPage() {
   async function handleUpload(kind: "logo" | "icon", file: File) {
     try {
       setUploading(kind);
-      const url = await uploadImage("hero-images", file);
+      const optimized = await validateAndOptimizeBrandImage(kind, file);
+      const url = await uploadImage("hero-images", optimized);
       if (kind === "logo") setLogoUrl(url);
       else setIconUrl(url);
       toast.success(`Image uploaded — click Save to apply`);
