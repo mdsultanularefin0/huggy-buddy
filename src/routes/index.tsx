@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery, queryOptions } from "@tanstack/react-query";
+import { brandingQueryOptions } from "@/lib/branding-query";
 import { useEffect, useState } from "react";
 import { SiteHeader } from "@/components/site-header";
 import {
