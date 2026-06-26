@@ -315,3 +315,23 @@ function BrandUpload({ label, hint, url, onUrlChange, onFile, busy, previewClass
     </div>
   );
 }
+
+function Field({ label, value, onChange, placeholder, type, textarea }: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  type?: string;
+  textarea?: boolean;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <Label>{label}</Label>
+      {textarea ? (
+        <Textarea value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} rows={2} />
+      ) : (
+        <Input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} type={type ?? "text"} />
+      )}
+    </div>
+  );
+}
