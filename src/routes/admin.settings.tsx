@@ -135,152 +135,164 @@ function SettingsPage() {
         <p className="text-muted-foreground mt-1">Global site configuration. Hero, marquee, categories, and CTA band have moved to the <Link to="/admin/homepage" className="underline font-medium">Homepage Editor</Link>.</p>
       </div>
 
-      <Card className="p-6 space-y-6 shadow-card">
-        <div className="grid sm:grid-cols-2 gap-6">
-          <BrandUpload
-            label="Site logo"
-            hint="Shown in the header. PNG/SVG with transparent background recommended."
-            url={logoUrl}
-            onUrlChange={setLogoUrl}
-            onFile={(f) => handleUpload("logo", f)}
-            busy={uploading === "logo"}
-            previewClass="bg-primary p-3 h-20"
-          />
-          <BrandUpload
-            label="Site icon (favicon)"
-            hint="Browser tab icon. Square PNG, 256×256 or larger."
-            url={iconUrl}
-            onUrlChange={setIconUrl}
-            onFile={(f) => handleUpload("icon", f)}
-            busy={uploading === "icon"}
-            previewClass="bg-muted p-3 h-20"
-          />
-        </div>
+      <Tabs defaultValue="branding" className="w-full">
+        <TabsList className="grid grid-cols-2 sm:grid-cols-4 w-full h-auto">
+          <TabsTrigger value="branding">Branding</TabsTrigger>
+          <TabsTrigger value="shop">Shop info</TabsTrigger>
+          <TabsTrigger value="social">Social</TabsTrigger>
+          <TabsTrigger value="layout">Layout</TabsTrigger>
+        </TabsList>
 
-        <div className="border-t pt-6 space-y-4">
-          <div>
-            <Label className="text-base">Shop information</Label>
-            <p className="text-xs text-muted-foreground">Used on the Contact page, footer, and as fallback when no logo is set.</p>
-          </div>
-          <div className="grid sm:grid-cols-2 gap-4">
-            <Field label="Shop name" value={shopName} onChange={setShopName} placeholder="Veloura Essence" />
-            <Field label="Tagline" value={shopTagline} onChange={setShopTagline} placeholder="Crafted scents, honest pricing." />
-            <Field label="Email" value={shopEmail} onChange={setShopEmail} placeholder="hello@example.com" type="email" />
-            <Field label="Phone" value={shopPhone} onChange={setShopPhone} placeholder="+880 1234-567890" />
-            <Field label="Address" value={shopAddress} onChange={setShopAddress} placeholder="Street, City" textarea />
-            <Field label="Opening hours" value={shopHours} onChange={setShopHours} placeholder="Mon–Sat, 10am–8pm" textarea />
-          </div>
-        </div>
-
-        <div className="border-t pt-6 space-y-4">
-          <div>
-            <Label className="text-base">Social media links</Label>
-            <p className="text-xs text-muted-foreground">Leave blank to hide an icon. Use full URLs (https://…).</p>
-          </div>
-          <div className="grid sm:grid-cols-2 gap-4">
-            <Field label="Facebook" value={socialFacebook} onChange={setSocialFacebook} placeholder="https://facebook.com/yourpage" />
-            <Field label="Instagram" value={socialInstagram} onChange={setSocialInstagram} placeholder="https://instagram.com/handle" />
-            <Field label="Twitter / X" value={socialTwitter} onChange={setSocialTwitter} placeholder="https://x.com/handle" />
-            <Field label="YouTube" value={socialYoutube} onChange={setSocialYoutube} placeholder="https://youtube.com/@channel" />
-            <Field label="TikTok" value={socialTiktok} onChange={setSocialTiktok} placeholder="https://tiktok.com/@handle" />
-            <Field label="WhatsApp" value={socialWhatsapp} onChange={setSocialWhatsapp} placeholder="https://wa.me/8801234567890" />
-          </div>
-        </div>
-
-
-
-
-
-
-        <div>
-          <Label>Header position</Label>
-          <div className="mt-2 grid grid-cols-3 gap-2">
-            {(["sticky", "static", "floating"] as const).map((p) => (
-              <button
-                key={p}
-                type="button"
-                onClick={() => setHeaderPosition(p)}
-                className={`rounded-lg border px-3 py-2 text-sm font-medium capitalize transition-colors ${headerPosition === p ? "bg-primary text-primary-foreground border-primary" : "bg-background hover:bg-muted"}`}
-              >
-                {p}
-              </button>
-            ))}
-          </div>
-          <p className="text-xs text-muted-foreground mt-1"><b>Sticky</b> follows scroll and reserves space. <b>Static</b> scrolls away. <b>Floating</b> overlays the hero.</p>
-        </div>
-
-        <div className="border-t pt-6 space-y-3">
-          <div>
-            <Label className="text-base">Header logo size</Label>
-            <p className="text-xs text-muted-foreground">Zoom the logo shown in the site header.</p>
-          </div>
-          <Label>Size: <span className="font-mono">{headerLogoSize}px</span></Label>
-          <input
-            type="range"
-            min={20}
-            max={96}
-            step={2}
-            value={headerLogoSize}
-            onChange={(e) => setHeaderLogoSize(Number(e.target.value))}
-            className="w-full"
-          />
-          {logoUrl && (
-            <div className="rounded-lg border bg-primary p-4 flex items-center">
-              <img src={logoUrl} alt="Header preview" style={{ height: headerLogoSize }} className="w-auto object-contain" />
+        <TabsContent value="branding" className="mt-4">
+          <Card className="p-6 space-y-6 shadow-card">
+            <div className="grid sm:grid-cols-2 gap-6">
+              <BrandUpload
+                label="Site logo"
+                hint="Shown in the header. PNG/SVG with transparent background recommended."
+                url={logoUrl}
+                onUrlChange={setLogoUrl}
+                onFile={(f) => handleUpload("logo", f)}
+                busy={uploading === "logo"}
+                previewClass="bg-primary p-3 h-20"
+              />
+              <BrandUpload
+                label="Site icon (favicon)"
+                hint="Browser tab icon. Square PNG, 256×256 or larger."
+                url={iconUrl}
+                onUrlChange={setIconUrl}
+                onFile={(f) => handleUpload("icon", f)}
+                busy={uploading === "icon"}
+                previewClass="bg-muted p-3 h-20"
+              />
             </div>
-          )}
-        </div>
+            <SaveBar pending={save.isPending} onSave={() => save.mutate()} />
+          </Card>
+        </TabsContent>
 
-        <div className="border-t pt-6 space-y-4">
-          <div>
-            <Label className="text-base">Footer logo</Label>
-            <p className="text-xs text-muted-foreground">Size and alignment of the logo in the site footer.</p>
-          </div>
-          <div className="grid sm:grid-cols-2 gap-6">
+        <TabsContent value="shop" className="mt-4">
+          <Card className="p-6 space-y-6 shadow-card">
             <div>
-              <Label>Size: <span className="font-mono">{footerLogoSize}px</span></Label>
+              <Label className="text-base">Shop information</Label>
+              <p className="text-xs text-muted-foreground">Used on the Contact page, footer, and as fallback when no logo is set.</p>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <Field label="Shop name" value={shopName} onChange={setShopName} placeholder="Veloura Essence" />
+              <Field label="Tagline" value={shopTagline} onChange={setShopTagline} placeholder="Crafted scents, honest pricing." />
+              <Field label="Email" value={shopEmail} onChange={setShopEmail} placeholder="hello@example.com" type="email" />
+              <Field label="Phone" value={shopPhone} onChange={setShopPhone} placeholder="+880 1234-567890" />
+              <Field label="Address" value={shopAddress} onChange={setShopAddress} placeholder="Street, City" textarea />
+              <Field label="Opening hours" value={shopHours} onChange={setShopHours} placeholder="Mon–Sat, 10am–8pm" textarea />
+            </div>
+            <SaveBar pending={save.isPending} onSave={() => save.mutate()} />
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="social" className="mt-4">
+          <Card className="p-6 space-y-6 shadow-card">
+            <div>
+              <Label className="text-base">Social media links</Label>
+              <p className="text-xs text-muted-foreground">Leave blank to hide an icon. Use full URLs (https://…).</p>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <Field label="Facebook" value={socialFacebook} onChange={setSocialFacebook} placeholder="https://facebook.com/yourpage" />
+              <Field label="Instagram" value={socialInstagram} onChange={setSocialInstagram} placeholder="https://instagram.com/handle" />
+              <Field label="Twitter / X" value={socialTwitter} onChange={setSocialTwitter} placeholder="https://x.com/handle" />
+              <Field label="YouTube" value={socialYoutube} onChange={setSocialYoutube} placeholder="https://youtube.com/@channel" />
+              <Field label="TikTok" value={socialTiktok} onChange={setSocialTiktok} placeholder="https://tiktok.com/@handle" />
+              <Field label="WhatsApp" value={socialWhatsapp} onChange={setSocialWhatsapp} placeholder="https://wa.me/8801234567890" />
+            </div>
+            <SaveBar pending={save.isPending} onSave={() => save.mutate()} />
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="layout" className="mt-4">
+          <Card className="p-6 space-y-6 shadow-card">
+            <div>
+              <Label>Header position</Label>
+              <div className="mt-2 grid grid-cols-3 gap-2">
+                {(["sticky", "static", "floating"] as const).map((p) => (
+                  <button
+                    key={p}
+                    type="button"
+                    onClick={() => setHeaderPosition(p)}
+                    className={`rounded-lg border px-3 py-2 text-sm font-medium capitalize transition-colors ${headerPosition === p ? "bg-primary text-primary-foreground border-primary" : "bg-background hover:bg-muted"}`}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1"><b>Sticky</b> follows scroll and reserves space. <b>Static</b> scrolls away. <b>Floating</b> overlays the hero.</p>
+            </div>
+
+            <div className="border-t pt-6 space-y-3">
+              <div>
+                <Label className="text-base">Header logo size</Label>
+                <p className="text-xs text-muted-foreground">Zoom the logo shown in the site header.</p>
+              </div>
+              <Label>Size: <span className="font-mono">{headerLogoSize}px</span></Label>
               <input
                 type="range"
                 min={20}
                 max={96}
                 step={2}
-                value={footerLogoSize}
-                onChange={(e) => setFooterLogoSize(Number(e.target.value))}
-                className="w-full mt-2"
+                value={headerLogoSize}
+                onChange={(e) => setHeaderLogoSize(Number(e.target.value))}
+                className="w-full"
               />
+              {logoUrl && (
+                <div className="rounded-lg border bg-primary p-4 flex items-center">
+                  <img src={logoUrl} alt="Header preview" style={{ height: headerLogoSize }} className="w-auto object-contain" />
+                </div>
+              )}
             </div>
-            <div>
-              <Label>Alignment</Label>
-              <div className="mt-2 grid grid-cols-3 gap-2">
-                {(["left", "center", "right"] as const).map((a) => (
-                  <button
-                    key={a}
-                    type="button"
-                    onClick={() => setFooterLogoAlign(a)}
-                    className={`rounded-lg border px-3 py-2 text-sm font-medium capitalize transition-colors ${footerLogoAlign === a ? "bg-primary text-primary-foreground border-primary" : "bg-background hover:bg-muted"}`}
-                  >
-                    {a}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-          {logoUrl && (
-            <div className="rounded-lg border bg-muted/30 p-4">
-              <div className={`flex items-center ${footerLogoAlign === "center" ? "justify-center" : footerLogoAlign === "right" ? "justify-end" : "justify-start"}`}>
-                <img src={logoUrl} alt="Footer preview" style={{ height: footerLogoSize }} className="w-auto object-contain" />
-              </div>
-              <p className="text-xs text-muted-foreground mt-2 text-center">Footer preview</p>
-            </div>
-          )}
-        </div>
 
-        <div className="flex justify-end">
-          <Button variant="luxe" onClick={() => save.mutate()} disabled={save.isPending}>
-            {save.isPending && <Loader2 className="w-4 h-4 animate-spin mr-1" />}Save settings
-          </Button>
-        </div>
-      </Card>
+            <div className="border-t pt-6 space-y-4">
+              <div>
+                <Label className="text-base">Footer logo</Label>
+                <p className="text-xs text-muted-foreground">Size and alignment of the logo in the site footer.</p>
+              </div>
+              <div className="grid sm:grid-cols-2 gap-6">
+                <div>
+                  <Label>Size: <span className="font-mono">{footerLogoSize}px</span></Label>
+                  <input
+                    type="range"
+                    min={20}
+                    max={96}
+                    step={2}
+                    value={footerLogoSize}
+                    onChange={(e) => setFooterLogoSize(Number(e.target.value))}
+                    className="w-full mt-2"
+                  />
+                </div>
+                <div>
+                  <Label>Alignment</Label>
+                  <div className="mt-2 grid grid-cols-3 gap-2">
+                    {(["left", "center", "right"] as const).map((a) => (
+                      <button
+                        key={a}
+                        type="button"
+                        onClick={() => setFooterLogoAlign(a)}
+                        className={`rounded-lg border px-3 py-2 text-sm font-medium capitalize transition-colors ${footerLogoAlign === a ? "bg-primary text-primary-foreground border-primary" : "bg-background hover:bg-muted"}`}
+                      >
+                        {a}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              {logoUrl && (
+                <div className="rounded-lg border bg-muted/30 p-4">
+                  <div className={`flex items-center ${footerLogoAlign === "center" ? "justify-center" : footerLogoAlign === "right" ? "justify-end" : "justify-start"}`}>
+                    <img src={logoUrl} alt="Footer preview" style={{ height: footerLogoSize }} className="w-auto object-contain" />
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2 text-center">Footer preview</p>
+                </div>
+              )}
+            </div>
+            <SaveBar pending={save.isPending} onSave={() => save.mutate()} />
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
