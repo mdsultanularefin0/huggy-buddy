@@ -147,3 +147,16 @@ ON CONFLICT DO NOTHING;`}
     </div>
   );
 }
+
+function AdminLoading() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-soft">
+      <div className="flex flex-col items-center gap-3 text-muted-foreground">
+        <div className="w-12 h-12 rounded-2xl bg-gradient-luxe flex items-center justify-center shadow-luxe">
+          <Loader2 className="w-6 h-6 text-primary-foreground animate-spin" />
+        </div>
+        <p className="text-sm">Verifying admin access…</p>
+      </div>
+    </div>
+  );
+}
