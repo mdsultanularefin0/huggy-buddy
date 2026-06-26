@@ -493,7 +493,16 @@ function Landing() {
       <footer className="w-full bg-[#52277a] pt-16 pb-8 text-white">
         <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           <div>
-            <h3 className="text-2xl font-bold tracking-wide">Veloura Essence</h3>
+            {footerLogo ? (
+              <img
+                src={footerLogo}
+                alt="Veloura Essence"
+                className="h-12 w-auto object-contain"
+                loading="lazy"
+              />
+            ) : (
+              <h3 className="text-2xl font-bold tracking-wide">Veloura Essence</h3>
+            )}
             <p className="text-gray-300 mt-4 leading-relaxed text-sm">
               Redefining luxury fragrance in Bangladesh — crafted scents,
               honest pricing, and an experience worthy of every occasion.
