@@ -58,7 +58,7 @@ export function CartDrawer() {
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-semibold">{formatBDT(item.unitPrice * item.quantity)}</span>
-                        <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground" onClick={() => remove(item.lineId)}>
+                        <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" aria-label={`Remove ${item.name}`} onClick={() => handleRemove(item)}>
                           <Trash2 className="w-3 h-3" />
                         </Button>
                       </div>
