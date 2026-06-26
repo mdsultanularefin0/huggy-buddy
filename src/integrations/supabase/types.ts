@@ -419,6 +419,10 @@ export type Database = {
           cta_band_button_label: string | null
           cta_band_button_link: string | null
           cta_band_text: string | null
+          flash_timer_auto_reset: boolean
+          flash_timer_duration_days: number
+          flash_timer_enabled: boolean
+          flash_timer_title: string
           footer_logo_align: string
           footer_logo_size: number
           header_position: string
@@ -438,6 +442,7 @@ export type Database = {
           hero_overlay_right: string | null
           hero_subtitle: string | null
           hero_title: string | null
+          homepage_category_ids: string[]
           id: string
           marquee_text: string
           site_icon_url: string | null
@@ -449,6 +454,10 @@ export type Database = {
           cta_band_button_label?: string | null
           cta_band_button_link?: string | null
           cta_band_text?: string | null
+          flash_timer_auto_reset?: boolean
+          flash_timer_duration_days?: number
+          flash_timer_enabled?: boolean
+          flash_timer_title?: string
           footer_logo_align?: string
           footer_logo_size?: number
           header_position?: string
@@ -468,6 +477,7 @@ export type Database = {
           hero_overlay_right?: string | null
           hero_subtitle?: string | null
           hero_title?: string | null
+          homepage_category_ids?: string[]
           id?: string
           marquee_text?: string
           site_icon_url?: string | null
@@ -479,6 +489,10 @@ export type Database = {
           cta_band_button_label?: string | null
           cta_band_button_link?: string | null
           cta_band_text?: string | null
+          flash_timer_auto_reset?: boolean
+          flash_timer_duration_days?: number
+          flash_timer_enabled?: boolean
+          flash_timer_title?: string
           footer_logo_align?: string
           footer_logo_size?: number
           header_position?: string
@@ -498,6 +512,7 @@ export type Database = {
           hero_overlay_right?: string | null
           hero_subtitle?: string | null
           hero_title?: string | null
+          homepage_category_ids?: string[]
           id?: string
           marquee_text?: string
           site_icon_url?: string | null
