@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ProductsRouteImport } from './routes/products'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -31,6 +32,11 @@ import { Route as AdminCombosRouteImport } from './routes/admin.combos'
 import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
 import { Route as AdminAuditLogsRouteImport } from './routes/admin.audit-logs'
 
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProductsRoute = ProductsRouteImport.update({
   id: '/products',
   path: '/products',
@@ -143,6 +149,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/checkout': typeof CheckoutRoute
   '/products': typeof ProductsRoute
+  '/terms': typeof TermsRoute
   '/admin/audit-logs': typeof AdminAuditLogsRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/combos': typeof AdminCombosRoute
@@ -165,6 +172,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/checkout': typeof CheckoutRoute
   '/products': typeof ProductsRoute
+  '/terms': typeof TermsRoute
   '/admin/audit-logs': typeof AdminAuditLogsRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/combos': typeof AdminCombosRoute
@@ -189,6 +197,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/checkout': typeof CheckoutRoute
   '/products': typeof ProductsRoute
+  '/terms': typeof TermsRoute
   '/admin/audit-logs': typeof AdminAuditLogsRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/combos': typeof AdminCombosRoute
@@ -214,6 +223,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/checkout'
     | '/products'
+    | '/terms'
     | '/admin/audit-logs'
     | '/admin/categories'
     | '/admin/combos'
@@ -236,6 +246,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/checkout'
     | '/products'
+    | '/terms'
     | '/admin/audit-logs'
     | '/admin/categories'
     | '/admin/combos'
@@ -259,6 +270,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/checkout'
     | '/products'
+    | '/terms'
     | '/admin/audit-logs'
     | '/admin/categories'
     | '/admin/combos'
@@ -283,6 +295,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CheckoutRoute: typeof CheckoutRoute
   ProductsRoute: typeof ProductsRoute
+  TermsRoute: typeof TermsRoute
   CategorySlugRoute: typeof CategorySlugRoute
   ComboIdRoute: typeof ComboIdRoute
   OrderIdRoute: typeof OrderIdRoute
@@ -291,6 +304,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/products': {
       id: '/products'
       path: '/products'
@@ -479,6 +499,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CheckoutRoute: CheckoutRoute,
   ProductsRoute: ProductsRoute,
+  TermsRoute: TermsRoute,
   CategorySlugRoute: CategorySlugRoute,
   ComboIdRoute: ComboIdRoute,
   OrderIdRoute: OrderIdRoute,
