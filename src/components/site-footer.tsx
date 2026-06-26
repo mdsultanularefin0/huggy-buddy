@@ -31,13 +31,13 @@ export function SiteFooter(_props: {
     branding?.shop_tagline ??
     "Redefining luxury fragrance in Bangladesh — crafted scents, honest pricing, and an experience worthy of every occasion.";
 
-  const socials: { href: string | null | undefined; label: string; Icon: typeof Facebook }[] = [
-    { href: branding?.social_facebook, label: "Facebook", Icon: Facebook },
-    { href: branding?.social_instagram, label: "Instagram", Icon: Instagram },
-    { href: branding?.social_twitter, label: "Twitter", Icon: Twitter },
-    { href: branding?.social_youtube, label: "YouTube", Icon: Youtube },
-    { href: branding?.social_tiktok, label: "TikTok", Icon: Music2 },
-    { href: branding?.social_whatsapp, label: "WhatsApp", Icon: MessageCircle },
+  const socials: { href: string | null | undefined; label: string; Icon: IconType }[] = [
+    { href: branding?.social_facebook, label: "Facebook", Icon: FaFacebookF },
+    { href: branding?.social_instagram, label: "Instagram", Icon: FaInstagram },
+    { href: branding?.social_twitter, label: "Twitter / X", Icon: FaXTwitter },
+    { href: branding?.social_youtube, label: "YouTube", Icon: FaYoutube },
+    { href: branding?.social_tiktok, label: "TikTok", Icon: FaTiktok },
+    { href: branding?.social_whatsapp, label: "WhatsApp", Icon: FaWhatsapp },
   ];
   const activeSocials = socials.filter((s) => !!s.href);
 
