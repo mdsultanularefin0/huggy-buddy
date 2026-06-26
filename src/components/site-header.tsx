@@ -63,21 +63,18 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
     <header className={positionClass}>
       <div className="w-full px-6 lg:px-10 h-16 flex items-center justify-between gap-6">
         {/* LEFT — logo */}
-        <Link to="/" className="flex items-center gap-2 shrink-0">
+        <Link to="/" className="flex items-center gap-2 shrink-0" aria-label="Home">
           {effectiveLogo ? (
-            <img src={effectiveLogo} alt="Site logo" className="h-9 w-auto object-contain" />
-          ) : (
-            <>
-              <div className="w-9 h-9 rounded-xl bg-white/15 backdrop-blur flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-accent" />
-              </div>
-              <div className="leading-none">
-                <div className="font-display text-base font-bold tracking-wide text-accent">VELOURA</div>
-                <div className="text-[9px] tracking-[0.3em] text-primary-foreground/80">ESSENCE</div>
-              </div>
-            </>
-          )}
+            <img
+              src={effectiveLogo}
+              alt="Site logo"
+              style={{ height: effectiveLogoSize }}
+              className="w-auto object-contain"
+            />
+          ) : null}
         </Link>
+
+
 
         {/* CENTER — nav */}
         <nav className="hidden lg:flex items-center gap-8 text-sm font-medium text-primary-foreground/90 mx-auto">
