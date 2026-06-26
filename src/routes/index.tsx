@@ -36,8 +36,47 @@ const heroSettingsQuery = queryOptions({
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Veloura Essence" },
-      { name: "description", content: "Veloura Essence — premium fragrances." },
+      { title: "Veloura Essence — Premium Luxury Fragrances in Bangladesh" },
+      {
+        name: "description",
+        content:
+          "Shop Veloura Essence: high-concentration luxury perfumes with long-lasting silage. Signature scents, curated collections, and honest pricing in Bangladesh.",
+      },
+      { name: "keywords", content: "luxury perfume Bangladesh, premium fragrance, Veloura Essence, oud, floral perfume, woody perfume, attar" },
+      { property: "og:title", content: "Veloura Essence — Premium Luxury Fragrances" },
+      {
+        property: "og:description",
+        content:
+          "Crafted scents, honest pricing, and an experience worthy of every occasion. Discover the Veloura signature collection.",
+      },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "/" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Veloura Essence — Premium Luxury Fragrances" },
+      {
+        name: "twitter:description",
+        content: "Crafted scents, honest pricing — discover Veloura Essence.",
+      },
+    ],
+    links: [{ rel: "canonical", href: "/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Store",
+          name: "Veloura Essence",
+          description:
+            "Premium luxury fragrances handcrafted in Bangladesh — long-lasting, honestly priced.",
+          url: "/",
+          makesOffer: [
+            { "@type": "Offer", itemOffered: { "@type": "Product", name: "Velvet Oud" } },
+            { "@type": "Offer", itemOffered: { "@type": "Product", name: "Rose Nuit" } },
+            { "@type": "Offer", itemOffered: { "@type": "Product", name: "Amber Reverie" } },
+            { "@type": "Offer", itemOffered: { "@type": "Product", name: "Citrine Bloom" } },
+          ],
+        }),
+      },
     ],
   }),
   loader: ({ context }) => Promise.all([
