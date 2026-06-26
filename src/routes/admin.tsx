@@ -1,7 +1,9 @@
 import { createFileRoute, Outlet, useNavigate, Link, useRouterState } from "@tanstack/react-router";
 import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession, useIsAdmin } from "@/hooks/use-session";
+import { brandingQueryOptions } from "@/lib/branding-query";
 import {
   SidebarProvider, Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent,
   SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger,
@@ -71,6 +73,8 @@ function AdminLayout() {
 function AdminSidebar({ email }: { email: string }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
+  const { data: branding } = useQuery(brandingQueryOptions);
+  const logoUrl = branding?.site_logo_url ?? null;
 
   const isActive = (to: string, exact?: boolean) =>
     exact ? pathname === to : pathname === to || pathname.startsWith(to + "/");
@@ -85,10 +89,16 @@ function AdminSidebar({ email }: { email: string }) {
     <Sidebar collapsible="icon">
       <SidebarHeader>
         <Link to="/admin" className="flex items-center gap-2 px-2 py-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-luxe flex items-center justify-center shadow-soft shrink-0">
-            <Sparkles className="w-4 h-4 text-primary-foreground" />
-          </div>
-          <span className="font-semibold text-sidebar-foreground truncate">Veloura</span>
+          {logoUrl ? (
+            <img src={logoUrl} alt="Site logo" className="h-8 w-auto object-contain shrink-0" />
+          ) : (
+            <>
+              <div className="w-8 h-8 rounded-lg bg-gradient-luxe flex items-center justify-center shadow-soft shrink-0">
+                <Sparkles className="w-4 h-4 text-primary-foreground" />
+              </div>
+              <span className="font-semibold text-sidebar-foreground truncate">Veloura</span>
+            </>
+          )}
         </Link>
       </SidebarHeader>
       <SidebarContent>
