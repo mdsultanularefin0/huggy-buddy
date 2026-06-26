@@ -82,6 +82,14 @@ function ProductPage() {
   const canAdd = product.in_stock && (!needsSize || sizeIdx !== null);
 
   const handleAdd = () => {
+    if (!product.in_stock) {
+      toast.error("This product is currently out of stock");
+      return;
+    }
+    if (needsSize && sizeIdx === null) {
+      toast.error("Please select a size before adding to cart");
+      return;
+    }
     const sizeLabel = chosen?.size_label ?? null;
     add({
       lineId: `product:${product.slug}:${sizeLabel ?? "default"}`,
