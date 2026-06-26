@@ -1,14 +1,47 @@
 import { Link } from "@tanstack/react-router";
 import { Sparkles, ShoppingCart, Menu, X, Search, User } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { useCart, cartCount } from "@/lib/cart-store";
+import { supabase } from "@/integrations/supabase/client";
 
 export function SiteHeader({ position = "sticky", logoUrl }: { position?: "sticky" | "static" | "floating"; logoUrl?: string | null } = {}) {
   const items = useCart((s) => s.items);
   const open = useCart((s) => s.open);
   const count = cartCount(items);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const { data: branding } = useQuery({
+    queryKey: ["storefront", "branding"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("site_settings")
+        .select("site_logo_url, site_icon_url")
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    staleTime: 60_000,
+  });
+
+  const effectiveLogo = logoUrl ?? branding?.site_logo_url ?? null;
+  const iconUrl = branding?.site_icon_url ?? null;
+
+  useEffect(() => {
+    if (typeof document === "undefined" || !iconUrl) return;
+    const selectors = ['link[rel="icon"]', 'link[rel="shortcut icon"]', 'link[rel="apple-touch-icon"]'];
+    selectors.forEach((sel) => document.head.querySelectorAll(sel).forEach((el) => el.remove()));
+    const link = document.createElement("link");
+    link.rel = "icon";
+    link.href = iconUrl;
+    document.head.appendChild(link);
+    const apple = document.createElement("link");
+    apple.rel = "apple-touch-icon";
+    apple.href = iconUrl;
+    document.head.appendChild(apple);
+  }, [iconUrl]);
 
   const links = [
     { to: "/" as const, label: "Home" },
