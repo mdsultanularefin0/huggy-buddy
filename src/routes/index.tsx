@@ -2,7 +2,37 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { SiteHeader } from "@/components/site-header";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { supabase } from "@/integrations/supabase/client";
+
+const HOMEPAGE_FAQS = [
+  {
+    q: "How long do Veloura Essence fragrances last?",
+    a: "Our high-concentration formulas typically last 8–12 hours on skin with strong projection in the opening hours and a soft, lingering dry-down throughout the day.",
+  },
+  {
+    q: "Do you deliver across Bangladesh?",
+    a: "Yes. We deliver nationwide across Bangladesh, with free shipping on orders over ৳999. Most orders arrive within 2–4 business days.",
+  },
+  {
+    q: "Are Veloura Essence perfumes original and long-lasting?",
+    a: "Every Veloura scent is crafted with premium imported oils and bottled in Bangladesh. We focus on high oil concentration so each bottle delivers genuine luxury performance.",
+  },
+  {
+    q: "What is your return and exchange policy?",
+    a: "Unopened products can be returned or exchanged within 7 days of delivery. Reach out to our support team and we'll guide you through the process.",
+  },
+  {
+    q: "How do I choose the right fragrance for me?",
+    a: "Start with our Scent Profile guide — Fresh & Floral, Deep & Woody, or Sweet & Oriental. If you're still unsure, contact us and our team will recommend a scent based on your preferences.",
+  },
+];
+
 
 const categoriesQuery = queryOptions({
   queryKey: ["public", "categories"],
@@ -77,7 +107,20 @@ export const Route = createFileRoute("/")({
           ],
         }),
       },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: HOMEPAGE_FAQS.map((f) => ({
+            "@type": "Question",
+            name: f.q,
+            acceptedAnswer: { "@type": "Answer", text: f.a },
+          })),
+        }),
+      },
     ],
+
   }),
   loader: ({ context }) => Promise.all([
     context.queryClient.ensureQueryData(categoriesQuery),
@@ -412,6 +455,32 @@ function Landing() {
                 </div>
               ))}
             </div>
+          </div>
+        </section>
+
+        {/* Frequently Asked Questions */}
+        <section className="w-full py-16 bg-gray-50" aria-labelledby="faq-heading">
+          <div className="max-w-3xl mx-auto px-4">
+            <div className="text-center mb-10">
+              <h2 id="faq-heading" className="text-3xl font-bold text-gray-900 inline-block pb-2 border-b-2 border-[#a555f0]">
+                Frequently Asked Questions
+              </h2>
+              <p className="text-gray-600 mt-4">
+                Everything you need to know about Veloura Essence fragrances, shipping, and care.
+              </p>
+            </div>
+            <Accordion type="single" collapsible className="w-full">
+              {HOMEPAGE_FAQS.map((f, i) => (
+                <AccordionItem key={f.q} value={`faq-${i}`} className="border-b border-gray-200">
+                  <AccordionTrigger className="text-left text-gray-900 font-semibold hover:text-[#52277a]">
+                    {f.q}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-gray-600 leading-relaxed">
+                    {f.a}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
           </div>
         </section>
       </main>
