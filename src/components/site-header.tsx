@@ -12,11 +12,12 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
   const count = cartCount(items);
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const { data: branding } = useQuery(brandingQueryOptions);
+  const { data: branding, isLoading: brandingLoading } = useQuery(brandingQueryOptions);
 
   const effectiveLogo = logoUrl ?? branding?.site_logo_url ?? null;
   const effectiveLogoSize = logoSize ?? branding?.header_logo_size ?? 36;
   const iconUrl = branding?.site_icon_url ?? null;
+  const showLogoSkeleton = brandingLoading && !effectiveLogo;
 
   useEffect(() => {
     if (typeof document === "undefined" || !iconUrl) return;
@@ -61,6 +62,12 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
               fetchPriority="high"
               loading="eager"
               decoding="async"
+            />
+          ) : showLogoSkeleton ? (
+            <div
+              aria-hidden="true"
+              style={{ height: effectiveLogoSize, width: effectiveLogoSize * 3 }}
+              className="rounded-md bg-white/10 animate-pulse"
             />
           ) : null}
         </Link>
