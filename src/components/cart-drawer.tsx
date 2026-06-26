@@ -1,13 +1,19 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { useCart, cartSubtotal } from "@/lib/cart-store";
+import { useCart, cartSubtotal, type CartItem } from "@/lib/cart-store";
 import { formatBDT } from "@/lib/currency";
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { toast } from "sonner";
 
 export function CartDrawer() {
   const { items, isOpen, close, setQty, remove } = useCart();
   const subtotal = cartSubtotal(items);
+
+  const handleRemove = (item: CartItem) => {
+    remove(item.lineId);
+    toast.success(`Removed ${item.name}${item.size ? ` (${item.size})` : ""}`);
+  };
 
   return (
     <Sheet open={isOpen} onOpenChange={(o) => !o && close()}>
@@ -52,7 +58,7 @@ export function CartDrawer() {
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-semibold">{formatBDT(item.unitPrice * item.quantity)}</span>
-                        <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground" onClick={() => remove(item.lineId)}>
+                        <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" aria-label={`Remove ${item.name}`} onClick={() => handleRemove(item)}>
                           <Trash2 className="w-3 h-3" />
                         </Button>
                       </div>
