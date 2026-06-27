@@ -168,6 +168,7 @@ function useCountdown(targetMs: number | null) {
 function Landing() {
   const { data: allCategories = [] } = useSuspenseQuery(categoriesQuery);
   const { data: hero } = useSuspenseQuery(heroSettingsQuery);
+  const { data: featuredProducts = [] } = useSuspenseQuery(featuredProductsQuery);
   const { data: branding } = useQuery(brandingQueryOptions);
   const footerLogo = branding?.site_logo_url ?? branding?.site_icon_url ?? null;
 
