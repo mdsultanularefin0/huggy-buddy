@@ -19,6 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, Upload, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { uploadImage } from "@/lib/upload";
+import { MediaPicker } from "@/components/media-picker";
 
 export const Route = createFileRoute("/admin/homepage")({ component: HomepagePage });
 
