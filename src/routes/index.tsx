@@ -49,6 +49,20 @@ const categoriesQuery = queryOptions({
   },
 });
 
+const featuredProductsQuery = queryOptions({
+  queryKey: ["public", "products", "featured"],
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from("products")
+      .select("id, slug, name, regular_price, sale_price, sizes_json, image_url")
+      .eq("is_active", true)
+      .order("created_at", { ascending: false })
+      .limit(4);
+    if (error) throw error;
+    return data ?? [];
+  },
+});
+
 const heroSettingsQuery = queryOptions({
   queryKey: ["public", "site_settings", "hero"],
   queryFn: async () => {
