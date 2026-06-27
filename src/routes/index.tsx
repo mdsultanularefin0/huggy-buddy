@@ -13,28 +13,9 @@ import {
 } from "@/components/ui/accordion";
 import { supabase } from "@/integrations/supabase/client";
 
-const HOMEPAGE_FAQS = [
-  {
-    q: "How long do Veloura Essence fragrances last?",
-    a: "Our high-concentration formulas typically last 8–12 hours on skin with strong projection in the opening hours and a soft, lingering dry-down throughout the day.",
-  },
-  {
-    q: "Do you deliver across Bangladesh?",
-    a: "Yes. We deliver nationwide across Bangladesh, with free shipping on orders over ৳999. Most orders arrive within 2–4 business days.",
-  },
-  {
-    q: "Are Veloura Essence perfumes original and long-lasting?",
-    a: "Every Veloura scent is crafted with premium imported oils and bottled in Bangladesh. We focus on high oil concentration so each bottle delivers genuine luxury performance.",
-  },
-  {
-    q: "What is your return and exchange policy?",
-    a: "Unopened products can be returned or exchanged within 7 days of delivery. Reach out to our support team and we'll guide you through the process.",
-  },
-  {
-    q: "How do I choose the right fragrance for me?",
-    a: "Start with our Scent Profile guide — Fresh & Floral, Deep & Woody, or Sweet & Oriental. If you're still unsure, contact us and our team will recommend a scent based on your preferences.",
-  },
-];
+type Whisper = { quote: string; name: string; tag?: string };
+type Faq = { q: string; a: string };
+type Note = { title: string; gradient: string; link?: string };
 
 
 const categoriesQuery = queryOptions({
@@ -69,9 +50,7 @@ const heroSettingsQuery = queryOptions({
   queryFn: async () => {
     const { data, error } = await supabase
       .from("site_settings")
-      .select(
-        "hero_image, hero_overlay_image, marquee_text, homepage_category_ids, flash_timer_title, flash_timer_enabled, flash_timer_auto_reset, flash_timer_duration_days, timer_reset_date",
-      )
+      .select("*")
       .limit(1)
       .maybeSingle();
     if (error) throw error;
@@ -124,18 +103,6 @@ export const Route = createFileRoute("/")({
           ],
         }),
       },
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          mainEntity: HOMEPAGE_FAQS.map((f) => ({
-            "@type": "Question",
-            name: f.q,
-            acceptedAnswer: { "@type": "Answer", text: f.a },
-          })),
-        }),
-      },
     ],
 
   }),
@@ -184,6 +151,23 @@ function Landing() {
   const mobileSlots = Array.from({ length: 3 }, (_, i) => categories[i]);
   const heroImage = hero?.hero_image ?? null;
   const heroOverlay = hero?.hero_overlay_image ?? null;
+
+  const h = (hero ?? {}) as Record<string, unknown>;
+  const signatureTitle = (h.signature_title as string) || "Our Signature Collection";
+  const signatureSubtitle = (h.signature_subtitle as string) || "";
+  const artEyebrow = (h.art_eyebrow as string) || "";
+  const artTitle = (h.art_title as string) || "The Art of Veloura";
+  const artBody = (h.art_body as string) || "";
+  const artButtonLabel = (h.art_button_label as string) || "";
+  const artButtonLink = (h.art_button_link as string) || "";
+  const artImage = (h.art_image as string) || null;
+  const notesTitle = (h.notes_title as string) || "Discover Your Signature Note";
+  const notesSubtitle = (h.notes_subtitle as string) || "";
+  const notes = ((h.notes_json as Note[] | null) ?? []) as Note[];
+  const whispersTitle = (h.whispers_title as string) || "Customer Whispers";
+  const whispers = ((h.whispers_json as Whisper[] | null) ?? []) as Whisper[];
+  const faqsTitle = (h.faqs_title as string) || "Frequently Asked Questions";
+  const faqs = ((h.faqs_json as Faq[] | null) ?? []) as Faq[];
 
   const marqueeText = (hero?.marquee_text ?? "Free shipping over ₹999 · New arrivals every week · Premium fragrances handcrafted").trim();
   const marqueeItems = Array.from({ length: 8 }, () => marqueeText);
@@ -348,10 +332,13 @@ function Landing() {
         {/* Signature Collection */}
         <section className="w-full py-16 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4">
-            <div className="text-center">
+            <div className="text-center max-w-2xl mx-auto">
               <h2 className="text-3xl font-bold text-gray-900 inline-block pb-2 border-b-2 border-[#a555f0]">
-                Our Signature Collection
+                {signatureTitle}
               </h2>
+              {signatureSubtitle ? (
+                <p className="text-gray-600 mt-4">{signatureSubtitle}</p>
+              ) : null}
             </div>
             {featuredProducts.length > 0 ? (
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mt-10">
@@ -376,130 +363,110 @@ function Landing() {
         {/* The Art of Veloura */}
         <section className="w-full py-20 bg-white">
           <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="relative w-full h-[400px] lg:h-[500px] rounded-3xl overflow-hidden bg-gradient-to-br from-[#52277a]/20 via-gray-200 to-[#a555f0]/20 shadow-xl" />
+            <div
+              className="relative w-full h-[400px] lg:h-[500px] rounded-3xl overflow-hidden bg-gradient-to-br from-[#52277a]/20 via-gray-200 to-[#a555f0]/20 shadow-xl bg-cover bg-center"
+              style={artImage ? { backgroundImage: `url(${artImage})` } : undefined}
+            />
             <div>
-              <p className="uppercase tracking-widest text-[#a555f0] text-sm font-semibold">
-                Luxury in Every Drop
-              </p>
-              <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mt-2">
-                The Art of Veloura
-              </h2>
-              <p className="text-gray-600 leading-relaxed mt-4">
-                Crafted with high-concentration fragrance oils, each Veloura
-                scent unfolds in deliberate layers — opening bright, settling
-                into warmth, and lingering long after the day ends. We obsess
-                over staying power and silage so you don't have to, delivering
-                a true luxury experience at a price that respects you.
-              </p>
-              <button className="mt-6 px-8 py-3 rounded-xl border-2 border-[#52277a] text-[#52277a] hover:bg-[#52277a] hover:text-white transition-colors font-semibold">
-                Discover Our Story
-              </button>
+              {artEyebrow ? (
+                <p className="uppercase tracking-widest text-[#a555f0] text-sm font-semibold">
+                  {artEyebrow}
+                </p>
+              ) : null}
+              <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mt-2">{artTitle}</h2>
+              <p className="text-gray-600 leading-relaxed mt-4 whitespace-pre-line">{artBody}</p>
+              {artButtonLabel ? (
+                <a
+                  href={artButtonLink || "#"}
+                  className="mt-6 inline-block px-8 py-3 rounded-xl border-2 border-[#52277a] text-[#52277a] hover:bg-[#52277a] hover:text-white transition-colors font-semibold"
+                >
+                  {artButtonLabel}
+                </a>
+              ) : null}
             </div>
           </div>
         </section>
 
         {/* Discover by Scent Profile */}
-        <section className="w-full py-16 bg-gray-50">
-          <div className="max-w-7xl mx-auto px-4">
-            <div className="text-center max-w-2xl mx-auto">
-              <h2 className="text-3xl font-bold text-gray-900">
-                Discover Your Signature Note
-              </h2>
-              <p className="text-gray-600 mt-3">
-                Find the fragrance family that speaks to you — from sunlit
-                florals to deep, lingering woods.
-              </p>
+        {notes.length > 0 ? (
+          <section className="w-full py-16 bg-gray-50">
+            <div className="max-w-7xl mx-auto px-4">
+              <div className="text-center max-w-2xl mx-auto">
+                <h2 className="text-3xl font-bold text-gray-900">{notesTitle}</h2>
+                {notesSubtitle ? <p className="text-gray-600 mt-3">{notesSubtitle}</p> : null}
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
+                {notes.map((c) => (
+                  <a
+                    key={c.title}
+                    href={c.link || "#"}
+                    className={`relative h-80 rounded-2xl overflow-hidden group cursor-pointer bg-gradient-to-br ${c.gradient}`}
+                  >
+                    <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors" />
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-white px-4">
+                      <h3 className="text-2xl font-bold tracking-wide">{c.title}</h3>
+                      <span className="mt-4 px-5 py-2 rounded-lg border border-white/70 text-sm font-semibold opacity-90 group-hover:opacity-100 group-hover:bg-white group-hover:text-[#52277a] transition">
+                        Shop Category
+                      </span>
+                    </div>
+                  </a>
+                ))}
+              </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
-              {[
-                { title: "Fresh & Floral", gradient: "from-pink-300 to-purple-300" },
-                { title: "Deep & Woody", gradient: "from-amber-700 to-stone-800" },
-                { title: "Sweet & Oriental", gradient: "from-orange-400 to-[#52277a]" },
-              ].map((c) => (
-                <div
-                  key={c.title}
-                  className={`relative h-80 rounded-2xl overflow-hidden group cursor-pointer bg-gradient-to-br ${c.gradient}`}
-                >
-                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors" />
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-white px-4">
-                    <h3 className="text-2xl font-bold tracking-wide">{c.title}</h3>
-                    <button className="mt-4 px-5 py-2 rounded-lg border border-white/70 text-sm font-semibold opacity-90 group-hover:opacity-100 group-hover:bg-white group-hover:text-[#52277a] transition">
-                      Shop Category
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+          </section>
+        ) : null}
 
         {/* Customer Whispers */}
-        <section className="w-full py-16 bg-white">
-          <div className="max-w-7xl mx-auto px-4">
-            <div className="text-center">
-              <h2 className="text-3xl font-bold text-gray-900">Customer Whispers</h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-10">
-              {[
-                {
-                  quote:
-                    "It lasts all day and gets me compliments every single time. Absolute favorite.",
-                  name: "Ayesha R.",
-                  tag: "Verified Buyer · Summer Combo",
-                },
-                {
-                  quote:
-                    "Smells expensive in the best way. I've already reordered twice.",
-                  name: "Tanvir H.",
-                  tag: "Verified Buyer · Velvet Oud",
-                },
-                {
-                  quote:
-                    "The packaging, the scent, the staying power — every detail feels premium.",
-                  name: "Nadia K.",
-                  tag: "Verified Buyer · Rose Nuit",
-                },
-              ].map((t) => (
-                <div key={t.name} className="p-8 rounded-2xl bg-gray-50 border border-gray-100">
-                  <div className="text-[#fbc02d] text-lg mb-4">★★★★★</div>
-                  <p className="text-gray-600 italic mb-6">"{t.quote}"</p>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-semibold text-gray-900">{t.name}</span>
-                    <span className="text-xs px-3 py-1 rounded-full bg-[#52277a]/10 text-[#52277a] font-medium">
-                      {t.tag}
-                    </span>
+        {whispers.length > 0 ? (
+          <section className="w-full py-16 bg-white">
+            <div className="max-w-7xl mx-auto px-4">
+              <div className="text-center">
+                <h2 className="text-3xl font-bold text-gray-900">{whispersTitle}</h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-10">
+                {whispers.map((t, i) => (
+                  <div key={`${t.name}-${i}`} className="p-8 rounded-2xl bg-gray-50 border border-gray-100">
+                    <div className="text-[#fbc02d] text-lg mb-4">★★★★★</div>
+                    <p className="text-gray-600 italic mb-6">"{t.quote}"</p>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-semibold text-gray-900">{t.name}</span>
+                      {t.tag ? (
+                        <span className="text-xs px-3 py-1 rounded-full bg-[#52277a]/10 text-[#52277a] font-medium">
+                          {t.tag}
+                        </span>
+                      ) : null}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        ) : null}
 
         {/* Frequently Asked Questions */}
-        <section className="w-full py-16 bg-gray-50" aria-labelledby="faq-heading">
-          <div className="max-w-3xl mx-auto px-4">
-            <div className="text-center mb-10">
-              <h2 id="faq-heading" className="text-3xl font-bold text-gray-900 inline-block pb-2 border-b-2 border-[#a555f0]">
-                Frequently Asked Questions
-              </h2>
-              <p className="text-gray-600 mt-4">
-                Everything you need to know about Veloura Essence fragrances, shipping, and care.
-              </p>
+        {faqs.length > 0 ? (
+          <section className="w-full py-16 bg-gray-50" aria-labelledby="faq-heading">
+            <div className="max-w-3xl mx-auto px-4">
+              <div className="text-center mb-10">
+                <h2 id="faq-heading" className="text-3xl font-bold text-gray-900 inline-block pb-2 border-b-2 border-[#a555f0]">
+                  {faqsTitle}
+                </h2>
+              </div>
+              <Accordion type="single" collapsible className="w-full">
+                {faqs.map((f, i) => (
+                  <AccordionItem key={`${f.q}-${i}`} value={`faq-${i}`} className="border-b border-gray-200">
+                    <AccordionTrigger className="text-left text-gray-900 font-semibold hover:text-[#52277a]">
+                      {f.q}
+                    </AccordionTrigger>
+                    <AccordionContent className="text-gray-600 leading-relaxed">
+                      {f.a}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
             </div>
-            <Accordion type="single" collapsible className="w-full">
-              {HOMEPAGE_FAQS.map((f, i) => (
-                <AccordionItem key={f.q} value={`faq-${i}`} className="border-b border-gray-200">
-                  <AccordionTrigger className="text-left text-gray-900 font-semibold hover:text-[#52277a]">
-                    {f.q}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-gray-600 leading-relaxed">
-                    {f.a}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </div>
-        </section>
+          </section>
+        ) : null}
       </main>
 
       <SiteFooter />
