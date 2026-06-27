@@ -237,13 +237,14 @@ function HomepagePage() {
               <div className="rounded-lg border flex items-center justify-center bg-muted h-64 overflow-hidden">
                 {heroImageUrl ? <img src={heroImageUrl} alt="Hero" className="max-h-full max-w-full object-contain" /> : <span className="text-xs text-muted-foreground">No image</span>}
               </div>
-              <div className="flex gap-2">
-                <Input value={heroImageUrl} onChange={(e) => setHeroImageUrl(e.target.value)} placeholder="Image URL" className="flex-1" />
+              <div className="flex flex-wrap gap-2">
+                <Input value={heroImageUrl} onChange={(e) => setHeroImageUrl(e.target.value)} placeholder="Image URL" className="flex-1 min-w-[200px]" />
                 <label className="inline-flex items-center gap-1 cursor-pointer rounded-md border px-3 py-2 text-sm hover:bg-muted">
                   {uploading === "hero" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
                   <span>Upload</span>
                   <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f, "hero"); e.target.value = ""; }} />
                 </label>
+                <MediaPicker onPick={setHeroImageUrl} />
               </div>
             </div>
 
