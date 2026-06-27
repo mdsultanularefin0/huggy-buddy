@@ -69,9 +69,7 @@ const heroSettingsQuery = queryOptions({
   queryFn: async () => {
     const { data, error } = await supabase
       .from("site_settings")
-      .select(
-        "hero_image, hero_overlay_image, marquee_text, homepage_category_ids, flash_timer_title, flash_timer_enabled, flash_timer_auto_reset, flash_timer_duration_days, timer_reset_date",
-      )
+      .select("*")
       .limit(1)
       .maybeSingle();
     if (error) throw error;
