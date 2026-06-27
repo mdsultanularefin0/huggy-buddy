@@ -15,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { uploadImage } from "@/lib/upload";
@@ -134,159 +135,199 @@ function HomepagePage() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-3xl font-semibold tracking-tight">Homepage</h1>
-        <p className="text-muted-foreground mt-1">Customize the homepage hero section.</p>
-      </div>
-
-      <Card className="p-6 space-y-4 shadow-card">
-        <div className="space-y-2">
-          <Label>Hero image (left container)</Label>
-          <div className="rounded-lg border flex items-center justify-center bg-muted h-64 overflow-hidden">
-            {heroImageUrl ? (
-              <img src={heroImageUrl} alt="Hero" className="max-h-full max-w-full object-contain" />
-            ) : (
-              <span className="text-xs text-muted-foreground">No image</span>
-            )}
-          </div>
-          <div className="flex gap-2">
-            <Input value={heroImageUrl} onChange={(e) => setHeroImageUrl(e.target.value)} placeholder="Image URL" className="flex-1" />
-            <label className="inline-flex items-center gap-1 cursor-pointer rounded-md border px-3 py-2 text-sm hover:bg-muted">
-              {uploading === "hero" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-              <span>Upload</span>
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f, "hero"); e.target.value = ""; }}
-              />
-            </label>
-          </div>
-          <p className="text-xs text-muted-foreground">Portrait 3:4 recommended. Shown in the left hero container on the homepage.</p>
-        </div>
-
-        <div className="space-y-2">
-          <Label>Hero overlay image (transparent layer on top)</Label>
-          <div className="rounded-lg border flex items-center justify-center bg-[conic-gradient(at_top_left,_#eee_25%,_#fff_0,_#fff_50%,_#eee_0,_#eee_75%,_#fff_0)] bg-[length:16px_16px] h-64 overflow-hidden">
-            {heroOverlayUrl ? (
-              <img src={heroOverlayUrl} alt="Hero overlay" className="max-h-full max-w-full object-contain" />
-            ) : (
-              <span className="text-xs text-muted-foreground">No overlay</span>
-            )}
-          </div>
-          <div className="flex gap-2">
-            <Input value={heroOverlayUrl} onChange={(e) => setHeroOverlayUrl(e.target.value)} placeholder="Overlay image URL" className="flex-1" />
-            <label className="inline-flex items-center gap-1 cursor-pointer rounded-md border px-3 py-2 text-sm hover:bg-muted">
-              {uploading === "overlay" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-              <span>Upload</span>
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f, "overlay"); e.target.value = ""; }}
-              />
-            </label>
-          </div>
-        </div>
-      </Card>
-
-      <Card className="p-6 space-y-3 shadow-card">
+      <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-lg font-semibold">Homepage categories</h2>
-          <p className="text-xs text-muted-foreground">Pick up to 4 categories shown in the hero grid. Leave a slot empty for "Coming soon".</p>
+          <h1 className="text-3xl font-semibold tracking-tight">Homepage</h1>
+          <p className="text-muted-foreground mt-1">Customize each section of the homepage.</p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {catIds.map((id, i) => (
-            <div key={i} className="space-y-1">
-              <Label className="text-xs">Slot {i + 1}</Label>
-              <Select value={id ?? NONE} onValueChange={(v) => setSlot(i, v)}>
-                <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={NONE}>— Empty —</SelectItem>
-                  {categories.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>
-                      {c.name}{!c.is_active ? " (inactive)" : ""}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          ))}
-        </div>
-      </Card>
-
-      <Card className="p-6 space-y-3 shadow-card">
-        <div>
-          <h2 className="text-lg font-semibold">Marquee banner</h2>
-          <p className="text-xs text-muted-foreground">Scrolling text shown across the hero divider.</p>
-        </div>
-        <Textarea value={marqueeText} onChange={(e) => setMarqueeText(e.target.value)} rows={2} placeholder="Banner text" />
-      </Card>
-
-      <Card className="p-6 space-y-4 shadow-card">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-lg font-semibold">Flash sale timer</h2>
-            <p className="text-xs text-muted-foreground">Counts down to the end date. When auto-reset is on, it restarts for the chosen number of days.</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Label htmlFor="flash-enabled" className="text-sm">Enabled</Label>
-            <Switch id="flash-enabled" checked={flashEnabled} onCheckedChange={setFlashEnabled} />
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label>Title</Label>
-          <Input value={flashTitle} onChange={(e) => setFlashTitle(e.target.value)} placeholder="Flash Sale! Up to 200Tk Off!" />
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="space-y-2">
-            <Label>End date & time</Label>
-            <Input type="datetime-local" value={timerEndLocal} onChange={(e) => setTimerEndLocal(e.target.value)} />
-          </div>
-          <div className="space-y-2">
-            <Label>Duration (days)</Label>
-            <Input
-              type="number"
-              min={1}
-              value={durationDays}
-              onChange={(e) => setDurationDays(Number(e.target.value) || 1)}
-            />
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between rounded-md border p-3">
-          <div>
-            <Label htmlFor="auto-reset" className="text-sm">Auto reset</Label>
-            <p className="text-xs text-muted-foreground">When the timer hits zero, automatically restart for the duration above (default 7 days).</p>
-          </div>
-          <Switch id="auto-reset" checked={autoReset} onCheckedChange={setAutoReset} />
-        </div>
-
-        <div className="flex gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              const end = new Date(Date.now() + (durationDays || 7) * 86_400_000);
-              const pad = (n: number) => String(n).padStart(2, "0");
-              setTimerEndLocal(
-                `${end.getFullYear()}-${pad(end.getMonth() + 1)}-${pad(end.getDate())}T${pad(end.getHours())}:${pad(end.getMinutes())}`,
-              );
-            }}
-          >
-            Set end to now + {durationDays || 7} days
-          </Button>
-        </div>
-      </Card>
-
-      <div className="flex justify-end">
         <Button variant="luxe" onClick={() => save.mutate()} disabled={save.isPending}>
           {save.isPending && <Loader2 className="w-4 h-4 animate-spin mr-1" />}Save
         </Button>
       </div>
+
+      <Tabs defaultValue="hero" className="w-full">
+        <TabsList className="grid grid-cols-3 sm:grid-cols-6 w-full h-auto">
+          <TabsTrigger value="hero">Hero</TabsTrigger>
+          <TabsTrigger value="banner">Banner</TabsTrigger>
+          <TabsTrigger value="signature">Signature</TabsTrigger>
+          <TabsTrigger value="timer">Timer</TabsTrigger>
+          <TabsTrigger value="notes">Notes</TabsTrigger>
+          <TabsTrigger value="whispers">Whispers</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="hero" className="mt-4">
+          <Card className="p-6 space-y-4 shadow-card">
+            <div className="space-y-2">
+              <Label>Hero image (left container)</Label>
+              <div className="rounded-lg border flex items-center justify-center bg-muted h-64 overflow-hidden">
+                {heroImageUrl ? (
+                  <img src={heroImageUrl} alt="Hero" className="max-h-full max-w-full object-contain" />
+                ) : (
+                  <span className="text-xs text-muted-foreground">No image</span>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <Input value={heroImageUrl} onChange={(e) => setHeroImageUrl(e.target.value)} placeholder="Image URL" className="flex-1" />
+                <label className="inline-flex items-center gap-1 cursor-pointer rounded-md border px-3 py-2 text-sm hover:bg-muted">
+                  {uploading === "hero" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                  <span>Upload</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f, "hero"); e.target.value = ""; }}
+                  />
+                </label>
+              </div>
+              <p className="text-xs text-muted-foreground">Portrait 3:4 recommended. Shown in the left hero container.</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Hero overlay image (transparent layer on top)</Label>
+              <div className="rounded-lg border flex items-center justify-center bg-[conic-gradient(at_top_left,_#eee_25%,_#fff_0,_#fff_50%,_#eee_0,_#eee_75%,_#fff_0)] bg-[length:16px_16px] h-64 overflow-hidden">
+                {heroOverlayUrl ? (
+                  <img src={heroOverlayUrl} alt="Hero overlay" className="max-h-full max-w-full object-contain" />
+                ) : (
+                  <span className="text-xs text-muted-foreground">No overlay</span>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <Input value={heroOverlayUrl} onChange={(e) => setHeroOverlayUrl(e.target.value)} placeholder="Overlay image URL" className="flex-1" />
+                <label className="inline-flex items-center gap-1 cursor-pointer rounded-md border px-3 py-2 text-sm hover:bg-muted">
+                  {uploading === "overlay" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                  <span>Upload</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f, "overlay"); e.target.value = ""; }}
+                  />
+                </label>
+              </div>
+            </div>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="banner" className="mt-4">
+          <Card className="p-6 space-y-3 shadow-card">
+            <div>
+              <h2 className="text-lg font-semibold">Marquee banner</h2>
+              <p className="text-xs text-muted-foreground">Scrolling text shown across the hero divider.</p>
+            </div>
+            <Textarea value={marqueeText} onChange={(e) => setMarqueeText(e.target.value)} rows={3} placeholder="Banner text" />
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="signature" className="mt-4">
+          <Card className="p-6 space-y-3 shadow-card">
+            <div>
+              <h2 className="text-lg font-semibold">Signature collection categories</h2>
+              <p className="text-xs text-muted-foreground">Pick up to 4 categories shown in the hero grid. Leave a slot empty for "Coming soon".</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {catIds.map((id, i) => (
+                <div key={i} className="space-y-1">
+                  <Label className="text-xs">Slot {i + 1}</Label>
+                  <Select value={id ?? NONE} onValueChange={(v) => setSlot(i, v)}>
+                    <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={NONE}>— Empty —</SelectItem>
+                      {categories.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>
+                          {c.name}{!c.is_active ? " (inactive)" : ""}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="timer" className="mt-4">
+          <Card className="p-6 space-y-4 shadow-card">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-semibold">Flash sale timer</h2>
+                <p className="text-xs text-muted-foreground">Counts down to the end date. When auto-reset is on, it restarts for the chosen number of days.</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="flash-enabled" className="text-sm">Enabled</Label>
+                <Switch id="flash-enabled" checked={flashEnabled} onCheckedChange={setFlashEnabled} />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Title</Label>
+              <Input value={flashTitle} onChange={(e) => setFlashTitle(e.target.value)} placeholder="Flash Sale! Up to 200Tk Off!" />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>End date & time</Label>
+                <Input type="datetime-local" value={timerEndLocal} onChange={(e) => setTimerEndLocal(e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label>Duration (days)</Label>
+                <Input
+                  type="number"
+                  min={1}
+                  value={durationDays}
+                  onChange={(e) => setDurationDays(Number(e.target.value) || 1)}
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between rounded-md border p-3">
+              <div>
+                <Label htmlFor="auto-reset" className="text-sm">Auto reset</Label>
+                <p className="text-xs text-muted-foreground">When the timer hits zero, automatically restart for the duration above (default 7 days).</p>
+              </div>
+              <Switch id="auto-reset" checked={autoReset} onCheckedChange={setAutoReset} />
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const end = new Date(Date.now() + (durationDays || 7) * 86_400_000);
+                  const pad = (n: number) => String(n).padStart(2, "0");
+                  setTimerEndLocal(
+                    `${end.getFullYear()}-${pad(end.getMonth() + 1)}-${pad(end.getDate())}T${pad(end.getHours())}:${pad(end.getMinutes())}`,
+                  );
+                }}
+              >
+                Set end to now + {durationDays || 7} days
+              </Button>
+            </div>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="notes" className="mt-4">
+          <Card className="p-6 space-y-2 shadow-card">
+            <h2 className="text-lg font-semibold">Scent notes section</h2>
+            <p className="text-sm text-muted-foreground">
+              The "Discover Your Signature Note" section currently shows three preset profiles
+              (Fresh &amp; Floral, Deep &amp; Woody, Sweet &amp; Oriental). Tell us what you'd
+              like to customize here — titles, gradients, linked categories — and we'll wire it
+              up to the database.
+            </p>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="whispers" className="mt-4">
+          <Card className="p-6 space-y-2 shadow-card">
+            <h2 className="text-lg font-semibold">Customer whispers</h2>
+            <p className="text-sm text-muted-foreground">
+              The testimonials section is currently static. We can add a "testimonials" table so
+              you can add, edit and reorder customer quotes here. Confirm and we'll set it up.
+            </p>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
