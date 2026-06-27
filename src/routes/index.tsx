@@ -350,27 +350,22 @@ function Landing() {
                 Our Signature Collection
               </h2>
             </div>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mt-10">
-              {[
-                { name: "Velvet Oud", price: "৳1,490" },
-                { name: "Rose Nuit", price: "৳1,290" },
-                { name: "Amber Reverie", price: "৳1,590" },
-                { name: "Citrine Bloom", price: "৳1,190" },
-              ].map((p) => (
-                <div
-                  key={p.name}
-                  className="bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all overflow-hidden flex flex-col"
-                >
-                  <div className="aspect-[4/5] bg-gray-200 rounded-t-2xl object-cover" />
-                  <div className="p-4 text-center">
-                    <h3 className="font-semibold text-gray-800">{p.name}</h3>
-                    <p className="text-[#52277a] font-bold mt-1">{p.price}</p>
-                    <button className="w-full bg-[#52277a] text-white rounded-lg py-2 mt-3 hover:bg-[#3f1d5f] transition-colors">
-                      Add to Cart
-                    </button>
-                  </div>
-                </div>
-              ))}
+            {featuredProducts.length > 0 ? (
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mt-10">
+                {featuredProducts.map((p) => (
+                  <ProductCard key={p.id} product={p} />
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-gray-500 mt-10">New scents arriving soon.</p>
+            )}
+            <div className="text-center mt-10">
+              <Link
+                to="/products"
+                className="inline-block px-8 py-3 rounded-xl border-2 border-[#52277a] text-[#52277a] hover:bg-[#52277a] hover:text-white transition-colors font-semibold"
+              >
+                View All Fragrances
+              </Link>
             </div>
           </div>
         </section>
