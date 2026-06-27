@@ -137,6 +137,7 @@ function HomepagePage() {
         hero_image: heroImageUrl || null,
         hero_overlay_image: heroOverlayUrl || null,
         marquee_text: marqueeText,
+        banner_image: bannerImage || null,
         flash_timer_title: flashTitle,
         flash_timer_enabled: flashEnabled,
         flash_timer_auto_reset: autoReset,
@@ -145,6 +146,8 @@ function HomepagePage() {
         homepage_category_ids: catIds.filter((id): id is string => Boolean(id)),
         signature_title: signatureTitle,
         signature_subtitle: signatureSubtitle,
+        signature_image: signatureImage || null,
+
         art_eyebrow: artEyebrow,
         art_title: artTitle,
         art_body: artBody,
