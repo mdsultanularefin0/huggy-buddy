@@ -298,13 +298,31 @@ function HomepagePage() {
         </TabsContent>
 
         {/* BANNER */}
-        <TabsContent value="banner" className="mt-4">
+        <TabsContent value="banner" className="mt-4 space-y-4">
           <Card className="p-6 space-y-3 shadow-card">
             <div>
               <h2 className="text-lg font-semibold">Marquee banner</h2>
               <p className="text-xs text-muted-foreground">Scrolling text shown across the hero divider.</p>
             </div>
             <Textarea value={marqueeText} onChange={(e) => setMarqueeText(e.target.value)} rows={3} placeholder="Banner text" />
+          </Card>
+          <Card className="p-6 space-y-3 shadow-card">
+            <div>
+              <h2 className="text-lg font-semibold">Banner background image</h2>
+              <p className="text-xs text-muted-foreground">Optional — replaces the gradient behind the marquee.</p>
+            </div>
+            <div className="rounded-lg border flex items-center justify-center bg-muted h-40 overflow-hidden">
+              {bannerImage ? <img src={bannerImage} alt="Banner" className="max-h-full max-w-full object-contain" /> : <span className="text-xs text-muted-foreground">No image</span>}
+            </div>
+            <div className="flex gap-2">
+              <Input value={bannerImage} onChange={(e) => setBannerImage(e.target.value)} placeholder="Image URL" className="flex-1" />
+              <label className="inline-flex items-center gap-1 cursor-pointer rounded-md border px-3 py-2 text-sm hover:bg-muted">
+                {uploading === "banner" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                <span>Upload</span>
+                <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f, "banner"); e.target.value = ""; }} />
+              </label>
+              {bannerImage ? <Button variant="ghost" size="sm" onClick={() => setBannerImage("")}>Clear</Button> : null}
+            </div>
           </Card>
         </TabsContent>
 
@@ -320,7 +338,23 @@ function HomepagePage() {
               <Label>Subtitle</Label>
               <Textarea value={signatureSubtitle} onChange={(e) => setSignatureSubtitle(e.target.value)} rows={2} />
             </div>
+            <div className="space-y-2">
+              <Label>Background image</Label>
+              <div className="rounded-lg border flex items-center justify-center bg-muted h-40 overflow-hidden">
+                {signatureImage ? <img src={signatureImage} alt="Signature" className="max-h-full max-w-full object-contain" /> : <span className="text-xs text-muted-foreground">No image</span>}
+              </div>
+              <div className="flex gap-2">
+                <Input value={signatureImage} onChange={(e) => setSignatureImage(e.target.value)} placeholder="Image URL" className="flex-1" />
+                <label className="inline-flex items-center gap-1 cursor-pointer rounded-md border px-3 py-2 text-sm hover:bg-muted">
+                  {uploading === "signature" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                  <span>Upload</span>
+                  <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f, "signature"); e.target.value = ""; }} />
+                </label>
+                {signatureImage ? <Button variant="ghost" size="sm" onClick={() => setSignatureImage("")}>Clear</Button> : null}
+              </div>
+            </div>
           </Card>
+
           <Card className="p-6 space-y-3 shadow-card">
             <div>
               <h2 className="text-lg font-semibold">Hero category slots</h2>
