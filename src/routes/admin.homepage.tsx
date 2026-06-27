@@ -253,13 +253,14 @@ function HomepagePage() {
               <div className="rounded-lg border flex items-center justify-center bg-[conic-gradient(at_top_left,_#eee_25%,_#fff_0,_#fff_50%,_#eee_0,_#eee_75%,_#fff_0)] bg-[length:16px_16px] h-64 overflow-hidden">
                 {heroOverlayUrl ? <img src={heroOverlayUrl} alt="Hero overlay" className="max-h-full max-w-full object-contain" /> : <span className="text-xs text-muted-foreground">No overlay</span>}
               </div>
-              <div className="flex gap-2">
-                <Input value={heroOverlayUrl} onChange={(e) => setHeroOverlayUrl(e.target.value)} placeholder="Overlay URL" className="flex-1" />
+              <div className="flex flex-wrap gap-2">
+                <Input value={heroOverlayUrl} onChange={(e) => setHeroOverlayUrl(e.target.value)} placeholder="Overlay URL" className="flex-1 min-w-[200px]" />
                 <label className="inline-flex items-center gap-1 cursor-pointer rounded-md border px-3 py-2 text-sm hover:bg-muted">
                   {uploading === "overlay" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
                   <span>Upload</span>
                   <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f, "overlay"); e.target.value = ""; }} />
                 </label>
+                <MediaPicker onPick={setHeroOverlayUrl} />
               </div>
             </div>
           </Card>
