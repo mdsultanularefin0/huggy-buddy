@@ -15,6 +15,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { ProductReviews } from "@/components/product-reviews";
 
 type Size = { size_label: string; price: number; sale_price?: number | null };
 type Product = {
@@ -212,6 +213,7 @@ function ProductPage() {
           </Accordion>
         </div>
       </div>
+      <ProductReviews productId={product.id} />
       <SiteFooter />
       <CartDrawer />
     </div>
