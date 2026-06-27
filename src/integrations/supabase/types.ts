@@ -425,6 +425,7 @@ export type Database = {
           art_eyebrow: string | null
           art_image: string | null
           art_title: string | null
+          banner_image: string | null
           cta_band_button_label: string | null
           cta_band_button_link: string | null
           cta_band_text: string | null
@@ -466,6 +467,7 @@ export type Database = {
           shop_name: string | null
           shop_phone: string | null
           shop_tagline: string | null
+          signature_image: string | null
           signature_subtitle: string | null
           signature_title: string | null
           site_icon_url: string | null
@@ -488,6 +490,7 @@ export type Database = {
           art_eyebrow?: string | null
           art_image?: string | null
           art_title?: string | null
+          banner_image?: string | null
           cta_band_button_label?: string | null
           cta_band_button_link?: string | null
           cta_band_text?: string | null
@@ -529,6 +532,7 @@ export type Database = {
           shop_name?: string | null
           shop_phone?: string | null
           shop_tagline?: string | null
+          signature_image?: string | null
           signature_subtitle?: string | null
           signature_title?: string | null
           site_icon_url?: string | null
@@ -551,6 +555,7 @@ export type Database = {
           art_eyebrow?: string | null
           art_image?: string | null
           art_title?: string | null
+          banner_image?: string | null
           cta_band_button_label?: string | null
           cta_band_button_link?: string | null
           cta_band_text?: string | null
@@ -592,6 +597,7 @@ export type Database = {
           shop_name?: string | null
           shop_phone?: string | null
           shop_tagline?: string | null
+          signature_image?: string | null
           signature_subtitle?: string | null
           signature_title?: string | null
           site_icon_url?: string | null

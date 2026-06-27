@@ -43,6 +43,7 @@ function HomepagePage() {
   const [heroOverlayUrl, setHeroOverlayUrl] = useState("");
   // Banner
   const [marqueeText, setMarqueeText] = useState("");
+  const [bannerImage, setBannerImage] = useState("");
   // Timer
   const [flashTitle, setFlashTitle] = useState("");
   const [flashEnabled, setFlashEnabled] = useState(true);
@@ -53,6 +54,7 @@ function HomepagePage() {
   const [catIds, setCatIds] = useState<(string | null)[]>([null, null, null, null]);
   const [signatureTitle, setSignatureTitle] = useState("");
   const [signatureSubtitle, setSignatureSubtitle] = useState("");
+  const [signatureImage, setSignatureImage] = useState("");
   // Art of Veloura
   const [artEyebrow, setArtEyebrow] = useState("");
   const [artTitle, setArtTitle] = useState("");
@@ -71,7 +73,9 @@ function HomepagePage() {
   const [faqsTitle, setFaqsTitle] = useState("");
   const [faqs, setFaqs] = useState<Faq[]>([]);
 
-  const [uploading, setUploading] = useState<null | "hero" | "overlay" | "art">(null);
+  type UploadKind = "hero" | "overlay" | "art" | "banner" | "signature";
+  const [uploading, setUploading] = useState<null | UploadKind>(null);
+
 
   const { data: settings, isLoading } = useQuery({
     queryKey: ["admin", "site_settings"],
@@ -100,6 +104,7 @@ function HomepagePage() {
     setHeroImageUrl((s.hero_image as string) ?? "");
     setHeroOverlayUrl((s.hero_overlay_image as string) ?? "");
     setMarqueeText((s.marquee_text as string) ?? "");
+    setBannerImage((s.banner_image as string) ?? "");
     setFlashTitle((s.flash_timer_title as string) ?? "");
     setFlashEnabled((s.flash_timer_enabled as boolean) ?? true);
     setAutoReset((s.flash_timer_auto_reset as boolean) ?? false);
@@ -109,6 +114,8 @@ function HomepagePage() {
     setCatIds([0, 1, 2, 3].map((i) => ids[i] ?? null));
     setSignatureTitle((s.signature_title as string) ?? "");
     setSignatureSubtitle((s.signature_subtitle as string) ?? "");
+    setSignatureImage((s.signature_image as string) ?? "");
+
     setArtEyebrow((s.art_eyebrow as string) ?? "");
     setArtTitle((s.art_title as string) ?? "");
     setArtBody((s.art_body as string) ?? "");
@@ -130,6 +137,7 @@ function HomepagePage() {
         hero_image: heroImageUrl || null,
         hero_overlay_image: heroOverlayUrl || null,
         marquee_text: marqueeText,
+        banner_image: bannerImage || null,
         flash_timer_title: flashTitle,
         flash_timer_enabled: flashEnabled,
         flash_timer_auto_reset: autoReset,
@@ -138,6 +146,8 @@ function HomepagePage() {
         homepage_category_ids: catIds.filter((id): id is string => Boolean(id)),
         signature_title: signatureTitle,
         signature_subtitle: signatureSubtitle,
+        signature_image: signatureImage || null,
+
         art_eyebrow: artEyebrow,
         art_title: artTitle,
         art_body: artBody,
@@ -169,13 +179,15 @@ function HomepagePage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  async function handleUpload(file: File, kind: "hero" | "overlay" | "art") {
+  async function handleUpload(file: File, kind: UploadKind) {
     try {
       setUploading(kind);
       const url = await uploadImage("hero-images", file);
       if (kind === "hero") setHeroImageUrl(url);
       else if (kind === "overlay") setHeroOverlayUrl(url);
-      else setArtImage(url);
+      else if (kind === "art") setArtImage(url);
+      else if (kind === "banner") setBannerImage(url);
+      else if (kind === "signature") setSignatureImage(url);
       toast.success("Image uploaded — click Save to apply");
     } catch (e) {
       toast.error((e as Error).message);
@@ -183,6 +195,7 @@ function HomepagePage() {
       setUploading(null);
     }
   }
+
 
   function setSlot(i: number, value: string) {
     setCatIds((prev) => prev.map((v, idx) => (idx === i ? (value === NONE ? null : value) : v)));
@@ -285,13 +298,31 @@ function HomepagePage() {
         </TabsContent>
 
         {/* BANNER */}
-        <TabsContent value="banner" className="mt-4">
+        <TabsContent value="banner" className="mt-4 space-y-4">
           <Card className="p-6 space-y-3 shadow-card">
             <div>
               <h2 className="text-lg font-semibold">Marquee banner</h2>
               <p className="text-xs text-muted-foreground">Scrolling text shown across the hero divider.</p>
             </div>
             <Textarea value={marqueeText} onChange={(e) => setMarqueeText(e.target.value)} rows={3} placeholder="Banner text" />
+          </Card>
+          <Card className="p-6 space-y-3 shadow-card">
+            <div>
+              <h2 className="text-lg font-semibold">Banner background image</h2>
+              <p className="text-xs text-muted-foreground">Optional — replaces the gradient behind the marquee.</p>
+            </div>
+            <div className="rounded-lg border flex items-center justify-center bg-muted h-40 overflow-hidden">
+              {bannerImage ? <img src={bannerImage} alt="Banner" className="max-h-full max-w-full object-contain" /> : <span className="text-xs text-muted-foreground">No image</span>}
+            </div>
+            <div className="flex gap-2">
+              <Input value={bannerImage} onChange={(e) => setBannerImage(e.target.value)} placeholder="Image URL" className="flex-1" />
+              <label className="inline-flex items-center gap-1 cursor-pointer rounded-md border px-3 py-2 text-sm hover:bg-muted">
+                {uploading === "banner" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                <span>Upload</span>
+                <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f, "banner"); e.target.value = ""; }} />
+              </label>
+              {bannerImage ? <Button variant="ghost" size="sm" onClick={() => setBannerImage("")}>Clear</Button> : null}
+            </div>
           </Card>
         </TabsContent>
 
@@ -307,7 +338,23 @@ function HomepagePage() {
               <Label>Subtitle</Label>
               <Textarea value={signatureSubtitle} onChange={(e) => setSignatureSubtitle(e.target.value)} rows={2} />
             </div>
+            <div className="space-y-2">
+              <Label>Background image</Label>
+              <div className="rounded-lg border flex items-center justify-center bg-muted h-40 overflow-hidden">
+                {signatureImage ? <img src={signatureImage} alt="Signature" className="max-h-full max-w-full object-contain" /> : <span className="text-xs text-muted-foreground">No image</span>}
+              </div>
+              <div className="flex gap-2">
+                <Input value={signatureImage} onChange={(e) => setSignatureImage(e.target.value)} placeholder="Image URL" className="flex-1" />
+                <label className="inline-flex items-center gap-1 cursor-pointer rounded-md border px-3 py-2 text-sm hover:bg-muted">
+                  {uploading === "signature" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                  <span>Upload</span>
+                  <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f, "signature"); e.target.value = ""; }} />
+                </label>
+                {signatureImage ? <Button variant="ghost" size="sm" onClick={() => setSignatureImage("")}>Clear</Button> : null}
+              </div>
+            </div>
           </Card>
+
           <Card className="p-6 space-y-3 shadow-card">
             <div>
               <h2 className="text-lg font-semibold">Hero category slots</h2>

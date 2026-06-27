@@ -161,6 +161,9 @@ function Landing() {
   const artButtonLabel = (h.art_button_label as string) || "";
   const artButtonLink = (h.art_button_link as string) || "";
   const artImage = (h.art_image as string) || null;
+  const bannerImage = (h.banner_image as string) || null;
+  const signatureImage = (h.signature_image as string) || null;
+
   const notesTitle = (h.notes_title as string) || "Discover Your Signature Note";
   const notesSubtitle = (h.notes_subtitle as string) || "";
   const notes = ((h.notes_json as Note[] | null) ?? []) as Note[];
@@ -278,7 +281,10 @@ function Landing() {
   ) : null;
 
   const marquee = (
-    <div className="relative z-20 w-full -mt-32 sm:-mt-40 lg:-mt-48 bg-gradient-to-r from-[#a555f0] to-[#52277a] text-white py-1.5 overflow-hidden shadow-lg">
+    <div
+      className="relative z-20 w-full -mt-32 sm:-mt-40 lg:-mt-48 bg-gradient-to-r from-[#a555f0] to-[#52277a] text-white py-1.5 overflow-hidden shadow-lg bg-cover bg-center"
+      style={bannerImage ? { backgroundImage: `url(${bannerImage})` } : undefined}
+    >
       <div className="marquee-track text-xs sm:text-sm font-medium tracking-wide">
         {marqueeItems.map((t, i) => (
           <span key={i} className="px-8 inline-flex items-center gap-8">
@@ -289,6 +295,7 @@ function Landing() {
       </div>
     </div>
   );
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -330,7 +337,11 @@ function Landing() {
         </div>
 
         {/* Signature Collection */}
-        <section className="w-full py-16 bg-gray-50">
+        <section
+          className="w-full py-16 bg-gray-50 bg-cover bg-center"
+          style={signatureImage ? { backgroundImage: `url(${signatureImage})` } : undefined}
+        >
+
           <div className="max-w-7xl mx-auto px-4">
             <div className="text-center max-w-2xl mx-auto">
               <h2 className="text-3xl font-bold text-gray-900 inline-block pb-2 border-b-2 border-[#a555f0]">
