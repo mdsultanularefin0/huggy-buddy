@@ -337,7 +337,11 @@ function Landing() {
         </div>
 
         {/* Signature Collection */}
-        <section className="w-full py-16 bg-gray-50">
+        <section
+          className="w-full py-16 bg-gray-50 bg-cover bg-center"
+          style={signatureImage ? { backgroundImage: `url(${signatureImage})` } : undefined}
+        >
+
           <div className="max-w-7xl mx-auto px-4">
             <div className="text-center max-w-2xl mx-auto">
               <h2 className="text-3xl font-bold text-gray-900 inline-block pb-2 border-b-2 border-[#a555f0]">
