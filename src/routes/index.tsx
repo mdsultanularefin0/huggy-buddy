@@ -356,7 +356,7 @@ function Landing() {
             {featuredProducts.length > 0 ? (
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mt-10">
                 {featuredProducts.map((p) => (
-                  <ProductCard key={p.id} product={p} />
+                  <ProductCard key={p.id} product={p as never} />
                 ))}
               </div>
             ) : (
