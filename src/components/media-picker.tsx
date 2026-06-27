@@ -25,7 +25,9 @@ export function MediaPicker({ onPick, label = "Library" }: { onPick: (url: strin
       if (names.length === 0) return [];
       const { data: signed, error: signErr } = await supabase.storage.from(BUCKET).createSignedUrls(names, SIGN_TTL);
       if (signErr) throw signErr;
-      return (signed ?? []).map((s, i) => ({ name: names[i], url: s.signedUrl }));
+      return (signed ?? [])
+        .map((s, i) => ({ name: names[i], url: s.signedUrl }))
+        .filter((m): m is MediaItem => !!m.url);
     },
   });
 
