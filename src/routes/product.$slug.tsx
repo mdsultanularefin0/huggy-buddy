@@ -213,8 +213,6 @@ function ProductPage() {
           </Accordion>
         </div>
       </div>
-        </div>
-      </div>
       <ProductReviews productId={product.id} />
       <SiteFooter />
       <CartDrawer />
