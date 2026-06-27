@@ -152,6 +152,23 @@ function Landing() {
   const heroImage = hero?.hero_image ?? null;
   const heroOverlay = hero?.hero_overlay_image ?? null;
 
+  const h = (hero ?? {}) as Record<string, unknown>;
+  const signatureTitle = (h.signature_title as string) || "Our Signature Collection";
+  const signatureSubtitle = (h.signature_subtitle as string) || "";
+  const artEyebrow = (h.art_eyebrow as string) || "";
+  const artTitle = (h.art_title as string) || "The Art of Veloura";
+  const artBody = (h.art_body as string) || "";
+  const artButtonLabel = (h.art_button_label as string) || "";
+  const artButtonLink = (h.art_button_link as string) || "";
+  const artImage = (h.art_image as string) || null;
+  const notesTitle = (h.notes_title as string) || "Discover Your Signature Note";
+  const notesSubtitle = (h.notes_subtitle as string) || "";
+  const notes = ((h.notes_json as Note[] | null) ?? []) as Note[];
+  const whispersTitle = (h.whispers_title as string) || "Customer Whispers";
+  const whispers = ((h.whispers_json as Whisper[] | null) ?? []) as Whisper[];
+  const faqsTitle = (h.faqs_title as string) || "Frequently Asked Questions";
+  const faqs = ((h.faqs_json as Faq[] | null) ?? []) as Faq[];
+
   const marqueeText = (hero?.marquee_text ?? "Free shipping over ₹999 · New arrivals every week · Premium fragrances handcrafted").trim();
   const marqueeItems = Array.from({ length: 8 }, () => marqueeText);
 
