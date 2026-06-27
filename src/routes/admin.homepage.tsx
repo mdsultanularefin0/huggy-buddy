@@ -179,13 +179,15 @@ function HomepagePage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  async function handleUpload(file: File, kind: "hero" | "overlay" | "art") {
+  async function handleUpload(file: File, kind: UploadKind) {
     try {
       setUploading(kind);
       const url = await uploadImage("hero-images", file);
       if (kind === "hero") setHeroImageUrl(url);
       else if (kind === "overlay") setHeroOverlayUrl(url);
-      else setArtImage(url);
+      else if (kind === "art") setArtImage(url);
+      else if (kind === "banner") setBannerImage(url);
+      else if (kind === "signature") setSignatureImage(url);
       toast.success("Image uploaded — click Save to apply");
     } catch (e) {
       toast.error((e as Error).message);
@@ -193,6 +195,7 @@ function HomepagePage() {
       setUploading(null);
     }
   }
+
 
   function setSlot(i: number, value: string) {
     setCatIds((prev) => prev.map((v, idx) => (idx === i ? (value === NONE ? null : value) : v)));
