@@ -104,6 +104,7 @@ function HomepagePage() {
     setHeroImageUrl((s.hero_image as string) ?? "");
     setHeroOverlayUrl((s.hero_overlay_image as string) ?? "");
     setMarqueeText((s.marquee_text as string) ?? "");
+    setBannerImage((s.banner_image as string) ?? "");
     setFlashTitle((s.flash_timer_title as string) ?? "");
     setFlashEnabled((s.flash_timer_enabled as boolean) ?? true);
     setAutoReset((s.flash_timer_auto_reset as boolean) ?? false);
@@ -113,6 +114,8 @@ function HomepagePage() {
     setCatIds([0, 1, 2, 3].map((i) => ids[i] ?? null));
     setSignatureTitle((s.signature_title as string) ?? "");
     setSignatureSubtitle((s.signature_subtitle as string) ?? "");
+    setSignatureImage((s.signature_image as string) ?? "");
+
     setArtEyebrow((s.art_eyebrow as string) ?? "");
     setArtTitle((s.art_title as string) ?? "");
     setArtBody((s.art_body as string) ?? "");
