@@ -419,9 +419,17 @@ export type Database = {
       }
       site_settings: {
         Row: {
+          art_body: string | null
+          art_button_label: string | null
+          art_button_link: string | null
+          art_eyebrow: string | null
+          art_image: string | null
+          art_title: string | null
           cta_band_button_label: string | null
           cta_band_button_link: string | null
           cta_band_text: string | null
+          faqs_json: Json | null
+          faqs_title: string | null
           flash_timer_auto_reset: boolean
           flash_timer_duration_days: number
           flash_timer_enabled: boolean
@@ -449,12 +457,17 @@ export type Database = {
           homepage_category_ids: string[]
           id: string
           marquee_text: string
+          notes_json: Json | null
+          notes_subtitle: string | null
+          notes_title: string | null
           shop_address: string | null
           shop_email: string | null
           shop_hours: string | null
           shop_name: string | null
           shop_phone: string | null
           shop_tagline: string | null
+          signature_subtitle: string | null
+          signature_title: string | null
           site_icon_url: string | null
           site_logo_url: string | null
           social_facebook: string | null
@@ -465,11 +478,21 @@ export type Database = {
           social_youtube: string | null
           timer_reset_date: string
           updated_at: string
+          whispers_json: Json | null
+          whispers_title: string | null
         }
         Insert: {
+          art_body?: string | null
+          art_button_label?: string | null
+          art_button_link?: string | null
+          art_eyebrow?: string | null
+          art_image?: string | null
+          art_title?: string | null
           cta_band_button_label?: string | null
           cta_band_button_link?: string | null
           cta_band_text?: string | null
+          faqs_json?: Json | null
+          faqs_title?: string | null
           flash_timer_auto_reset?: boolean
           flash_timer_duration_days?: number
           flash_timer_enabled?: boolean
@@ -497,12 +520,17 @@ export type Database = {
           homepage_category_ids?: string[]
           id?: string
           marquee_text?: string
+          notes_json?: Json | null
+          notes_subtitle?: string | null
+          notes_title?: string | null
           shop_address?: string | null
           shop_email?: string | null
           shop_hours?: string | null
           shop_name?: string | null
           shop_phone?: string | null
           shop_tagline?: string | null
+          signature_subtitle?: string | null
+          signature_title?: string | null
           site_icon_url?: string | null
           site_logo_url?: string | null
           social_facebook?: string | null
@@ -513,11 +541,21 @@ export type Database = {
           social_youtube?: string | null
           timer_reset_date?: string
           updated_at?: string
+          whispers_json?: Json | null
+          whispers_title?: string | null
         }
         Update: {
+          art_body?: string | null
+          art_button_label?: string | null
+          art_button_link?: string | null
+          art_eyebrow?: string | null
+          art_image?: string | null
+          art_title?: string | null
           cta_band_button_label?: string | null
           cta_band_button_link?: string | null
           cta_band_text?: string | null
+          faqs_json?: Json | null
+          faqs_title?: string | null
           flash_timer_auto_reset?: boolean
           flash_timer_duration_days?: number
           flash_timer_enabled?: boolean
@@ -545,12 +583,17 @@ export type Database = {
           homepage_category_ids?: string[]
           id?: string
           marquee_text?: string
+          notes_json?: Json | null
+          notes_subtitle?: string | null
+          notes_title?: string | null
           shop_address?: string | null
           shop_email?: string | null
           shop_hours?: string | null
           shop_name?: string | null
           shop_phone?: string | null
           shop_tagline?: string | null
+          signature_subtitle?: string | null
+          signature_title?: string | null
           site_icon_url?: string | null
           site_logo_url?: string | null
           social_facebook?: string | null
@@ -561,6 +604,8 @@ export type Database = {
           social_youtube?: string | null
           timer_reset_date?: string
           updated_at?: string
+          whispers_json?: Json | null
+          whispers_title?: string | null
         }
         Relationships: []
       }
