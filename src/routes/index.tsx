@@ -142,6 +142,7 @@ export const Route = createFileRoute("/")({
   loader: ({ context }) => Promise.all([
     context.queryClient.ensureQueryData(categoriesQuery),
     context.queryClient.ensureQueryData(heroSettingsQuery),
+    context.queryClient.ensureQueryData(featuredProductsQuery),
   ]),
   component: Landing,
   errorComponent: ({ error }) => <div className="p-8 text-center text-destructive">{error.message}</div>,
