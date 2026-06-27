@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as ReviewsRouteImport } from './routes/reviews'
 import { Route as ProductsRouteImport } from './routes/products'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -37,6 +38,11 @@ import { Route as AdminAuditLogsRouteImport } from './routes/admin.audit-logs'
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReviewsRoute = ReviewsRouteImport.update({
+  id: '/reviews',
+  path: '/reviews',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProductsRoute = ProductsRouteImport.update({
@@ -163,6 +169,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/privacy': typeof PrivacyRoute
   '/products': typeof ProductsRoute
+  '/reviews': typeof ReviewsRoute
   '/terms': typeof TermsRoute
   '/admin/audit-logs': typeof AdminAuditLogsRoute
   '/admin/categories': typeof AdminCategoriesRoute
@@ -188,6 +195,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/privacy': typeof PrivacyRoute
   '/products': typeof ProductsRoute
+  '/reviews': typeof ReviewsRoute
   '/terms': typeof TermsRoute
   '/admin/audit-logs': typeof AdminAuditLogsRoute
   '/admin/categories': typeof AdminCategoriesRoute
@@ -215,6 +223,7 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/privacy': typeof PrivacyRoute
   '/products': typeof ProductsRoute
+  '/reviews': typeof ReviewsRoute
   '/terms': typeof TermsRoute
   '/admin/audit-logs': typeof AdminAuditLogsRoute
   '/admin/categories': typeof AdminCategoriesRoute
@@ -243,6 +252,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/privacy'
     | '/products'
+    | '/reviews'
     | '/terms'
     | '/admin/audit-logs'
     | '/admin/categories'
@@ -268,6 +278,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/privacy'
     | '/products'
+    | '/reviews'
     | '/terms'
     | '/admin/audit-logs'
     | '/admin/categories'
@@ -294,6 +305,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/privacy'
     | '/products'
+    | '/reviews'
     | '/terms'
     | '/admin/audit-logs'
     | '/admin/categories'
@@ -321,6 +333,7 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   PrivacyRoute: typeof PrivacyRoute
   ProductsRoute: typeof ProductsRoute
+  ReviewsRoute: typeof ReviewsRoute
   TermsRoute: typeof TermsRoute
   CategorySlugRoute: typeof CategorySlugRoute
   ComboIdRoute: typeof ComboIdRoute
@@ -335,6 +348,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reviews': {
+      id: '/reviews'
+      path: '/reviews'
+      fullPath: '/reviews'
+      preLoaderRoute: typeof ReviewsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/products': {
@@ -541,6 +561,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   PrivacyRoute: PrivacyRoute,
   ProductsRoute: ProductsRoute,
+  ReviewsRoute: ReviewsRoute,
   TermsRoute: TermsRoute,
   CategorySlugRoute: CategorySlugRoute,
   ComboIdRoute: ComboIdRoute,
