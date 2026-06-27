@@ -43,6 +43,7 @@ function HomepagePage() {
   const [heroOverlayUrl, setHeroOverlayUrl] = useState("");
   // Banner
   const [marqueeText, setMarqueeText] = useState("");
+  const [bannerImage, setBannerImage] = useState("");
   // Timer
   const [flashTitle, setFlashTitle] = useState("");
   const [flashEnabled, setFlashEnabled] = useState(true);
@@ -53,6 +54,7 @@ function HomepagePage() {
   const [catIds, setCatIds] = useState<(string | null)[]>([null, null, null, null]);
   const [signatureTitle, setSignatureTitle] = useState("");
   const [signatureSubtitle, setSignatureSubtitle] = useState("");
+  const [signatureImage, setSignatureImage] = useState("");
   // Art of Veloura
   const [artEyebrow, setArtEyebrow] = useState("");
   const [artTitle, setArtTitle] = useState("");
@@ -71,7 +73,9 @@ function HomepagePage() {
   const [faqsTitle, setFaqsTitle] = useState("");
   const [faqs, setFaqs] = useState<Faq[]>([]);
 
-  const [uploading, setUploading] = useState<null | "hero" | "overlay" | "art">(null);
+  type UploadKind = "hero" | "overlay" | "art" | "banner" | "signature";
+  const [uploading, setUploading] = useState<null | UploadKind>(null);
+
 
   const { data: settings, isLoading } = useQuery({
     queryKey: ["admin", "site_settings"],
