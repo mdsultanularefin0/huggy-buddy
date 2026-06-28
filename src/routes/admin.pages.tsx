@@ -302,15 +302,14 @@ function PageEditor({ page, onSaved }: { page: Page; onSaved: () => void }) {
 
   const save = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase
-        .from("site_pages")
-        .update({
+      await saveSitePage({
+        data: {
+          slug: page.slug,
           title: title.trim() || page.slug,
           meta_description: metaDesc.trim() || null,
           content,
-        })
-        .eq("slug", page.slug);
-      if (error) throw error;
+        },
+      });
     },
     onSuccess: () => {
       toast.success("Page saved");
