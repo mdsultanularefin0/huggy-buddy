@@ -491,24 +491,35 @@ function Landing() {
           </section>
         ) : null}
 
-        {/* Customer Whispers */}
-        {whispers.length > 0 ? (
+        {/* Customer Whispers — top-rated product reviews */}
+        {whisperReviews.length > 0 ? (
           <section className="w-full py-16 bg-white">
             <div className="max-w-7xl mx-auto px-4">
               <div className="text-center">
                 <h2 className="text-3xl font-bold text-gray-900">{whispersTitle}</h2>
+                <p className="text-sm text-gray-500 mt-2">
+                  Real reviews from verified customers.{" "}
+                  <Link to="/reviews" className="text-[#52277a] underline">See all</Link>
+                </p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-10">
-                {whispers.map((t, i) => (
-                  <div key={`${t.name}-${i}`} className="p-8 rounded-2xl bg-gray-50 border border-gray-100">
-                    <div className="text-[#fbc02d] text-lg mb-4">★★★★★</div>
-                    <p className="text-gray-600 italic mb-6">"{t.quote}"</p>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-semibold text-gray-900">{t.name}</span>
-                      {t.tag ? (
-                        <span className="text-xs px-3 py-1 rounded-full bg-[#52277a]/10 text-[#52277a] font-medium">
-                          {t.tag}
-                        </span>
+                {whisperReviews.map((r) => (
+                  <div key={r.id} className="p-8 rounded-2xl bg-gray-50 border border-gray-100 flex flex-col">
+                    <div className="text-[#fbc02d] text-lg mb-3" aria-label={`${r.rating} out of 5`}>
+                      {"★".repeat(r.rating)}{"☆".repeat(5 - r.rating)}
+                    </div>
+                    {r.title ? <p className="font-semibold text-gray-900 mb-1">{r.title}</p> : null}
+                    {r.body ? <p className="text-gray-600 italic mb-6 line-clamp-5">"{r.body}"</p> : <div className="mb-6" />}
+                    <div className="mt-auto flex items-center gap-2 flex-wrap">
+                      <span className="font-semibold text-gray-900">{r.author_name}</span>
+                      {r.products ? (
+                        <Link
+                          to="/product/$slug"
+                          params={{ slug: r.products.slug }}
+                          className="text-xs px-3 py-1 rounded-full bg-[#52277a]/10 text-[#52277a] font-medium hover:bg-[#52277a]/20"
+                        >
+                          {r.products.name}
+                        </Link>
                       ) : null}
                     </div>
                   </div>
@@ -517,6 +528,55 @@ function Landing() {
             </div>
           </section>
         ) : null}
+
+        {/* Reels — 9:16 embeds */}
+        {reelsEnabled && reels.length > 0 ? (
+          <section className="w-full py-16 bg-gray-50">
+            <div className="max-w-7xl mx-auto px-4">
+              <div className="text-center mb-10">
+                <h2 className="text-3xl font-bold text-gray-900 inline-block pb-2 border-b-2 border-[#a555f0]">
+                  {reelsTitle}
+                </h2>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                {reels.map((r, i) => {
+                  const src = reelEmbedSrc(r.url);
+                  const TileInner = (
+                    <div className="relative w-full aspect-[9/16] rounded-2xl overflow-hidden bg-black shadow-lg group">
+                      {src ? (
+                        <iframe
+                          src={src}
+                          title={r.caption || `Reel ${i + 1}`}
+                          loading="lazy"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          allowFullScreen
+                          className="absolute inset-0 w-full h-full border-0"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center text-white/70 text-xs px-3 text-center">
+                          Unsupported URL
+                        </div>
+                      )}
+                      {r.caption ? (
+                        <div className="pointer-events-none absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/70 to-transparent text-white text-xs sm:text-sm px-3 py-2">
+                          {r.caption}
+                        </div>
+                      ) : null}
+                    </div>
+                  );
+                  return r.link ? (
+                    <a key={i} href={r.link} target="_blank" rel="noopener noreferrer" className="block">
+                      {TileInner}
+                    </a>
+                  ) : (
+                    <div key={i}>{TileInner}</div>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+        ) : null}
+
 
         {/* Frequently Asked Questions */}
         {faqsEnabled && faqs.length > 0 ? (
