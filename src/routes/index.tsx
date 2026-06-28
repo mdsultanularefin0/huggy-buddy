@@ -171,6 +171,8 @@ function Landing() {
   const whispers = ((h.whispers_json as Whisper[] | null) ?? []) as Whisper[];
   const faqsTitle = (h.faqs_title as string) || "Frequently Asked Questions";
   const faqs = ((h.faqs_json as Faq[] | null) ?? []) as Faq[];
+  const faqsEnabled = (h.faqs_enabled as boolean | undefined) ?? true;
+
 
   const marqueeText = (hero?.marquee_text ?? "Free shipping over ₹999 · New arrivals every week · Premium fragrances handcrafted").trim();
   const marqueeItems = Array.from({ length: 8 }, () => marqueeText);
