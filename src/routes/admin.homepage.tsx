@@ -135,6 +135,7 @@ function HomepagePage() {
 
   const save = useMutation({
     mutationFn: async () => {
+      const cleanFaqs = await saveFaqs({ data: { faqs_title: faqsTitle, faqs } });
       const payload = {
         hero_image: heroImageUrl || null,
         hero_overlay_image: heroOverlayUrl || null,
