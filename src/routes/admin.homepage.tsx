@@ -228,7 +228,7 @@ function HomepagePage() {
           <TabsTrigger value="art">Art</TabsTrigger>
           <TabsTrigger value="notes">Notes</TabsTrigger>
           <TabsTrigger value="whispers">Whispers</TabsTrigger>
-          <TabsTrigger value="faqs">FAQs</TabsTrigger>
+          
         </TabsList>
 
         {/* HERO */}
