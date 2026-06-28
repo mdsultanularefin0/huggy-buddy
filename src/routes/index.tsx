@@ -13,9 +13,54 @@ import {
 } from "@/components/ui/accordion";
 import { supabase } from "@/integrations/supabase/client";
 
-type Whisper = { quote: string; name: string; tag?: string };
 type Faq = { q: string; a: string };
 type Note = { title: string; gradient: string; link?: string };
+type Reel = { url: string; caption?: string; link?: string };
+
+type WhisperReview = {
+  id: string;
+  rating: number;
+  title: string | null;
+  body: string | null;
+  author_name: string;
+  created_at: string;
+  products: { slug: string; name: string } | null;
+};
+
+function reelEmbedSrc(url: string): string | null {
+  if (!url) return null;
+  try {
+    const u = new URL(url);
+    const host = u.hostname.replace(/^www\./, "");
+    // YouTube Shorts / watch / youtu.be
+    if (host === "youtu.be") {
+      const id = u.pathname.slice(1);
+      return id ? `https://www.youtube.com/embed/${id}` : null;
+    }
+    if (host.endsWith("youtube.com")) {
+      const shortsMatch = u.pathname.match(/^\/shorts\/([^/]+)/);
+      if (shortsMatch) return `https://www.youtube.com/embed/${shortsMatch[1]}`;
+      const v = u.searchParams.get("v");
+      if (v) return `https://www.youtube.com/embed/${v}`;
+      return null;
+    }
+    // TikTok video
+    if (host.endsWith("tiktok.com")) {
+      const m = u.pathname.match(/\/video\/(\d+)/);
+      if (m) return `https://www.tiktok.com/embed/v2/${m[1]}`;
+      return null;
+    }
+    // Instagram reel / post
+    if (host.endsWith("instagram.com")) {
+      const m = u.pathname.match(/\/(reel|p|tv)\/([^/]+)/);
+      if (m) return `https://www.instagram.com/${m[1]}/${m[2]}/embed`;
+      return null;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
 
 
 const categoriesQuery = queryOptions({
@@ -55,6 +100,20 @@ const heroSettingsQuery = queryOptions({
       .maybeSingle();
     if (error) throw error;
     return data;
+  },
+});
+
+const whisperReviewsQuery = queryOptions({
+  queryKey: ["public", "reviews", "whispers"],
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from("product_reviews")
+      .select("id,rating,title,body,author_name,created_at,products(slug,name)")
+      .gte("rating", 4)
+      .order("created_at", { ascending: false })
+      .limit(6);
+    if (error) throw error;
+    return (data ?? []) as unknown as WhisperReview[];
   },
 });
 
