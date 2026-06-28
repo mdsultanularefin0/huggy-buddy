@@ -447,6 +447,8 @@ function Landing() {
         ) : null}
 
 
+        {signatureEnabled ? (
+        <>
         {/* Signature Collection */}
         <section
           className="w-full py-16 bg-gray-50 bg-cover bg-center"
@@ -482,6 +484,11 @@ function Landing() {
           </div>
         </section>
 
+        </>
+        ) : null}
+
+        {artEnabled ? (
+        <>
         {/* The Art of Veloura */}
         <section className="w-full py-20 bg-white">
           <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -508,9 +515,11 @@ function Landing() {
             </div>
           </div>
         </section>
+        </>
+        ) : null}
 
         {/* Discover by Scent Profile */}
-        {notes.length > 0 ? (
+        {notesEnabled && notes.length > 0 ? (
           <section className="w-full py-16 bg-gray-50">
             <div className="max-w-7xl mx-auto px-4">
               <div className="text-center max-w-2xl mx-auto">
@@ -539,7 +548,7 @@ function Landing() {
         ) : null}
 
         {/* Customer Whispers — custom + top-rated product reviews */}
-        {whisperCards.length > 0 ? (
+        {whispersEnabled && whisperCards.length > 0 ? (
           <section className="w-full py-16 bg-white">
             <div className="max-w-7xl mx-auto px-4">
               <div className="text-center">
