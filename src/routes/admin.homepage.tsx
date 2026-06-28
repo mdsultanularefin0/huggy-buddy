@@ -168,6 +168,8 @@ function HomepagePage() {
         whispers_json: whispers,
         faqs_title: cleanFaqs.faqs_title,
         faqs_json: cleanFaqs.faqs_json,
+        faqs_enabled: faqsEnabled,
+
       };
       if (settings?.id) {
         const { error } = await supabase.from("site_settings").update(payload).eq("id", settings.id);
