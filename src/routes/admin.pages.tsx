@@ -81,8 +81,7 @@ function AdminPages() {
 
   const deletePage = useMutation({
     mutationFn: async (slug: string) => {
-      const { error } = await supabase.from("site_pages").delete().eq("slug", slug);
-      if (error) throw error;
+      await deleteSitePage({ data: { slug } });
     },
     onSuccess: (_d, slug) => {
       toast.success("Page deleted");
