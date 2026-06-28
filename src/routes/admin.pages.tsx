@@ -23,9 +23,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Trash2, Pencil, ExternalLink } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Plus, Trash2, Pencil, ExternalLink, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { HtmlEditor } from "@/components/html-editor";
+
 
 export const Route = createFileRoute("/admin/pages")({
   head: () => ({ meta: [{ title: "Pages — Admin" }, { name: "robots", content: "noindex" }] }),
