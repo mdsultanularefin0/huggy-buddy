@@ -234,13 +234,14 @@ function HomepagePage() {
       </div>
 
       <Tabs defaultValue="hero" className="w-full">
-        <TabsList className="grid grid-cols-3 sm:grid-cols-7 w-full h-auto">
+        <TabsList className="grid grid-cols-3 sm:grid-cols-8 w-full h-auto">
           <TabsTrigger value="hero">Hero</TabsTrigger>
           <TabsTrigger value="banner">Banner</TabsTrigger>
           <TabsTrigger value="signature">Signature</TabsTrigger>
           <TabsTrigger value="art">Art</TabsTrigger>
           <TabsTrigger value="notes">Notes</TabsTrigger>
           <TabsTrigger value="whispers">Whispers</TabsTrigger>
+          <TabsTrigger value="reels">Reels</TabsTrigger>
           <TabsTrigger value="faq">FAQ</TabsTrigger>
         </TabsList>
 
