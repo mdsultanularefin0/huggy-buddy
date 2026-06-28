@@ -525,7 +525,23 @@ function HomepagePage() {
             ))}
           </Card>
         </TabsContent>
+
+        {/* FAQ */}
+        <TabsContent value="faq" className="mt-4 space-y-4">
+          <Card className="p-6 space-y-3 shadow-card">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-semibold">FAQ on homepage</h2>
+                <p className="text-xs text-muted-foreground">
+                  Toggle whether the FAQ section appears on the homepage. Edit the questions in Pages → FAQ.
+                </p>
+              </div>
+              <Switch checked={faqsEnabled} onCheckedChange={setFaqsEnabled} />
+            </div>
+          </Card>
+        </TabsContent>
       </Tabs>
+
     </div>
   );
 }
