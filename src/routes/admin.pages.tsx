@@ -27,6 +27,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Plus, Trash2, Pencil, ExternalLink, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { HtmlEditor } from "@/components/html-editor";
+import { saveSitePage, deleteSitePage } from "@/lib/content.functions";
 
 
 export const Route = createFileRoute("/admin/pages")({
