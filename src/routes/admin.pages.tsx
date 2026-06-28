@@ -27,7 +27,9 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Plus, Trash2, Pencil, ExternalLink, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { HtmlEditor } from "@/components/html-editor";
+import { FaqEditor } from "@/components/faq-editor";
 import { saveSitePage, deleteSitePage } from "@/lib/content.functions";
+import { HelpCircle } from "lucide-react";
 
 
 export const Route = createFileRoute("/admin/pages")({
@@ -108,13 +110,28 @@ function AdminPages() {
 
       {isLoading ? (
         <p className="text-sm text-muted-foreground">Loading…</p>
-      ) : pages.length === 0 ? (
-        <div className="border rounded-xl p-8 text-center text-sm text-muted-foreground">
-          No pages yet. Click <strong>New page</strong> to create one.
-        </div>
       ) : (
         <div className="grid lg:grid-cols-[260px_1fr] gap-6">
           <aside className="space-y-1">
+            <button
+              type="button"
+              onClick={() => setSelectedSlug("__faq__")}
+              className={`w-full flex items-center gap-2 rounded-md border px-3 py-2 text-sm text-left ${
+                selectedSlug === "__faq__" ? "bg-muted border-primary/40" : "bg-background"
+              }`}
+            >
+              <HelpCircle className="h-4 w-4 text-[#a555f0]" />
+              <div className="flex-1 truncate">
+                <div className="font-medium truncate">FAQ</div>
+                <div className="text-xs text-muted-foreground truncate">/faq · homepage section</div>
+              </div>
+            </button>
+            <div className="h-px bg-border my-2" />
+            {pages.length === 0 ? (
+              <p className="text-xs text-muted-foreground px-1 py-2">
+                No custom pages yet.
+              </p>
+            ) : null}
             {pages.map((p) => (
               <div
                 key={p.slug}
@@ -154,7 +171,9 @@ function AdminPages() {
           </aside>
 
           <div>
-            {selected ? (
+            {selectedSlug === "__faq__" ? (
+              <FaqEditor />
+            ) : selected ? (
               <PageEditor key={selected.slug} page={selected} onSaved={invalidate} />
             ) : (
               <p className="text-sm text-muted-foreground">Select a page to edit.</p>
