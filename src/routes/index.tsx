@@ -622,39 +622,6 @@ function Landing() {
               >
                 <CarouselContent className="-ml-3 sm:-ml-4 touch-pan-y">
                   {reels.map((r, i) => {
-                    const direct = isDirectVideo(r.url);
-                    const src = direct ? null : reelEmbedSrc(r.url);
-                    const TileInner = (
-                      <div className="relative w-full aspect-[9/16] rounded-2xl overflow-hidden bg-black shadow-lg">
-                        {direct ? (
-                          <video
-                            src={r.url}
-                            controls
-                            playsInline
-                            preload="metadata"
-                            className="absolute inset-0 w-full h-full object-cover bg-black"
-                          />
-                        ) : src ? (
-                          <iframe
-                            src={src}
-                            title={r.caption || `Reel ${i + 1}`}
-                            loading="lazy"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                            allowFullScreen
-                            className="absolute inset-0 w-full h-full border-0"
-                          />
-                        ) : (
-                          <div className="absolute inset-0 flex items-center justify-center text-white/70 text-xs px-3 text-center">
-                            Unsupported URL
-                          </div>
-                        )}
-                        {r.caption ? (
-                          <div className="pointer-events-none absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/70 to-transparent text-white text-xs sm:text-sm px-3 py-2">
-                            {r.caption}
-                          </div>
-                        ) : null}
-                      </div>
-                    );
                     return (
                       <CarouselItem
                         key={i}
@@ -662,10 +629,10 @@ function Landing() {
                       >
                         {r.link ? (
                           <a href={r.link} target="_blank" rel="noopener noreferrer" className="block">
-                            {TileInner}
+                            <LazyReelTile reel={r} index={i} />
                           </a>
                         ) : (
-                          TileInner
+                          <LazyReelTile reel={r} index={i} />
                         )}
                       </CarouselItem>
                     );
