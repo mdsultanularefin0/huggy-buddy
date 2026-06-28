@@ -603,41 +603,52 @@ function Landing() {
                   {reelsTitle}
                 </h2>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-                {reels.map((r, i) => {
-                  const src = reelEmbedSrc(r.url);
-                  const TileInner = (
-                    <div className="relative w-full aspect-[9/16] rounded-2xl overflow-hidden bg-black shadow-lg group">
-                      {src ? (
-                        <iframe
-                          src={src}
-                          title={r.caption || `Reel ${i + 1}`}
-                          loading="lazy"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                          allowFullScreen
-                          className="absolute inset-0 w-full h-full border-0"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 flex items-center justify-center text-white/70 text-xs px-3 text-center">
-                          Unsupported URL
-                        </div>
-                      )}
-                      {r.caption ? (
-                        <div className="pointer-events-none absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/70 to-transparent text-white text-xs sm:text-sm px-3 py-2">
-                          {r.caption}
-                        </div>
-                      ) : null}
-                    </div>
-                  );
-                  return r.link ? (
-                    <a key={i} href={r.link} target="_blank" rel="noopener noreferrer" className="block">
-                      {TileInner}
-                    </a>
-                  ) : (
-                    <div key={i}>{TileInner}</div>
-                  );
-                })}
-              </div>
+              <Carousel opts={{ align: "start", loop: false }} className="w-full">
+                <CarouselContent className="-ml-4">
+                  {reels.map((r, i) => {
+                    const src = reelEmbedSrc(r.url);
+                    const TileInner = (
+                      <div className="relative w-full aspect-[9/16] rounded-2xl overflow-hidden bg-black shadow-lg group">
+                        {src ? (
+                          <iframe
+                            src={src}
+                            title={r.caption || `Reel ${i + 1}`}
+                            loading="lazy"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            allowFullScreen
+                            className="absolute inset-0 w-full h-full border-0"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center text-white/70 text-xs px-3 text-center">
+                            Unsupported URL
+                          </div>
+                        )}
+                        {r.caption ? (
+                          <div className="pointer-events-none absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/70 to-transparent text-white text-xs sm:text-sm px-3 py-2">
+                            {r.caption}
+                          </div>
+                        ) : null}
+                      </div>
+                    );
+                    return (
+                      <CarouselItem
+                        key={i}
+                        className="pl-4 basis-1/2 sm:basis-1/3 lg:basis-1/4"
+                      >
+                        {r.link ? (
+                          <a href={r.link} target="_blank" rel="noopener noreferrer" className="block">
+                            {TileInner}
+                          </a>
+                        ) : (
+                          TileInner
+                        )}
+                      </CarouselItem>
+                    );
+                  })}
+                </CarouselContent>
+                <CarouselPrevious className="hidden sm:flex -left-4" />
+                <CarouselNext className="hidden sm:flex -right-4" />
+              </Carousel>
             </div>
           </section>
         ) : null}
