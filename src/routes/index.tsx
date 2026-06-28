@@ -196,6 +196,7 @@ function Landing() {
   const { data: hero } = useSuspenseQuery(heroSettingsQuery);
   const { data: featuredProducts = [] } = useSuspenseQuery(featuredProductsQuery);
   const { data: branding } = useQuery(brandingQueryOptions);
+  const { data: whisperReviews = [] } = useQuery(whisperReviewsQuery);
   const footerLogo = branding?.site_logo_url ?? branding?.site_icon_url ?? null;
 
 
@@ -227,7 +228,9 @@ function Landing() {
   const notesSubtitle = (h.notes_subtitle as string) || "";
   const notes = ((h.notes_json as Note[] | null) ?? []) as Note[];
   const whispersTitle = (h.whispers_title as string) || "Customer Whispers";
-  const whispers = ((h.whispers_json as Whisper[] | null) ?? []) as Whisper[];
+  const reelsTitle = (h.reels_title as string) || "From Our Community";
+  const reelsEnabled = (h.reels_enabled as boolean | undefined) ?? true;
+  const reels = ((h.reels_json as Reel[] | null) ?? []) as Reel[];
   const faqsTitle = (h.faqs_title as string) || "Frequently Asked Questions";
   const faqs = ((h.faqs_json as Faq[] | null) ?? []) as Faq[];
   const faqsEnabled = (h.faqs_enabled as boolean | undefined) ?? true;
