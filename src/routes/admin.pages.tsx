@@ -116,18 +116,27 @@ function AdminPages() {
             <button
               type="button"
               onClick={() => setSelectedSlug("__faq__")}
-              className={`w-full flex items-center gap-2 rounded-md border px-3 py-2 text-sm text-left ${
+              className={`w-full flex items-center justify-between rounded-md border px-3 py-2 text-sm ${
                 selectedSlug === "__faq__" ? "bg-muted border-primary/40" : "bg-background"
               }`}
             >
-              <HelpCircle className="h-4 w-4 text-[#a555f0]" />
-              <div className="flex-1 truncate">
+              <div className="flex-1 text-left truncate">
                 <div className="font-medium truncate">FAQ</div>
-                <div className="text-xs text-muted-foreground truncate">/faq · homepage section</div>
+                <div className="text-xs text-muted-foreground truncate">/faq</div>
               </div>
+              <a
+                href="/faq"
+                target="_blank"
+                rel="noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="p-1 rounded hover:bg-accent/20 opacity-60 hover:opacity-100"
+                title="View"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+              </a>
             </button>
-            <div className="h-px bg-border my-2" />
             {pages.length === 0 ? (
+
               <p className="text-xs text-muted-foreground px-1 py-2">
                 No custom pages yet.
               </p>
