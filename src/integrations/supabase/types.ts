@@ -500,6 +500,7 @@ export type Database = {
           cta_band_button_label: string | null
           cta_band_button_link: string | null
           cta_band_text: string | null
+          faqs_enabled: boolean
           faqs_json: Json | null
           faqs_title: string | null
           flash_timer_auto_reset: boolean
@@ -565,6 +566,7 @@ export type Database = {
           cta_band_button_label?: string | null
           cta_band_button_link?: string | null
           cta_band_text?: string | null
+          faqs_enabled?: boolean
           faqs_json?: Json | null
           faqs_title?: string | null
           flash_timer_auto_reset?: boolean
@@ -630,6 +632,7 @@ export type Database = {
           cta_band_button_label?: string | null
           cta_band_button_link?: string | null
           cta_band_text?: string | null
+          faqs_enabled?: boolean
           faqs_json?: Json | null
           faqs_title?: string | null
           flash_timer_auto_reset?: boolean

@@ -171,6 +171,8 @@ function Landing() {
   const whispers = ((h.whispers_json as Whisper[] | null) ?? []) as Whisper[];
   const faqsTitle = (h.faqs_title as string) || "Frequently Asked Questions";
   const faqs = ((h.faqs_json as Faq[] | null) ?? []) as Faq[];
+  const faqsEnabled = (h.faqs_enabled as boolean | undefined) ?? true;
+
 
   const marqueeText = (hero?.marquee_text ?? "Free shipping over ₹999 · New arrivals every week · Premium fragrances handcrafted").trim();
   const marqueeItems = Array.from({ length: 8 }, () => marqueeText);
@@ -455,7 +457,7 @@ function Landing() {
         ) : null}
 
         {/* Frequently Asked Questions */}
-        {faqs.length > 0 ? (
+        {faqsEnabled && faqs.length > 0 ? (
           <section className="w-full py-16 bg-gray-50" aria-labelledby="faq-heading">
             <div className="max-w-3xl mx-auto px-4">
               <div className="text-center mb-10">

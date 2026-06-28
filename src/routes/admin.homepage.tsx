@@ -74,6 +74,8 @@ function HomepagePage() {
   // FAQs
   const [faqsTitle, setFaqsTitle] = useState("");
   const [faqs, setFaqs] = useState<Faq[]>([]);
+  const [faqsEnabled, setFaqsEnabled] = useState(true);
+
 
   type UploadKind = "hero" | "overlay" | "art" | "banner" | "signature";
   const [uploading, setUploading] = useState<null | UploadKind>(null);
@@ -131,7 +133,9 @@ function HomepagePage() {
     setWhispers(((s.whispers_json as Whisper[] | null) ?? []) as Whisper[]);
     setFaqsTitle((s.faqs_title as string) ?? "");
     setFaqs(((s.faqs_json as Faq[] | null) ?? []) as Faq[]);
+    setFaqsEnabled((s.faqs_enabled as boolean) ?? true);
   }, [settings]);
+
 
   const save = useMutation({
     mutationFn: async () => {
@@ -164,6 +168,8 @@ function HomepagePage() {
         whispers_json: whispers,
         faqs_title: cleanFaqs.faqs_title,
         faqs_json: cleanFaqs.faqs_json,
+        faqs_enabled: faqsEnabled,
+
       };
       if (settings?.id) {
         const { error } = await supabase.from("site_settings").update(payload).eq("id", settings.id);
@@ -228,8 +234,9 @@ function HomepagePage() {
           <TabsTrigger value="art">Art</TabsTrigger>
           <TabsTrigger value="notes">Notes</TabsTrigger>
           <TabsTrigger value="whispers">Whispers</TabsTrigger>
-          
+          <TabsTrigger value="faq">FAQ</TabsTrigger>
         </TabsList>
+
 
         {/* HERO */}
         <TabsContent value="hero" className="mt-4 space-y-4">
@@ -518,7 +525,23 @@ function HomepagePage() {
             ))}
           </Card>
         </TabsContent>
+
+        {/* FAQ */}
+        <TabsContent value="faq" className="mt-4 space-y-4">
+          <Card className="p-6 space-y-3 shadow-card">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-semibold">FAQ on homepage</h2>
+                <p className="text-xs text-muted-foreground">
+                  Toggle whether the FAQ section appears on the homepage. Edit the questions in Pages → FAQ.
+                </p>
+              </div>
+              <Switch checked={faqsEnabled} onCheckedChange={setFaqsEnabled} />
+            </div>
+          </Card>
+        </TabsContent>
       </Tabs>
+
     </div>
   );
 }
