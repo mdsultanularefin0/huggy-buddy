@@ -518,42 +518,6 @@ function HomepagePage() {
             ))}
           </Card>
         </TabsContent>
-
-        {/* FAQS */}
-        <TabsContent value="faqs" className="mt-4 space-y-4">
-          <Card className="p-6 space-y-3 shadow-card">
-            <div className="space-y-2">
-              <Label>Section title</Label>
-              <Input value={faqsTitle} onChange={(e) => setFaqsTitle(e.target.value)} />
-            </div>
-          </Card>
-          <Card className="p-6 space-y-3 shadow-card">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold">Questions</h3>
-              <Button size="sm" variant="outline" onClick={() => setFaqs((f) => [...f, { q: "", a: "" }])}>
-                <Plus className="w-4 h-4 mr-1" /> Add
-              </Button>
-            </div>
-            {faqs.length === 0 ? <p className="text-xs text-muted-foreground">No FAQs yet.</p> : null}
-            {faqs.map((f, i) => (
-              <div key={i} className="rounded-md border p-3 space-y-2">
-                <div className="space-y-1">
-                  <Label className="text-xs">Question</Label>
-                  <Input value={f.q} onChange={(e) => setFaqs((arr) => arr.map((x, j) => j === i ? { ...x, q: e.target.value } : x))} />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">Answer</Label>
-                  <Textarea rows={3} value={f.a} onChange={(e) => setFaqs((arr) => arr.map((x, j) => j === i ? { ...x, a: e.target.value } : x))} />
-                </div>
-                <div className="flex justify-end">
-                  <Button size="sm" variant="ghost" onClick={() => setFaqs((arr) => arr.filter((_, j) => j !== i))}>
-                    <Trash2 className="w-4 h-4 mr-1" /> Remove
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </Card>
-        </TabsContent>
       </Tabs>
     </div>
   );
