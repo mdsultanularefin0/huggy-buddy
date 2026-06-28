@@ -46,21 +46,26 @@ type WhisperReview = {
   products: { slug: string; name: string } | null;
 };
 
+function isDirectVideo(url: string): boolean {
+  return /\.(mp4|webm|ogg|mov|m4v)(\?|#|$)/i.test(url);
+}
+
 function reelEmbedSrc(url: string): string | null {
   if (!url) return null;
   try {
     const u = new URL(url);
     const host = u.hostname.replace(/^www\./, "");
-    // YouTube Shorts / watch / youtu.be
+    // YouTube Shorts / watch / youtu.be — playsinline + minimal chrome
+    const ytParams = "?playsinline=1&rel=0&modestbranding=1";
     if (host === "youtu.be") {
       const id = u.pathname.slice(1);
-      return id ? `https://www.youtube.com/embed/${id}` : null;
+      return id ? `https://www.youtube.com/embed/${id}${ytParams}` : null;
     }
     if (host.endsWith("youtube.com")) {
       const shortsMatch = u.pathname.match(/^\/shorts\/([^/]+)/);
-      if (shortsMatch) return `https://www.youtube.com/embed/${shortsMatch[1]}`;
+      if (shortsMatch) return `https://www.youtube.com/embed/${shortsMatch[1]}${ytParams}`;
       const v = u.searchParams.get("v");
-      if (v) return `https://www.youtube.com/embed/${v}`;
+      if (v) return `https://www.youtube.com/embed/${v}${ytParams}`;
       return null;
     }
     // TikTok video
@@ -84,6 +89,7 @@ function reelEmbedSrc(url: string): string | null {
     return null;
   }
 }
+
 
 
 const categoriesQuery = queryOptions({
