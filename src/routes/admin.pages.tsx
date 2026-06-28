@@ -23,9 +23,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Trash2, Pencil, ExternalLink } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Plus, Trash2, Pencil, ExternalLink, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { HtmlEditor } from "@/components/html-editor";
+
 
 export const Route = createFileRoute("/admin/pages")({
   head: () => ({ meta: [{ title: "Pages — Admin" }, { name: "robots", content: "noindex" }] }),
@@ -346,10 +348,42 @@ function PageEditor({ page, onSaved }: { page: Page; onSaved: () => void }) {
 
       <div>
         <Label className="mb-2 block">Content</Label>
-        <HtmlEditor value={content} onChange={setContent} />
-        <p className="mt-2 text-xs text-muted-foreground">
-          Use the toolbar for quick formatting — headings, lists, links, quotes.
-        </p>
+        <Tabs defaultValue="edit" className="w-full">
+          <TabsList>
+            <TabsTrigger value="edit">
+              <Pencil className="h-3.5 w-3.5 mr-1" /> Edit
+            </TabsTrigger>
+            <TabsTrigger value="preview">
+              <Eye className="h-3.5 w-3.5 mr-1" /> Live preview
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="edit" className="mt-3">
+            <HtmlEditor value={content} onChange={setContent} />
+            <p className="mt-2 text-xs text-muted-foreground">
+              Use the toolbar for quick formatting — headings, lists, links, quotes.
+            </p>
+          </TabsContent>
+          <TabsContent value="preview" className="mt-3">
+            <div className="rounded-md border bg-white">
+              <div className="border-b px-4 py-2 text-xs text-muted-foreground bg-muted/40">
+                Public preview · <code>/{page.slug}</code>
+              </div>
+              <div className="max-w-3xl mx-auto py-12 px-4">
+                <h1 className="text-3xl md:text-4xl font-semibold text-center text-[#52277a] mb-10">
+                  {title || page.slug}
+                </h1>
+                {content.trim() ? (
+                  <article
+                    className="prose prose-gray max-w-none prose-headings:text-[#52277a] prose-headings:font-semibold prose-h2:text-xl prose-h2:mt-8 prose-h2:mb-3 prose-a:text-[#a555f0] prose-li:my-1"
+                    dangerouslySetInnerHTML={{ __html: content }}
+                  />
+                ) : (
+                  <p className="text-center text-gray-400 text-sm">Nothing to preview yet.</p>
+                )}
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
