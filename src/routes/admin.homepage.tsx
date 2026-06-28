@@ -29,6 +29,7 @@ const NONE = "__none__";
 type Note = { title: string; gradient: string; link?: string };
 type Faq = { q: string; a: string };
 type Reel = { url: string; caption?: string; link?: string };
+type Whisper = { quote: string; name: string; tag?: string; rating?: number };
 
 function toLocalInput(iso: string | null | undefined): string {
   if (!iso) return "";
@@ -68,8 +69,9 @@ function HomepagePage() {
   const [notesTitle, setNotesTitle] = useState("");
   const [notesSubtitle, setNotesSubtitle] = useState("");
   const [notes, setNotes] = useState<Note[]>([]);
-  // Whispers (title only — items are auto-pulled from top product reviews)
+  // Whispers (title + optional custom items; real product reviews are merged on the homepage)
   const [whispersTitle, setWhispersTitle] = useState("");
+  const [whispers, setWhispers] = useState<Whisper[]>([]);
   // Reels (9:16 embeds)
   const [reelsTitle, setReelsTitle] = useState("");
   const [reelsEnabled, setReelsEnabled] = useState(true);
