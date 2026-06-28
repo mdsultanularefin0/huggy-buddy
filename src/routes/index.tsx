@@ -616,13 +616,25 @@ function Landing() {
                   {reelsTitle}
                 </h2>
               </div>
-              <Carousel opts={{ align: "start", loop: false }} className="w-full">
-                <CarouselContent className="-ml-4">
+              <Carousel
+                opts={{ align: "start", loop: false, dragFree: false, containScroll: "trimSnaps" }}
+                className="w-full"
+              >
+                <CarouselContent className="-ml-3 sm:-ml-4 touch-pan-y">
                   {reels.map((r, i) => {
-                    const src = reelEmbedSrc(r.url);
+                    const direct = isDirectVideo(r.url);
+                    const src = direct ? null : reelEmbedSrc(r.url);
                     const TileInner = (
-                      <div className="relative w-full aspect-[9/16] rounded-2xl overflow-hidden bg-black shadow-lg group">
-                        {src ? (
+                      <div className="relative w-full aspect-[9/16] rounded-2xl overflow-hidden bg-black shadow-lg">
+                        {direct ? (
+                          <video
+                            src={r.url}
+                            controls
+                            playsInline
+                            preload="metadata"
+                            className="absolute inset-0 w-full h-full object-cover bg-black"
+                          />
+                        ) : src ? (
                           <iframe
                             src={src}
                             title={r.caption || `Reel ${i + 1}`}
@@ -646,7 +658,7 @@ function Landing() {
                     return (
                       <CarouselItem
                         key={i}
-                        className="pl-4 basis-1/2 sm:basis-1/3 lg:basis-1/4"
+                        className="pl-3 sm:pl-4 basis-[78%] xs:basis-[60%] sm:basis-1/3 lg:basis-1/4"
                       >
                         {r.link ? (
                           <a href={r.link} target="_blank" rel="noopener noreferrer" className="block">
@@ -662,6 +674,7 @@ function Landing() {
                 <CarouselPrevious className="hidden sm:flex -left-4" />
                 <CarouselNext className="hidden sm:flex -right-4" />
               </Carousel>
+
             </div>
           </section>
         ) : null}
