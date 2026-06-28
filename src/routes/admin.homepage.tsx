@@ -149,6 +149,12 @@ function HomepagePage() {
     setFaqsTitle((s.faqs_title as string) ?? "");
     setFaqs(((s.faqs_json as Faq[] | null) ?? []) as Faq[]);
     setFaqsEnabled((s.faqs_enabled as boolean) ?? true);
+    setHeroEnabled((s.hero_enabled as boolean) ?? true);
+    setBannerEnabled((s.banner_enabled as boolean) ?? true);
+    setSignatureEnabled((s.signature_enabled as boolean) ?? true);
+    setArtEnabled((s.art_enabled as boolean) ?? true);
+    setNotesEnabled((s.notes_enabled as boolean) ?? true);
+    setWhispersEnabled((s.whispers_enabled as boolean) ?? true);
   }, [settings]);
 
 
@@ -194,6 +200,12 @@ function HomepagePage() {
         faqs_title: cleanFaqs.faqs_title,
         faqs_json: cleanFaqs.faqs_json,
         faqs_enabled: faqsEnabled,
+        hero_enabled: heroEnabled,
+        banner_enabled: bannerEnabled,
+        signature_enabled: signatureEnabled,
+        art_enabled: artEnabled,
+        notes_enabled: notesEnabled,
+        whispers_enabled: whispersEnabled,
 
       };
       if (settings?.id) {
