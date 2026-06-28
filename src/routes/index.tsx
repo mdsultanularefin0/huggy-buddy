@@ -16,6 +16,18 @@ import { supabase } from "@/integrations/supabase/client";
 type Faq = { q: string; a: string };
 type Note = { title: string; gradient: string; link?: string };
 type Reel = { url: string; caption?: string; link?: string };
+type CustomWhisper = { quote: string; name: string; tag?: string; rating?: number };
+
+type WhisperCard = {
+  key: string;
+  rating: number;
+  title: string | null;
+  body: string;
+  author: string;
+  productSlug?: string;
+  productName?: string;
+  tag?: string;
+};
 
 type WhisperReview = {
   id: string;
