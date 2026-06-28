@@ -80,6 +80,13 @@ function HomepagePage() {
   const [faqsTitle, setFaqsTitle] = useState("");
   const [faqs, setFaqs] = useState<Faq[]>([]);
   const [faqsEnabled, setFaqsEnabled] = useState(true);
+  // Section enable toggles
+  const [heroEnabled, setHeroEnabled] = useState(true);
+  const [bannerEnabled, setBannerEnabled] = useState(true);
+  const [signatureEnabled, setSignatureEnabled] = useState(true);
+  const [artEnabled, setArtEnabled] = useState(true);
+  const [notesEnabled, setNotesEnabled] = useState(true);
+  const [whispersEnabled, setWhispersEnabled] = useState(true);
 
 
   type UploadKind = "hero" | "overlay" | "art" | "banner" | "signature";
