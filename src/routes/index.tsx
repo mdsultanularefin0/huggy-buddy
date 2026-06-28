@@ -46,21 +46,26 @@ type WhisperReview = {
   products: { slug: string; name: string } | null;
 };
 
+function isDirectVideo(url: string): boolean {
+  return /\.(mp4|webm|ogg|mov|m4v)(\?|#|$)/i.test(url);
+}
+
 function reelEmbedSrc(url: string): string | null {
   if (!url) return null;
   try {
     const u = new URL(url);
     const host = u.hostname.replace(/^www\./, "");
-    // YouTube Shorts / watch / youtu.be
+    // YouTube Shorts / watch / youtu.be — playsinline + minimal chrome
+    const ytParams = "?playsinline=1&rel=0&modestbranding=1";
     if (host === "youtu.be") {
       const id = u.pathname.slice(1);
-      return id ? `https://www.youtube.com/embed/${id}` : null;
+      return id ? `https://www.youtube.com/embed/${id}${ytParams}` : null;
     }
     if (host.endsWith("youtube.com")) {
       const shortsMatch = u.pathname.match(/^\/shorts\/([^/]+)/);
-      if (shortsMatch) return `https://www.youtube.com/embed/${shortsMatch[1]}`;
+      if (shortsMatch) return `https://www.youtube.com/embed/${shortsMatch[1]}${ytParams}`;
       const v = u.searchParams.get("v");
-      if (v) return `https://www.youtube.com/embed/${v}`;
+      if (v) return `https://www.youtube.com/embed/${v}${ytParams}`;
       return null;
     }
     // TikTok video
@@ -84,6 +89,7 @@ function reelEmbedSrc(url: string): string | null {
     return null;
   }
 }
+
 
 
 const categoriesQuery = queryOptions({
@@ -610,13 +616,25 @@ function Landing() {
                   {reelsTitle}
                 </h2>
               </div>
-              <Carousel opts={{ align: "start", loop: false }} className="w-full">
-                <CarouselContent className="-ml-4">
+              <Carousel
+                opts={{ align: "start", loop: false, dragFree: false, containScroll: "trimSnaps" }}
+                className="w-full"
+              >
+                <CarouselContent className="-ml-3 sm:-ml-4 touch-pan-y">
                   {reels.map((r, i) => {
-                    const src = reelEmbedSrc(r.url);
+                    const direct = isDirectVideo(r.url);
+                    const src = direct ? null : reelEmbedSrc(r.url);
                     const TileInner = (
-                      <div className="relative w-full aspect-[9/16] rounded-2xl overflow-hidden bg-black shadow-lg group">
-                        {src ? (
+                      <div className="relative w-full aspect-[9/16] rounded-2xl overflow-hidden bg-black shadow-lg">
+                        {direct ? (
+                          <video
+                            src={r.url}
+                            controls
+                            playsInline
+                            preload="metadata"
+                            className="absolute inset-0 w-full h-full object-cover bg-black"
+                          />
+                        ) : src ? (
                           <iframe
                             src={src}
                             title={r.caption || `Reel ${i + 1}`}
@@ -640,7 +658,7 @@ function Landing() {
                     return (
                       <CarouselItem
                         key={i}
-                        className="pl-4 basis-1/2 sm:basis-1/3 lg:basis-1/4"
+                        className="pl-3 sm:pl-4 basis-[78%] xs:basis-[60%] sm:basis-1/3 lg:basis-1/4"
                       >
                         {r.link ? (
                           <a href={r.link} target="_blank" rel="noopener noreferrer" className="block">
@@ -656,6 +674,7 @@ function Landing() {
                 <CarouselPrevious className="hidden sm:flex -left-4" />
                 <CarouselNext className="hidden sm:flex -right-4" />
               </Carousel>
+
             </div>
           </section>
         ) : null}
