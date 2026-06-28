@@ -234,8 +234,9 @@ function HomepagePage() {
           <TabsTrigger value="art">Art</TabsTrigger>
           <TabsTrigger value="notes">Notes</TabsTrigger>
           <TabsTrigger value="whispers">Whispers</TabsTrigger>
-          
+          <TabsTrigger value="faq">FAQ</TabsTrigger>
         </TabsList>
+
 
         {/* HERO */}
         <TabsContent value="hero" className="mt-4 space-y-4">
