@@ -240,6 +240,28 @@ function Landing() {
   const notesSubtitle = (h.notes_subtitle as string) || "";
   const notes = ((h.notes_json as Note[] | null) ?? []) as Note[];
   const whispersTitle = (h.whispers_title as string) || "Customer Whispers";
+  const customWhispers = ((h.whispers_json as CustomWhisper[] | null) ?? []) as CustomWhisper[];
+  const whisperCards: WhisperCard[] = [
+    ...customWhispers
+      .filter((w) => w?.quote && w?.name)
+      .map((w, i) => ({
+        key: `c-${i}`,
+        rating: Math.max(1, Math.min(5, Math.round(w.rating ?? 5))),
+        title: null,
+        body: w.quote,
+        author: w.name,
+        tag: w.tag,
+      })),
+    ...whisperReviews.map((r) => ({
+      key: `r-${r.id}`,
+      rating: r.rating,
+      title: r.title,
+      body: r.body ?? "",
+      author: r.author_name,
+      productSlug: r.products?.slug,
+      productName: r.products?.name,
+    })),
+  ].slice(0, 6);
   const reelsTitle = (h.reels_title as string) || "From Our Community";
   const reelsEnabled = (h.reels_enabled as boolean | undefined) ?? true;
   const reels = ((h.reels_json as Reel[] | null) ?? []) as Reel[];
