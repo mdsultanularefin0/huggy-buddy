@@ -232,13 +232,14 @@ function CreatePageDialog({
       const finalSlug = slugify(slug);
       if (!finalSlug) throw new Error("Slug is required");
       if (existingSlugs.includes(finalSlug)) throw new Error("A page with that slug already exists");
-      const { error } = await supabase.from("site_pages").insert({
-        slug: finalSlug,
-        title: title.trim() || finalSlug,
-        content: "",
-        meta_description: null,
+      await saveSitePage({
+        data: {
+          slug: finalSlug,
+          title: title.trim() || finalSlug,
+          content: "",
+          meta_description: null,
+        },
       });
-      if (error) throw error;
       return finalSlug;
     },
     onSuccess: (newSlug) => {
