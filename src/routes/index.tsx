@@ -406,39 +406,46 @@ function Landing() {
       <SiteHeader />
       <main className="w-full">
         <h1 className="sr-only">Veloura Essence — Premium Luxury Fragrances in Bangladesh</h1>
-        {/* Desktop layout */}
-        <div className="hidden lg:block">
-          <div className="grid grid-cols-[1fr_2fr] gap-4 w-full max-w-[1600px] mx-auto pt-8 items-start px-6 lg:pl-12 xl:pl-20 2xl:pl-32">
-            {heroImageBlock}
-            {categoryCards}
-          </div>
-          {marquee}
-          <div className="w-full bg-gradient-to-r from-[#52277a] to-[#a555f0] py-6 relative z-10">
-            <div className="grid grid-cols-[1fr_2fr] gap-4 w-full max-w-[1600px] mx-auto px-6 items-center">
-              <div aria-hidden />
-              <div className="relative w-full lg:max-w-[720px] mx-auto">
-                {flashTimer}
-                <div className="hidden xl:block absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[calc(100%+1rem)]">
-                  {orderNowButton}
+        {heroEnabled ? (
+          <>
+            {/* Desktop layout */}
+            <div className="hidden lg:block">
+              <div className="grid grid-cols-[1fr_2fr] gap-4 w-full max-w-[1600px] mx-auto pt-8 items-start px-6 lg:pl-12 xl:pl-20 2xl:pl-32">
+                {heroImageBlock}
+                {categoryCards}
+              </div>
+              {bannerEnabled ? marquee : null}
+              <div className="w-full bg-gradient-to-r from-[#52277a] to-[#a555f0] py-6 relative z-10">
+                <div className="grid grid-cols-[1fr_2fr] gap-4 w-full max-w-[1600px] mx-auto px-6 items-center">
+                  <div aria-hidden />
+                  <div className="relative w-full lg:max-w-[720px] mx-auto">
+                    {flashTimer}
+                    <div className="hidden xl:block absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[calc(100%+1rem)]">
+                      {orderNowButton}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        {/* Mobile / Tablet layout */}
-        <div className="lg:hidden">
-          <div className="grid grid-cols-[1fr_1fr] gap-4 w-full pt-8 items-start pl-[max(1rem,var(--safe-left))] pr-[max(1rem,var(--safe-right))] sm:pl-[max(1.5rem,var(--safe-left))] sm:pr-[max(1.5rem,var(--safe-right))]">
-            {heroImageBlock}
-            <div className="sm:mt-10 md:mt-20">{flashTimer}</div>
-          </div>
-          {marquee}
-          <div className="w-full bg-gradient-to-r from-[#52277a] to-[#a555f0] pt-[calc(4rem+var(--safe-bottom))] sm:pt-[calc(6rem+var(--safe-bottom))] pb-6 flex items-end relative z-10">
-            <div className="w-full max-w-7xl mx-auto pl-[max(1rem,var(--safe-left))] pr-[max(1rem,var(--safe-right))] sm:pl-[max(1.5rem,var(--safe-left))] sm:pr-[max(1.5rem,var(--safe-right))]">
-              {mobileCategoryCards}
+            {/* Mobile / Tablet layout */}
+            <div className="lg:hidden">
+              <div className="grid grid-cols-[1fr_1fr] gap-4 w-full pt-8 items-start pl-[max(1rem,var(--safe-left))] pr-[max(1rem,var(--safe-right))] sm:pl-[max(1.5rem,var(--safe-left))] sm:pr-[max(1.5rem,var(--safe-right))]">
+                {heroImageBlock}
+                <div className="sm:mt-10 md:mt-20">{flashTimer}</div>
+              </div>
+              {bannerEnabled ? marquee : null}
+              <div className="w-full bg-gradient-to-r from-[#52277a] to-[#a555f0] pt-[calc(4rem+var(--safe-bottom))] sm:pt-[calc(6rem+var(--safe-bottom))] pb-6 flex items-end relative z-10">
+                <div className="w-full max-w-7xl mx-auto pl-[max(1rem,var(--safe-left))] pr-[max(1rem,var(--safe-right))] sm:pl-[max(1.5rem,var(--safe-left))] sm:pr-[max(1.5rem,var(--safe-right))]">
+                  {mobileCategoryCards}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          </>
+        ) : bannerEnabled ? (
+          marquee
+        ) : null}
+
 
         {/* Signature Collection */}
         <section
