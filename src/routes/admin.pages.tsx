@@ -4,7 +4,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
   Dialog,
@@ -26,7 +25,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Plus, Trash2, Pencil, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
-import ReactMarkdown from "react-markdown";
+import { HtmlEditor } from "@/components/html-editor";
 
 export const Route = createFileRoute("/admin/pages")({
   head: () => ({ meta: [{ title: "Pages — Admin" }, { name: "robots", content: "noindex" }] }),
@@ -334,33 +333,23 @@ function PageEditor({ page, onSaved }: { page: Page; onSaved: () => void }) {
         </Button>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-6">
-        <div className="space-y-4">
-          <div>
-            <Label>Title</Label>
-            <Input value={title} onChange={(e) => setTitle(e.target.value)} />
-          </div>
-          <div>
-            <Label>Meta description (SEO)</Label>
-            <Input value={metaDesc} onChange={(e) => setMetaDesc(e.target.value)} />
-          </div>
-          <div>
-            <Label>Content (Markdown)</Label>
-            <Textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              rows={22}
-              className="font-mono text-sm"
-            />
-          </div>
+      <div className="grid md:grid-cols-2 gap-4">
+        <div>
+          <Label>Title</Label>
+          <Input value={title} onChange={(e) => setTitle(e.target.value)} />
         </div>
-        <div className="border rounded-xl p-5 bg-muted/30 overflow-auto">
-          <p className="text-xs uppercase tracking-wide text-muted-foreground mb-3">Preview</p>
-          <h2 className="text-2xl font-semibold text-[#52277a] mb-4">{title}</h2>
-          <article className="prose prose-sm prose-gray max-w-none prose-headings:text-[#52277a] prose-h2:text-base prose-h2:mt-5 prose-h2:mb-2">
-            <ReactMarkdown>{content || "_Nothing yet._"}</ReactMarkdown>
-          </article>
+        <div>
+          <Label>Meta description (SEO)</Label>
+          <Input value={metaDesc} onChange={(e) => setMetaDesc(e.target.value)} />
         </div>
+      </div>
+
+      <div>
+        <Label className="mb-2 block">Content</Label>
+        <HtmlEditor value={content} onChange={setContent} />
+        <p className="mt-2 text-xs text-muted-foreground">
+          Use the toolbar for quick formatting — headings, lists, links, quotes.
+        </p>
       </div>
     </div>
   );
