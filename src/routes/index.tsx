@@ -239,6 +239,12 @@ function Landing() {
   const notesTitle = (h.notes_title as string) || "Discover Your Signature Note";
   const notesSubtitle = (h.notes_subtitle as string) || "";
   const notes = ((h.notes_json as Note[] | null) ?? []) as Note[];
+  const heroEnabled = (h.hero_enabled as boolean | undefined) ?? true;
+  const bannerEnabled = (h.banner_enabled as boolean | undefined) ?? true;
+  const signatureEnabled = (h.signature_enabled as boolean | undefined) ?? true;
+  const artEnabled = (h.art_enabled as boolean | undefined) ?? true;
+  const notesEnabled = (h.notes_enabled as boolean | undefined) ?? true;
+  const whispersEnabled = (h.whispers_enabled as boolean | undefined) ?? true;
   const whispersTitle = (h.whispers_title as string) || "Customer Whispers";
   const customWhispers = ((h.whispers_json as CustomWhisper[] | null) ?? []) as CustomWhisper[];
   const whisperCards: WhisperCard[] = [
