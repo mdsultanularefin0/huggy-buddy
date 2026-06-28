@@ -27,8 +27,8 @@ export const Route = createFileRoute("/admin/homepage")({ component: HomepagePag
 const NONE = "__none__";
 
 type Note = { title: string; gradient: string; link?: string };
-type Whisper = { quote: string; name: string; tag?: string };
 type Faq = { q: string; a: string };
+type Reel = { url: string; caption?: string; link?: string };
 
 function toLocalInput(iso: string | null | undefined): string {
   if (!iso) return "";
@@ -68,9 +68,12 @@ function HomepagePage() {
   const [notesTitle, setNotesTitle] = useState("");
   const [notesSubtitle, setNotesSubtitle] = useState("");
   const [notes, setNotes] = useState<Note[]>([]);
-  // Whispers
+  // Whispers (title only — items are auto-pulled from top product reviews)
   const [whispersTitle, setWhispersTitle] = useState("");
-  const [whispers, setWhispers] = useState<Whisper[]>([]);
+  // Reels (9:16 embeds)
+  const [reelsTitle, setReelsTitle] = useState("");
+  const [reelsEnabled, setReelsEnabled] = useState(true);
+  const [reels, setReels] = useState<Reel[]>([]);
   // FAQs
   const [faqsTitle, setFaqsTitle] = useState("");
   const [faqs, setFaqs] = useState<Faq[]>([]);
@@ -130,7 +133,9 @@ function HomepagePage() {
     setNotesSubtitle((s.notes_subtitle as string) ?? "");
     setNotes(((s.notes_json as Note[] | null) ?? []) as Note[]);
     setWhispersTitle((s.whispers_title as string) ?? "");
-    setWhispers(((s.whispers_json as Whisper[] | null) ?? []) as Whisper[]);
+    setReelsTitle((s.reels_title as string) ?? "");
+    setReelsEnabled((s.reels_enabled as boolean) ?? true);
+    setReels(((s.reels_json as Reel[] | null) ?? []) as Reel[]);
     setFaqsTitle((s.faqs_title as string) ?? "");
     setFaqs(((s.faqs_json as Faq[] | null) ?? []) as Faq[]);
     setFaqsEnabled((s.faqs_enabled as boolean) ?? true);
@@ -165,7 +170,9 @@ function HomepagePage() {
         notes_subtitle: notesSubtitle,
         notes_json: notes,
         whispers_title: whispersTitle,
-        whispers_json: whispers,
+        reels_title: reelsTitle,
+        reels_enabled: reelsEnabled,
+        reels_json: reels.filter((r) => r.url.trim().length > 0),
         faqs_title: cleanFaqs.faqs_title,
         faqs_json: cleanFaqs.faqs_json,
         faqs_enabled: faqsEnabled,
@@ -227,13 +234,14 @@ function HomepagePage() {
       </div>
 
       <Tabs defaultValue="hero" className="w-full">
-        <TabsList className="grid grid-cols-3 sm:grid-cols-7 w-full h-auto">
+        <TabsList className="grid grid-cols-3 sm:grid-cols-8 w-full h-auto">
           <TabsTrigger value="hero">Hero</TabsTrigger>
           <TabsTrigger value="banner">Banner</TabsTrigger>
           <TabsTrigger value="signature">Signature</TabsTrigger>
           <TabsTrigger value="art">Art</TabsTrigger>
           <TabsTrigger value="notes">Notes</TabsTrigger>
           <TabsTrigger value="whispers">Whispers</TabsTrigger>
+          <TabsTrigger value="reels">Reels</TabsTrigger>
           <TabsTrigger value="faq">FAQ</TabsTrigger>
         </TabsList>
 
@@ -491,33 +499,68 @@ function HomepagePage() {
               <Label>Section title</Label>
               <Input value={whispersTitle} onChange={(e) => setWhispersTitle(e.target.value)} />
             </div>
+            <p className="text-xs text-muted-foreground">
+              Whispers are pulled automatically from real product reviews rated 4★ or higher
+              (latest 6). Customers add reviews on each product page.
+            </p>
           </Card>
+        </TabsContent>
+
+        {/* REELS */}
+        <TabsContent value="reels" className="mt-4 space-y-4">
+          <Card className="p-6 space-y-3 shadow-card">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-semibold">Show reels on homepage</h2>
+                <p className="text-xs text-muted-foreground">
+                  Embed TikTok, Instagram Reels, or YouTube Shorts in a 9:16 grid.
+                </p>
+              </div>
+              <Switch checked={reelsEnabled} onCheckedChange={setReelsEnabled} />
+            </div>
+            <div className="space-y-2">
+              <Label>Section title</Label>
+              <Input value={reelsTitle} onChange={(e) => setReelsTitle(e.target.value)} placeholder="From Our Community" />
+            </div>
+          </Card>
+
           <Card className="p-6 space-y-3 shadow-card">
             <div className="flex items-center justify-between">
-              <h3 className="font-semibold">Testimonials</h3>
-              <Button size="sm" variant="outline" onClick={() => setWhispers((w) => [...w, { quote: "", name: "", tag: "" }])}>
+              <h3 className="font-semibold">Reels</h3>
+              <Button size="sm" variant="outline" onClick={() => setReels((r) => [...r, { url: "", caption: "", link: "" }])}>
                 <Plus className="w-4 h-4 mr-1" /> Add
               </Button>
             </div>
-            {whispers.length === 0 ? <p className="text-xs text-muted-foreground">No testimonials yet.</p> : null}
-            {whispers.map((w, i) => (
+            {reels.length === 0 ? <p className="text-xs text-muted-foreground">No reels yet.</p> : null}
+            {reels.map((r, i) => (
               <div key={i} className="rounded-md border p-3 space-y-2">
                 <div className="space-y-1">
-                  <Label className="text-xs">Quote</Label>
-                  <Textarea rows={2} value={w.quote} onChange={(e) => setWhispers((arr) => arr.map((x, j) => j === i ? { ...x, quote: e.target.value } : x))} />
+                  <Label className="text-xs">Embed URL (TikTok video, Instagram reel, or YouTube Short)</Label>
+                  <Input
+                    value={r.url}
+                    onChange={(e) => setReels((arr) => arr.map((x, j) => j === i ? { ...x, url: e.target.value } : x))}
+                    placeholder="https://www.tiktok.com/@user/video/1234567890"
+                  />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div className="space-y-1">
-                    <Label className="text-xs">Name</Label>
-                    <Input value={w.name} onChange={(e) => setWhispers((arr) => arr.map((x, j) => j === i ? { ...x, name: e.target.value } : x))} />
+                    <Label className="text-xs">Caption (optional)</Label>
+                    <Input
+                      value={r.caption ?? ""}
+                      onChange={(e) => setReels((arr) => arr.map((x, j) => j === i ? { ...x, caption: e.target.value } : x))}
+                    />
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-xs">Tag</Label>
-                    <Input value={w.tag ?? ""} onChange={(e) => setWhispers((arr) => arr.map((x, j) => j === i ? { ...x, tag: e.target.value } : x))} placeholder="Verified Buyer · …" />
+                    <Label className="text-xs">Click-through link (optional)</Label>
+                    <Input
+                      value={r.link ?? ""}
+                      onChange={(e) => setReels((arr) => arr.map((x, j) => j === i ? { ...x, link: e.target.value } : x))}
+                      placeholder="https://…"
+                    />
                   </div>
                 </div>
                 <div className="flex justify-end">
-                  <Button size="sm" variant="ghost" onClick={() => setWhispers((arr) => arr.filter((_, j) => j !== i))}>
+                  <Button size="sm" variant="ghost" onClick={() => setReels((arr) => arr.filter((_, j) => j !== i))}>
                     <Trash2 className="w-4 h-4 mr-1" /> Remove
                   </Button>
                 </div>
@@ -525,6 +568,7 @@ function HomepagePage() {
             ))}
           </Card>
         </TabsContent>
+
 
         {/* FAQ */}
         <TabsContent value="faq" className="mt-4 space-y-4">
