@@ -162,8 +162,8 @@ function HomepagePage() {
         notes_json: notes,
         whispers_title: whispersTitle,
         whispers_json: whispers,
-        faqs_title: faqsTitle,
-        faqs_json: faqs,
+        faqs_title: cleanFaqs.faqs_title,
+        faqs_json: cleanFaqs.faqs_json,
       };
       if (settings?.id) {
         const { error } = await supabase.from("site_settings").update(payload).eq("id", settings.id);
