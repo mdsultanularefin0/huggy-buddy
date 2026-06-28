@@ -32,7 +32,7 @@ export const saveSitePage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => pageSchema.parse(d))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId);
+    await assertAdmin(context);
     const { sanitizeRichHtml, sanitizePlainText } = await import("./sanitize.server");
     const payload = {
       slug: data.slug,
@@ -52,7 +52,7 @@ export const deleteSitePage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ slug: z.string().min(1).max(120).regex(slugRe) }).parse(d))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId);
+    await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("site_pages").delete().eq("slug", data.slug);
     if (error) throw new Error(error.message);
@@ -63,7 +63,7 @@ export const saveFaqs = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => faqsSchema.parse(d))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId);
+    await assertAdmin(context);
     const { sanitizePlainText } = await import("./sanitize.server");
     const cleanTitle = sanitizePlainText(data.faqs_title) || "Frequently Asked Questions";
     const cleanFaqs = data.faqs
