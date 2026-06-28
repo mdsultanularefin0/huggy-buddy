@@ -20,6 +20,7 @@ import { Loader2, Upload, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { uploadImage } from "@/lib/upload";
 import { MediaPicker } from "@/components/media-picker";
+import { saveFaqs } from "@/lib/content.functions";
 
 export const Route = createFileRoute("/admin/homepage")({ component: HomepagePage });
 
@@ -134,6 +135,7 @@ function HomepagePage() {
 
   const save = useMutation({
     mutationFn: async () => {
+      const cleanFaqs = await saveFaqs({ data: { faqs_title: faqsTitle, faqs } });
       const payload = {
         hero_image: heroImageUrl || null,
         hero_overlay_image: heroOverlayUrl || null,
@@ -160,8 +162,8 @@ function HomepagePage() {
         notes_json: notes,
         whispers_title: whispersTitle,
         whispers_json: whispers,
-        faqs_title: faqsTitle,
-        faqs_json: faqs,
+        faqs_title: cleanFaqs.faqs_title,
+        faqs_json: cleanFaqs.faqs_json,
       };
       if (settings?.id) {
         const { error } = await supabase.from("site_settings").update(payload).eq("id", settings.id);

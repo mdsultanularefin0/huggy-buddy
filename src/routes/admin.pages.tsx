@@ -27,6 +27,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Plus, Trash2, Pencil, ExternalLink, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { HtmlEditor } from "@/components/html-editor";
+import { saveSitePage, deleteSitePage } from "@/lib/content.functions";
 
 
 export const Route = createFileRoute("/admin/pages")({
@@ -80,8 +81,7 @@ function AdminPages() {
 
   const deletePage = useMutation({
     mutationFn: async (slug: string) => {
-      const { error } = await supabase.from("site_pages").delete().eq("slug", slug);
-      if (error) throw error;
+      await deleteSitePage({ data: { slug } });
     },
     onSuccess: (_d, slug) => {
       toast.success("Page deleted");
@@ -232,13 +232,14 @@ function CreatePageDialog({
       const finalSlug = slugify(slug);
       if (!finalSlug) throw new Error("Slug is required");
       if (existingSlugs.includes(finalSlug)) throw new Error("A page with that slug already exists");
-      const { error } = await supabase.from("site_pages").insert({
-        slug: finalSlug,
-        title: title.trim() || finalSlug,
-        content: "",
-        meta_description: null,
+      await saveSitePage({
+        data: {
+          slug: finalSlug,
+          title: title.trim() || finalSlug,
+          content: "",
+          meta_description: null,
+        },
       });
-      if (error) throw error;
       return finalSlug;
     },
     onSuccess: (newSlug) => {
@@ -301,15 +302,14 @@ function PageEditor({ page, onSaved }: { page: Page; onSaved: () => void }) {
 
   const save = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase
-        .from("site_pages")
-        .update({
+      await saveSitePage({
+        data: {
+          slug: page.slug,
           title: title.trim() || page.slug,
           meta_description: metaDesc.trim() || null,
           content,
-        })
-        .eq("slug", page.slug);
-      if (error) throw error;
+        },
+      });
     },
     onSuccess: () => {
       toast.success("Page saved");
