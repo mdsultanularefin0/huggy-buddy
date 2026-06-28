@@ -457,7 +457,7 @@ function Landing() {
         ) : null}
 
         {/* Frequently Asked Questions */}
-        {faqs.length > 0 ? (
+        {faqsEnabled && faqs.length > 0 ? (
           <section className="w-full py-16 bg-gray-50" aria-labelledby="faq-heading">
             <div className="max-w-3xl mx-auto px-4">
               <div className="text-center mb-10">
