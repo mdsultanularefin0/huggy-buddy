@@ -80,6 +80,13 @@ function HomepagePage() {
   const [faqsTitle, setFaqsTitle] = useState("");
   const [faqs, setFaqs] = useState<Faq[]>([]);
   const [faqsEnabled, setFaqsEnabled] = useState(true);
+  // Section enable toggles
+  const [heroEnabled, setHeroEnabled] = useState(true);
+  const [bannerEnabled, setBannerEnabled] = useState(true);
+  const [signatureEnabled, setSignatureEnabled] = useState(true);
+  const [artEnabled, setArtEnabled] = useState(true);
+  const [notesEnabled, setNotesEnabled] = useState(true);
+  const [whispersEnabled, setWhispersEnabled] = useState(true);
 
 
   type UploadKind = "hero" | "overlay" | "art" | "banner" | "signature";
@@ -142,6 +149,12 @@ function HomepagePage() {
     setFaqsTitle((s.faqs_title as string) ?? "");
     setFaqs(((s.faqs_json as Faq[] | null) ?? []) as Faq[]);
     setFaqsEnabled((s.faqs_enabled as boolean) ?? true);
+    setHeroEnabled((s.hero_enabled as boolean) ?? true);
+    setBannerEnabled((s.banner_enabled as boolean) ?? true);
+    setSignatureEnabled((s.signature_enabled as boolean) ?? true);
+    setArtEnabled((s.art_enabled as boolean) ?? true);
+    setNotesEnabled((s.notes_enabled as boolean) ?? true);
+    setWhispersEnabled((s.whispers_enabled as boolean) ?? true);
   }, [settings]);
 
 
@@ -187,6 +200,12 @@ function HomepagePage() {
         faqs_title: cleanFaqs.faqs_title,
         faqs_json: cleanFaqs.faqs_json,
         faqs_enabled: faqsEnabled,
+        hero_enabled: heroEnabled,
+        banner_enabled: bannerEnabled,
+        signature_enabled: signatureEnabled,
+        art_enabled: artEnabled,
+        notes_enabled: notesEnabled,
+        whispers_enabled: whispersEnabled,
 
       };
       if (settings?.id) {
@@ -245,7 +264,8 @@ function HomepagePage() {
       </div>
 
       <Tabs defaultValue="hero" className="w-full">
-        <TabsList className="grid grid-cols-3 sm:grid-cols-8 w-full h-auto">
+        <TabsList className="grid grid-cols-3 sm:grid-cols-9 w-full h-auto">
+          <TabsTrigger value="visibility">Visibility</TabsTrigger>
           <TabsTrigger value="hero">Hero</TabsTrigger>
           <TabsTrigger value="banner">Banner</TabsTrigger>
           <TabsTrigger value="signature">Signature</TabsTrigger>
@@ -255,6 +275,30 @@ function HomepagePage() {
           <TabsTrigger value="reels">Reels</TabsTrigger>
           <TabsTrigger value="faq">FAQ</TabsTrigger>
         </TabsList>
+
+        {/* VISIBILITY */}
+        <TabsContent value="visibility" className="mt-4 space-y-4">
+          <Card className="p-6 space-y-3 shadow-card">
+            <h2 className="text-lg font-semibold">Section visibility</h2>
+            <p className="text-xs text-muted-foreground">Toggle which sections appear on the homepage.</p>
+            {([
+              ["Hero (image + categories + flash timer)", heroEnabled, setHeroEnabled],
+              ["Marquee banner", bannerEnabled, setBannerEnabled],
+              ["Signature collection", signatureEnabled, setSignatureEnabled],
+              ["The Art of Veloura", artEnabled, setArtEnabled],
+              ["Scent notes", notesEnabled, setNotesEnabled],
+              ["Customer whispers", whispersEnabled, setWhispersEnabled],
+              ["Reels", reelsEnabled, setReelsEnabled],
+              ["FAQ", faqsEnabled, setFaqsEnabled],
+            ] as const).map(([label, value, setter]) => (
+              <div key={label} className="flex items-center justify-between border-t pt-3 first:border-t-0 first:pt-0">
+                <Label className="text-sm font-normal">{label}</Label>
+                <Switch checked={value} onCheckedChange={setter} />
+              </div>
+            ))}
+          </Card>
+        </TabsContent>
+
 
 
         {/* HERO */}

@@ -493,9 +493,11 @@ export type Database = {
           art_body: string | null
           art_button_label: string | null
           art_button_link: string | null
+          art_enabled: boolean
           art_eyebrow: string | null
           art_image: string | null
           art_title: string | null
+          banner_enabled: boolean
           banner_image: string | null
           cta_band_button_label: string | null
           cta_band_button_link: string | null
@@ -517,6 +519,7 @@ export type Database = {
           hero_bg_x: number
           hero_bg_y: number
           hero_cta_label: string | null
+          hero_enabled: boolean
           hero_fg_image: string | null
           hero_fg_scale: number
           hero_fg_x: number
@@ -530,6 +533,7 @@ export type Database = {
           homepage_category_ids: string[]
           id: string
           marquee_text: string
+          notes_enabled: boolean
           notes_json: Json | null
           notes_subtitle: string | null
           notes_title: string | null
@@ -542,6 +546,7 @@ export type Database = {
           shop_name: string | null
           shop_phone: string | null
           shop_tagline: string | null
+          signature_enabled: boolean
           signature_image: string | null
           signature_subtitle: string | null
           signature_title: string | null
@@ -555,6 +560,7 @@ export type Database = {
           social_youtube: string | null
           timer_reset_date: string
           updated_at: string
+          whispers_enabled: boolean
           whispers_json: Json | null
           whispers_title: string | null
         }
@@ -562,9 +568,11 @@ export type Database = {
           art_body?: string | null
           art_button_label?: string | null
           art_button_link?: string | null
+          art_enabled?: boolean
           art_eyebrow?: string | null
           art_image?: string | null
           art_title?: string | null
+          banner_enabled?: boolean
           banner_image?: string | null
           cta_band_button_label?: string | null
           cta_band_button_link?: string | null
@@ -586,6 +594,7 @@ export type Database = {
           hero_bg_x?: number
           hero_bg_y?: number
           hero_cta_label?: string | null
+          hero_enabled?: boolean
           hero_fg_image?: string | null
           hero_fg_scale?: number
           hero_fg_x?: number
@@ -599,6 +608,7 @@ export type Database = {
           homepage_category_ids?: string[]
           id?: string
           marquee_text?: string
+          notes_enabled?: boolean
           notes_json?: Json | null
           notes_subtitle?: string | null
           notes_title?: string | null
@@ -611,6 +621,7 @@ export type Database = {
           shop_name?: string | null
           shop_phone?: string | null
           shop_tagline?: string | null
+          signature_enabled?: boolean
           signature_image?: string | null
           signature_subtitle?: string | null
           signature_title?: string | null
@@ -624,6 +635,7 @@ export type Database = {
           social_youtube?: string | null
           timer_reset_date?: string
           updated_at?: string
+          whispers_enabled?: boolean
           whispers_json?: Json | null
           whispers_title?: string | null
         }
@@ -631,9 +643,11 @@ export type Database = {
           art_body?: string | null
           art_button_label?: string | null
           art_button_link?: string | null
+          art_enabled?: boolean
           art_eyebrow?: string | null
           art_image?: string | null
           art_title?: string | null
+          banner_enabled?: boolean
           banner_image?: string | null
           cta_band_button_label?: string | null
           cta_band_button_link?: string | null
@@ -655,6 +669,7 @@ export type Database = {
           hero_bg_x?: number
           hero_bg_y?: number
           hero_cta_label?: string | null
+          hero_enabled?: boolean
           hero_fg_image?: string | null
           hero_fg_scale?: number
           hero_fg_x?: number
@@ -668,6 +683,7 @@ export type Database = {
           homepage_category_ids?: string[]
           id?: string
           marquee_text?: string
+          notes_enabled?: boolean
           notes_json?: Json | null
           notes_subtitle?: string | null
           notes_title?: string | null
@@ -680,6 +696,7 @@ export type Database = {
           shop_name?: string | null
           shop_phone?: string | null
           shop_tagline?: string | null
+          signature_enabled?: boolean
           signature_image?: string | null
           signature_subtitle?: string | null
           signature_title?: string | null
@@ -693,6 +710,7 @@ export type Database = {
           social_youtube?: string | null
           timer_reset_date?: string
           updated_at?: string
+          whispers_enabled?: boolean
           whispers_json?: Json | null
           whispers_title?: string | null
         }
