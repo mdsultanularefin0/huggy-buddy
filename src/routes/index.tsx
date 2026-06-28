@@ -68,6 +68,10 @@ function reelEmbedSrc(url: string): string | null {
       if (m) return `https://www.instagram.com/${m[1]}/${m[2]}/embed`;
       return null;
     }
+    // Facebook video / reel / fb.watch
+    if (host.endsWith("facebook.com") || host === "fb.watch" || host.endsWith("fb.watch")) {
+      return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false&autoplay=false`;
+    }
     return null;
   } catch {
     return null;
