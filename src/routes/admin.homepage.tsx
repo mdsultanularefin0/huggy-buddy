@@ -74,6 +74,8 @@ function HomepagePage() {
   // FAQs
   const [faqsTitle, setFaqsTitle] = useState("");
   const [faqs, setFaqs] = useState<Faq[]>([]);
+  const [faqsEnabled, setFaqsEnabled] = useState(true);
+
 
   type UploadKind = "hero" | "overlay" | "art" | "banner" | "signature";
   const [uploading, setUploading] = useState<null | UploadKind>(null);
