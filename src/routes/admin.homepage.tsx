@@ -27,8 +27,8 @@ export const Route = createFileRoute("/admin/homepage")({ component: HomepagePag
 const NONE = "__none__";
 
 type Note = { title: string; gradient: string; link?: string };
-type Whisper = { quote: string; name: string; tag?: string };
 type Faq = { q: string; a: string };
+type Reel = { url: string; caption?: string; link?: string };
 
 function toLocalInput(iso: string | null | undefined): string {
   if (!iso) return "";
@@ -68,9 +68,12 @@ function HomepagePage() {
   const [notesTitle, setNotesTitle] = useState("");
   const [notesSubtitle, setNotesSubtitle] = useState("");
   const [notes, setNotes] = useState<Note[]>([]);
-  // Whispers
+  // Whispers (title only — items are auto-pulled from top product reviews)
   const [whispersTitle, setWhispersTitle] = useState("");
-  const [whispers, setWhispers] = useState<Whisper[]>([]);
+  // Reels (9:16 embeds)
+  const [reelsTitle, setReelsTitle] = useState("");
+  const [reelsEnabled, setReelsEnabled] = useState(true);
+  const [reels, setReels] = useState<Reel[]>([]);
   // FAQs
   const [faqsTitle, setFaqsTitle] = useState("");
   const [faqs, setFaqs] = useState<Faq[]>([]);
@@ -130,7 +133,9 @@ function HomepagePage() {
     setNotesSubtitle((s.notes_subtitle as string) ?? "");
     setNotes(((s.notes_json as Note[] | null) ?? []) as Note[]);
     setWhispersTitle((s.whispers_title as string) ?? "");
-    setWhispers(((s.whispers_json as Whisper[] | null) ?? []) as Whisper[]);
+    setReelsTitle((s.reels_title as string) ?? "");
+    setReelsEnabled((s.reels_enabled as boolean) ?? true);
+    setReels(((s.reels_json as Reel[] | null) ?? []) as Reel[]);
     setFaqsTitle((s.faqs_title as string) ?? "");
     setFaqs(((s.faqs_json as Faq[] | null) ?? []) as Faq[]);
     setFaqsEnabled((s.faqs_enabled as boolean) ?? true);
@@ -165,7 +170,9 @@ function HomepagePage() {
         notes_subtitle: notesSubtitle,
         notes_json: notes,
         whispers_title: whispersTitle,
-        whispers_json: whispers,
+        reels_title: reelsTitle,
+        reels_enabled: reelsEnabled,
+        reels_json: reels.filter((r) => r.url.trim().length > 0),
         faqs_title: cleanFaqs.faqs_title,
         faqs_json: cleanFaqs.faqs_json,
         faqs_enabled: faqsEnabled,
