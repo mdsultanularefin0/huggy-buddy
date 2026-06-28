@@ -525,8 +525,8 @@ function Landing() {
           </section>
         ) : null}
 
-        {/* Customer Whispers — top-rated product reviews */}
-        {whisperReviews.length > 0 ? (
+        {/* Customer Whispers — custom + top-rated product reviews */}
+        {whisperCards.length > 0 ? (
           <section className="w-full py-16 bg-white">
             <div className="max-w-7xl mx-auto px-4">
               <div className="text-center">
@@ -537,23 +537,27 @@ function Landing() {
                 </p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-10">
-                {whisperReviews.map((r) => (
-                  <div key={r.id} className="p-8 rounded-2xl bg-gray-50 border border-gray-100 flex flex-col">
-                    <div className="text-[#fbc02d] text-lg mb-3" aria-label={`${r.rating} out of 5`}>
-                      {"★".repeat(r.rating)}{"☆".repeat(5 - r.rating)}
+                {whisperCards.map((c) => (
+                  <div key={c.key} className="p-8 rounded-2xl bg-gray-50 border border-gray-100 flex flex-col">
+                    <div className="text-[#fbc02d] text-lg mb-3" aria-label={`${c.rating} out of 5`}>
+                      {"★".repeat(c.rating)}{"☆".repeat(5 - c.rating)}
                     </div>
-                    {r.title ? <p className="font-semibold text-gray-900 mb-1">{r.title}</p> : null}
-                    {r.body ? <p className="text-gray-600 italic mb-6 line-clamp-5">"{r.body}"</p> : <div className="mb-6" />}
+                    {c.title ? <p className="font-semibold text-gray-900 mb-1">{c.title}</p> : null}
+                    {c.body ? <p className="text-gray-600 italic mb-6 line-clamp-5">"{c.body}"</p> : <div className="mb-6" />}
                     <div className="mt-auto flex items-center gap-2 flex-wrap">
-                      <span className="font-semibold text-gray-900">{r.author_name}</span>
-                      {r.products ? (
+                      <span className="font-semibold text-gray-900">{c.author}</span>
+                      {c.productSlug && c.productName ? (
                         <Link
                           to="/product/$slug"
-                          params={{ slug: r.products.slug }}
+                          params={{ slug: c.productSlug }}
                           className="text-xs px-3 py-1 rounded-full bg-[#52277a]/10 text-[#52277a] font-medium hover:bg-[#52277a]/20"
                         >
-                          {r.products.name}
+                          {c.productName}
                         </Link>
+                      ) : c.tag ? (
+                        <span className="text-xs px-3 py-1 rounded-full bg-[#52277a]/10 text-[#52277a] font-medium">
+                          {c.tag}
+                        </span>
                       ) : null}
                     </div>
                   </div>
@@ -562,6 +566,7 @@ function Landing() {
             </div>
           </section>
         ) : null}
+
 
         {/* Reels — 9:16 embeds */}
         {reelsEnabled && reels.length > 0 ? (
