@@ -264,7 +264,8 @@ function HomepagePage() {
       </div>
 
       <Tabs defaultValue="hero" className="w-full">
-        <TabsList className="grid grid-cols-3 sm:grid-cols-8 w-full h-auto">
+        <TabsList className="grid grid-cols-3 sm:grid-cols-9 w-full h-auto">
+          <TabsTrigger value="visibility">Visibility</TabsTrigger>
           <TabsTrigger value="hero">Hero</TabsTrigger>
           <TabsTrigger value="banner">Banner</TabsTrigger>
           <TabsTrigger value="signature">Signature</TabsTrigger>
@@ -274,6 +275,30 @@ function HomepagePage() {
           <TabsTrigger value="reels">Reels</TabsTrigger>
           <TabsTrigger value="faq">FAQ</TabsTrigger>
         </TabsList>
+
+        {/* VISIBILITY */}
+        <TabsContent value="visibility" className="mt-4 space-y-4">
+          <Card className="p-6 space-y-3 shadow-card">
+            <h2 className="text-lg font-semibold">Section visibility</h2>
+            <p className="text-xs text-muted-foreground">Toggle which sections appear on the homepage.</p>
+            {([
+              ["Hero (image + categories + flash timer)", heroEnabled, setHeroEnabled],
+              ["Marquee banner", bannerEnabled, setBannerEnabled],
+              ["Signature collection", signatureEnabled, setSignatureEnabled],
+              ["The Art of Veloura", artEnabled, setArtEnabled],
+              ["Scent notes", notesEnabled, setNotesEnabled],
+              ["Customer whispers", whispersEnabled, setWhispersEnabled],
+              ["Reels", reelsEnabled, setReelsEnabled],
+              ["FAQ", faqsEnabled, setFaqsEnabled],
+            ] as const).map(([label, value, setter]) => (
+              <div key={label} className="flex items-center justify-between border-t pt-3 first:border-t-0 first:pt-0">
+                <Label className="text-sm font-normal">{label}</Label>
+                <Switch checked={value} onCheckedChange={setter} />
+              </div>
+            ))}
+          </Card>
+        </TabsContent>
+
 
 
         {/* HERO */}
