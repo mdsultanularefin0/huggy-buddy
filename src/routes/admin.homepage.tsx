@@ -135,6 +135,7 @@ function HomepagePage() {
     setNotesSubtitle((s.notes_subtitle as string) ?? "");
     setNotes(((s.notes_json as Note[] | null) ?? []) as Note[]);
     setWhispersTitle((s.whispers_title as string) ?? "");
+    setWhispers(((s.whispers_json as Whisper[] | null) ?? []) as Whisper[]);
     setReelsTitle((s.reels_title as string) ?? "");
     setReelsEnabled((s.reels_enabled as boolean) ?? true);
     setReels(((s.reels_json as Reel[] | null) ?? []) as Reel[]);
@@ -172,6 +173,14 @@ function HomepagePage() {
         notes_subtitle: notesSubtitle,
         notes_json: notes,
         whispers_title: whispersTitle,
+        whispers_json: whispers
+          .map((w) => ({
+            quote: (w.quote ?? "").trim(),
+            name: (w.name ?? "").trim(),
+            tag: (w.tag ?? "").trim() || undefined,
+            rating: Math.max(1, Math.min(5, Math.round(w.rating ?? 5))),
+          }))
+          .filter((w) => w.quote && w.name),
         reels_title: reelsTitle,
         reels_enabled: reelsEnabled,
         reels_json: reels.filter((r) => r.url.trim().length > 0),
