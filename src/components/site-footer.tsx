@@ -13,7 +13,9 @@ const SHOP_LINKS = [
 ] as const;
 
 const SUPPORT_LINKS = [
-  { label: "All Fragrances", to: "/products" as const },
+  { label: "About", to: "/about" as const },
+  { label: "FAQ", to: "/faq" as const },
+  { label: "Shipping & Returns", to: "/shipping" as const },
   { label: "Contact Us", to: "/contact" as const },
   { label: "Terms & Conditions", to: "/terms" as const },
   { label: "Privacy Policy", to: "/privacy" as const },

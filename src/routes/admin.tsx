@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard, Package, Boxes, Truck, CreditCard, ShoppingBag,
-  Users, Megaphone, Settings, LogOut, Sparkles, ScrollText, Tags, Home, Loader2,
+  Users, Megaphone, Settings, LogOut, Sparkles, ScrollText, Tags, Home, Loader2, FileText,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -24,6 +24,7 @@ export const Route = createFileRoute("/admin")({
 const NAV: { to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean }[] = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { to: "/admin/homepage", label: "Homepage", icon: Home },
+  { to: "/admin/pages", label: "Pages", icon: FileText },
   { to: "/admin/products", label: "Products", icon: Package },
   { to: "/admin/categories", label: "Categories", icon: Tags },
   { to: "/admin/combos", label: "Combos", icon: Boxes },
