@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import ReactMarkdown from "react-markdown";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { supabase } from "@/integrations/supabase/client";
@@ -35,9 +34,10 @@ export function CmsPage({ slug, fallbackTitle }: { slug: string; fallbackTitle: 
         ) : !data ? (
           <p className="text-center text-gray-500">This page has not been published yet.</p>
         ) : (
-          <article className="prose prose-gray max-w-none prose-headings:text-[#52277a] prose-headings:font-semibold prose-h2:text-xl prose-h2:mt-8 prose-h2:mb-3 prose-a:text-[#a555f0] prose-li:my-1">
-            <ReactMarkdown>{data.content}</ReactMarkdown>
-          </article>
+          <article
+            className="prose prose-gray max-w-none prose-headings:text-[#52277a] prose-headings:font-semibold prose-h2:text-xl prose-h2:mt-8 prose-h2:mb-3 prose-a:text-[#a555f0] prose-li:my-1"
+            dangerouslySetInnerHTML={{ __html: data.content || "" }}
+          />
         )}
       </main>
       <SiteFooter />
