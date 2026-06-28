@@ -29,7 +29,7 @@ import { toast } from "sonner";
 import { HtmlEditor } from "@/components/html-editor";
 import { FaqEditor } from "@/components/faq-editor";
 import { saveSitePage, deleteSitePage } from "@/lib/content.functions";
-import { HelpCircle } from "lucide-react";
+
 
 
 export const Route = createFileRoute("/admin/pages")({
