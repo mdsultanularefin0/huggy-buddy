@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { brandingQueryOptions } from "@/lib/branding-query";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ProductCard } from "@/components/product-card";
@@ -90,6 +90,76 @@ function reelEmbedSrc(url: string): string | null {
   }
 }
 
+function LazyReelTile({ reel, index }: { reel: Reel; index: number }) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [visible, setVisible] = useState(false);
+  const direct = isDirectVideo(reel.url);
+  const src = direct ? null : reelEmbedSrc(reel.url);
+
+  useEffect(() => {
+    if (visible || !ref.current) return;
+    if (typeof IntersectionObserver === "undefined") {
+      setVisible(true);
+      return;
+    }
+    const el = ref.current;
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            setVisible(true);
+            io.disconnect();
+            break;
+          }
+        }
+      },
+      { rootMargin: "400px 200px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [visible]);
+
+  return (
+    <div
+      ref={ref}
+      className="relative w-full aspect-[9/16] rounded-2xl overflow-hidden bg-black shadow-lg"
+    >
+      {visible ? (
+        direct ? (
+          <video
+            src={reel.url}
+            controls
+            playsInline
+            preload="metadata"
+            className="absolute inset-0 w-full h-full object-cover bg-black"
+          />
+        ) : src ? (
+          <iframe
+            src={src}
+            title={reel.caption || `Reel ${index + 1}`}
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+            className="absolute inset-0 w-full h-full border-0"
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center text-white/70 text-xs px-3 text-center">
+            Unsupported URL
+          </div>
+        )
+      ) : (
+        <div className="absolute inset-0 flex items-center justify-center bg-black">
+          <div className="h-6 w-6 rounded-full border-2 border-white/30 border-t-white/80 animate-spin" />
+        </div>
+      )}
+      {reel.caption ? (
+        <div className="pointer-events-none absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/70 to-transparent text-white text-xs sm:text-sm px-3 py-2">
+          {reel.caption}
+        </div>
+      ) : null}
+    </div>
+  );
+}
 
 
 const categoriesQuery = queryOptions({
@@ -622,39 +692,6 @@ function Landing() {
               >
                 <CarouselContent className="-ml-3 sm:-ml-4 touch-pan-y">
                   {reels.map((r, i) => {
-                    const direct = isDirectVideo(r.url);
-                    const src = direct ? null : reelEmbedSrc(r.url);
-                    const TileInner = (
-                      <div className="relative w-full aspect-[9/16] rounded-2xl overflow-hidden bg-black shadow-lg">
-                        {direct ? (
-                          <video
-                            src={r.url}
-                            controls
-                            playsInline
-                            preload="metadata"
-                            className="absolute inset-0 w-full h-full object-cover bg-black"
-                          />
-                        ) : src ? (
-                          <iframe
-                            src={src}
-                            title={r.caption || `Reel ${i + 1}`}
-                            loading="lazy"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                            allowFullScreen
-                            className="absolute inset-0 w-full h-full border-0"
-                          />
-                        ) : (
-                          <div className="absolute inset-0 flex items-center justify-center text-white/70 text-xs px-3 text-center">
-                            Unsupported URL
-                          </div>
-                        )}
-                        {r.caption ? (
-                          <div className="pointer-events-none absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/70 to-transparent text-white text-xs sm:text-sm px-3 py-2">
-                            {r.caption}
-                          </div>
-                        ) : null}
-                      </div>
-                    );
                     return (
                       <CarouselItem
                         key={i}
@@ -662,10 +699,10 @@ function Landing() {
                       >
                         {r.link ? (
                           <a href={r.link} target="_blank" rel="noopener noreferrer" className="block">
-                            {TileInner}
+                            <LazyReelTile reel={r} index={i} />
                           </a>
                         ) : (
-                          TileInner
+                          <LazyReelTile reel={r} index={i} />
                         )}
                       </CarouselItem>
                     );
