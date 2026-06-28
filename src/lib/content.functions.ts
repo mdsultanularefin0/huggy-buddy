@@ -21,8 +21,10 @@ const faqsSchema = z.object({
   faqs: z.array(faqItem).max(100),
 });
 
-async function assertAdmin(supabase: { rpc: (n: string, a: unknown) => Promise<{ data: unknown; error: { message: string } | null }> }, userId: string) {
-  const { data: ok, error } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
+type Ctx = { supabase: { rpc: (...args: unknown[]) => Promise<{ data: unknown; error: { message: string } | null }> }; userId: string };
+async function assertAdmin(context: { supabase: unknown; userId: string }) {
+  const sb = context.supabase as Ctx["supabase"];
+  const { data: ok, error } = await sb.rpc("has_role", { _user_id: context.userId, _role: "admin" });
   if (error || !ok) throw new Error("Forbidden");
 }
 
