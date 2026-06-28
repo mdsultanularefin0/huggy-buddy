@@ -133,7 +133,9 @@ function HomepagePage() {
     setWhispers(((s.whispers_json as Whisper[] | null) ?? []) as Whisper[]);
     setFaqsTitle((s.faqs_title as string) ?? "");
     setFaqs(((s.faqs_json as Faq[] | null) ?? []) as Faq[]);
+    setFaqsEnabled((s.faqs_enabled as boolean) ?? true);
   }, [settings]);
+
 
   const save = useMutation({
     mutationFn: async () => {
