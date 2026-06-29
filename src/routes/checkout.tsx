@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, Check, Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -135,6 +135,19 @@ function CheckoutPage() {
 
   const applied = appliedCoupon ?? appliedReferral;
   const appliedKind = appliedCoupon ? "Coupon" : appliedReferral ? "Referral" : null;
+
+  // Keep the displayed discount in sync with the server: whenever the cart
+  // subtotal changes after a promo is applied, re-validate against the new
+  // subtotal so percent coupons, min-order rules, and caps stay accurate.
+  const appliedCode = applied?.code ?? null;
+  const lastValidatedSubtotal = useRef<number | null>(null);
+  useEffect(() => {
+    if (!appliedCode) { lastValidatedSubtotal.current = null; return; }
+    if (lastValidatedSubtotal.current === subtotal) return;
+    lastValidatedSubtotal.current = subtotal;
+    promoMutation.mutate(appliedCode);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appliedCode, subtotal]);
 
   function applyPromo() {
     const code = promoCode.trim();
