@@ -141,8 +141,21 @@ function CheckoutPage() {
                 <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
               </div>
               <div>
+                <Label htmlFor="district">District *</Label>
+                <Select value={district} onValueChange={setDistrict}>
+                  <SelectTrigger id="district" className="mt-1">
+                    <SelectValue placeholder="Select your district" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {BD_DISTRICTS.map((d) => (
+                      <SelectItem key={d} value={d}>{d}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
                 <Label htmlFor="address">Delivery address *</Label>
-                <Textarea id="address" rows={3} value={address} onChange={(e) => setAddress(e.target.value)} required />
+                <Textarea id="address" rows={3} value={address} onChange={(e) => setAddress(e.target.value)} required placeholder="House, road, area / thana" />
               </div>
               <p className="text-xs text-muted-foreground">No account needed — guest checkout.</p>
             </section>
