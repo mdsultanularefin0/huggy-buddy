@@ -23,9 +23,9 @@ export function ProductCard({ product }: { product: ProductCardData }) {
     <Link
       to="/product/$slug"
       params={{ slug: product.slug }}
-      className="group relative block bg-white transition-shadow duration-500 hover:shadow-[0_30px_60px_-15px_rgba(82,39,122,0.18)]"
+      className="group relative block bg-white rounded-3xl overflow-hidden transition-shadow duration-500 hover:shadow-[0_30px_60px_-15px_rgba(82,39,122,0.18)]"
     >
-      <div className="relative aspect-[4/5] overflow-hidden bg-[#f3f0f3]">
+      <div className="relative aspect-[4/5] overflow-hidden rounded-3xl bg-[#f3f0f3]">
         {product.image_url ? (
           <img
             src={product.image_url}
