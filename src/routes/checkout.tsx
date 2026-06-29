@@ -58,12 +58,21 @@ function CheckoutPage() {
   const [district, setDistrict] = useState("");
   const [upazila, setUpazila] = useState("");
   const [address, setAddress] = useState("");
-  const [zoneId, setZoneId] = useState(data.zones[0]?.id ?? "");
   const [paymentMethod, setPaymentMethod] = useState(data.methods[0]?.method_name ?? "");
   const [referralCode, setReferralCode] = useState("");
 
+  // Auto-pick zone from district: "Dhaka" → Inside Dhaka, anything else → Outside Dhaka.
+  const zone = useMemo(() => {
+    if (!district) return undefined;
+    const isDhaka = district.trim().toLowerCase() === "dhaka";
+    const match = data.zones.find((z) =>
+      isDhaka ? /inside\s*dhaka/i.test(z.zone_name) : /outside\s*dhaka/i.test(z.zone_name),
+    );
+    return match ?? data.zones[0];
+  }, [data.zones, district]);
+  const zoneId = zone?.id ?? "";
+
   const subtotal = cartSubtotal(items);
-  const zone = useMemo(() => data.zones.find((z) => z.id === zoneId), [data.zones, zoneId]);
   const shippingFee = useMemo(() => {
     if (!zone) return 0;
     const threshold = zone.free_shipping_threshold ?? 0;
