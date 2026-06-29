@@ -86,10 +86,9 @@ function CheckoutPage() {
     return threshold > 0 && subtotal >= threshold ? 0 : zone.fee_amount;
   }, [zone, subtotal]);
   const couponDiscount = appliedCoupon?.discount ?? 0;
-  const total = Math.max(0, subtotal + shippingFee - couponDiscount);
+  const referralDiscount = appliedReferral?.discount ?? 0;
+  const total = Math.max(0, subtotal + shippingFee - couponDiscount - referralDiscount);
 
-  // If the cart changes after a coupon was applied, re-validate so the displayed
-  // discount can't become stale (e.g. subtotal drops below the minimum).
   const couponMutation = useMutation({
     mutationFn: async (code: string) =>
       await validateCouponFn({ data: { code, subtotal } }),
@@ -105,18 +104,40 @@ function CheckoutPage() {
     },
   });
 
+  const referralMutation = useMutation({
+    mutationFn: async (code: string) =>
+      await validateReferralFn({ data: { code, subtotal } }),
+    onSuccess: (res) => {
+      setAppliedReferral({ code: res.code, discount: res.discount });
+      setReferralCode(res.code);
+      setReferralError(null);
+      toast.success(`Referral ${res.code} applied — saved ${formatBDT(res.discount)}`);
+    },
+    onError: (err: Error) => {
+      setAppliedReferral(null);
+      setReferralError(err.message || "Invalid referral code");
+    },
+  });
+
   function applyCoupon() {
     const code = couponCode.trim();
-    if (!code) {
-      setCouponError("Enter a coupon code");
-      return;
-    }
+    if (!code) { setCouponError("Enter a coupon code"); return; }
     couponMutation.mutate(code);
   }
   function removeCoupon() {
     setAppliedCoupon(null);
     setCouponCode("");
     setCouponError(null);
+  }
+  function applyReferral() {
+    const code = referralCode.trim();
+    if (!code) { setReferralError("Enter a referral code"); return; }
+    referralMutation.mutate(code);
+  }
+  function removeReferral() {
+    setAppliedReferral(null);
+    setReferralCode("");
+    setReferralError(null);
   }
 
   const mutation = useMutation({
