@@ -32,6 +32,35 @@ const CheckoutSchema = z.object({
 
 export type CheckoutInput = z.infer<typeof CheckoutSchema>;
 
+const ValidateCouponSchema = z.object({
+  code: z.string().trim().min(1).max(40),
+  subtotal: z.number().int().nonnegative(),
+});
+
+export const validateCoupon = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => ValidateCouponSchema.parse(data))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: cp, error } = await supabaseAdmin
+      .from("coupons")
+      .select("code,discount_type,discount_value,min_order_amount,max_discount,expires_at,usage_limit,used_count,is_active")
+      .ilike("code", data.code)
+      .maybeSingle();
+    if (error) throw new Error("Could not validate coupon");
+    if (!cp || !cp.is_active) throw new Error("Invalid coupon code");
+    if (cp.expires_at && new Date(cp.expires_at) < new Date()) throw new Error("This coupon has expired");
+    if (cp.usage_limit != null && cp.used_count >= cp.usage_limit) throw new Error("This coupon has reached its usage limit");
+    if (data.subtotal < (cp.min_order_amount ?? 0)) {
+      throw new Error(`Add more to reach the minimum order of ${cp.min_order_amount} for this coupon`);
+    }
+    let discount = cp.discount_type === "percent"
+      ? Math.floor((data.subtotal * cp.discount_value) / 100)
+      : cp.discount_value;
+    if (cp.max_discount != null) discount = Math.min(discount, cp.max_discount);
+    discount = Math.min(discount, data.subtotal);
+    return { code: cp.code, discount, discountType: cp.discount_type, discountValue: cp.discount_value };
+  });
+
 function generateOrderNumber() {
   const ts = Date.now().toString(36).toUpperCase();
   const rand = Math.random().toString(36).slice(2, 6).toUpperCase();

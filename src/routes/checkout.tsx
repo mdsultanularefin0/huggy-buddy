@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Check, Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,7 +13,7 @@ import { formatBDT } from "@/lib/currency";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { useCart, cartSubtotal } from "@/lib/cart-store";
-import { createOrder } from "@/lib/checkout.functions";
+import { createOrder, validateCoupon } from "@/lib/checkout.functions";
 import { BD_DISTRICTS } from "@/lib/bd-districts";
 import { toast } from "sonner";
 
@@ -51,6 +51,7 @@ function CheckoutPage() {
   const { items, clear } = useCart();
   const navigate = useNavigate();
   const createOrderFn = useServerFn(createOrder);
+  const validateCouponFn = useServerFn(validateCoupon);
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -61,6 +62,8 @@ function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState(data.methods[0]?.method_name ?? "");
   const [referralCode, setReferralCode] = useState("");
   const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null);
+  const [couponError, setCouponError] = useState<string | null>(null);
 
   // Auto-pick zone from district: "Dhaka" → Inside Dhaka, anything else → Outside Dhaka.
   const zone = useMemo(() => {
@@ -79,7 +82,39 @@ function CheckoutPage() {
     const threshold = zone.free_shipping_threshold ?? 0;
     return threshold > 0 && subtotal >= threshold ? 0 : zone.fee_amount;
   }, [zone, subtotal]);
-  const total = subtotal + shippingFee;
+  const couponDiscount = appliedCoupon?.discount ?? 0;
+  const total = Math.max(0, subtotal + shippingFee - couponDiscount);
+
+  // If the cart changes after a coupon was applied, re-validate so the displayed
+  // discount can't become stale (e.g. subtotal drops below the minimum).
+  const couponMutation = useMutation({
+    mutationFn: async (code: string) =>
+      await validateCouponFn({ data: { code, subtotal } }),
+    onSuccess: (res) => {
+      setAppliedCoupon({ code: res.code, discount: res.discount });
+      setCouponCode(res.code);
+      setCouponError(null);
+      toast.success(`Coupon ${res.code} applied — saved ${formatBDT(res.discount)}`);
+    },
+    onError: (err: Error) => {
+      setAppliedCoupon(null);
+      setCouponError(err.message || "Invalid coupon");
+    },
+  });
+
+  function applyCoupon() {
+    const code = couponCode.trim();
+    if (!code) {
+      setCouponError("Enter a coupon code");
+      return;
+    }
+    couponMutation.mutate(code);
+  }
+  function removeCoupon() {
+    setAppliedCoupon(null);
+    setCouponCode("");
+    setCouponError(null);
+  }
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -95,7 +130,7 @@ function CheckoutPage() {
           paymentMethod,
           items,
           referralCode: referralCode || undefined,
-          couponCode: couponCode || undefined,
+          couponCode: appliedCoupon?.code || undefined,
         },
       });
     },
@@ -246,12 +281,52 @@ function CheckoutPage() {
 
             <div className="border-t pt-4 space-y-1.5">
               <Label htmlFor="coupon" className="text-sm">Coupon code</Label>
-              <Input
-                id="coupon"
-                value={couponCode}
-                onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                placeholder="e.g. SAVE10"
-              />
+              <div className="flex gap-2">
+                <Input
+                  id="coupon"
+                  value={couponCode}
+                  onChange={(e) => {
+                    setCouponCode(e.target.value.toUpperCase());
+                    if (couponError) setCouponError(null);
+                    if (appliedCoupon) setAppliedCoupon(null);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      applyCoupon();
+                    }
+                  }}
+                  placeholder="e.g. SAVE10"
+                  disabled={!!appliedCoupon}
+                  aria-invalid={!!couponError}
+                  aria-describedby="coupon-msg"
+                />
+                {appliedCoupon ? (
+                  <Button type="button" variant="outline" onClick={removeCoupon}>
+                    <X className="w-4 h-4" />
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={applyCoupon}
+                    disabled={couponMutation.isPending || !couponCode.trim()}
+                  >
+                    {couponMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Apply"}
+                  </Button>
+                )}
+              </div>
+              <p id="coupon-msg" className="text-xs min-h-[1rem]">
+                {appliedCoupon ? (
+                  <span className="text-emerald-600 inline-flex items-center gap-1">
+                    <Check className="w-3.5 h-3.5" /> {appliedCoupon.code} applied · −{formatBDT(appliedCoupon.discount)}
+                  </span>
+                ) : couponError ? (
+                  <span className="text-destructive">{couponError}</span>
+                ) : (
+                  <span className="text-muted-foreground">Have a code? Enter and tap Apply.</span>
+                )}
+              </p>
             </div>
 
             <div className="border-t pt-4 space-y-2">
@@ -273,6 +348,12 @@ function CheckoutPage() {
             <div className="border-t pt-4 space-y-1 text-sm">
               <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{formatBDT(subtotal)}</span></div>
               <div className="flex justify-between"><span className="text-muted-foreground">Shipping</span><span>{shippingFee === 0 ? "Free" : formatBDT(shippingFee)}</span></div>
+              {appliedCoupon && (
+                <div className="flex justify-between text-emerald-600">
+                  <span>Coupon ({appliedCoupon.code})</span>
+                  <span>−{formatBDT(appliedCoupon.discount)}</span>
+                </div>
+              )}
               <div className="flex justify-between font-semibold text-base pt-2"><span>Total</span><span>{formatBDT(total)}</span></div>
             </div>
             <Button type="submit" variant="hero" size="lg" className="w-full" disabled={mutation.isPending}>
