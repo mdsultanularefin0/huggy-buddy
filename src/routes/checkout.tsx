@@ -147,18 +147,31 @@ function CheckoutPage() {
                 <Label htmlFor="email">Email (optional)</Label>
                 <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
               </div>
-              <div>
-                <Label htmlFor="district">District *</Label>
-                <Select value={district} onValueChange={setDistrict}>
-                  <SelectTrigger id="district" className="mt-1">
-                    <SelectValue placeholder="Select your district" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {BD_DISTRICTS.map((d) => (
-                      <SelectItem key={d} value={d}>{d}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="district">District *</Label>
+                  <Select value={district} onValueChange={setDistrict}>
+                    <SelectTrigger id="district" className="mt-1">
+                      <SelectValue placeholder="Select your district" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {BD_DISTRICTS.map((d) => (
+                        <SelectItem key={d} value={d}>{d}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="upazila">Upazila / Thana *</Label>
+                  <Input
+                    id="upazila"
+                    value={upazila}
+                    onChange={(e) => setUpazila(e.target.value)}
+                    required
+                    placeholder="e.g. Dhanmondi"
+                    className="mt-1"
+                  />
+                </div>
               </div>
               <div>
                 <Label htmlFor="address">Delivery address *</Label>
