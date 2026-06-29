@@ -191,18 +191,29 @@ function CheckoutPage() {
 
             <section className="space-y-3">
               <h2 className="font-semibold">Delivery Zone</h2>
-              <div className="grid sm:grid-cols-2 gap-2">
+              {zone ? (
+                <div className="p-3 rounded-xl border border-primary/40 bg-primary/5">
+                  <div className="font-medium text-sm">{zone.zone_name}</div>
+                  <div className="text-xs text-muted-foreground">
+                    Auto-selected from district · {formatBDT(zone.fee_amount)}
+                    {zone.free_shipping_threshold ? ` · Free over ${formatBDT(zone.free_shipping_threshold)}` : ""}
+                  </div>
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground">Select your district to see delivery charges.</p>
+              )}
+              <div className="grid sm:grid-cols-2 gap-2 opacity-70 pointer-events-none">
                 {data.zones.map((z) => (
-                  <button
-                    key={z.id} type="button" onClick={() => setZoneId(z.id)}
-                    className={`text-left p-3 rounded-xl border transition-colors ${zoneId === z.id ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"}`}
+                  <div
+                    key={z.id}
+                    className={`text-left p-3 rounded-xl border ${zone?.id === z.id ? "border-primary bg-primary/5" : "border-border"}`}
                   >
                     <div className="font-medium text-sm">{z.zone_name}</div>
                     <div className="text-xs text-muted-foreground">
                       {formatBDT(z.fee_amount)}
                       {z.free_shipping_threshold ? ` · Free over ${formatBDT(z.free_shipping_threshold)}` : ""}
                     </div>
-                  </button>
+                  </div>
                 ))}
               </div>
             </section>
