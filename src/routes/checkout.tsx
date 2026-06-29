@@ -108,6 +108,7 @@ function CheckoutPage() {
     if (!zoneId || !paymentMethod) return toast.error("Pick delivery zone & payment");
     if (name.trim().length < 2) return toast.error("Enter your full name");
     if (phone.trim().length < 6) return toast.error("Enter a valid phone number");
+    if (!district) return toast.error("Select your district");
     if (address.trim().length < 5) return toast.error("Enter a delivery address");
     mutation.mutate();
   };
