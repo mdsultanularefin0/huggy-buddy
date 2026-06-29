@@ -27,6 +27,7 @@ const CheckoutSchema = z.object({
   paymentMethod: z.string().min(1).max(60),
   items: z.array(CartItemSchema).min(1),
   referralCode: z.string().trim().max(40).optional().or(z.literal("")),
+  couponCode: z.string().trim().max(40).optional().or(z.literal("")),
 });
 
 export type CheckoutInput = z.infer<typeof CheckoutSchema>;
