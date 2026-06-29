@@ -62,6 +62,8 @@ function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState(data.methods[0]?.method_name ?? "");
   const [referralCode, setReferralCode] = useState("");
   const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null);
+  const [couponError, setCouponError] = useState<string | null>(null);
 
   // Auto-pick zone from district: "Dhaka" → Inside Dhaka, anything else → Outside Dhaka.
   const zone = useMemo(() => {
