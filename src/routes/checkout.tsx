@@ -56,6 +56,7 @@ function CheckoutPage() {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [district, setDistrict] = useState("");
+  const [upazila, setUpazila] = useState("");
   const [address, setAddress] = useState("");
   const [zoneId, setZoneId] = useState(data.zones[0]?.id ?? "");
   const [paymentMethod, setPaymentMethod] = useState(data.methods[0]?.method_name ?? "");
