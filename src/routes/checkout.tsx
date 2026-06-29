@@ -153,7 +153,7 @@ function CheckoutPage() {
           deliveryZoneId: zoneId,
           paymentMethod,
           items,
-          referralCode: referralCode || undefined,
+          referralCode: appliedReferral?.code || undefined,
           couponCode: appliedCoupon?.code || undefined,
         },
       });
