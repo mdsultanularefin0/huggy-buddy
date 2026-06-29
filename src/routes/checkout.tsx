@@ -61,12 +61,10 @@ function CheckoutPage() {
   const [upazila, setUpazila] = useState("");
   const [address, setAddress] = useState("");
   const [paymentMethod, setPaymentMethod] = useState(data.methods[0]?.method_name ?? "");
-  const [referralCode, setReferralCode] = useState("");
-  const [appliedReferral, setAppliedReferral] = useState<{ code: string; discount: number } | null>(null);
-  const [referralError, setReferralError] = useState<string | null>(null);
-  const [couponCode, setCouponCode] = useState("");
+  const [promoCode, setPromoCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null);
-  const [couponError, setCouponError] = useState<string | null>(null);
+  const [appliedReferral, setAppliedReferral] = useState<{ code: string; discount: number } | null>(null);
+  const [promoError, setPromoError] = useState<string | null>(null);
 
   // Auto-pick zone from district: "Dhaka" → Inside Dhaka, anything else → Outside Dhaka.
   const zone = useMemo(() => {
@@ -89,55 +87,51 @@ function CheckoutPage() {
   const referralDiscount = appliedReferral?.discount ?? 0;
   const total = Math.max(0, subtotal + shippingFee - couponDiscount - referralDiscount);
 
-  const couponMutation = useMutation({
-    mutationFn: async (code: string) =>
-      await validateCouponFn({ data: { code, subtotal } }),
+  // Single promo field: try coupon first, fall back to referral. Admin still
+  // manages coupons and referrals as separate tables/pages.
+  const promoMutation = useMutation({
+    mutationFn: async (code: string) => {
+      try {
+        const res = await validateCouponFn({ data: { code, subtotal } });
+        return { kind: "coupon" as const, code: res.code, discount: res.discount };
+      } catch {
+        const res = await validateReferralFn({ data: { code, subtotal } });
+        return { kind: "referral" as const, code: res.code, discount: res.discount };
+      }
+    },
     onSuccess: (res) => {
-      setAppliedCoupon({ code: res.code, discount: res.discount });
-      setCouponCode(res.code);
-      setCouponError(null);
-      toast.success(`Coupon ${res.code} applied — saved ${formatBDT(res.discount)}`);
+      setPromoError(null);
+      setPromoCode(res.code);
+      if (res.kind === "coupon") {
+        setAppliedCoupon({ code: res.code, discount: res.discount });
+        setAppliedReferral(null);
+        toast.success(`Coupon ${res.code} applied — saved ${formatBDT(res.discount)}`);
+      } else {
+        setAppliedReferral({ code: res.code, discount: res.discount });
+        setAppliedCoupon(null);
+        toast.success(`Referral ${res.code} applied — saved ${formatBDT(res.discount)}`);
+      }
     },
     onError: (err: Error) => {
       setAppliedCoupon(null);
-      setCouponError(err.message || "Invalid coupon");
-    },
-  });
-
-  const referralMutation = useMutation({
-    mutationFn: async (code: string) =>
-      await validateReferralFn({ data: { code, subtotal } }),
-    onSuccess: (res) => {
-      setAppliedReferral({ code: res.code, discount: res.discount });
-      setReferralCode(res.code);
-      setReferralError(null);
-      toast.success(`Referral ${res.code} applied — saved ${formatBDT(res.discount)}`);
-    },
-    onError: (err: Error) => {
       setAppliedReferral(null);
-      setReferralError(err.message || "Invalid referral code");
+      setPromoError(err.message || "Invalid code");
     },
   });
 
-  function applyCoupon() {
-    const code = couponCode.trim();
-    if (!code) { setCouponError("Enter a coupon code"); return; }
-    couponMutation.mutate(code);
+  const applied = appliedCoupon ?? appliedReferral;
+  const appliedKind = appliedCoupon ? "Coupon" : appliedReferral ? "Referral" : null;
+
+  function applyPromo() {
+    const code = promoCode.trim();
+    if (!code) { setPromoError("Enter a code"); return; }
+    promoMutation.mutate(code);
   }
-  function removeCoupon() {
+  function removePromo() {
     setAppliedCoupon(null);
-    setCouponCode("");
-    setCouponError(null);
-  }
-  function applyReferral() {
-    const code = referralCode.trim();
-    if (!code) { setReferralError("Enter a referral code"); return; }
-    referralMutation.mutate(code);
-  }
-  function removeReferral() {
     setAppliedReferral(null);
-    setReferralCode("");
-    setReferralError(null);
+    setPromoCode("");
+    setPromoError(null);
   }
 
   const mutation = useMutation({
@@ -280,51 +274,51 @@ function CheckoutPage() {
             </section>
 
             <section className="space-y-2">
-              <Label htmlFor="ref" className="font-semibold text-base">Referral code</Label>
+              <Label htmlFor="promo" className="font-semibold text-base">Promo code</Label>
               <div className="flex gap-2">
                 <Input
-                  id="ref"
-                  value={referralCode}
+                  id="promo"
+                  value={promoCode}
                   onChange={(e) => {
-                    setReferralCode(e.target.value.toUpperCase());
-                    if (referralError) setReferralError(null);
-                    if (appliedReferral) setAppliedReferral(null);
+                    setPromoCode(e.target.value.toUpperCase());
+                    if (promoError) setPromoError(null);
+                    if (applied) { setAppliedCoupon(null); setAppliedReferral(null); }
                   }}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       e.preventDefault();
-                      applyReferral();
+                      applyPromo();
                     }
                   }}
-                  placeholder="Enter referral code (optional)"
-                  disabled={!!appliedReferral}
-                  aria-invalid={!!referralError}
-                  aria-describedby="ref-msg"
+                  placeholder="Coupon or referral code"
+                  disabled={!!applied}
+                  aria-invalid={!!promoError}
+                  aria-describedby="promo-msg"
                 />
-                {appliedReferral ? (
-                  <Button type="button" variant="outline" onClick={removeReferral}>
+                {applied ? (
+                  <Button type="button" variant="outline" onClick={removePromo}>
                     <X className="w-4 h-4" />
                   </Button>
                 ) : (
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={applyReferral}
-                    disabled={referralMutation.isPending || !referralCode.trim()}
+                    onClick={applyPromo}
+                    disabled={promoMutation.isPending || !promoCode.trim()}
                   >
-                    {referralMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Apply"}
+                    {promoMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Apply"}
                   </Button>
                 )}
               </div>
-              <p id="ref-msg" className="text-xs min-h-[1rem]">
-                {appliedReferral ? (
+              <p id="promo-msg" className="text-xs min-h-[1rem]">
+                {applied ? (
                   <span className="text-emerald-600 inline-flex items-center gap-1">
-                    <Check className="w-3.5 h-3.5" /> {appliedReferral.code} applied · −{formatBDT(appliedReferral.discount)}
+                    <Check className="w-3.5 h-3.5" /> {appliedKind} {applied.code} applied · −{formatBDT(applied.discount)}
                   </span>
-                ) : referralError ? (
-                  <span className="text-destructive">{referralError}</span>
+                ) : promoError ? (
+                  <span className="text-destructive">{promoError}</span>
                 ) : (
-                  <span className="text-muted-foreground">Got a friend's code? Enter and tap Apply.</span>
+                  <span className="text-muted-foreground">Have a coupon or referral code? Enter and tap Apply.</span>
                 )}
               </p>
             </section>
@@ -343,55 +337,6 @@ function CheckoutPage() {
               ))}
             </div>
 
-            <div className="border-t pt-4 space-y-1.5">
-              <Label htmlFor="coupon" className="text-sm">Coupon code</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="coupon"
-                  value={couponCode}
-                  onChange={(e) => {
-                    setCouponCode(e.target.value.toUpperCase());
-                    if (couponError) setCouponError(null);
-                    if (appliedCoupon) setAppliedCoupon(null);
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      applyCoupon();
-                    }
-                  }}
-                  placeholder="e.g. SAVE10"
-                  disabled={!!appliedCoupon}
-                  aria-invalid={!!couponError}
-                  aria-describedby="coupon-msg"
-                />
-                {appliedCoupon ? (
-                  <Button type="button" variant="outline" onClick={removeCoupon}>
-                    <X className="w-4 h-4" />
-                  </Button>
-                ) : (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={applyCoupon}
-                    disabled={couponMutation.isPending || !couponCode.trim()}
-                  >
-                    {couponMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Apply"}
-                  </Button>
-                )}
-              </div>
-              <p id="coupon-msg" className="text-xs min-h-[1rem]">
-                {appliedCoupon ? (
-                  <span className="text-emerald-600 inline-flex items-center gap-1">
-                    <Check className="w-3.5 h-3.5" /> {appliedCoupon.code} applied · −{formatBDT(appliedCoupon.discount)}
-                  </span>
-                ) : couponError ? (
-                  <span className="text-destructive">{couponError}</span>
-                ) : (
-                  <span className="text-muted-foreground">Have a code? Enter and tap Apply.</span>
-                )}
-              </p>
-            </div>
 
             <div className="border-t pt-4 space-y-2">
               <Label className="text-sm">Payment Method</Label>
