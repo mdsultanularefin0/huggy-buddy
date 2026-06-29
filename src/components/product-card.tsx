@@ -40,13 +40,13 @@ export function ProductCard({ product }: { product: ProductCardData }) {
         )}
 
         <div className="absolute inset-0 flex items-end justify-center pb-6 opacity-0 translate-y-2 transition-all duration-500 group-hover:opacity-100 group-hover:translate-y-0">
-          <span className="bg-white/95 backdrop-blur-sm text-[#52277a] px-8 py-3 text-[10px] font-bold tracking-[0.2em] uppercase border border-[#52277a]/10 group-hover:bg-[#52277a] group-hover:text-white transition-colors duration-300">
+          <span className="bg-white/95 backdrop-blur-sm text-[#52277a] px-8 py-3 text-[10px] font-bold tracking-[0.2em] uppercase rounded-full border border-[#52277a]/10 group-hover:bg-[#52277a] group-hover:text-white transition-colors duration-300">
             View Details
           </span>
         </div>
 
         {(product.badge || onSale) && (
-          <span className="absolute top-4 left-4 bg-white px-2.5 py-1 text-[9px] font-semibold tracking-widest uppercase text-[#52277a] shadow-sm">
+          <span className="absolute top-4 left-4 bg-white px-2.5 py-1 text-[9px] font-semibold tracking-widest uppercase rounded-full text-[#52277a] shadow-sm">
             {product.badge ?? "Sale"}
           </span>
         )}
