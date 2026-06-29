@@ -687,7 +687,7 @@ function Landing() {
                 </h2>
               </div>
               <Carousel
-                opts={{ align: "start", loop: false, dragFree: false, containScroll: "trimSnaps" }}
+                opts={{ align: "start", loop: true, dragFree: false }}
                 className="w-full"
               >
                 <CarouselContent className="-ml-3 sm:-ml-4 touch-pan-y">
