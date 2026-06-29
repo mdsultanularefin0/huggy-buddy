@@ -95,6 +95,7 @@ function CheckoutPage() {
           paymentMethod,
           items,
           referralCode: referralCode || undefined,
+          couponCode: couponCode || undefined,
         },
       });
     },
