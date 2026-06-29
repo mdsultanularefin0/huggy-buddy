@@ -100,17 +100,23 @@ export const createOrder = createServerFn({ method: "POST" })
     const shippingFee =
       freeThreshold > 0 && subtotal >= freeThreshold ? 0 : zone.fee_amount;
 
-    // Referral: simple flat discount if code matches an active row
+    // Referral: flat discount when code matches an active row. Invalid/inactive
+    // codes are rejected so the customer sees the same total the server applies.
     let discount = 0;
+    let referralApplied: string | null = null;
     const refCode = (data.referralCode ?? "").trim();
     if (refCode) {
-      const { data: ref } = await supabaseAdmin
+      const { data: ref, error: refErr } = await supabaseAdmin
         .from("referral_codes")
         .select("code,discount_amount,is_active")
-        .eq("code", refCode)
-        .eq("is_active", true)
+        .ilike("code", refCode)
         .maybeSingle();
-      if (ref) discount += Math.min(ref.discount_amount ?? 0, subtotal);
+      if (refErr) throw new Error("Could not validate referral code");
+      if (!ref || !ref.is_active) throw new Error("Invalid referral code");
+      const refDiscount = Math.max(0, ref.discount_amount ?? 0);
+      if (refDiscount <= 0) throw new Error("Referral code has no discount");
+      discount += Math.min(refDiscount, subtotal);
+      referralApplied = ref.code;
     }
 
     // Coupon: percent or flat discount, with min order, max cap, expiry, usage limit
@@ -193,7 +199,7 @@ export const createOrder = createServerFn({ method: "POST" })
         payment_method: data.paymentMethod,
         payment_status: "Pending",
         order_status: "Pending",
-        referral_used: refCode || null,
+        referral_used: referralApplied,
         coupon_used: couponApplied,
       })
       .select("id,order_number,total")
@@ -201,10 +207,10 @@ export const createOrder = createServerFn({ method: "POST" })
     if (oErr || !order) throw new Error("Failed to place order");
 
     // Record referral usage (best-effort)
-    if (refCode && discount > 0) {
+    if (referralApplied) {
       await supabaseAdmin
         .from("referral_usage")
-        .insert({ referral_code: refCode, order_id: order.id });
+        .insert({ referral_code: referralApplied, order_id: order.id });
     }
 
     // Increment coupon used_count (best-effort)
