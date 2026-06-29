@@ -194,6 +194,7 @@ export const createOrder = createServerFn({ method: "POST" })
         payment_status: "Pending",
         order_status: "Pending",
         referral_used: refCode || null,
+        coupon_used: couponApplied,
       })
       .select("id,order_number,total")
       .single();
@@ -204,6 +205,19 @@ export const createOrder = createServerFn({ method: "POST" })
       await supabaseAdmin
         .from("referral_usage")
         .insert({ referral_code: refCode, order_id: order.id });
+    }
+
+    // Increment coupon used_count (best-effort)
+    if (couponApplied) {
+      await supabaseAdmin.rpc as never; // noop placeholder
+      const { data: cur } = await supabaseAdmin
+        .from("coupons").select("used_count").eq("code", couponApplied).maybeSingle();
+      if (cur) {
+        await supabaseAdmin
+          .from("coupons")
+          .update({ used_count: (cur.used_count ?? 0) + 1 })
+          .eq("code", couponApplied);
+      }
     }
 
     return {
