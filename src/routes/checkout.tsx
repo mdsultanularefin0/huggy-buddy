@@ -418,6 +418,12 @@ function CheckoutPage() {
                   <span>−{formatBDT(appliedCoupon.discount)}</span>
                 </div>
               )}
+              {appliedReferral && (
+                <div className="flex justify-between text-emerald-600">
+                  <span>Referral ({appliedReferral.code})</span>
+                  <span>−{formatBDT(appliedReferral.discount)}</span>
+                </div>
+              )}
               <div className="flex justify-between font-semibold text-base pt-2"><span>Total</span><span>{formatBDT(total)}</span></div>
             </div>
             <Button type="submit" variant="hero" size="lg" className="w-full" disabled={mutation.isPending}>
