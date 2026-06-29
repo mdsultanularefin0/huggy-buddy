@@ -337,55 +337,6 @@ function CheckoutPage() {
               ))}
             </div>
 
-            <div className="border-t pt-4 space-y-1.5">
-              <Label htmlFor="coupon" className="text-sm">Coupon code</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="coupon"
-                  value={couponCode}
-                  onChange={(e) => {
-                    setCouponCode(e.target.value.toUpperCase());
-                    if (couponError) setCouponError(null);
-                    if (appliedCoupon) setAppliedCoupon(null);
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      applyCoupon();
-                    }
-                  }}
-                  placeholder="e.g. SAVE10"
-                  disabled={!!appliedCoupon}
-                  aria-invalid={!!couponError}
-                  aria-describedby="coupon-msg"
-                />
-                {appliedCoupon ? (
-                  <Button type="button" variant="outline" onClick={removeCoupon}>
-                    <X className="w-4 h-4" />
-                  </Button>
-                ) : (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={applyCoupon}
-                    disabled={couponMutation.isPending || !couponCode.trim()}
-                  >
-                    {couponMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Apply"}
-                  </Button>
-                )}
-              </div>
-              <p id="coupon-msg" className="text-xs min-h-[1rem]">
-                {appliedCoupon ? (
-                  <span className="text-emerald-600 inline-flex items-center gap-1">
-                    <Check className="w-3.5 h-3.5" /> {appliedCoupon.code} applied · −{formatBDT(appliedCoupon.discount)}
-                  </span>
-                ) : couponError ? (
-                  <span className="text-destructive">{couponError}</span>
-                ) : (
-                  <span className="text-muted-foreground">Have a code? Enter and tap Apply.</span>
-                )}
-              </p>
-            </div>
 
             <div className="border-t pt-4 space-y-2">
               <Label className="text-sm">Payment Method</Label>
