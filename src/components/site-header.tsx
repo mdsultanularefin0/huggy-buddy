@@ -112,7 +112,7 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
           <button
             onClick={open}
             aria-label="Open cart"
-            className="relative w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center hover:bg-white/90 transition-colors"
+            className="relative w-10 h-10 rounded-full hover:bg-white/10 text-primary-foreground flex items-center justify-center transition-colors"
           >
             <ShoppingCart className="w-5 h-5" />
             {count > 0 && (
