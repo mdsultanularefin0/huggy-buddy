@@ -82,7 +82,39 @@ function CheckoutPage() {
     const threshold = zone.free_shipping_threshold ?? 0;
     return threshold > 0 && subtotal >= threshold ? 0 : zone.fee_amount;
   }, [zone, subtotal]);
-  const total = subtotal + shippingFee;
+  const couponDiscount = appliedCoupon?.discount ?? 0;
+  const total = Math.max(0, subtotal + shippingFee - couponDiscount);
+
+  // If the cart changes after a coupon was applied, re-validate so the displayed
+  // discount can't become stale (e.g. subtotal drops below the minimum).
+  const couponMutation = useMutation({
+    mutationFn: async (code: string) =>
+      await validateCouponFn({ data: { code, subtotal } }),
+    onSuccess: (res) => {
+      setAppliedCoupon({ code: res.code, discount: res.discount });
+      setCouponCode(res.code);
+      setCouponError(null);
+      toast.success(`Coupon ${res.code} applied — saved ${formatBDT(res.discount)}`);
+    },
+    onError: (err: Error) => {
+      setAppliedCoupon(null);
+      setCouponError(err.message || "Invalid coupon");
+    },
+  });
+
+  function applyCoupon() {
+    const code = couponCode.trim();
+    if (!code) {
+      setCouponError("Enter a coupon code");
+      return;
+    }
+    couponMutation.mutate(code);
+  }
+  function removeCoupon() {
+    setAppliedCoupon(null);
+    setCouponCode("");
+    setCouponError(null);
+  }
 
   const mutation = useMutation({
     mutationFn: async () => {
