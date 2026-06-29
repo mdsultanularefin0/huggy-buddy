@@ -131,6 +131,51 @@ export type Database = {
         }
         Relationships: []
       }
+      coupons: {
+        Row: {
+          code: string
+          created_at: string
+          discount_type: string
+          discount_value: number
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          max_discount: number | null
+          min_order_amount: number
+          updated_at: string
+          usage_limit: number | null
+          used_count: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          discount_type: string
+          discount_value: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_discount?: number | null
+          min_order_amount?: number
+          updated_at?: string
+          usage_limit?: number | null
+          used_count?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          discount_type?: string
+          discount_value?: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_discount?: number | null
+          min_order_amount?: number
+          updated_at?: string
+          usage_limit?: number | null
+          used_count?: number
+        }
+        Relationships: []
+      }
       customers: {
         Row: {
           address: string | null
@@ -202,6 +247,7 @@ export type Database = {
       }
       orders: {
         Row: {
+          coupon_used: string | null
           created_at: string
           customer_id: string | null
           customer_json: Json
@@ -222,6 +268,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          coupon_used?: string | null
           created_at?: string
           customer_id?: string | null
           customer_json: Json
@@ -242,6 +289,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          coupon_used?: string | null
           created_at?: string
           customer_id?: string | null
           customer_json?: Json

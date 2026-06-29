@@ -60,6 +60,7 @@ function CheckoutPage() {
   const [address, setAddress] = useState("");
   const [paymentMethod, setPaymentMethod] = useState(data.methods[0]?.method_name ?? "");
   const [referralCode, setReferralCode] = useState("");
+  const [couponCode, setCouponCode] = useState("");
 
   // Auto-pick zone from district: "Dhaka" → Inside Dhaka, anything else → Outside Dhaka.
   const zone = useMemo(() => {
@@ -94,6 +95,7 @@ function CheckoutPage() {
           paymentMethod,
           items,
           referralCode: referralCode || undefined,
+          couponCode: couponCode || undefined,
         },
       });
     },
@@ -233,14 +235,25 @@ function CheckoutPage() {
               ))}
             </div>
 
-            <div className="border-t pt-4 space-y-2">
-              <Label htmlFor="ref" className="text-sm">Coupon / Referral code</Label>
-              <Input
-                id="ref"
-                value={referralCode}
-                onChange={(e) => setReferralCode(e.target.value)}
-                placeholder="Enter code (optional)"
-              />
+            <div className="border-t pt-4 space-y-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="coupon" className="text-sm">Coupon code</Label>
+                <Input
+                  id="coupon"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                  placeholder="e.g. SAVE10"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="ref" className="text-sm">Referral code</Label>
+                <Input
+                  id="ref"
+                  value={referralCode}
+                  onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                  placeholder="Friend's referral code"
+                />
+              </div>
             </div>
 
             <div className="border-t pt-4 space-y-2">

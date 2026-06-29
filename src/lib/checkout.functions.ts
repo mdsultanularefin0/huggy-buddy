@@ -27,6 +27,7 @@ const CheckoutSchema = z.object({
   paymentMethod: z.string().min(1).max(60),
   items: z.array(CartItemSchema).min(1),
   referralCode: z.string().trim().max(40).optional().or(z.literal("")),
+  couponCode: z.string().trim().max(40).optional().or(z.literal("")),
 });
 
 export type CheckoutInput = z.infer<typeof CheckoutSchema>;
@@ -109,9 +110,34 @@ export const createOrder = createServerFn({ method: "POST" })
         .eq("code", refCode)
         .eq("is_active", true)
         .maybeSingle();
-      if (ref) discount = Math.min(ref.discount_amount ?? 0, subtotal);
+      if (ref) discount += Math.min(ref.discount_amount ?? 0, subtotal);
     }
 
+    // Coupon: percent or flat discount, with min order, max cap, expiry, usage limit
+    const couponCode = (data.couponCode ?? "").trim();
+    let couponApplied: string | null = null;
+    if (couponCode) {
+      const { data: cp } = await supabaseAdmin
+        .from("coupons")
+        .select("code,discount_type,discount_value,min_order_amount,max_discount,expires_at,usage_limit,used_count,is_active")
+        .eq("code", couponCode)
+        .eq("is_active", true)
+        .maybeSingle();
+      if (!cp) throw new Error("Invalid coupon code");
+      if (cp.expires_at && new Date(cp.expires_at) < new Date()) throw new Error("Coupon expired");
+      if (cp.usage_limit != null && cp.used_count >= cp.usage_limit) throw new Error("Coupon usage limit reached");
+      if (subtotal < (cp.min_order_amount ?? 0)) {
+        throw new Error(`Coupon requires minimum order of ${cp.min_order_amount}`);
+      }
+      let cd = cp.discount_type === "percent"
+        ? Math.floor((subtotal * cp.discount_value) / 100)
+        : cp.discount_value;
+      if (cp.max_discount != null) cd = Math.min(cd, cp.max_discount);
+      discount += Math.min(cd, Math.max(0, subtotal - discount));
+      couponApplied = cp.code;
+    }
+
+    discount = Math.min(discount, subtotal);
     const total = Math.max(0, subtotal + shippingFee - discount);
 
     // Upsert customer by normalized phone (handles "017...", "8801...", "+880 17...", etc.)
@@ -168,6 +194,7 @@ export const createOrder = createServerFn({ method: "POST" })
         payment_status: "Pending",
         order_status: "Pending",
         referral_used: refCode || null,
+        coupon_used: couponApplied,
       })
       .select("id,order_number,total")
       .single();
@@ -178,6 +205,18 @@ export const createOrder = createServerFn({ method: "POST" })
       await supabaseAdmin
         .from("referral_usage")
         .insert({ referral_code: refCode, order_id: order.id });
+    }
+
+    // Increment coupon used_count (best-effort)
+    if (couponApplied) {
+      const { data: cur } = await supabaseAdmin
+        .from("coupons").select("used_count").eq("code", couponApplied).maybeSingle();
+      if (cur) {
+        await supabaseAdmin
+          .from("coupons")
+          .update({ used_count: (cur.used_count ?? 0) + 1 })
+          .eq("code", couponApplied);
+      }
     }
 
     return {
