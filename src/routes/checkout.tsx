@@ -281,12 +281,52 @@ function CheckoutPage() {
 
             <section className="space-y-2">
               <Label htmlFor="ref" className="font-semibold text-base">Referral code</Label>
-              <Input
-                id="ref"
-                value={referralCode}
-                onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
-                placeholder="Enter referral code (optional)"
-              />
+              <div className="flex gap-2">
+                <Input
+                  id="ref"
+                  value={referralCode}
+                  onChange={(e) => {
+                    setReferralCode(e.target.value.toUpperCase());
+                    if (referralError) setReferralError(null);
+                    if (appliedReferral) setAppliedReferral(null);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      applyReferral();
+                    }
+                  }}
+                  placeholder="Enter referral code (optional)"
+                  disabled={!!appliedReferral}
+                  aria-invalid={!!referralError}
+                  aria-describedby="ref-msg"
+                />
+                {appliedReferral ? (
+                  <Button type="button" variant="outline" onClick={removeReferral}>
+                    <X className="w-4 h-4" />
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={applyReferral}
+                    disabled={referralMutation.isPending || !referralCode.trim()}
+                  >
+                    {referralMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Apply"}
+                  </Button>
+                )}
+              </div>
+              <p id="ref-msg" className="text-xs min-h-[1rem]">
+                {appliedReferral ? (
+                  <span className="text-emerald-600 inline-flex items-center gap-1">
+                    <Check className="w-3.5 h-3.5" /> {appliedReferral.code} applied · −{formatBDT(appliedReferral.discount)}
+                  </span>
+                ) : referralError ? (
+                  <span className="text-destructive">{referralError}</span>
+                ) : (
+                  <span className="text-muted-foreground">Got a friend's code? Enter and tap Apply.</span>
+                )}
+              </p>
             </section>
           </div>
 
