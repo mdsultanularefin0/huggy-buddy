@@ -56,6 +56,7 @@ function CheckoutPage() {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [district, setDistrict] = useState("");
+  const [upazila, setUpazila] = useState("");
   const [address, setAddress] = useState("");
   const [zoneId, setZoneId] = useState(data.zones[0]?.id ?? "");
   const [paymentMethod, setPaymentMethod] = useState(data.methods[0]?.method_name ?? "");
@@ -74,7 +75,12 @@ function CheckoutPage() {
     mutationFn: async () => {
       return await createOrderFn({
         data: {
-          customer: { name, phone, address: district ? `${address}, ${district}` : address, email: email || undefined },
+          customer: {
+            name,
+            phone,
+            address: [address, upazila, district].filter(Boolean).join(", "),
+            email: email || undefined,
+          },
           deliveryZoneId: zoneId,
           paymentMethod,
           items,
@@ -109,6 +115,7 @@ function CheckoutPage() {
     if (name.trim().length < 2) return toast.error("Enter your full name");
     if (phone.trim().length < 6) return toast.error("Enter a valid phone number");
     if (!district) return toast.error("Select your district");
+    if (upazila.trim().length < 2) return toast.error("Enter your upazila/thana");
     if (address.trim().length < 5) return toast.error("Enter a delivery address");
     mutation.mutate();
   };
@@ -140,18 +147,31 @@ function CheckoutPage() {
                 <Label htmlFor="email">Email (optional)</Label>
                 <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
               </div>
-              <div>
-                <Label htmlFor="district">District *</Label>
-                <Select value={district} onValueChange={setDistrict}>
-                  <SelectTrigger id="district" className="mt-1">
-                    <SelectValue placeholder="Select your district" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {BD_DISTRICTS.map((d) => (
-                      <SelectItem key={d} value={d}>{d}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="district">District *</Label>
+                  <Select value={district} onValueChange={setDistrict}>
+                    <SelectTrigger id="district" className="mt-1">
+                      <SelectValue placeholder="Select your district" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {BD_DISTRICTS.map((d) => (
+                        <SelectItem key={d} value={d}>{d}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="upazila">Upazila / Thana *</Label>
+                  <Input
+                    id="upazila"
+                    value={upazila}
+                    onChange={(e) => setUpazila(e.target.value)}
+                    required
+                    placeholder="e.g. Dhanmondi"
+                    className="mt-1"
+                  />
+                </div>
               </div>
               <div>
                 <Label htmlFor="address">Delivery address *</Label>
