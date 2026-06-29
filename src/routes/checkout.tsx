@@ -115,6 +115,7 @@ function CheckoutPage() {
     if (name.trim().length < 2) return toast.error("Enter your full name");
     if (phone.trim().length < 6) return toast.error("Enter a valid phone number");
     if (!district) return toast.error("Select your district");
+    if (upazila.trim().length < 2) return toast.error("Enter your upazila/thana");
     if (address.trim().length < 5) return toast.error("Enter a delivery address");
     mutation.mutate();
   };
