@@ -62,6 +62,8 @@ function CheckoutPage() {
   const [address, setAddress] = useState("");
   const [paymentMethod, setPaymentMethod] = useState(data.methods[0]?.method_name ?? "");
   const [referralCode, setReferralCode] = useState("");
+  const [appliedReferral, setAppliedReferral] = useState<{ code: string; discount: number } | null>(null);
+  const [referralError, setReferralError] = useState<string | null>(null);
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null);
   const [couponError, setCouponError] = useState<string | null>(null);
