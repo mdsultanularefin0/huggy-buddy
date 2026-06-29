@@ -91,12 +91,26 @@ function CheckoutPage() {
   // manages coupons and referrals as separate tables/pages.
   const promoMutation = useMutation({
     mutationFn: async (code: string) => {
+      // Try coupon first. If it's specifically "not a coupon", fall back to
+      // referral. Surface any other coupon error (expired, min order, etc.).
+      let couponErr: Error | null = null;
       try {
         const res = await validateCouponFn({ data: { code, subtotal } });
         return { kind: "coupon" as const, code: res.code, discount: res.discount };
-      } catch {
+      } catch (e) {
+        couponErr = e as Error;
+      }
+      const isUnknownCoupon = /invalid coupon/i.test(couponErr?.message ?? "");
+      if (!isUnknownCoupon) throw couponErr;
+      try {
         const res = await validateReferralFn({ data: { code, subtotal } });
         return { kind: "referral" as const, code: res.code, discount: res.discount };
+      } catch (e) {
+        const refErr = e as Error;
+        if (/invalid referral/i.test(refErr.message)) {
+          throw new Error("Invalid promo code");
+        }
+        throw refErr;
       }
     },
     onSuccess: (res) => {
@@ -115,7 +129,7 @@ function CheckoutPage() {
     onError: (err: Error) => {
       setAppliedCoupon(null);
       setAppliedReferral(null);
-      setPromoError(err.message || "Invalid code");
+      setPromoError(err.message || "Invalid promo code");
     },
   });
 
