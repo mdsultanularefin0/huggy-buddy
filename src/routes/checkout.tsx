@@ -75,7 +75,12 @@ function CheckoutPage() {
     mutationFn: async () => {
       return await createOrderFn({
         data: {
-          customer: { name, phone, address: district ? `${address}, ${district}` : address, email: email || undefined },
+          customer: {
+            name,
+            phone,
+            address: [address, upazila, district].filter(Boolean).join(", "),
+            email: email || undefined,
+          },
           deliveryZoneId: zoneId,
           paymentMethod,
           items,
