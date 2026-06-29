@@ -261,7 +261,7 @@ function CheckoutPage() {
                 id="ref"
                 value={referralCode}
                 onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
-                placeholder="Friend's referral code (optional)"
+                placeholder="Enter referral code (optional)"
               />
             </section>
           </div>
