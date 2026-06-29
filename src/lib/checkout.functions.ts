@@ -209,7 +209,6 @@ export const createOrder = createServerFn({ method: "POST" })
 
     // Increment coupon used_count (best-effort)
     if (couponApplied) {
-      await supabaseAdmin.rpc as never; // noop placeholder
       const { data: cur } = await supabaseAdmin
         .from("coupons").select("used_count").eq("code", couponApplied).maybeSingle();
       if (cur) {
