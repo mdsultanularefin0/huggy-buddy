@@ -207,10 +207,10 @@ export const createOrder = createServerFn({ method: "POST" })
     if (oErr || !order) throw new Error("Failed to place order");
 
     // Record referral usage (best-effort)
-    if (refCode && discount > 0) {
+    if (referralApplied) {
       await supabaseAdmin
         .from("referral_usage")
-        .insert({ referral_code: refCode, order_id: order.id });
+        .insert({ referral_code: referralApplied, order_id: order.id });
     }
 
     // Increment coupon used_count (best-effort)
