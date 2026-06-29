@@ -61,12 +61,10 @@ function CheckoutPage() {
   const [upazila, setUpazila] = useState("");
   const [address, setAddress] = useState("");
   const [paymentMethod, setPaymentMethod] = useState(data.methods[0]?.method_name ?? "");
-  const [referralCode, setReferralCode] = useState("");
-  const [appliedReferral, setAppliedReferral] = useState<{ code: string; discount: number } | null>(null);
-  const [referralError, setReferralError] = useState<string | null>(null);
-  const [couponCode, setCouponCode] = useState("");
+  const [promoCode, setPromoCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null);
-  const [couponError, setCouponError] = useState<string | null>(null);
+  const [appliedReferral, setAppliedReferral] = useState<{ code: string; discount: number } | null>(null);
+  const [promoError, setPromoError] = useState<string | null>(null);
 
   // Auto-pick zone from district: "Dhaka" → Inside Dhaka, anything else → Outside Dhaka.
   const zone = useMemo(() => {
@@ -89,55 +87,51 @@ function CheckoutPage() {
   const referralDiscount = appliedReferral?.discount ?? 0;
   const total = Math.max(0, subtotal + shippingFee - couponDiscount - referralDiscount);
 
-  const couponMutation = useMutation({
-    mutationFn: async (code: string) =>
-      await validateCouponFn({ data: { code, subtotal } }),
+  // Single promo field: try coupon first, fall back to referral. Admin still
+  // manages coupons and referrals as separate tables/pages.
+  const promoMutation = useMutation({
+    mutationFn: async (code: string) => {
+      try {
+        const res = await validateCouponFn({ data: { code, subtotal } });
+        return { kind: "coupon" as const, code: res.code, discount: res.discount };
+      } catch {
+        const res = await validateReferralFn({ data: { code, subtotal } });
+        return { kind: "referral" as const, code: res.code, discount: res.discount };
+      }
+    },
     onSuccess: (res) => {
-      setAppliedCoupon({ code: res.code, discount: res.discount });
-      setCouponCode(res.code);
-      setCouponError(null);
-      toast.success(`Coupon ${res.code} applied — saved ${formatBDT(res.discount)}`);
+      setPromoError(null);
+      setPromoCode(res.code);
+      if (res.kind === "coupon") {
+        setAppliedCoupon({ code: res.code, discount: res.discount });
+        setAppliedReferral(null);
+        toast.success(`Coupon ${res.code} applied — saved ${formatBDT(res.discount)}`);
+      } else {
+        setAppliedReferral({ code: res.code, discount: res.discount });
+        setAppliedCoupon(null);
+        toast.success(`Referral ${res.code} applied — saved ${formatBDT(res.discount)}`);
+      }
     },
     onError: (err: Error) => {
       setAppliedCoupon(null);
-      setCouponError(err.message || "Invalid coupon");
-    },
-  });
-
-  const referralMutation = useMutation({
-    mutationFn: async (code: string) =>
-      await validateReferralFn({ data: { code, subtotal } }),
-    onSuccess: (res) => {
-      setAppliedReferral({ code: res.code, discount: res.discount });
-      setReferralCode(res.code);
-      setReferralError(null);
-      toast.success(`Referral ${res.code} applied — saved ${formatBDT(res.discount)}`);
-    },
-    onError: (err: Error) => {
       setAppliedReferral(null);
-      setReferralError(err.message || "Invalid referral code");
+      setPromoError(err.message || "Invalid code");
     },
   });
 
-  function applyCoupon() {
-    const code = couponCode.trim();
-    if (!code) { setCouponError("Enter a coupon code"); return; }
-    couponMutation.mutate(code);
+  const applied = appliedCoupon ?? appliedReferral;
+  const appliedKind = appliedCoupon ? "Coupon" : appliedReferral ? "Referral" : null;
+
+  function applyPromo() {
+    const code = promoCode.trim();
+    if (!code) { setPromoError("Enter a code"); return; }
+    promoMutation.mutate(code);
   }
-  function removeCoupon() {
+  function removePromo() {
     setAppliedCoupon(null);
-    setCouponCode("");
-    setCouponError(null);
-  }
-  function applyReferral() {
-    const code = referralCode.trim();
-    if (!code) { setReferralError("Enter a referral code"); return; }
-    referralMutation.mutate(code);
-  }
-  function removeReferral() {
     setAppliedReferral(null);
-    setReferralCode("");
-    setReferralError(null);
+    setPromoCode("");
+    setPromoError(null);
   }
 
   const mutation = useMutation({
