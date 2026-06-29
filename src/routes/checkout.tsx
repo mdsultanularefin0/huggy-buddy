@@ -218,27 +218,9 @@ function CheckoutPage() {
               </div>
             </section>
 
-            <section className="space-y-3">
-              <h2 className="font-semibold">Payment Method</h2>
-              <div className="grid sm:grid-cols-2 gap-2">
-                {data.methods.map((m) => (
-                  <button
-                    key={m.id} type="button" onClick={() => setPaymentMethod(m.method_name)}
-                    className={`text-left p-3 rounded-xl border transition-colors ${paymentMethod === m.method_name ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"}`}
-                  >
-                    <div className="font-medium text-sm">{m.method_name}</div>
-                  </button>
-                ))}
-              </div>
-            </section>
-
-            <section>
-              <Label htmlFor="ref">Referral code (optional)</Label>
-              <Input id="ref" value={referralCode} onChange={(e) => setReferralCode(e.target.value)} />
-            </section>
           </div>
 
-          <aside className="lg:sticky lg:top-24 h-fit p-6 rounded-2xl border bg-card space-y-4">
+          <aside className="lg:sticky lg:top-24 h-fit p-6 rounded-2xl border bg-card space-y-5">
             <h2 className="font-semibold">Order Summary</h2>
             <div className="space-y-2 max-h-72 overflow-y-auto">
               {items.map((i) => (
@@ -250,6 +232,33 @@ function CheckoutPage() {
                 </div>
               ))}
             </div>
+
+            <div className="border-t pt-4 space-y-2">
+              <Label htmlFor="ref" className="text-sm">Coupon / Referral code</Label>
+              <Input
+                id="ref"
+                value={referralCode}
+                onChange={(e) => setReferralCode(e.target.value)}
+                placeholder="Enter code (optional)"
+              />
+            </div>
+
+            <div className="border-t pt-4 space-y-2">
+              <Label className="text-sm">Payment Method</Label>
+              <div className="grid grid-cols-2 gap-2">
+                {data.methods.map((m) => (
+                  <button
+                    key={m.id}
+                    type="button"
+                    onClick={() => setPaymentMethod(m.method_name)}
+                    className={`text-left p-2.5 rounded-lg border text-sm transition-colors ${paymentMethod === m.method_name ? "border-primary bg-primary/5 font-medium" : "border-border hover:border-primary/40"}`}
+                  >
+                    {m.method_name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="border-t pt-4 space-y-1 text-sm">
               <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{formatBDT(subtotal)}</span></div>
               <div className="flex justify-between"><span className="text-muted-foreground">Shipping</span><span>{shippingFee === 0 ? "Free" : formatBDT(shippingFee)}</span></div>
