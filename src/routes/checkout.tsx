@@ -130,7 +130,7 @@ function CheckoutPage() {
           paymentMethod,
           items,
           referralCode: referralCode || undefined,
-          couponCode: couponCode || undefined,
+          couponCode: appliedCoupon?.code || undefined,
         },
       });
     },
