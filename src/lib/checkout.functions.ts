@@ -199,7 +199,7 @@ export const createOrder = createServerFn({ method: "POST" })
         payment_method: data.paymentMethod,
         payment_status: "Pending",
         order_status: "Pending",
-        referral_used: refCode || null,
+        referral_used: referralApplied,
         coupon_used: couponApplied,
       })
       .select("id,order_number,total")
