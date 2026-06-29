@@ -235,25 +235,14 @@ function CheckoutPage() {
               ))}
             </div>
 
-            <div className="border-t pt-4 space-y-3">
-              <div className="space-y-1.5">
-                <Label htmlFor="coupon" className="text-sm">Coupon code</Label>
-                <Input
-                  id="coupon"
-                  value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                  placeholder="e.g. SAVE10"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="ref" className="text-sm">Referral code</Label>
-                <Input
-                  id="ref"
-                  value={referralCode}
-                  onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
-                  placeholder="Friend's referral code"
-                />
-              </div>
+            <div className="border-t pt-4 space-y-1.5">
+              <Label htmlFor="coupon" className="text-sm">Coupon code</Label>
+              <Input
+                id="coupon"
+                value={couponCode}
+                onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                placeholder="e.g. SAVE10"
+              />
             </div>
 
             <div className="border-t pt-4 space-y-2">
