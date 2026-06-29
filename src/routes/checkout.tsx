@@ -274,51 +274,51 @@ function CheckoutPage() {
             </section>
 
             <section className="space-y-2">
-              <Label htmlFor="ref" className="font-semibold text-base">Referral code</Label>
+              <Label htmlFor="promo" className="font-semibold text-base">Promo code</Label>
               <div className="flex gap-2">
                 <Input
-                  id="ref"
-                  value={referralCode}
+                  id="promo"
+                  value={promoCode}
                   onChange={(e) => {
-                    setReferralCode(e.target.value.toUpperCase());
-                    if (referralError) setReferralError(null);
-                    if (appliedReferral) setAppliedReferral(null);
+                    setPromoCode(e.target.value.toUpperCase());
+                    if (promoError) setPromoError(null);
+                    if (applied) { setAppliedCoupon(null); setAppliedReferral(null); }
                   }}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       e.preventDefault();
-                      applyReferral();
+                      applyPromo();
                     }
                   }}
-                  placeholder="Enter referral code (optional)"
-                  disabled={!!appliedReferral}
-                  aria-invalid={!!referralError}
-                  aria-describedby="ref-msg"
+                  placeholder="Coupon or referral code"
+                  disabled={!!applied}
+                  aria-invalid={!!promoError}
+                  aria-describedby="promo-msg"
                 />
-                {appliedReferral ? (
-                  <Button type="button" variant="outline" onClick={removeReferral}>
+                {applied ? (
+                  <Button type="button" variant="outline" onClick={removePromo}>
                     <X className="w-4 h-4" />
                   </Button>
                 ) : (
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={applyReferral}
-                    disabled={referralMutation.isPending || !referralCode.trim()}
+                    onClick={applyPromo}
+                    disabled={promoMutation.isPending || !promoCode.trim()}
                   >
-                    {referralMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Apply"}
+                    {promoMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Apply"}
                   </Button>
                 )}
               </div>
-              <p id="ref-msg" className="text-xs min-h-[1rem]">
-                {appliedReferral ? (
+              <p id="promo-msg" className="text-xs min-h-[1rem]">
+                {applied ? (
                   <span className="text-emerald-600 inline-flex items-center gap-1">
-                    <Check className="w-3.5 h-3.5" /> {appliedReferral.code} applied · −{formatBDT(appliedReferral.discount)}
+                    <Check className="w-3.5 h-3.5" /> {appliedKind} {applied.code} applied · −{formatBDT(applied.discount)}
                   </span>
-                ) : referralError ? (
-                  <span className="text-destructive">{referralError}</span>
+                ) : promoError ? (
+                  <span className="text-destructive">{promoError}</span>
                 ) : (
-                  <span className="text-muted-foreground">Got a friend's code? Enter and tap Apply.</span>
+                  <span className="text-muted-foreground">Have a coupon or referral code? Enter and tap Apply.</span>
                 )}
               </p>
             </section>
