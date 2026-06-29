@@ -5,6 +5,11 @@ export default defineConfig({
     server: {
       entry: "server",
       preset: "node-server",
+      output: {
+        dir: "{{ rootDir }}/dist",
+        serverDir: "{{ output.dir }}/server",
+        publicDir: "{{ output.dir }}/public",
+      },
     },
   },
 });
