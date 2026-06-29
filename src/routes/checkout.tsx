@@ -273,8 +273,24 @@ function CheckoutPage() {
               </div>
             </section>
 
-            <section className="space-y-2">
-              <Label htmlFor="promo" className="font-semibold text-base">Promo code</Label>
+          </div>
+
+          <aside className="lg:sticky lg:top-24 h-fit p-6 rounded-2xl border bg-card space-y-5">
+            <h2 className="font-semibold">Order Summary</h2>
+            <div className="space-y-2 max-h-72 overflow-y-auto">
+              {items.map((i) => (
+                <div key={i.lineId} className="flex justify-between text-sm">
+                  <span className="truncate pr-2">
+                    {i.name}{i.size ? ` (${i.size})` : ""} × {i.quantity}
+                  </span>
+                  <span className="font-medium">{formatBDT(i.unitPrice * i.quantity)}</span>
+                </div>
+              ))}
+            </div>
+
+
+            <div className="border-t pt-4 space-y-1.5">
+              <Label htmlFor="promo" className="text-sm">Promo code</Label>
               <div className="flex gap-2">
                 <Input
                   id="promo"
@@ -321,22 +337,7 @@ function CheckoutPage() {
                   <span className="text-muted-foreground">Have a coupon or referral code? Enter and tap Apply.</span>
                 )}
               </p>
-            </section>
-          </div>
-
-          <aside className="lg:sticky lg:top-24 h-fit p-6 rounded-2xl border bg-card space-y-5">
-            <h2 className="font-semibold">Order Summary</h2>
-            <div className="space-y-2 max-h-72 overflow-y-auto">
-              {items.map((i) => (
-                <div key={i.lineId} className="flex justify-between text-sm">
-                  <span className="truncate pr-2">
-                    {i.name}{i.size ? ` (${i.size})` : ""} × {i.quantity}
-                  </span>
-                  <span className="font-medium">{formatBDT(i.unitPrice * i.quantity)}</span>
-                </div>
-              ))}
             </div>
-
 
             <div className="border-t pt-4 space-y-2">
               <Label className="text-sm">Payment Method</Label>
