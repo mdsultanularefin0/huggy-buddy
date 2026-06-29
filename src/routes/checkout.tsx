@@ -13,7 +13,7 @@ import { formatBDT } from "@/lib/currency";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { useCart, cartSubtotal } from "@/lib/cart-store";
-import { createOrder, validateCoupon } from "@/lib/checkout.functions";
+import { createOrder, validateCoupon, validateReferral } from "@/lib/checkout.functions";
 import { BD_DISTRICTS } from "@/lib/bd-districts";
 import { toast } from "sonner";
 
@@ -52,6 +52,7 @@ function CheckoutPage() {
   const navigate = useNavigate();
   const createOrderFn = useServerFn(createOrder);
   const validateCouponFn = useServerFn(validateCoupon);
+  const validateReferralFn = useServerFn(validateReferral);
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -61,6 +62,8 @@ function CheckoutPage() {
   const [address, setAddress] = useState("");
   const [paymentMethod, setPaymentMethod] = useState(data.methods[0]?.method_name ?? "");
   const [referralCode, setReferralCode] = useState("");
+  const [appliedReferral, setAppliedReferral] = useState<{ code: string; discount: number } | null>(null);
+  const [referralError, setReferralError] = useState<string | null>(null);
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null);
   const [couponError, setCouponError] = useState<string | null>(null);
@@ -83,10 +86,9 @@ function CheckoutPage() {
     return threshold > 0 && subtotal >= threshold ? 0 : zone.fee_amount;
   }, [zone, subtotal]);
   const couponDiscount = appliedCoupon?.discount ?? 0;
-  const total = Math.max(0, subtotal + shippingFee - couponDiscount);
+  const referralDiscount = appliedReferral?.discount ?? 0;
+  const total = Math.max(0, subtotal + shippingFee - couponDiscount - referralDiscount);
 
-  // If the cart changes after a coupon was applied, re-validate so the displayed
-  // discount can't become stale (e.g. subtotal drops below the minimum).
   const couponMutation = useMutation({
     mutationFn: async (code: string) =>
       await validateCouponFn({ data: { code, subtotal } }),
@@ -102,18 +104,40 @@ function CheckoutPage() {
     },
   });
 
+  const referralMutation = useMutation({
+    mutationFn: async (code: string) =>
+      await validateReferralFn({ data: { code, subtotal } }),
+    onSuccess: (res) => {
+      setAppliedReferral({ code: res.code, discount: res.discount });
+      setReferralCode(res.code);
+      setReferralError(null);
+      toast.success(`Referral ${res.code} applied — saved ${formatBDT(res.discount)}`);
+    },
+    onError: (err: Error) => {
+      setAppliedReferral(null);
+      setReferralError(err.message || "Invalid referral code");
+    },
+  });
+
   function applyCoupon() {
     const code = couponCode.trim();
-    if (!code) {
-      setCouponError("Enter a coupon code");
-      return;
-    }
+    if (!code) { setCouponError("Enter a coupon code"); return; }
     couponMutation.mutate(code);
   }
   function removeCoupon() {
     setAppliedCoupon(null);
     setCouponCode("");
     setCouponError(null);
+  }
+  function applyReferral() {
+    const code = referralCode.trim();
+    if (!code) { setReferralError("Enter a referral code"); return; }
+    referralMutation.mutate(code);
+  }
+  function removeReferral() {
+    setAppliedReferral(null);
+    setReferralCode("");
+    setReferralError(null);
   }
 
   const mutation = useMutation({
@@ -129,7 +153,7 @@ function CheckoutPage() {
           deliveryZoneId: zoneId,
           paymentMethod,
           items,
-          referralCode: referralCode || undefined,
+          referralCode: appliedReferral?.code || undefined,
           couponCode: appliedCoupon?.code || undefined,
         },
       });
@@ -257,12 +281,52 @@ function CheckoutPage() {
 
             <section className="space-y-2">
               <Label htmlFor="ref" className="font-semibold text-base">Referral code</Label>
-              <Input
-                id="ref"
-                value={referralCode}
-                onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
-                placeholder="Enter referral code (optional)"
-              />
+              <div className="flex gap-2">
+                <Input
+                  id="ref"
+                  value={referralCode}
+                  onChange={(e) => {
+                    setReferralCode(e.target.value.toUpperCase());
+                    if (referralError) setReferralError(null);
+                    if (appliedReferral) setAppliedReferral(null);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      applyReferral();
+                    }
+                  }}
+                  placeholder="Enter referral code (optional)"
+                  disabled={!!appliedReferral}
+                  aria-invalid={!!referralError}
+                  aria-describedby="ref-msg"
+                />
+                {appliedReferral ? (
+                  <Button type="button" variant="outline" onClick={removeReferral}>
+                    <X className="w-4 h-4" />
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={applyReferral}
+                    disabled={referralMutation.isPending || !referralCode.trim()}
+                  >
+                    {referralMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Apply"}
+                  </Button>
+                )}
+              </div>
+              <p id="ref-msg" className="text-xs min-h-[1rem]">
+                {appliedReferral ? (
+                  <span className="text-emerald-600 inline-flex items-center gap-1">
+                    <Check className="w-3.5 h-3.5" /> {appliedReferral.code} applied · −{formatBDT(appliedReferral.discount)}
+                  </span>
+                ) : referralError ? (
+                  <span className="text-destructive">{referralError}</span>
+                ) : (
+                  <span className="text-muted-foreground">Got a friend's code? Enter and tap Apply.</span>
+                )}
+              </p>
             </section>
           </div>
 
@@ -352,6 +416,12 @@ function CheckoutPage() {
                 <div className="flex justify-between text-emerald-600">
                   <span>Coupon ({appliedCoupon.code})</span>
                   <span>−{formatBDT(appliedCoupon.discount)}</span>
+                </div>
+              )}
+              {appliedReferral && (
+                <div className="flex justify-between text-emerald-600">
+                  <span>Referral ({appliedReferral.code})</span>
+                  <span>−{formatBDT(appliedReferral.discount)}</span>
                 </div>
               )}
               <div className="flex justify-between font-semibold text-base pt-2"><span>Total</span><span>{formatBDT(total)}</span></div>

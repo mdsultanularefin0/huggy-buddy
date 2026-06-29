@@ -61,6 +61,27 @@ export const validateCoupon = createServerFn({ method: "POST" })
     return { code: cp.code, discount, discountType: cp.discount_type, discountValue: cp.discount_value };
   });
 
+const ValidateReferralSchema = z.object({
+  code: z.string().trim().min(1).max(40),
+  subtotal: z.number().int().nonnegative(),
+});
+
+export const validateReferral = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => ValidateReferralSchema.parse(data))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: ref, error } = await supabaseAdmin
+      .from("referral_codes")
+      .select("code,discount_amount,is_active")
+      .ilike("code", data.code)
+      .maybeSingle();
+    if (error) throw new Error("Could not validate referral code");
+    if (!ref || !ref.is_active) throw new Error("Invalid referral code");
+    const refDiscount = Math.max(0, ref.discount_amount ?? 0);
+    if (refDiscount <= 0) throw new Error("Referral code has no discount");
+    return { code: ref.code, discount: Math.min(refDiscount, data.subtotal) };
+  });
+
 function generateOrderNumber() {
   const ts = Date.now().toString(36).toUpperCase();
   const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
