@@ -7,12 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBDT } from "@/lib/currency";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { useCart, cartSubtotal } from "@/lib/cart-store";
 import { createOrder } from "@/lib/checkout.functions";
+import { BD_DISTRICTS } from "@/lib/bd-districts";
 import { toast } from "sonner";
 
 type Zone = {
@@ -53,6 +55,7 @@ function CheckoutPage() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+  const [district, setDistrict] = useState("");
   const [address, setAddress] = useState("");
   const [zoneId, setZoneId] = useState(data.zones[0]?.id ?? "");
   const [paymentMethod, setPaymentMethod] = useState(data.methods[0]?.method_name ?? "");
@@ -71,7 +74,7 @@ function CheckoutPage() {
     mutationFn: async () => {
       return await createOrderFn({
         data: {
-          customer: { name, phone, address, email: email || undefined },
+          customer: { name, phone, address: district ? `${address}, ${district}` : address, email: email || undefined },
           deliveryZoneId: zoneId,
           paymentMethod,
           items,
@@ -105,6 +108,7 @@ function CheckoutPage() {
     if (!zoneId || !paymentMethod) return toast.error("Pick delivery zone & payment");
     if (name.trim().length < 2) return toast.error("Enter your full name");
     if (phone.trim().length < 6) return toast.error("Enter a valid phone number");
+    if (!district) return toast.error("Select your district");
     if (address.trim().length < 5) return toast.error("Enter a delivery address");
     mutation.mutate();
   };
@@ -137,8 +141,21 @@ function CheckoutPage() {
                 <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
               </div>
               <div>
+                <Label htmlFor="district">District *</Label>
+                <Select value={district} onValueChange={setDistrict}>
+                  <SelectTrigger id="district" className="mt-1">
+                    <SelectValue placeholder="Select your district" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {BD_DISTRICTS.map((d) => (
+                      <SelectItem key={d} value={d}>{d}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
                 <Label htmlFor="address">Delivery address *</Label>
-                <Textarea id="address" rows={3} value={address} onChange={(e) => setAddress(e.target.value)} required />
+                <Textarea id="address" rows={3} value={address} onChange={(e) => setAddress(e.target.value)} required placeholder="House, road, area / thana" />
               </div>
               <p className="text-xs text-muted-foreground">No account needed — guest checkout.</p>
             </section>
