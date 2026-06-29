@@ -51,6 +51,7 @@ function CheckoutPage() {
   const { items, clear } = useCart();
   const navigate = useNavigate();
   const createOrderFn = useServerFn(createOrder);
+  const validateCouponFn = useServerFn(validateCoupon);
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
