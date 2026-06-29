@@ -348,6 +348,12 @@ function CheckoutPage() {
             <div className="border-t pt-4 space-y-1 text-sm">
               <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{formatBDT(subtotal)}</span></div>
               <div className="flex justify-between"><span className="text-muted-foreground">Shipping</span><span>{shippingFee === 0 ? "Free" : formatBDT(shippingFee)}</span></div>
+              {appliedCoupon && (
+                <div className="flex justify-between text-emerald-600">
+                  <span>Coupon ({appliedCoupon.code})</span>
+                  <span>−{formatBDT(appliedCoupon.discount)}</span>
+                </div>
+              )}
               <div className="flex justify-between font-semibold text-base pt-2"><span>Total</span><span>{formatBDT(total)}</span></div>
             </div>
             <Button type="submit" variant="hero" size="lg" className="w-full" disabled={mutation.isPending}>
