@@ -52,6 +52,7 @@ function CheckoutPage() {
   const navigate = useNavigate();
   const createOrderFn = useServerFn(createOrder);
   const validateCouponFn = useServerFn(validateCoupon);
+  const validateReferralFn = useServerFn(validateReferral);
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
