@@ -23,9 +23,14 @@ export function ProductCard({ product }: { product: ProductCardData }) {
     <Link
       to="/product/$slug"
       params={{ slug: product.slug }}
-      className="group relative block bg-white rounded-3xl overflow-hidden transition-shadow duration-500 hover:shadow-[0_30px_60px_-15px_rgba(82,39,122,0.18)]"
+      className="group relative block bg-[#f5edff] rounded-3xl transition-shadow duration-500 hover:shadow-[0_30px_60px_-15px_rgba(82,39,122,0.25)]"
     >
-      <div className="relative aspect-[4/5] overflow-hidden rounded-3xl bg-[#f3f0f3]">
+      {(product.badge || onSale) && (
+        <span className="absolute -top-4 -left-4 z-10 w-16 h-16 rounded-full bg-[#a555f0] text-white flex items-center justify-center text-[10px] font-bold tracking-widest uppercase shadow-lg ring-4 ring-white">
+          {product.badge ?? "Sale"}
+        </span>
+      )}
+      <div className="relative aspect-[4/5] overflow-hidden rounded-3xl bg-[#ece2f7]">
         {product.image_url ? (
           <img
             src={product.image_url}
@@ -44,12 +49,6 @@ export function ProductCard({ product }: { product: ProductCardData }) {
             View Details
           </span>
         </div>
-
-        {(product.badge || onSale) && (
-          <span className="absolute top-4 left-4 bg-white px-2.5 py-1 text-[9px] font-semibold tracking-widest uppercase rounded-full text-[#52277a] shadow-sm">
-            {product.badge ?? "Sale"}
-          </span>
-        )}
       </div>
 
       <div className="px-4 py-6 text-center">
