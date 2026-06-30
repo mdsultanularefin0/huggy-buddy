@@ -473,7 +473,7 @@ function Landing() {
 
   const marquee = (
     <div
-      className="relative z-20 w-full -mt-56 sm:-mt-60 lg:-mt-64 xl:-mt-72 bg-gradient-to-r from-[#a555f0] to-[#52277a] text-white py-1.5 overflow-hidden shadow-lg bg-cover bg-center"
+      className="relative z-20 w-full -mt-28 sm:-mt-36 md:-mt-44 lg:-mt-56 xl:-mt-64 bg-gradient-to-r from-[#a555f0] to-[#52277a] text-white py-1.5 overflow-hidden shadow-lg bg-cover bg-center"
       style={bannerImage ? { backgroundImage: `url(${bannerImage})` } : undefined}
     >
       <div className="marquee-track text-xs sm:text-sm font-medium tracking-wide">
