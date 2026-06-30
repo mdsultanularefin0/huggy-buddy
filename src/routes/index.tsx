@@ -406,7 +406,7 @@ function Landing() {
       <CarouselContent className="-ml-3 sm:-ml-4">
         {categories.map((cat) => {
           const cardClass =
-            "relative w-full aspect-square rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-purple-200 to-purple-100 bg-cover bg-center";
+            "relative block w-full aspect-square rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-purple-200 to-purple-100 bg-cover bg-center";
           const style = cat.image_url ? { backgroundImage: `url(${cat.image_url})` } : undefined;
           return (
             <CarouselItem
