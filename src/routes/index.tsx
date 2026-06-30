@@ -390,7 +390,7 @@ function Landing() {
   const heroImageBlock = (
     <div className="relative w-full max-w-[280px] mx-auto lg:mx-0 aspect-[3/4]">
       <div
-        className="absolute inset-0 z-0 rounded-2xl overflow-hidden bg-gradient-to-br from-purple-100 to-purple-50 bg-cover bg-center"
+        className="absolute inset-0 z-0 rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-purple-100 to-purple-50 bg-cover bg-center"
         style={heroImage ? { backgroundImage: `url(${heroImage})` } : undefined}
       />
       <div
@@ -517,17 +517,16 @@ function Landing() {
 
             {/* Mobile / Tablet layout */}
             <div className="lg:hidden">
-              <div className="grid grid-cols-[1fr_1fr] gap-3 sm:gap-4 w-full pt-6 sm:pt-8 items-center pl-[max(1rem,var(--safe-left))] pr-[max(1rem,var(--safe-right))] sm:pl-[max(1.5rem,var(--safe-left))] sm:pr-[max(1.5rem,var(--safe-right))]">
+              <div className="grid grid-cols-[1fr_1fr] gap-4 w-full pt-8 items-start pl-[max(1rem,var(--safe-left))] pr-[max(1rem,var(--safe-right))] sm:pl-[max(1.5rem,var(--safe-left))] sm:pr-[max(1.5rem,var(--safe-right))]">
                 {heroImageBlock}
-                <div>{flashTimer}</div>
+                <div className="sm:mt-10 md:mt-20">{flashTimer}</div>
               </div>
               {bannerEnabled ? marquee : null}
-              <div className="w-full bg-gradient-to-r from-[#52277a] to-[#a555f0] pt-8 sm:pt-10 pb-6 flex items-end relative z-10">
+              <div className="w-full bg-gradient-to-r from-[#52277a] to-[#a555f0] pt-[calc(4rem+var(--safe-bottom))] sm:pt-[calc(6rem+var(--safe-bottom))] pb-6 flex items-end relative z-10">
                 <div className="w-full max-w-7xl mx-auto pl-[max(1rem,var(--safe-left))] pr-[max(1rem,var(--safe-right))] sm:pl-[max(1.5rem,var(--safe-left))] sm:pr-[max(1.5rem,var(--safe-right))]">
                   {mobileCategoryCards}
                 </div>
               </div>
-
             </div>
           </>
         ) : bannerEnabled ? (
