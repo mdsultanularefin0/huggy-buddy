@@ -1,0 +1,200 @@
+================================================================
+DEPLOYING THIS PROJECT (TanStack Start + Vite + Supabase) ON cPANEL
+================================================================
+
+This project is a full-stack TanStack Start app (React 19 + Vite 7 + SSR).
+It is NOT a plain static site, so you cannot just upload `dist/` to
+`public_html`. It needs a Node.js process running the SSR server.
+
+cPanel supports this through the "Setup Node.js App" feature (powered by
+CloudLinux Passenger). Your hosting plan MUST include:
+  - Node.js 20+ (Setup Node.js App)
+  - SSH access (strongly recommended)
+  - Ability to set environment variables
+  - Outbound HTTPS (to reach Supabase)
+
+If your plan is shared hosting WITHOUT Node.js support, you cannot run
+this project there. Use Lovable's built-in Publish, Vercel, Netlify, or
+Cloudflare instead.
+
+----------------------------------------------------------------
+STEP 1 — Prepare the build locally
+----------------------------------------------------------------
+On your local machine:
+
+   bun install
+   bun run build
+
+This produces a `.output/` (or `dist/`) directory containing the Node
+server bundle. The default build target in this project is Cloudflare
+Workers (see vite.config.ts). For cPanel you must switch the target to
+Node before building:
+
+   In vite.config.ts, change the nitro preset to "node-server":
+
+      export default defineConfig({
+        tanstackStart: {
+          server: { entry: "server" },
+        },
+        nitro: {
+          preset: "node-server",
+        },
+      });
+
+   Then re-run `bun run build`. The output will be in `.output/server/`
+   with an `index.mjs` entry file.
+
+----------------------------------------------------------------
+STEP 2 — Upload files to cPanel
+----------------------------------------------------------------
+Upload the following to a folder OUTSIDE `public_html` (e.g. `~/app`):
+
+   - .output/           (the build output)
+   - package.json
+   - bun.lockb or package-lock.json
+   - .env               (production values — see Step 4)
+
+You can upload via:
+   - cPanel File Manager (zip + upload + extract), or
+   - SSH + rsync / scp / git clone (preferred)
+
+----------------------------------------------------------------
+STEP 3 — Create the Node.js App in cPanel
+----------------------------------------------------------------
+1. cPanel → "Setup Node.js App" → "Create Application".
+2. Node.js version: 20.x or higher.
+3. Application mode: Production.
+4. Application root: /home/USER/app
+5. Application URL: your domain or subdomain.
+6. Application startup file: .output/server/index.mjs
+7. Click "Create".
+
+cPanel will create a virtualenv and show an "Enter to the virtual
+environment" command like:
+   source /home/USER/nodevenv/app/20/bin/activate && cd /home/USER/app
+
+Run it in SSH, then:
+   npm install --omit=dev
+
+(Do NOT run `bun install` inside the cPanel venv — use npm; the venv is
+npm-based.)
+
+----------------------------------------------------------------
+STEP 4 — Environment variables
+----------------------------------------------------------------
+In "Setup Node.js App" → your app → "Environment variables", add:
+
+   NODE_ENV                       = production
+   PORT                           = (leave blank, Passenger sets it)
+   SUPABASE_URL                   = https://YOUR-PROJECT.supabase.co
+   SUPABASE_PUBLISHABLE_KEY       = sb_publishable_xxx
+   SUPABASE_SERVICE_ROLE_KEY      = (only if you use admin features)
+   VITE_SUPABASE_URL              = same as SUPABASE_URL
+   VITE_SUPABASE_PUBLISHABLE_KEY  = same as SUPABASE_PUBLISHABLE_KEY
+   VITE_SUPABASE_PROJECT_ID       = your project id
+
+Note: VITE_* values are baked into the build at build time, NOT read at
+runtime. If you change them you MUST rebuild and re-upload.
+
+Click "Save", then "Restart" the app.
+
+----------------------------------------------------------------
+STEP 5 — Point your domain
+----------------------------------------------------------------
+The Node app runs on an internal port; Passenger proxies your domain to
+it automatically based on the "Application URL" you set. If you used a
+subdomain, create it in cPanel → Domains first.
+
+Enable SSL via cPanel → SSL/TLS Status → "Run AutoSSL".
+
+================================================================
+COMMON ERRORS AND FIXES
+================================================================
+
+ERROR: "Application failed to start" / 503 from Passenger
+  CAUSE: Startup file path wrong, or build was for Cloudflare not Node.
+  FIX:   Confirm Step 1 used preset "node-server" and that
+         .output/server/index.mjs exists. Update "Application startup
+         file" to match. Check stderr in ~/app/stderr.log or
+         /home/USER/logs/.
+
+ERROR: "Cannot find module '@tanstack/react-start/server-entry'"
+  CAUSE: Dependencies not installed in the cPanel venv.
+  FIX:   SSH in, activate the venv, run `npm install --omit=dev` in the
+         app root.
+
+ERROR: "[unenv] <method> is not implemented yet!"
+  CAUSE: You built for Cloudflare Workers (default) and deployed to
+         Node. Some Node APIs are stubbed in the Worker build.
+  FIX:   Rebuild with nitro preset "node-server" (Step 1).
+
+ERROR: 500 with body {"unhandled":true,"message":"HTTPError"}
+  CAUSE: SSR threw before dispatch. The project already includes
+         src/server.ts wrapper to surface real errors.
+  FIX:   Check ~/app/stderr.log — the real stack trace is logged there.
+
+ERROR: "Expected 3 parts in JWT; got 1"
+  CAUSE: You set a new-format sb_secret_/sb_publishable_ key as the
+         server Data API key, but a query expects a JWT-format key.
+  FIX:   Use the JWT-format anon key for VITE_SUPABASE_PUBLISHABLE_KEY,
+         or update the call site to use the publishable client.
+
+ERROR: Blank page / "Failed to fetch" in browser, but server is up
+  CAUSE: VITE_SUPABASE_* env vars were not set at BUILD time, so the
+         client bundle has empty values.
+  FIX:   Set them in your local .env BEFORE `bun run build`, then
+         re-upload .output/.
+
+ERROR: "EACCES: permission denied" writing to /tmp or app dir
+  CAUSE: Shared hosting restricts write paths.
+  FIX:   Only write under your home dir. Never write to system paths.
+
+ERROR: Refresh on a sub-route returns cPanel 404 page
+  CAUSE: Passenger is serving static files and missing the SSR fallback.
+  FIX:   Make sure the "Application URL" covers the whole domain/sub-
+         domain and that there is no conflicting .htaccess in
+         public_html. Remove or empty public_html/.htaccess if the
+         domain is fully handled by the Node app.
+
+ERROR: "Port already in use" / EADDRINUSE
+  CAUSE: You hard-coded a port. Passenger injects PORT itself.
+  FIX:   Use process.env.PORT (the Node preset already does this).
+         Do not override it.
+
+ERROR: Google OAuth fails with "redirect_uri_mismatch"
+  CAUSE: Supabase Auth + Google Console don't have your cPanel domain
+         whitelisted.
+  FIX:   In Supabase → Auth → URL Configuration, add
+         https://yourdomain.com and https://yourdomain.com/auth/callback
+         to Site URL and Redirect URLs. Add the same to your Google
+         OAuth client's "Authorized redirect URIs".
+
+ERROR: Edge function / webhook calls fail
+  CAUSE: This project uses TanStack server functions and Supabase Edge
+         Functions. Edge Functions still run on Supabase, not cPanel —
+         you don't deploy them here. Just make sure your Supabase
+         project has them deployed.
+
+ERROR: App stops responding after a while
+  CAUSE: cPanel idles Node apps. Also memory limits on shared plans.
+  FIX:   Use cPanel "Cron Jobs" to hit your URL every 5 min:
+            */5 * * * * curl -s https://yourdomain.com/ > /dev/null
+         If you hit RAM limits, upgrade the plan.
+
+ERROR: "bun: command not found" on the server
+  CAUSE: cPanel Node venv ships npm, not bun.
+  FIX:   Use npm on the server. Use bun only on your local dev machine.
+
+================================================================
+QUICK CHECKLIST
+================================================================
+[ ] Changed nitro preset to "node-server" in vite.config.ts
+[ ] `bun run build` succeeded locally
+[ ] .env contained correct VITE_* values BEFORE building
+[ ] Uploaded .output/, package.json, lockfile, .env to ~/app
+[ ] Created Node.js App in cPanel, Node 20+, startup .output/server/index.mjs
+[ ] `npm install --omit=dev` ran cleanly in the venv
+[ ] Added server env vars in cPanel UI, restarted app
+[ ] AutoSSL enabled for the domain
+[ ] Supabase Auth Site URL + Redirect URLs include the cPanel domain
+[ ] Tested home page, a deep link refresh, sign-in, a DB read
