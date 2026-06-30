@@ -473,7 +473,7 @@ function Landing() {
 
   const marquee = (
     <div
-      className="relative z-20 w-full -mt-32 sm:-mt-40 lg:-mt-48 bg-gradient-to-r from-[#a555f0] to-[#52277a] text-white py-1.5 overflow-hidden shadow-lg bg-cover bg-center"
+      className="relative z-20 w-full -mt-20 sm:-mt-40 lg:-mt-48 bg-gradient-to-r from-[#a555f0] to-[#52277a] text-white py-1 sm:py-1.5 overflow-hidden shadow-lg bg-cover bg-center"
       style={bannerImage ? { backgroundImage: `url(${bannerImage})` } : undefined}
     >
       <div className="marquee-track text-xs sm:text-sm font-medium tracking-wide">
@@ -522,7 +522,7 @@ function Landing() {
                 <div className="sm:mt-10 md:mt-20">{flashTimer}</div>
               </div>
               {bannerEnabled ? marquee : null}
-              <div className="w-full bg-gradient-to-r from-[#52277a] to-[#a555f0] pt-[calc(4rem+var(--safe-bottom))] sm:pt-[calc(6rem+var(--safe-bottom))] pb-6 flex items-end relative z-10">
+              <div className="w-full bg-gradient-to-r from-[#52277a] to-[#a555f0] pt-[calc(2rem+var(--safe-bottom))] sm:pt-[calc(6rem+var(--safe-bottom))] pb-3 sm:pb-6 flex items-end relative z-10">
                 <div className="w-full max-w-7xl mx-auto pl-[max(1rem,var(--safe-left))] pr-[max(1rem,var(--safe-right))] sm:pl-[max(1.5rem,var(--safe-left))] sm:pr-[max(1.5rem,var(--safe-right))]">
                   {mobileCategoryCards}
                 </div>
