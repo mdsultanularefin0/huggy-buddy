@@ -401,6 +401,7 @@ function Landing() {
   const categoryCarousel = categories.length ? (
     <Carousel
       opts={{ loop: true, align: "start", dragFree: false }}
+      plugins={[autoplayRef.current]}
       className="w-full sm:max-w-[640px] md:max-w-[860px] lg:max-w-[720px] mx-auto"
     >
       <CarouselContent className="-ml-3 sm:-ml-4">
