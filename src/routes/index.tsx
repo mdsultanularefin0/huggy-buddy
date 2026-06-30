@@ -398,35 +398,33 @@ function Landing() {
     </div>
   );
 
-  const renderCategoryCards = (items: typeof slots, gridClass: string) => (
-    <div className={`grid ${gridClass} gap-3 sm:gap-4 w-full sm:max-w-[640px] md:max-w-[860px] lg:max-w-[720px] mx-auto`}>
-
-      {items.map((cat, i) => {
-        const cardClass =
-          "relative w-full aspect-square rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-purple-200 to-purple-100 bg-cover bg-center";
-        const style = cat?.image_url ? { backgroundImage: `url(${cat.image_url})` } : undefined;
-        const banner = (
-          <div className="absolute bottom-0 left-0 w-full bg-[#52277a]/70 backdrop-blur-sm py-1.5 px-1 text-center text-white text-xs md:text-sm font-medium tracking-wide">
-            {cat?.name ?? "Coming soon"}
-          </div>
-        );
-        if (!cat) {
+  const categoryCarousel = categories.length ? (
+    <Carousel
+      opts={{ loop: true, align: "start", dragFree: false }}
+      className="w-full sm:max-w-[640px] md:max-w-[860px] lg:max-w-[720px] mx-auto"
+    >
+      <CarouselContent className="-ml-3 sm:-ml-4">
+        {categories.map((cat) => {
+          const cardClass =
+            "relative w-full aspect-square rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-purple-200 to-purple-100 bg-cover bg-center";
+          const style = cat.image_url ? { backgroundImage: `url(${cat.image_url})` } : undefined;
           return (
-            <div key={i} className={cardClass}>
-              {banner}
-            </div>
+            <CarouselItem
+              key={cat.id}
+              className="pl-3 sm:pl-4 basis-1/3 lg:basis-1/4"
+            >
+              <Link to="/category/$slug" params={{ slug: cat.slug }} className={cardClass} style={style}>
+                <div className="absolute bottom-0 left-0 w-full bg-[#52277a]/70 backdrop-blur-sm py-1.5 px-1 text-center text-white text-xs md:text-sm font-medium tracking-wide">
+                  {cat.name}
+                </div>
+              </Link>
+            </CarouselItem>
           );
-        }
-        return (
-          <Link key={cat.id} to="/category/$slug" params={{ slug: cat.slug }} className={cardClass} style={style}>
-            {banner}
-          </Link>
-        );
-      })}
-    </div>
-  );
-  const categoryCards = renderCategoryCards(slots, "grid-cols-2 sm:grid-cols-4");
-  const mobileCategoryCards = renderCategoryCards(mobileSlots, "grid-cols-3");
+        })}
+      </CarouselContent>
+    </Carousel>
+  ) : null;
+
 
   const orderNowButton = (
     <div className="flex justify-center lg:justify-start">
