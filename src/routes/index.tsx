@@ -304,10 +304,8 @@ function Landing() {
     ? selectedIds
         .map((id) => allCategories.find((c) => c.id === id))
         .filter((c): c is (typeof allCategories)[number] => Boolean(c))
-    : allCategories.slice(0, 4);
+    : allCategories;
 
-  const slots = Array.from({ length: 4 }, (_, i) => categories[i]);
-  const mobileSlots = Array.from({ length: 3 }, (_, i) => categories[i]);
   const heroImage = hero?.hero_image ?? null;
   const heroOverlay = hero?.hero_overlay_image ?? null;
 
@@ -400,35 +398,33 @@ function Landing() {
     </div>
   );
 
-  const renderCategoryCards = (items: typeof slots, gridClass: string) => (
-    <div className={`grid ${gridClass} gap-3 sm:gap-4 w-full sm:max-w-[640px] md:max-w-[860px] lg:max-w-[720px] mx-auto`}>
-
-      {items.map((cat, i) => {
-        const cardClass =
-          "relative w-full aspect-square rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-purple-200 to-purple-100 bg-cover bg-center";
-        const style = cat?.image_url ? { backgroundImage: `url(${cat.image_url})` } : undefined;
-        const banner = (
-          <div className="absolute bottom-0 left-0 w-full bg-[#52277a]/70 backdrop-blur-sm py-1.5 px-1 text-center text-white text-xs md:text-sm font-medium tracking-wide">
-            {cat?.name ?? "Coming soon"}
-          </div>
-        );
-        if (!cat) {
+  const categoryCarousel = categories.length ? (
+    <Carousel
+      opts={{ loop: true, align: "start", dragFree: false }}
+      className="w-full sm:max-w-[640px] md:max-w-[860px] lg:max-w-[720px] mx-auto"
+    >
+      <CarouselContent className="-ml-3 sm:-ml-4">
+        {categories.map((cat) => {
+          const cardClass =
+            "relative w-full aspect-square rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-purple-200 to-purple-100 bg-cover bg-center";
+          const style = cat.image_url ? { backgroundImage: `url(${cat.image_url})` } : undefined;
           return (
-            <div key={i} className={cardClass}>
-              {banner}
-            </div>
+            <CarouselItem
+              key={cat.id}
+              className="pl-3 sm:pl-4 basis-1/3 lg:basis-1/4"
+            >
+              <Link to="/category/$slug" params={{ slug: cat.slug }} className={cardClass} style={style}>
+                <div className="absolute bottom-0 left-0 w-full bg-[#52277a]/70 backdrop-blur-sm py-1.5 px-1 text-center text-white text-xs md:text-sm font-medium tracking-wide">
+                  {cat.name}
+                </div>
+              </Link>
+            </CarouselItem>
           );
-        }
-        return (
-          <Link key={cat.id} to="/category/$slug" params={{ slug: cat.slug }} className={cardClass} style={style}>
-            {banner}
-          </Link>
-        );
-      })}
-    </div>
-  );
-  const categoryCards = renderCategoryCards(slots, "grid-cols-2 sm:grid-cols-4");
-  const mobileCategoryCards = renderCategoryCards(mobileSlots, "grid-cols-3");
+        })}
+      </CarouselContent>
+    </Carousel>
+  ) : null;
+
 
   const orderNowButton = (
     <div className="flex justify-center lg:justify-start">
@@ -499,7 +495,7 @@ function Landing() {
             <div className="hidden lg:block">
               <div className="grid grid-cols-[1fr_2fr] gap-4 w-full max-w-[1600px] mx-auto pt-8 items-start px-6 lg:pl-12 xl:pl-20 2xl:pl-32">
                 {heroImageBlock}
-                {categoryCards}
+                {categoryCarousel}
               </div>
               {bannerEnabled ? marquee : null}
               <div className="w-full bg-gradient-to-r from-[#52277a] to-[#a555f0] py-6 relative z-10">
@@ -524,7 +520,7 @@ function Landing() {
               {bannerEnabled ? marquee : null}
               <div className="w-full bg-gradient-to-r from-[#52277a] to-[#a555f0] pt-[calc(2rem+var(--safe-bottom))] sm:pt-[calc(6rem+var(--safe-bottom))] pb-3 sm:pb-6 flex items-end relative z-10">
                 <div className="w-full max-w-7xl mx-auto pl-[max(1rem,var(--safe-left))] pr-[max(1rem,var(--safe-right))] sm:pl-[max(1.5rem,var(--safe-left))] sm:pr-[max(1.5rem,var(--safe-right))]">
-                  {mobileCategoryCards}
+                  {categoryCarousel}
                 </div>
               </div>
             </div>
