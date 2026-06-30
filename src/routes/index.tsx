@@ -388,19 +388,19 @@ function Landing() {
   const flashTitle = hero?.flash_timer_title ?? "Flash Sale! Up to 200Tk Off!";
 
   const heroImageBlock = (
-    <div className="relative w-full max-w-[280px] mx-auto lg:mx-0 aspect-[3/4]">
+    <div className="relative w-full h-[450px] lg:h-[600px]">
       {heroImage && (
         <img
           src={heroImage}
           alt=""
-          className="absolute inset-0 z-0 w-full h-full object-contain"
+          className="absolute bottom-0 left-0 w-full h-full object-contain object-bottom z-0 transform scale-110 lg:scale-125 origin-bottom-left"
         />
       )}
       {heroOverlay && (
         <img
           src={heroOverlay}
           alt=""
-          className="absolute inset-0 z-30 w-full h-full object-contain pointer-events-none"
+          className="absolute bottom-0 left-0 w-full h-full object-contain object-bottom z-30 pointer-events-none transform scale-110 lg:scale-125 origin-bottom-left"
         />
       )}
     </div>
