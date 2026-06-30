@@ -12,4 +12,9 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  nitro: {
+    // Build a standalone Node.js server (for cPanel / Passenger / any Node host).
+    // Output: .output/server/index.mjs
+    preset: "node-server",
+  },
 });
