@@ -388,21 +388,15 @@ function Landing() {
   const flashTitle = hero?.flash_timer_title ?? "Flash Sale! Up to 200Tk Off!";
 
   const heroImageBlock = (
-    <div className="relative mx-auto lg:mx-0 w-full aspect-[3/4] max-w-[240px] sm:max-w-[280px] md:max-w-[320px] lg:max-w-[360px] xl:max-w-[400px]">
-      {heroImage && (
-        <img
-          src={heroImage}
-          alt=""
-          className="absolute inset-0 z-0 w-full h-full object-contain"
-        />
-      )}
-      {heroOverlay && (
-        <img
-          src={heroOverlay}
-          alt=""
-          className="absolute inset-0 z-30 w-full h-full object-contain pointer-events-none"
-        />
-      )}
+    <div className="relative w-full max-w-[280px] mx-auto lg:mx-0 aspect-[3/4]">
+      <div
+        className="absolute inset-0 z-0 rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-purple-100 to-purple-50 bg-cover bg-center"
+        style={heroImage ? { backgroundImage: `url(${heroImage})` } : undefined}
+      />
+      <div
+        className="absolute inset-0 z-30 rounded-2xl overflow-hidden bg-cover bg-center pointer-events-none"
+        style={heroOverlay ? { backgroundImage: `url(${heroOverlay})` } : undefined}
+      />
     </div>
   );
 
