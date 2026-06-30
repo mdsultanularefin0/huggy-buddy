@@ -390,11 +390,11 @@ function Landing() {
   const heroImageBlock = (
     <div className="relative w-full max-w-[280px] mx-auto lg:mx-0 aspect-[3/4]">
       <div
-        className="absolute inset-0 z-0 rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-purple-100 to-purple-50 bg-cover bg-center"
+        className="absolute inset-0 z-0 bg-cover bg-center"
         style={heroImage ? { backgroundImage: `url(${heroImage})` } : undefined}
       />
       <div
-        className="absolute inset-0 z-30 rounded-2xl overflow-hidden bg-cover bg-center pointer-events-none"
+        className="absolute inset-0 z-30 bg-cover bg-center pointer-events-none"
         style={heroOverlay ? { backgroundImage: `url(${heroOverlay})` } : undefined}
       />
     </div>
