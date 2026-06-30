@@ -304,10 +304,8 @@ function Landing() {
     ? selectedIds
         .map((id) => allCategories.find((c) => c.id === id))
         .filter((c): c is (typeof allCategories)[number] => Boolean(c))
-    : allCategories.slice(0, 4);
+    : allCategories;
 
-  const slots = Array.from({ length: 4 }, (_, i) => categories[i]);
-  const mobileSlots = Array.from({ length: 3 }, (_, i) => categories[i]);
   const heroImage = hero?.hero_image ?? null;
   const heroOverlay = hero?.hero_overlay_image ?? null;
 
