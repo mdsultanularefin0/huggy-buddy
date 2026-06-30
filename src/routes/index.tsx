@@ -388,7 +388,11 @@ function Landing() {
   const flashTitle = hero?.flash_timer_title ?? "Flash Sale! Up to 200Tk Off!";
 
   const heroImageBlock = (
-    <div className="relative w-full max-w-[280px] mx-auto lg:mx-0 aspect-[3/4]">
+    <div
+      className="relative mx-auto lg:mx-0 w-full aspect-[3/4]
+        max-w-[260px] sm:max-w-[320px] md:max-w-[380px] lg:max-w-[420px] xl:max-w-[460px]
+        h-[clamp(320px,55vw,600px)] lg:h-[clamp(420px,42vw,640px)]"
+    >
       {heroImage && (
         <img
           src={heroImage}
