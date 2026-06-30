@@ -495,7 +495,7 @@ function Landing() {
             <div className="hidden lg:block">
               <div className="grid grid-cols-[1fr_2fr] gap-4 w-full max-w-[1600px] mx-auto pt-8 items-start px-6 lg:pl-12 xl:pl-20 2xl:pl-32">
                 {heroImageBlock}
-                {categoryCards}
+                {categoryCarousel}
               </div>
               {bannerEnabled ? marquee : null}
               <div className="w-full bg-gradient-to-r from-[#52277a] to-[#a555f0] py-6 relative z-10">
@@ -520,7 +520,7 @@ function Landing() {
               {bannerEnabled ? marquee : null}
               <div className="w-full bg-gradient-to-r from-[#52277a] to-[#a555f0] pt-[calc(2rem+var(--safe-bottom))] sm:pt-[calc(6rem+var(--safe-bottom))] pb-3 sm:pb-6 flex items-end relative z-10">
                 <div className="w-full max-w-7xl mx-auto pl-[max(1rem,var(--safe-left))] pr-[max(1rem,var(--safe-right))] sm:pl-[max(1.5rem,var(--safe-left))] sm:pr-[max(1.5rem,var(--safe-right))]">
-                  {mobileCategoryCards}
+                  {categoryCarousel}
                 </div>
               </div>
             </div>
