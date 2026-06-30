@@ -388,13 +388,13 @@ function Landing() {
   const flashTitle = hero?.flash_timer_title ?? "Flash Sale! Up to 200Tk Off!";
 
   const heroImageBlock = (
-    <div className="relative w-full max-w-[320px] sm:max-w-[360px] lg:max-w-[380px] xl:max-w-[420px] mx-auto lg:mx-0 aspect-[3/4]">
+    <div className="relative w-full max-w-[280px] mx-auto lg:mx-0 aspect-[3/4]">
       <div
-        className="absolute inset-0 z-0 rounded-2xl overflow-hidden bg-gradient-to-br from-purple-100 to-purple-50 bg-contain bg-no-repeat bg-top"
+        className="absolute inset-0 z-0 rounded-2xl overflow-hidden bg-gradient-to-br from-purple-100 to-purple-50 bg-cover bg-center"
         style={heroImage ? { backgroundImage: `url(${heroImage})` } : undefined}
       />
       <div
-        className="absolute inset-0 z-30 rounded-2xl overflow-hidden bg-contain bg-no-repeat bg-top pointer-events-none"
+        className="absolute inset-0 z-30 rounded-2xl overflow-hidden bg-cover bg-center pointer-events-none"
         style={heroOverlay ? { backgroundImage: `url(${heroOverlay})` } : undefined}
       />
     </div>
@@ -473,7 +473,7 @@ function Landing() {
 
   const marquee = (
     <div
-      className="relative z-20 w-full -mt-28 sm:-mt-36 md:-mt-44 lg:-mt-56 xl:-mt-64 bg-gradient-to-r from-[#a555f0] to-[#52277a] text-white py-1.5 overflow-hidden shadow-lg bg-cover bg-center"
+      className="relative z-20 w-full -mt-32 sm:-mt-40 lg:-mt-48 bg-gradient-to-r from-[#a555f0] to-[#52277a] text-white py-1.5 overflow-hidden shadow-lg bg-cover bg-center"
       style={bannerImage ? { backgroundImage: `url(${bannerImage})` } : undefined}
     >
       <div className="marquee-track text-xs sm:text-sm font-medium tracking-wide">
