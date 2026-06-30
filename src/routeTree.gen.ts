@@ -27,6 +27,7 @@ import { Route as OrderIdRouteImport } from './routes/order.$id'
 import { Route as ComboIdRouteImport } from './routes/combo.$id'
 import { Route as CategorySlugRouteImport } from './routes/category.$slug'
 import { Route as AdminZonesRouteImport } from './routes/admin.zones'
+import { Route as AdminUploadTestRouteImport } from './routes/admin.upload-test'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminReferralsRouteImport } from './routes/admin.referrals'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
@@ -129,6 +130,11 @@ const AdminZonesRoute = AdminZonesRouteImport.update({
   path: '/zones',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminUploadTestRoute = AdminUploadTestRouteImport.update({
+  id: '/upload-test',
+  path: '/upload-test',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminSettingsRoute = AdminSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -209,6 +215,7 @@ export interface FileRoutesByFullPath {
   '/admin/products': typeof AdminProductsRoute
   '/admin/referrals': typeof AdminReferralsRoute
   '/admin/settings': typeof AdminSettingsRoute
+  '/admin/upload-test': typeof AdminUploadTestRoute
   '/admin/zones': typeof AdminZonesRoute
   '/category/$slug': typeof CategorySlugRoute
   '/combo/$id': typeof ComboIdRoute
@@ -239,6 +246,7 @@ export interface FileRoutesByTo {
   '/admin/products': typeof AdminProductsRoute
   '/admin/referrals': typeof AdminReferralsRoute
   '/admin/settings': typeof AdminSettingsRoute
+  '/admin/upload-test': typeof AdminUploadTestRoute
   '/admin/zones': typeof AdminZonesRoute
   '/category/$slug': typeof CategorySlugRoute
   '/combo/$id': typeof ComboIdRoute
@@ -271,6 +279,7 @@ export interface FileRoutesById {
   '/admin/products': typeof AdminProductsRoute
   '/admin/referrals': typeof AdminReferralsRoute
   '/admin/settings': typeof AdminSettingsRoute
+  '/admin/upload-test': typeof AdminUploadTestRoute
   '/admin/zones': typeof AdminZonesRoute
   '/category/$slug': typeof CategorySlugRoute
   '/combo/$id': typeof ComboIdRoute
@@ -304,6 +313,7 @@ export interface FileRouteTypes {
     | '/admin/products'
     | '/admin/referrals'
     | '/admin/settings'
+    | '/admin/upload-test'
     | '/admin/zones'
     | '/category/$slug'
     | '/combo/$id'
@@ -334,6 +344,7 @@ export interface FileRouteTypes {
     | '/admin/products'
     | '/admin/referrals'
     | '/admin/settings'
+    | '/admin/upload-test'
     | '/admin/zones'
     | '/category/$slug'
     | '/combo/$id'
@@ -365,6 +376,7 @@ export interface FileRouteTypes {
     | '/admin/products'
     | '/admin/referrals'
     | '/admin/settings'
+    | '/admin/upload-test'
     | '/admin/zones'
     | '/category/$slug'
     | '/combo/$id'
@@ -520,6 +532,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminZonesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/upload-test': {
+      id: '/admin/upload-test'
+      path: '/upload-test'
+      fullPath: '/admin/upload-test'
+      preLoaderRoute: typeof AdminUploadTestRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/settings': {
       id: '/admin/settings'
       path: '/settings'
@@ -612,6 +631,7 @@ interface AdminRouteChildren {
   AdminProductsRoute: typeof AdminProductsRoute
   AdminReferralsRoute: typeof AdminReferralsRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
+  AdminUploadTestRoute: typeof AdminUploadTestRoute
   AdminZonesRoute: typeof AdminZonesRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
@@ -628,6 +648,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminProductsRoute: AdminProductsRoute,
   AdminReferralsRoute: AdminReferralsRoute,
   AdminSettingsRoute: AdminSettingsRoute,
+  AdminUploadTestRoute: AdminUploadTestRoute,
   AdminZonesRoute: AdminZonesRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
