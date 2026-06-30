@@ -293,6 +293,7 @@ function useCountdown(targetMs: number | null) {
 
 function Landing() {
   const { data: allCategories = [] } = useSuspenseQuery(categoriesQuery);
+  const autoplayRef = useRef(Autoplay({ delay: 2500, stopOnInteraction: false, stopOnMouseEnter: true }));
   const { data: hero } = useSuspenseQuery(heroSettingsQuery);
   const { data: featuredProducts = [] } = useSuspenseQuery(featuredProductsQuery);
   const { data: branding } = useQuery(brandingQueryOptions);
