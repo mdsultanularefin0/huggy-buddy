@@ -291,9 +291,37 @@ function useCountdown(targetMs: number | null) {
   return { days: pad(days), hours: pad(hours), mins: pad(mins), secs: pad(secs) };
 }
 
+function CategoryCarousel({ categories }: { categories: Array<{ id: string; slug: string; name: string; image_url: string | null }> }) {
+  const autoplayRef = useRef(Autoplay({ delay: 2500, stopOnInteraction: false, stopOnMouseEnter: true }));
+  return (
+    <Carousel
+      opts={{ loop: true, align: "start", dragFree: false }}
+      plugins={[autoplayRef.current]}
+      className="w-full sm:max-w-[640px] md:max-w-[860px] lg:max-w-[720px] mx-auto"
+    >
+      <CarouselContent className="-ml-3 sm:-ml-4">
+        {categories.map((cat) => {
+          const cardClass =
+            "relative block w-full aspect-square rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-purple-200 to-purple-100 bg-cover bg-center";
+          const style = cat.image_url ? { backgroundImage: `url(${cat.image_url})` } : undefined;
+          return (
+            <CarouselItem key={cat.id} className="pl-3 sm:pl-4 basis-1/3 lg:basis-1/4">
+              <Link to="/category/$slug" params={{ slug: cat.slug }} className={cardClass} style={style}>
+                <div className="absolute bottom-0 left-0 w-full bg-[#52277a]/70 backdrop-blur-sm py-1.5 px-1 text-center text-white text-xs md:text-sm font-medium tracking-wide">
+                  {cat.name}
+                </div>
+              </Link>
+            </CarouselItem>
+          );
+        })}
+      </CarouselContent>
+    </Carousel>
+  );
+}
+
 function Landing() {
   const { data: allCategories = [] } = useSuspenseQuery(categoriesQuery);
-  const autoplayRef = useRef(Autoplay({ delay: 2500, stopOnInteraction: false, stopOnMouseEnter: true }));
+  
   const { data: hero } = useSuspenseQuery(heroSettingsQuery);
   const { data: featuredProducts = [] } = useSuspenseQuery(featuredProductsQuery);
   const { data: branding } = useQuery(brandingQueryOptions);
@@ -400,33 +428,7 @@ function Landing() {
     </div>
   );
 
-  const categoryCarousel = categories.length ? (
-    <Carousel
-      opts={{ loop: true, align: "start", dragFree: false }}
-      plugins={[autoplayRef.current]}
-      className="w-full sm:max-w-[640px] md:max-w-[860px] lg:max-w-[720px] mx-auto"
-    >
-      <CarouselContent className="-ml-3 sm:-ml-4">
-        {categories.map((cat) => {
-          const cardClass =
-            "relative block w-full aspect-square rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-purple-200 to-purple-100 bg-cover bg-center";
-          const style = cat.image_url ? { backgroundImage: `url(${cat.image_url})` } : undefined;
-          return (
-            <CarouselItem
-              key={cat.id}
-              className="pl-3 sm:pl-4 basis-1/3 lg:basis-1/4"
-            >
-              <Link to="/category/$slug" params={{ slug: cat.slug }} className={cardClass} style={style}>
-                <div className="absolute bottom-0 left-0 w-full bg-[#52277a]/70 backdrop-blur-sm py-1.5 px-1 text-center text-white text-xs md:text-sm font-medium tracking-wide">
-                  {cat.name}
-                </div>
-              </Link>
-            </CarouselItem>
-          );
-        })}
-      </CarouselContent>
-    </Carousel>
-  ) : null;
+  const categoryCarousel = categories.length ? <CategoryCarousel categories={categories} /> : null;
 
 
   const orderNowButton = (
