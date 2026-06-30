@@ -18,6 +18,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
 import { supabase } from "@/integrations/supabase/client";
 
 type Faq = { q: string; a: string };
@@ -292,6 +293,7 @@ function useCountdown(targetMs: number | null) {
 
 function Landing() {
   const { data: allCategories = [] } = useSuspenseQuery(categoriesQuery);
+  const autoplayRef = useRef(Autoplay({ delay: 2500, stopOnInteraction: false, stopOnMouseEnter: true }));
   const { data: hero } = useSuspenseQuery(heroSettingsQuery);
   const { data: featuredProducts = [] } = useSuspenseQuery(featuredProductsQuery);
   const { data: branding } = useQuery(brandingQueryOptions);
@@ -401,6 +403,7 @@ function Landing() {
   const categoryCarousel = categories.length ? (
     <Carousel
       opts={{ loop: true, align: "start", dragFree: false }}
+      plugins={[autoplayRef.current]}
       className="w-full sm:max-w-[640px] md:max-w-[860px] lg:max-w-[720px] mx-auto"
     >
       <CarouselContent className="-ml-3 sm:-ml-4">
