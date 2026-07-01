@@ -21,7 +21,7 @@ export const Route = createFileRoute("/auth")({
     if (typeof window === "undefined") return;
     const { data } = await supabase.auth.getSession();
     if (data.session) {
-      const redirectTo = (search as { redirect?: string }).redirect ?? "/admin";
+      const redirectTo = (search as { redirect?: string }).redirect ?? "/account";
       throw redirect({ to: redirectTo });
     }
   },
