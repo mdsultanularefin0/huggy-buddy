@@ -64,9 +64,18 @@ function AuthPage() {
     goNext();
   }
 
+  async function handleForgot() {
+    if (!email) return toast.error("Enter your email first");
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + "/reset-password",
+    });
+    if (error) return toast.error(error.message);
+    toast.success("Check your email for a password reset link");
+  }
+
   async function handleGoogle() {
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin + "/auth",
+      redirect_uri: window.location.origin,
     });
     if (result.error) return toast.error("Google sign-in failed");
     if (result.redirected) return;
