@@ -111,8 +111,8 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
             <Search className="w-5 h-5" />
           </button>
           <Link
-            to="/auth"
-            aria-label="Profile"
+            to={signedIn ? "/account" : "/auth"}
+            aria-label={signedIn ? "My account" : "Sign in"}
             className="hidden lg:flex w-10 h-10 rounded-full hover:bg-white/10 text-primary-foreground items-center justify-center transition-colors"
           >
             <User className="w-5 h-5" />
