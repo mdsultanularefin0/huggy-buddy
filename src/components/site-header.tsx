@@ -149,11 +149,11 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
             </Link>
           ))}
           <Link
-            to="/auth"
+            to={signedIn ? "/account" : "/auth"}
             onClick={() => setMobileOpen(false)}
             className="py-1 flex items-center gap-2 border-t border-white/10 pt-3 mt-1"
           >
-            <User className="w-4 h-4" /> Profile
+            <User className="w-4 h-4" /> {signedIn ? "My account" : "Sign in"}
           </Link>
         </div>
       )}
