@@ -13,8 +13,8 @@ export const Route = createFileRoute("/_authenticated/account/")({
 });
 
 function ProfilePage() {
-  const fetchProfile = useSF(getMyProfile);
-  const saveProfile = useSF(updateMyProfile);
+  const fetchProfile = useServerFn(getMyProfile);
+  const saveProfile = useServerFn(updateMyProfile);
   const qc = useQueryClient();
   const { data, isLoading } = useQuery({
     queryKey: ["my-profile"],
