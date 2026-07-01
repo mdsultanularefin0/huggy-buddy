@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery, useMutation, useQueryClient, useServerFn } from "@tanstack/react-query";
-import { useServerFn as useSF } from "@tanstack/react-start";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { getMyProfile, updateMyProfile } from "@/lib/account.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
