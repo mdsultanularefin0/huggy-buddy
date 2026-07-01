@@ -21,7 +21,7 @@ export const Route = createFileRoute("/auth")({
     if (typeof window === "undefined") return;
     const { data } = await supabase.auth.getSession();
     if (data.session) {
-      const redirectTo = (search as { redirect?: string }).redirect ?? "/admin";
+      const redirectTo = (search as { redirect?: string }).redirect ?? "/account";
       throw redirect({ to: redirectTo });
     }
   },
@@ -64,9 +64,18 @@ function AuthPage() {
     goNext();
   }
 
+  async function handleForgot() {
+    if (!email) return toast.error("Enter your email first");
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + "/reset-password",
+    });
+    if (error) return toast.error(error.message);
+    toast.success("Check your email for a password reset link");
+  }
+
   async function handleGoogle() {
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin + "/auth",
+      redirect_uri: window.location.origin,
     });
     if (result.error) return toast.error("Google sign-in failed");
     if (result.redirected) return;
@@ -104,6 +113,9 @@ function AuthPage() {
                 <Button type="submit" variant="hero" size="lg" className="w-full" disabled={loading}>
                   {loading ? "Signing in..." : "Sign in"}
                 </Button>
+                <button type="button" onClick={handleForgot} className="text-xs text-muted-foreground hover:text-primary underline block mx-auto">
+                  Forgot password?
+                </button>
               </form>
             </TabsContent>
 

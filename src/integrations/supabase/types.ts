@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      addresses: {
+        Row: {
+          address_line: string
+          area: string | null
+          created_at: string
+          district: string
+          id: string
+          is_default: boolean
+          label: string | null
+          phone: string
+          recipient_name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address_line: string
+          area?: string | null
+          created_at?: string
+          district: string
+          id?: string
+          is_default?: boolean
+          label?: string | null
+          phone: string
+          recipient_name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address_line?: string
+          area?: string | null
+          created_at?: string
+          district?: string
+          id?: string
+          is_default?: boolean
+          label?: string | null
+          phone?: string
+          recipient_name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       admin_audit_logs: {
         Row: {
           action: string
@@ -266,6 +308,7 @@ export type Database = {
           total: number
           tracking_code: string | null
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           coupon_used?: string | null
@@ -287,6 +330,7 @@ export type Database = {
           total?: number
           tracking_code?: string | null
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           coupon_used?: string | null
@@ -308,6 +352,7 @@ export type Database = {
           total?: number
           tracking_code?: string | null
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -452,6 +497,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          name: string | null
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          name?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          name?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       referral_codes: {
         Row: {
@@ -784,6 +856,35 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      wishlist: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wishlist_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

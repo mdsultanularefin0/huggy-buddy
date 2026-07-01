@@ -5,12 +5,20 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { useCart, cartCount } from "@/lib/cart-store";
 import { brandingQueryOptions } from "@/lib/branding-query";
+import { supabase } from "@/integrations/supabase/client";
 
 export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { position?: "sticky" | "static" | "floating"; logoUrl?: string | null; logoSize?: number | null } = {}) {
   const items = useCart((s) => s.items);
   const open = useCart((s) => s.open);
   const count = cartCount(items);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setSignedIn(!!data.session));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSignedIn(!!s));
+    return () => sub.subscription.unsubscribe();
+  }, []);
 
   const { data: branding, isLoading: brandingLoading } = useQuery(brandingQueryOptions);
 
@@ -103,8 +111,8 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
             <Search className="w-5 h-5" />
           </button>
           <Link
-            to="/auth"
-            aria-label="Profile"
+            to={signedIn ? "/account" : "/auth"}
+            aria-label={signedIn ? "My account" : "Sign in"}
             className="hidden lg:flex w-10 h-10 rounded-full hover:bg-white/10 text-primary-foreground items-center justify-center transition-colors"
           >
             <User className="w-5 h-5" />
@@ -141,11 +149,11 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
             </Link>
           ))}
           <Link
-            to="/auth"
+            to={signedIn ? "/account" : "/auth"}
             onClick={() => setMobileOpen(false)}
             className="py-1 flex items-center gap-2 border-t border-white/10 pt-3 mt-1"
           >
-            <User className="w-4 h-4" /> Profile
+            <User className="w-4 h-4" /> {signedIn ? "My account" : "Sign in"}
           </Link>
         </div>
       )}
