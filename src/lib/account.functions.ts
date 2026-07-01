@@ -145,7 +145,7 @@ export const listMyWishlist = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("wishlist")
-      .select("id,product_id,created_at,products:product_id(id,name,slug,price,regular_price,image_url)")
+      .select("id,product_id,created_at,products:product_id(id,name,slug,regular_price,sale_price,image_url)")
       .eq("user_id", context.userId)
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
