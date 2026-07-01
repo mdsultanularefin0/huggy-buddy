@@ -105,7 +105,7 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
           <Link
             to="/auth"
             aria-label="Profile"
-            className="w-10 h-10 rounded-full hover:bg-white/10 text-primary-foreground flex items-center justify-center transition-colors"
+            className="hidden lg:flex w-10 h-10 rounded-full hover:bg-white/10 text-primary-foreground items-center justify-center transition-colors"
           >
             <User className="w-5 h-5" />
           </Link>
