@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ProductCard } from "@/components/product-card";
+import { Reveal } from "@/components/reveal";
 import {
   Accordion,
   AccordionContent,
@@ -544,31 +545,37 @@ function Landing() {
         >
 
           <div className="max-w-7xl mx-auto px-4">
-            <div className="text-center max-w-2xl mx-auto">
-              <h2 className="text-3xl font-bold text-gray-900 inline-block pb-2 border-b-2 border-[#a555f0]">
-                {signatureTitle}
-              </h2>
-              {signatureSubtitle ? (
-                <p className="text-gray-600 mt-4">{signatureSubtitle}</p>
-              ) : null}
-            </div>
+            <Reveal>
+              <div className="text-center max-w-2xl mx-auto">
+                <h2 className="text-3xl font-bold text-gray-900 inline-block pb-2 border-b-2 border-[#a555f0]">
+                  {signatureTitle}
+                </h2>
+                {signatureSubtitle ? (
+                  <p className="text-gray-600 mt-4">{signatureSubtitle}</p>
+                ) : null}
+              </div>
+            </Reveal>
             {featuredProducts.length > 0 ? (
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mt-10">
-                {featuredProducts.map((p) => (
-                  <ProductCard key={p.id} product={p as never} />
+                {featuredProducts.map((p, i) => (
+                  <Reveal key={p.id} delay={i * 80}>
+                    <ProductCard product={p as never} />
+                  </Reveal>
                 ))}
               </div>
             ) : (
               <p className="text-center text-gray-500 mt-10">New scents arriving soon.</p>
             )}
-            <div className="text-center mt-10">
-              <Link
-                to="/products"
-                className="inline-block px-8 py-3 rounded-xl border-2 border-[#52277a] text-[#52277a] hover:bg-[#52277a] hover:text-white transition-colors font-semibold"
-              >
-                View All Fragrances
-              </Link>
-            </div>
+            <Reveal delay={150}>
+              <div className="text-center mt-10">
+                <Link
+                  to="/products"
+                  className="inline-block px-8 py-3 rounded-xl border-2 border-[#52277a] text-[#52277a] hover:bg-[#52277a] hover:text-white transition-colors font-semibold hover:scale-105 transform-gpu duration-300"
+                >
+                  View All Fragrances
+                </Link>
+              </div>
+            </Reveal>
           </div>
         </section>
 
@@ -580,27 +587,31 @@ function Landing() {
         {/* The Art of Veloura */}
         <section className="w-full py-20 bg-white">
           <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div
-              className="relative w-full h-[400px] lg:h-[500px] rounded-3xl overflow-hidden bg-gradient-to-br from-[#52277a]/20 via-gray-200 to-[#a555f0]/20 shadow-xl bg-cover bg-center"
-              style={artImage ? { backgroundImage: `url(${artImage})` } : undefined}
-            />
-            <div>
-              {artEyebrow ? (
-                <p className="uppercase tracking-widest text-[#a555f0] text-sm font-semibold">
-                  {artEyebrow}
-                </p>
-              ) : null}
-              <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mt-2">{artTitle}</h2>
-              <p className="text-gray-600 leading-relaxed mt-4 whitespace-pre-line">{artBody}</p>
-              {artButtonLabel ? (
-                <a
-                  href={artButtonLink || "#"}
-                  className="mt-6 inline-block px-8 py-3 rounded-xl border-2 border-[#52277a] text-[#52277a] hover:bg-[#52277a] hover:text-white transition-colors font-semibold"
-                >
-                  {artButtonLabel}
-                </a>
-              ) : null}
-            </div>
+            <Reveal>
+              <div
+                className="relative w-full h-[400px] lg:h-[500px] rounded-3xl overflow-hidden bg-gradient-to-br from-[#52277a]/20 via-gray-200 to-[#a555f0]/20 shadow-xl bg-cover bg-center transition-transform duration-700 hover:scale-[1.02]"
+                style={artImage ? { backgroundImage: `url(${artImage})` } : undefined}
+              />
+            </Reveal>
+            <Reveal delay={150}>
+              <div>
+                {artEyebrow ? (
+                  <p className="uppercase tracking-widest text-[#a555f0] text-sm font-semibold">
+                    {artEyebrow}
+                  </p>
+                ) : null}
+                <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mt-2">{artTitle}</h2>
+                <p className="text-gray-600 leading-relaxed mt-4 whitespace-pre-line">{artBody}</p>
+                {artButtonLabel ? (
+                  <a
+                    href={artButtonLink || "#"}
+                    className="mt-6 inline-block px-8 py-3 rounded-xl border-2 border-[#52277a] text-[#52277a] hover:bg-[#52277a] hover:text-white transition-all font-semibold hover:scale-105 transform-gpu"
+                  >
+                    {artButtonLabel}
+                  </a>
+                ) : null}
+              </div>
+            </Reveal>
           </div>
         </section>
         </>
@@ -615,20 +626,21 @@ function Landing() {
                 {notesSubtitle ? <p className="text-gray-600 mt-3">{notesSubtitle}</p> : null}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
-                {notes.map((c) => (
-                  <a
-                    key={c.title}
-                    href={c.link || "#"}
-                    className={`relative h-80 rounded-2xl overflow-hidden group cursor-pointer bg-gradient-to-br ${c.gradient}`}
-                  >
-                    <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors" />
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-white px-4">
-                      <h3 className="text-2xl font-bold tracking-wide">{c.title}</h3>
-                      <span className="mt-4 px-5 py-2 rounded-lg border border-white/70 text-sm font-semibold opacity-90 group-hover:opacity-100 group-hover:bg-white group-hover:text-[#52277a] transition">
-                        Shop Category
-                      </span>
-                    </div>
-                  </a>
+                {notes.map((c, i) => (
+                  <Reveal key={c.title} delay={i * 120}>
+                    <a
+                      href={c.link || "#"}
+                      className={`relative h-80 rounded-2xl overflow-hidden group cursor-pointer bg-gradient-to-br ${c.gradient} block transition-transform duration-500 hover:-translate-y-2 hover:shadow-2xl`}
+                    >
+                      <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors" />
+                      <div className="absolute inset-0 flex flex-col items-center justify-center text-white px-4">
+                        <h3 className="text-2xl font-bold tracking-wide transition-transform duration-500 group-hover:scale-110">{c.title}</h3>
+                        <span className="mt-4 px-5 py-2 rounded-lg border border-white/70 text-sm font-semibold opacity-90 group-hover:opacity-100 group-hover:bg-white group-hover:text-[#52277a] transition">
+                          Shop Category
+                        </span>
+                      </div>
+                    </a>
+                  </Reveal>
                 ))}
               </div>
             </div>
@@ -647,30 +659,32 @@ function Landing() {
                 </p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-10">
-                {whisperCards.map((c) => (
-                  <div key={c.key} className="p-8 rounded-2xl bg-gray-50 border border-gray-100 flex flex-col">
-                    <div className="text-[#fbc02d] text-lg mb-3" aria-label={`${c.rating} out of 5`}>
-                      {"★".repeat(c.rating)}{"☆".repeat(5 - c.rating)}
+                {whisperCards.map((c, i) => (
+                  <Reveal key={c.key} delay={i * 100}>
+                    <div className="p-8 rounded-2xl bg-gray-50 border border-gray-100 flex flex-col h-full transition-all duration-500 hover:-translate-y-1 hover:shadow-xl hover:border-[#a555f0]/30">
+                      <div className="text-[#fbc02d] text-lg mb-3" aria-label={`${c.rating} out of 5`}>
+                        {"★".repeat(c.rating)}{"☆".repeat(5 - c.rating)}
+                      </div>
+                      {c.title ? <p className="font-semibold text-gray-900 mb-1">{c.title}</p> : null}
+                      {c.body ? <p className="text-gray-600 italic mb-6 line-clamp-5">"{c.body}"</p> : <div className="mb-6" />}
+                      <div className="mt-auto flex items-center gap-2 flex-wrap">
+                        <span className="font-semibold text-gray-900">{c.author}</span>
+                        {c.productSlug && c.productName ? (
+                          <Link
+                            to="/product/$slug"
+                            params={{ slug: c.productSlug }}
+                            className="text-xs px-3 py-1 rounded-full bg-[#52277a]/10 text-[#52277a] font-medium hover:bg-[#52277a]/20"
+                          >
+                            {c.productName}
+                          </Link>
+                        ) : c.tag ? (
+                          <span className="text-xs px-3 py-1 rounded-full bg-[#52277a]/10 text-[#52277a] font-medium">
+                            {c.tag}
+                          </span>
+                        ) : null}
+                      </div>
                     </div>
-                    {c.title ? <p className="font-semibold text-gray-900 mb-1">{c.title}</p> : null}
-                    {c.body ? <p className="text-gray-600 italic mb-6 line-clamp-5">"{c.body}"</p> : <div className="mb-6" />}
-                    <div className="mt-auto flex items-center gap-2 flex-wrap">
-                      <span className="font-semibold text-gray-900">{c.author}</span>
-                      {c.productSlug && c.productName ? (
-                        <Link
-                          to="/product/$slug"
-                          params={{ slug: c.productSlug }}
-                          className="text-xs px-3 py-1 rounded-full bg-[#52277a]/10 text-[#52277a] font-medium hover:bg-[#52277a]/20"
-                        >
-                          {c.productName}
-                        </Link>
-                      ) : c.tag ? (
-                        <span className="text-xs px-3 py-1 rounded-full bg-[#52277a]/10 text-[#52277a] font-medium">
-                          {c.tag}
-                        </span>
-                      ) : null}
-                    </div>
-                  </div>
+                  </Reveal>
                 ))}
               </div>
             </div>
