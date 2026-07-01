@@ -760,6 +760,7 @@ function Landing() {
       </main>
 
       <SiteFooter />
+      <CartDrawer />
     </div>
   );
 }
