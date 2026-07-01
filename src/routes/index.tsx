@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ProductCard } from "@/components/product-card";
 import { Reveal } from "@/components/reveal";
+import { CartDrawer } from "@/components/cart-drawer";
 import {
   Accordion,
   AccordionContent,
