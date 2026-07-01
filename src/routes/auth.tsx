@@ -113,6 +113,9 @@ function AuthPage() {
                 <Button type="submit" variant="hero" size="lg" className="w-full" disabled={loading}>
                   {loading ? "Signing in..." : "Sign in"}
                 </Button>
+                <button type="button" onClick={handleForgot} className="text-xs text-muted-foreground hover:text-primary underline block mx-auto">
+                  Forgot password?
+                </button>
               </form>
             </TabsContent>
 
