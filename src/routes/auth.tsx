@@ -90,7 +90,7 @@ function AuthPage() {
             <Sparkles className="w-7 h-7 text-primary-foreground" />
           </div>
           <h1 className="text-3xl font-semibold text-gradient-luxe">Veloura Essence</h1>
-          <p className="text-sm text-muted-foreground mt-1">Admin & customer portal</p>
+          <p className="text-sm text-muted-foreground mt-1">Customer portal</p>
         </div>
 
         <Card className="p-6 shadow-luxe border-border/50">
