@@ -11,9 +11,16 @@ type RevealProps = {
 export function Reveal({ children, className, delay = 0, as: Tag = "div" }: RevealProps) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [visible, setVisible] = useState(false);
+  const [settled, setSettled] = useState(false);
 
   useEffect(() => {
     if (visible || !ref.current) return;
+    // Respect reduced-motion: skip animation entirely
+    if (typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+      setVisible(true);
+      setSettled(true);
+      return;
+    }
     if (typeof IntersectionObserver === "undefined") {
       setVisible(true);
       return;
@@ -35,12 +42,20 @@ export function Reveal({ children, className, delay = 0, as: Tag = "div" }: Reve
     return () => io.disconnect();
   }, [visible]);
 
+  // Drop will-change after the transition finishes to free GPU memory on mobile.
+  useEffect(() => {
+    if (!visible || settled) return;
+    const t = window.setTimeout(() => setSettled(true), 800 + delay);
+    return () => window.clearTimeout(t);
+  }, [visible, settled, delay]);
+
   return (
     <Tag
       ref={ref as never}
       style={{ transitionDelay: `${delay}ms` }}
       className={cn(
-        "transition-all duration-700 ease-out will-change-transform",
+        "transition-all duration-700 ease-out motion-reduce:transition-none",
+        !settled && "will-change-[opacity,transform]",
         visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6",
         className,
       )}
