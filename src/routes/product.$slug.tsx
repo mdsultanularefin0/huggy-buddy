@@ -36,14 +36,15 @@ const productOptions = (slug: string) =>
     queryFn: async () => {
       const { data, error } = await supabase
         .from("products")
-        .select("id,slug,name,short_description,description,regular_price,sale_price,sizes_json,image_url,in_stock")
+        .select("id,slug,name,short_description,description,regular_price,sale_price,sizes_json,image_url,in_stock,category:categories(name,slug)")
         .eq("slug", slug)
         .eq("is_active", true)
         .maybeSingle();
       if (error) throw error;
-      return data as Product | null;
+      return data as (Product & { category: { name: string; slug: string } | null }) | null;
     },
   });
+
 
 export const Route = createFileRoute("/product/$slug")({
   loader: async ({ context, params }) => {
