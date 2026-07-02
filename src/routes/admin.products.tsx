@@ -323,16 +323,20 @@ function ProductsPage() {
             <div>
               <div className="flex items-center justify-between">
                 <Label>Size variants (optional)</Label>
-                <Button type="button" variant="outline" size="sm" onClick={() => setForm((f) => ({ ...f, sizes_json: [...f.sizes_json, { label: "", price: 0 }] }))}>
+                <Button type="button" variant="outline" size="sm" onClick={() => setForm((f) => ({ ...f, sizes_json: [...f.sizes_json, { label: "", price: 0, in_stock: true }] }))}>
                   <Plus className="w-3 h-3 mr-1" /> Add size
                 </Button>
               </div>
               <div className="mt-2 space-y-2">
                 {form.sizes_json.map((s, i) => (
-                  <div key={i} className="grid grid-cols-[1fr_120px_120px_auto] gap-2 items-center">
+                  <div key={i} className="grid grid-cols-[1fr_110px_110px_auto_auto] gap-2 items-center">
                     <Input placeholder="e.g. 50ml" value={s.label} onChange={(e) => updateSize(i, { label: e.target.value })} />
                     <Input type="number" placeholder="Price" value={s.price} onChange={(e) => updateSize(i, { price: Number(e.target.value) })} />
                     <Input type="number" placeholder="Sale" value={s.sale_price ?? ""} onChange={(e) => updateSize(i, { sale_price: e.target.value === "" ? null : Number(e.target.value) })} />
+                    <label className="flex items-center gap-2 cursor-pointer px-1" title="In stock">
+                      <Switch checked={s.in_stock !== false} onCheckedChange={(v) => updateSize(i, { in_stock: v })} />
+                      <span className="text-xs text-muted-foreground">Stock</span>
+                    </label>
                     <Button type="button" variant="ghost" size="sm" onClick={() => setForm((f) => ({ ...f, sizes_json: f.sizes_json.filter((_, idx) => idx !== i) }))}>
                       <X className="w-4 h-4" />
                     </Button>
