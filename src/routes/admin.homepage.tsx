@@ -89,7 +89,7 @@ function HomepagePage() {
   const [whispersEnabled, setWhispersEnabled] = useState(true);
 
 
-  type UploadKind = "hero" | "overlay" | "art" | "banner" | "signature";
+  type UploadKind = "hero" | "overlay" | "art" | "banner" | "signature" | `note-${number}`;
   const [uploading, setUploading] = useState<null | UploadKind>(null);
 
 
