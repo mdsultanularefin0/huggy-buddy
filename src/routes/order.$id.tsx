@@ -1,23 +1,25 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
-import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
-import { useState } from "react";
-import { CheckCircle2, Search } from "lucide-react";
+import { useSuspenseQuery, queryOptions, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { CheckCircle2, Search, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatBDT } from "@/lib/currency";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { getOrderById, lookupOrder } from "@/lib/orders.functions";
+import { getOrderById, lookupOrder, claimGuestOrder } from "@/lib/orders.functions";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-
 
 type OrderRow = {
   id: string; order_number: string; total: number; subtotal: number;
   shipping_fee: number; discount: number; payment_method: string;
-  customer_json: { name?: string; phone?: string; address?: string } | null;
+  user_id: string | null;
+  customer_json: { name?: string; phone?: string; address?: string; email?: string } | null;
   items_json: { name: string; size?: string | null; quantity: number; unitPrice: number }[] | null;
 };
+
 
 const orderOptions = (id: string) =>
   queryOptions({
