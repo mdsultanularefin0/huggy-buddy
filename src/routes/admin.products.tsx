@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, Loader2, Upload, X } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Upload, X, GripVertical } from "lucide-react";
 import { toast } from "sonner";
 import { formatBDT } from "@/lib/currency";
 import { uploadImage } from "@/lib/upload";
@@ -26,9 +26,10 @@ const empty = {
   description: "",
   regular_price: 0,
   sale_price: null as number | null,
-  image_url: null as string | null,
+  images: [] as string[],
   is_active: true,
   in_stock: true,
+  stock_quantity: 0,
   sizes_json: [] as Size[],
   category_id: null as string | null,
 };
@@ -70,9 +71,11 @@ function ProductsPage() {
         description: form.description || null,
         regular_price: Number(form.regular_price),
         sale_price: form.sale_price === null || form.sale_price === 0 ? null : Number(form.sale_price),
-        image_url: form.image_url,
+        image_url: form.images[0] ?? null,
+        images_json: form.images as never,
         is_active: form.is_active,
         in_stock: form.in_stock,
+        stock_quantity: Math.max(0, Number(form.stock_quantity) || 0),
         sizes_json: form.sizes_json as never,
         category_id: form.category_id,
       };
@@ -112,32 +115,53 @@ function ProductsPage() {
 
   function startEdit(p: Product) {
     setEditing(p);
+    const pAny = p as Product & { images_json?: unknown; stock_quantity?: number };
+    const imgs = Array.isArray(pAny.images_json) ? (pAny.images_json as string[]).filter(Boolean) : [];
     setForm({
       name: p.name,
       description: p.description ?? "",
       regular_price: p.regular_price,
       sale_price: p.sale_price,
-      image_url: p.image_url,
+      images: imgs.length ? imgs : p.image_url ? [p.image_url] : [],
       is_active: p.is_active,
       in_stock: p.in_stock,
+      stock_quantity: pAny.stock_quantity ?? 0,
       sizes_json: (Array.isArray(p.sizes_json) ? p.sizes_json : []) as Size[],
       category_id: (p as Product & { category_id: string | null }).category_id ?? null,
     });
     setOpen(true);
   }
 
-  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  async function uploadFiles(files: FileList | File[]) {
+    const arr = Array.from(files).filter((f) => f.type.startsWith("image/"));
+    if (arr.length === 0) return;
     setUploading(true);
     try {
-      const url = await uploadImage("product-images", file);
-      setForm((f) => ({ ...f, image_url: url }));
+      const urls = await Promise.all(arr.map((f) => uploadImage("product-images", f)));
+      setForm((f) => ({ ...f, images: [...f.images, ...urls] }));
     } catch (err) {
       toast.error((err as Error).message);
     } finally {
       setUploading(false);
     }
+  }
+
+  function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    if (e.target.files) uploadFiles(e.target.files);
+    e.target.value = "";
+  }
+
+  function reorderImage(from: number, to: number) {
+    setForm((f) => {
+      const next = [...f.images];
+      const [m] = next.splice(from, 1);
+      next.splice(to, 0, m);
+      return { ...f, images: next };
+    });
+  }
+
+  function removeImage(i: number) {
+    setForm((f) => ({ ...f, images: f.images.filter((_, idx) => idx !== i) }));
   }
 
   function updateSize(i: number, patch: Partial<Size>) {
@@ -212,20 +236,54 @@ function ProductsPage() {
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div>
-              <Label>Image</Label>
-              <div className="mt-2 flex items-center gap-3">
-                {form.image_url ? (
-                  <div className="relative">
-                    <img src={form.image_url} alt="" className="w-24 h-24 rounded-lg object-cover border" />
-                    <button onClick={() => setForm((f) => ({ ...f, image_url: null }))} className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center">
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                ) : (
-                  <label className="w-24 h-24 rounded-lg border-2 border-dashed flex items-center justify-center cursor-pointer hover:bg-muted/50">
-                    {uploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Upload className="w-5 h-5 text-muted-foreground" />}
-                    <input type="file" accept="image/*" className="hidden" onChange={handleUpload} disabled={uploading} />
+              <Label>Images {form.images.length > 0 && <span className="text-xs text-muted-foreground font-normal">— drag thumbnails to reorder. First image is the main.</span>}</Label>
+              <div
+                className="mt-2 border-2 border-dashed rounded-lg p-3"
+                onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  if (e.dataTransfer.files?.length) uploadFiles(e.dataTransfer.files);
+                }}
+              >
+                <div className="flex flex-wrap gap-3">
+                  {form.images.map((url, i) => (
+                    <div
+                      key={url + i}
+                      draggable
+                      onDragStart={(e) => { e.dataTransfer.setData("text/img-idx", String(i)); e.dataTransfer.effectAllowed = "move"; }}
+                      onDragOver={(e) => { if (e.dataTransfer.types.includes("text/img-idx")) { e.preventDefault(); e.dataTransfer.dropEffect = "move"; } }}
+                      onDrop={(e) => {
+                        const raw = e.dataTransfer.getData("text/img-idx");
+                        if (!raw) return;
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const from = Number(raw);
+                        if (!Number.isNaN(from) && from !== i) reorderImage(from, i);
+                      }}
+                      className="relative group w-24 h-24"
+                    >
+                      <img src={url} alt="" className="w-24 h-24 rounded-lg object-cover border cursor-move" />
+                      {i === 0 && <span className="absolute bottom-1 left-1 text-[10px] px-1.5 py-0.5 rounded bg-primary text-primary-foreground">Main</span>}
+                      <div className="absolute top-1 left-1 w-5 h-5 rounded bg-background/80 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                        <GripVertical className="w-3 h-3 text-muted-foreground" />
+                      </div>
+                      <button type="button" onClick={() => removeImage(i)} className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                  <label className="w-24 h-24 rounded-lg border-2 border-dashed flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 text-center px-1">
+                    {uploading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
+                      <>
+                        <Upload className="w-5 h-5 text-muted-foreground" />
+                        <span className="text-[10px] text-muted-foreground mt-1">Click or drop</span>
+                      </>
+                    )}
+                    <input type="file" accept="image/*" multiple className="hidden" onChange={handleUpload} disabled={uploading} />
                   </label>
+                </div>
+                {form.images.length === 0 && (
+                  <p className="text-xs text-muted-foreground mt-2 text-center">Drop images anywhere in this box to upload multiple at once.</p>
                 )}
               </div>
             </div>
@@ -283,15 +341,28 @@ function ProductsPage() {
               </div>
             </div>
 
-            <div className="flex gap-6">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
-                <span className="text-sm">Active</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <Switch checked={form.in_stock} onCheckedChange={(v) => setForm({ ...form, in_stock: v })} />
-                <span className="text-sm">In stock</span>
-              </label>
+            <div className="grid grid-cols-2 gap-3 items-end">
+              <div>
+                <Label htmlFor="qty">Stock quantity</Label>
+                <Input
+                  id="qty"
+                  type="number"
+                  min={0}
+                  value={form.stock_quantity}
+                  onChange={(e) => setForm({ ...form, stock_quantity: Math.max(0, Number(e.target.value) || 0) })}
+                  className="mt-1"
+                />
+              </div>
+              <div className="flex gap-6 h-10 items-center">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
+                  <span className="text-sm">Active</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <Switch checked={form.in_stock} onCheckedChange={(v) => setForm({ ...form, in_stock: v })} />
+                  <span className="text-sm">In stock</span>
+                </label>
+              </div>
             </div>
           </div>
           <DialogFooter>
