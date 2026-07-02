@@ -93,9 +93,12 @@ function AdminReviewsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Reviews</h1>
-        <p className="text-sm text-muted-foreground">Approve or reject customer reviews before they appear on the site.</p>
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-semibold">Reviews</h1>
+          <p className="text-sm text-muted-foreground">Approve or reject customer reviews before they appear on the site.</p>
+        </div>
+        <AddReviewDialog onCreated={() => { qc.invalidateQueries({ queryKey: ["admin", "reviews"] }); qc.invalidateQueries({ queryKey: ["reviews"] }); }} />
       </div>
 
       <div className="flex gap-2 border-b">
