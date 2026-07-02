@@ -21,6 +21,7 @@ type Product = {
   id: string;
   slug: string;
   name: string;
+  short_description: string | null;
   description: string | null;
   regular_price: number;
   sale_price: number | null;
@@ -35,7 +36,7 @@ const productOptions = (slug: string) =>
     queryFn: async () => {
       const { data, error } = await supabase
         .from("products")
-        .select("id,slug,name,description,regular_price,sale_price,sizes_json,image_url,in_stock")
+        .select("id,slug,name,short_description,description,regular_price,sale_price,sizes_json,image_url,in_stock")
         .eq("slug", slug)
         .eq("is_active", true)
         .maybeSingle();
@@ -220,9 +221,13 @@ function ProductPage() {
               <span className="text-base text-muted-foreground line-through">{formatBDT(regular)}</span>
             )}
           </div>
+          {product.short_description && (
+            <p className="text-sm text-gray-600 mt-3 italic">{product.short_description}</p>
+          )}
           {product.description && (
             <p className="text-sm text-gray-700 mt-5 whitespace-pre-line leading-relaxed">{product.description}</p>
           )}
+
 
           {sizes.length > 0 && (
             <div className="mt-8">

@@ -23,6 +23,7 @@ export const Route = createFileRoute("/admin/products")({ component: ProductsPag
 
 const empty = {
   name: "",
+  short_description: "",
   description: "",
   regular_price: 0,
   sale_price: null as number | null,
@@ -68,6 +69,7 @@ function ProductsPage() {
       const payload = {
         name: form.name,
         slug,
+        short_description: form.short_description || null,
         description: form.description || null,
         regular_price: Number(form.regular_price),
         sale_price: form.sale_price === null || form.sale_price === 0 ? null : Number(form.sale_price),
@@ -128,6 +130,7 @@ function ProductsPage() {
     const imgs = Array.isArray(pAny.images_json) ? (pAny.images_json as string[]).filter(Boolean) : [];
     setForm({
       name: p.name,
+      short_description: (p as Product & { short_description?: string | null }).short_description ?? "",
       description: p.description ?? "",
       regular_price: p.regular_price,
       sale_price: p.sale_price,
@@ -307,6 +310,10 @@ function ProductsPage() {
             <div>
               <Label htmlFor="name">Name</Label>
               <Input id="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="mt-1" />
+            </div>
+            <div>
+              <Label htmlFor="short_desc">Short description</Label>
+              <Textarea id="short_desc" value={form.short_description} onChange={(e) => setForm({ ...form, short_description: e.target.value })} rows={2} placeholder="One-line tagline shown near the title" className="mt-1" />
             </div>
             <div>
               <Label htmlFor="desc">Description</Label>
