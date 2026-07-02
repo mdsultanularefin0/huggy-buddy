@@ -6,12 +6,14 @@ import { Button } from "@/components/ui/button";
 import { useCart, cartCount } from "@/lib/cart-store";
 import { brandingQueryOptions } from "@/lib/branding-query";
 import { supabase } from "@/integrations/supabase/client";
+import { SearchDialog } from "@/components/search-dialog";
 
 export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { position?: "sticky" | "static" | "floating"; logoUrl?: string | null; logoSize?: number | null } = {}) {
   const items = useCart((s) => s.items);
   const open = useCart((s) => s.open);
   const count = cartCount(items);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
 
   useEffect(() => {
@@ -59,6 +61,7 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
       : "sticky top-0 z-40 bg-primary text-primary-foreground border-b border-white/10";
 
   return (
+    <>
     <header className={positionClass}>
       <div className="w-full px-6 lg:px-10 h-16 flex items-center justify-between gap-6">
         {/* LEFT — logo */}
@@ -105,6 +108,8 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
         {/* RIGHT — search, profile, cart */}
         <div className="flex items-center gap-2 shrink-0">
           <button
+            type="button"
+            onClick={() => setSearchOpen(true)}
             aria-label="Search"
             className="w-10 h-10 rounded-full hover:bg-white/10 text-primary-foreground flex items-center justify-center transition-colors"
           >
@@ -158,5 +163,7 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
         </div>
       )}
     </header>
+    <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
+    </>
   );
 }
