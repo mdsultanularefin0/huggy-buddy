@@ -14,8 +14,16 @@ export const Route = createFileRoute("/reset-password")({
     meta: [
       { title: "Reset password — Veloura Essence" },
       { name: "description", content: "Set a new password for your Veloura Essence account." },
+      { name: "robots", content: "noindex,nofollow" },
+      { property: "og:title", content: "Reset password — Veloura Essence" },
+      { property: "og:description", content: "Choose a new password for your Veloura Essence account." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "/reset-password" },
+      { name: "twitter:card", content: "summary" },
     ],
+    links: [{ rel: "canonical", href: "/reset-password" }],
   }),
+
   component: ResetPasswordPage,
 });
 
