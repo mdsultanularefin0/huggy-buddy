@@ -1,23 +1,25 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
-import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
-import { useState } from "react";
-import { CheckCircle2, Search } from "lucide-react";
+import { useSuspenseQuery, queryOptions, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { CheckCircle2, Search, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatBDT } from "@/lib/currency";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { getOrderById, lookupOrder } from "@/lib/orders.functions";
+import { getOrderById, lookupOrder, claimGuestOrder } from "@/lib/orders.functions";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-
 
 type OrderRow = {
   id: string; order_number: string; total: number; subtotal: number;
   shipping_fee: number; discount: number; payment_method: string;
-  customer_json: { name?: string; phone?: string; address?: string } | null;
+  user_id: string | null;
+  customer_json: { name?: string; phone?: string; address?: string; email?: string } | null;
   items_json: { name: string; size?: string | null; quantity: number; unitPrice: number }[] | null;
 };
+
 
 const orderOptions = (id: string) =>
   queryOptions({
@@ -98,14 +100,13 @@ function OrderPage() {
         <p className="text-center text-xs text-muted-foreground mt-6">
           Save this page or bookmark the URL to check your order later — no account required.
         </p>
-        <p className="text-center text-xs text-muted-foreground mt-6">
-          Save this page or bookmark the URL to check your order later — no account required.
-        </p>
         <div className="text-center mt-6">
           <Link to="/"><Button variant="luxe">Continue shopping</Button></Link>
         </div>
 
+        <ClaimAccountSection order={order} />
         <TrackOrderSection />
+
       </div>
       <SiteFooter />
     </div>
@@ -175,4 +176,96 @@ function TrackOrderSection() {
     </div>
   );
 }
+
+function ClaimAccountSection({ order }: { order: OrderRow }) {
+  const qc = useQueryClient();
+  const [signedIn, setSignedIn] = useState<boolean | null>(null);
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [claimed, setClaimed] = useState(false);
+  const email = order.customer_json?.email ?? "";
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setSignedIn(!!data.session));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSignedIn(!!s));
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  if (order.user_id || !email || signedIn === null || claimed) return null;
+
+  async function attach() {
+    const res = await claimGuestOrder({ data: { orderId: order.id } });
+    if (!res.ok) { toast.error(res.error); return false; }
+    toast.success("Order saved to your account");
+    setClaimed(true);
+    await qc.invalidateQueries({ queryKey: ["order", order.id] });
+    return true;
+  }
+
+  async function handleCreate(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { emailRedirectTo: window.location.href },
+      });
+      if (error) { toast.error(error.message); return; }
+      const { data } = await supabase.auth.getSession();
+      if (data.session) await attach();
+      else toast.success("Check your email to confirm your account, then sign in to save this order.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleAttachSignedIn() {
+    setLoading(true);
+    try { await attach(); } finally { setLoading(false); }
+  }
+
+  return (
+    <div className="mt-8 rounded-2xl border bg-card p-6">
+      <div className="flex items-center gap-2 mb-2">
+        <UserPlus className="w-5 h-5 text-primary" />
+        <h2 className="font-semibold">Save this order to an account</h2>
+      </div>
+      {signedIn ? (
+        <>
+          <p className="text-sm text-muted-foreground mb-4">
+            Link this order to your signed-in account to view it later under My orders.
+          </p>
+          <Button variant="luxe" onClick={handleAttachSignedIn} disabled={loading}>
+            {loading ? "Linking…" : "Link to my account"}
+          </Button>
+        </>
+      ) : (
+        <>
+          <p className="text-sm text-muted-foreground mb-4">
+            Create an account with <span className="font-medium text-foreground">{email}</span> to track this order and speed up future checkouts.
+          </p>
+          <form onSubmit={handleCreate} className="grid gap-3 sm:grid-cols-[1fr_auto] items-end">
+            <div className="space-y-1.5">
+              <Label htmlFor="claim-password">Choose a password</Label>
+              <Input
+                id="claim-password"
+                type="password"
+                minLength={6}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="At least 6 characters"
+              />
+            </div>
+            <Button type="submit" variant="luxe" disabled={loading}>
+              {loading ? "Creating…" : "Create account & save"}
+            </Button>
+          </form>
+        </>
+      )}
+    </div>
+  );
+}
+
 
