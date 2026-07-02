@@ -46,16 +46,28 @@ export function SearchInline({
   const term = query.trim();
   const { data, isFetching } = useQuery({
     queryKey: ["search", term],
-    enabled: term.length >= 2,
+    enabled: term.length >= 1,
     queryFn: async () => {
       const like = `%${term}%`;
-      const [{ data: products }, { data: combos }] = await Promise.all([
-        supabase.from("products").select("id,slug,name,image_url").ilike("name", like).limit(6),
-        supabase.from("combos").select("id,title,image_url").ilike("title", like).limit(4),
+      const [productsRes, combosRes] = await Promise.all([
+        supabase
+          .from("products")
+          .select("id,slug,name,image_url")
+          .eq("is_active", true)
+          .ilike("name", like)
+          .limit(6),
+        supabase
+          .from("combos")
+          .select("id,title,image_url")
+          .eq("is_active", true)
+          .ilike("title", like)
+          .limit(4),
       ]);
+      if (productsRes.error) console.error("[search] products:", productsRes.error);
+      if (combosRes.error) console.error("[search] combos:", combosRes.error);
       return {
-        products: (products ?? []) as ProductHit[],
-        combos: (combos ?? []) as ComboHit[],
+        products: (productsRes.data ?? []) as ProductHit[],
+        combos: (combosRes.data ?? []) as ComboHit[],
       };
     },
     staleTime: 30_000,
@@ -68,7 +80,7 @@ export function SearchInline({
     onClose?.();
   };
 
-  const showDropdown = focused && term.length >= 2;
+  const showDropdown = focused && term.length >= 1;
   const total = (data?.products.length ?? 0) + (data?.combos.length ?? 0);
 
   return (
