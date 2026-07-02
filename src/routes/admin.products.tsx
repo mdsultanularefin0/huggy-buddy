@@ -115,32 +115,53 @@ function ProductsPage() {
 
   function startEdit(p: Product) {
     setEditing(p);
+    const pAny = p as Product & { images_json?: unknown; stock_quantity?: number };
+    const imgs = Array.isArray(pAny.images_json) ? (pAny.images_json as string[]).filter(Boolean) : [];
     setForm({
       name: p.name,
       description: p.description ?? "",
       regular_price: p.regular_price,
       sale_price: p.sale_price,
-      image_url: p.image_url,
+      images: imgs.length ? imgs : p.image_url ? [p.image_url] : [],
       is_active: p.is_active,
       in_stock: p.in_stock,
+      stock_quantity: pAny.stock_quantity ?? 0,
       sizes_json: (Array.isArray(p.sizes_json) ? p.sizes_json : []) as Size[],
       category_id: (p as Product & { category_id: string | null }).category_id ?? null,
     });
     setOpen(true);
   }
 
-  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  async function uploadFiles(files: FileList | File[]) {
+    const arr = Array.from(files).filter((f) => f.type.startsWith("image/"));
+    if (arr.length === 0) return;
     setUploading(true);
     try {
-      const url = await uploadImage("product-images", file);
-      setForm((f) => ({ ...f, image_url: url }));
+      const urls = await Promise.all(arr.map((f) => uploadImage("product-images", f)));
+      setForm((f) => ({ ...f, images: [...f.images, ...urls] }));
     } catch (err) {
       toast.error((err as Error).message);
     } finally {
       setUploading(false);
     }
+  }
+
+  function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    if (e.target.files) uploadFiles(e.target.files);
+    e.target.value = "";
+  }
+
+  function reorderImage(from: number, to: number) {
+    setForm((f) => {
+      const next = [...f.images];
+      const [m] = next.splice(from, 1);
+      next.splice(to, 0, m);
+      return { ...f, images: next };
+    });
+  }
+
+  function removeImage(i: number) {
+    setForm((f) => ({ ...f, images: f.images.filter((_, idx) => idx !== i) }));
   }
 
   function updateSize(i: number, patch: Partial<Size>) {
