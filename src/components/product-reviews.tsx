@@ -173,6 +173,36 @@ export function ProductReviews({ productId }: { productId: string }) {
               rows={4}
               className="w-full border border-gray-200 rounded-xl px-4 py-2 text-sm"
             />
+            <div>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {images.map((url) => (
+                  <div key={url} className="relative w-16 h-16 rounded-lg overflow-hidden border">
+                    <img src={url} alt="" className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => setImages((p) => p.filter((u) => u !== url))}
+                      className="absolute top-0.5 right-0.5 bg-black/60 text-white rounded-full p-0.5"
+                      aria-label="Remove"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+                {images.length < 5 && (
+                  <label className="w-16 h-16 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:border-[#a555f0] text-gray-400">
+                    {uploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ImagePlus className="w-5 h-5" />}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="hidden"
+                      onChange={(e) => { handleFiles(e.target.files); e.target.value = ""; }}
+                    />
+                  </label>
+                )}
+              </div>
+              <p className="text-xs text-gray-500">Add up to 5 photos (optional)</p>
+            </div>
             <button
               type="submit"
               disabled={submit.isPending}
