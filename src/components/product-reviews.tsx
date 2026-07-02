@@ -26,6 +26,29 @@ export function ProductReviews({ productId }: { productId: string }) {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [name, setName] = useState("");
+  const [images, setImages] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
+
+  async function handleFiles(files: FileList | null) {
+    if (!files || files.length === 0) return;
+    if (images.length + files.length > 5) {
+      toast.error("Up to 5 photos");
+      return;
+    }
+    setUploading(true);
+    try {
+      const uploaded: string[] = [];
+      for (const f of Array.from(files)) {
+        const url = await uploadImage("review-images", f);
+        uploaded.push(url);
+      }
+      setImages((prev) => [...prev, ...uploaded]);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  }
 
   const { data: reviews = [], isLoading } = useQuery({
     queryKey: ["reviews", productId],
