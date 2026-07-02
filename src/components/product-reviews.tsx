@@ -76,6 +76,7 @@ export function ProductReviews({ productId }: { productId: string }) {
         rating,
         title: title.trim() || null,
         body: body.trim() || null,
+        images,
         status: "pending",
       });
       if (error) throw error;
@@ -86,6 +87,7 @@ export function ProductReviews({ productId }: { productId: string }) {
       setBody("");
       setName("");
       setRating(5);
+      setImages([]);
       qc.invalidateQueries({ queryKey: ["reviews", productId] });
     },
     onError: (e: Error) => toast.error(e.message),
