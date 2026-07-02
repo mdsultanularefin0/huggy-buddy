@@ -107,6 +107,15 @@ function ProductsPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const toggleStock = useMutation({
+    mutationFn: async ({ id, in_stock }: { id: string; in_stock: boolean }) => {
+      const { error } = await supabase.from("products").update({ in_stock }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "products"] }),
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   function startNew() {
     setEditing(null);
     setForm(empty);
@@ -211,10 +220,18 @@ function ProductsPage() {
                     ) : formatBDT(p.regular_price)}
                   </TableCell>
                   <TableCell>
-                    <span className={`text-xs px-2 py-1 rounded-full ${p.is_active ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
-                      {p.is_active ? "Active" : "Hidden"}
-                    </span>
-                    {!p.in_stock && <span className="ml-2 text-xs text-destructive">Out of stock</span>}
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        checked={p.in_stock !== false}
+                        onCheckedChange={(v) => toggleStock.mutate({ id: p.id, in_stock: v })}
+                      />
+                      <span className={`text-xs ${p.in_stock !== false ? "text-primary" : "text-destructive"}`}>
+                        {p.in_stock !== false ? "In stock" : "Out of stock"}
+                      </span>
+                      <span className={`ml-2 text-xs px-2 py-1 rounded-full ${p.is_active ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
+                        {p.is_active ? "Active" : "Hidden"}
+                      </span>
+                    </div>
                   </TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="sm" onClick={() => startEdit(p)}><Pencil className="w-4 h-4" /></Button>
