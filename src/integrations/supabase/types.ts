@@ -403,34 +403,40 @@ export type Database = {
           author_name: string
           body: string | null
           created_at: string
+          guest_email: string | null
           id: string
           product_id: string
           rating: number
+          status: Database["public"]["Enums"]["review_status"]
           title: string | null
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           author_name: string
           body?: string | null
           created_at?: string
+          guest_email?: string | null
           id?: string
           product_id: string
           rating: number
+          status?: Database["public"]["Enums"]["review_status"]
           title?: string | null
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           author_name?: string
           body?: string | null
           created_at?: string
+          guest_email?: string | null
           id?: string
           product_id?: string
           rating?: number
+          status?: Database["public"]["Enums"]["review_status"]
           title?: string | null
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -910,6 +916,7 @@ export type Database = {
         | "Cancelled"
         | "Returned"
       payment_status: "Pending" | "Paid" | "Failed" | "Refunded"
+      review_status: "pending" | "approved" | "rejected"
       risk_level: "normal" | "high"
     }
     CompositeTypes: {
@@ -1049,6 +1056,7 @@ export const Constants = {
         "Returned",
       ],
       payment_status: ["Pending", "Paid", "Failed", "Refunded"],
+      review_status: ["pending", "approved", "rejected"],
       risk_level: ["normal", "high"],
     },
   },

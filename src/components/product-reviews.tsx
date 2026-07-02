@@ -32,6 +32,7 @@ export function ProductReviews({ productId }: { productId: string }) {
         .from("product_reviews")
         .select("id,rating,title,body,author_name,created_at,user_id")
         .eq("product_id", productId)
+        .eq("status", "approved")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data as Review[];
@@ -40,22 +41,25 @@ export function ProductReviews({ productId }: { productId: string }) {
 
   const submit = useMutation({
     mutationFn: async () => {
-      if (!user) throw new Error("Please sign in to leave a review");
-      const author = name.trim() || user.email?.split("@")[0] || "Anonymous";
+      const author = name.trim() || user?.email?.split("@")[0] || "";
+      if (!author) throw new Error("Please enter your name");
+      if (!body.trim()) throw new Error("Please write your review");
       const { error } = await supabase.from("product_reviews").insert({
         product_id: productId,
-        user_id: user.id,
+        user_id: user?.id ?? null,
         author_name: author,
         rating,
         title: title.trim() || null,
         body: body.trim() || null,
+        status: "pending",
       });
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Thanks for your review!");
+      toast.success("Thanks! Your review is awaiting approval.");
       setTitle("");
       setBody("");
+      setName("");
       setRating(5);
       qc.invalidateQueries({ queryKey: ["reviews", productId] });
     },
@@ -96,66 +100,65 @@ export function ProductReviews({ productId }: { productId: string }) {
       <div className="grid md:grid-cols-2 gap-10">
         <div>
           <h3 className="font-medium mb-4">Write a review</h3>
-          {!user ? (
-            <p className="text-sm text-gray-600">
-              <Link to="/auth" className="text-[#52277a] underline">Sign in</Link> to share your experience.
-            </p>
-          ) : (
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                submit.mutate();
-              }}
-              className="space-y-3"
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              submit.mutate();
+            }}
+            className="space-y-3"
+          >
+            <div className="flex items-center gap-1">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onMouseEnter={() => setHover(i)}
+                  onMouseLeave={() => setHover(0)}
+                  onClick={() => setRating(i)}
+                  aria-label={`${i} star`}
+                >
+                  <Star
+                    className={`w-6 h-6 transition-colors ${
+                      i <= (hover || rating)
+                        ? "text-[#a555f0] fill-current"
+                        : "text-gray-300"
+                    }`}
+                  />
+                </button>
+              ))}
+            </div>
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder={user ? "Display name (optional)" : "Your name"}
+              className="w-full border border-gray-200 rounded-xl px-4 py-2 text-sm"
+            />
+            <input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Title (optional)"
+              className="w-full border border-gray-200 rounded-xl px-4 py-2 text-sm"
+            />
+            <textarea
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              placeholder="Share your thoughts..."
+              rows={4}
+              className="w-full border border-gray-200 rounded-xl px-4 py-2 text-sm"
+            />
+            <button
+              type="submit"
+              disabled={submit.isPending}
+              className="bg-[#52277a] hover:bg-[#3f1d5e] disabled:opacity-50 text-white rounded-xl px-6 py-2.5 text-sm font-semibold"
             >
-              <div className="flex items-center gap-1">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onMouseEnter={() => setHover(i)}
-                    onMouseLeave={() => setHover(0)}
-                    onClick={() => setRating(i)}
-                    aria-label={`${i} star`}
-                  >
-                    <Star
-                      className={`w-6 h-6 transition-colors ${
-                        i <= (hover || rating)
-                          ? "text-[#a555f0] fill-current"
-                          : "text-gray-300"
-                      }`}
-                    />
-                  </button>
-                ))}
-              </div>
-              <input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Display name (optional)"
-                className="w-full border border-gray-200 rounded-xl px-4 py-2 text-sm"
-              />
-              <input
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Title (optional)"
-                className="w-full border border-gray-200 rounded-xl px-4 py-2 text-sm"
-              />
-              <textarea
-                value={body}
-                onChange={(e) => setBody(e.target.value)}
-                placeholder="Share your thoughts..."
-                rows={4}
-                className="w-full border border-gray-200 rounded-xl px-4 py-2 text-sm"
-              />
-              <button
-                type="submit"
-                disabled={submit.isPending}
-                className="bg-[#52277a] hover:bg-[#3f1d5e] disabled:opacity-50 text-white rounded-xl px-6 py-2.5 text-sm font-semibold"
-              >
-                {submit.isPending ? "Posting..." : "Post Review"}
-              </button>
-            </form>
-          )}
+              {submit.isPending ? "Posting..." : "Post Review"}
+            </button>
+            {!user && (
+              <p className="text-xs text-gray-500">
+                Reviews appear after admin approval. Want to skip? <Link to="/auth" className="underline">Sign in</Link>.
+              </p>
+            )}
+          </form>
         </div>
 
         <div className="space-y-5">

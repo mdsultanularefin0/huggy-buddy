@@ -35,6 +35,7 @@ function ReviewsPage() {
       const { data, error } = await supabase
         .from("product_reviews")
         .select("id,rating,title,body,author_name,created_at,product_id,products(slug,name,image_url)")
+        .eq("status", "approved")
         .order("created_at", { ascending: false })
         .limit(100);
       if (error) throw error;

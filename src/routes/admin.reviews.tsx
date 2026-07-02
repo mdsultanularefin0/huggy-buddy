@@ -1,0 +1,160 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Star, Check, X, Trash2, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+
+export const Route = createFileRoute("/admin/reviews")({
+  head: () => ({ meta: [{ title: "Reviews — Admin" }, { name: "robots", content: "noindex" }] }),
+  component: AdminReviewsPage,
+  errorComponent: ({ error }) => <div className="p-6 text-destructive">{error.message}</div>,
+  notFoundComponent: () => <div className="p-6">Not found.</div>,
+});
+
+type Status = "pending" | "approved" | "rejected";
+type Row = {
+  id: string;
+  rating: number;
+  title: string | null;
+  body: string | null;
+  author_name: string;
+  status: Status;
+  created_at: string;
+  user_id: string | null;
+  product_id: string;
+  products: { name: string; slug: string } | null;
+};
+
+function AdminReviewsPage() {
+  const [tab, setTab] = useState<Status>("pending");
+  const qc = useQueryClient();
+
+  const { data: rows = [], isLoading } = useQuery({
+    queryKey: ["admin", "reviews", tab],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("product_reviews")
+        .select("id,rating,title,body,author_name,status,created_at,user_id,product_id,products(name,slug)")
+        .eq("status", tab)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data as unknown as Row[];
+    },
+  });
+
+  const setStatus = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: Status }) => {
+      const { error } = await supabase.from("product_reviews").update({ status }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: (_d, v) => {
+      toast.success(v.status === "approved" ? "Approved" : v.status === "rejected" ? "Rejected" : "Updated");
+      qc.invalidateQueries({ queryKey: ["admin", "reviews"] });
+      qc.invalidateQueries({ queryKey: ["reviews"] });
+      qc.invalidateQueries({ queryKey: ["public", "reviews", "whispers"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const remove = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("product_reviews").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Deleted");
+      qc.invalidateQueries({ queryKey: ["admin", "reviews"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const counts = useQuery({
+    queryKey: ["admin", "reviews", "counts"],
+    queryFn: async () => {
+      const q = (s: Status) =>
+        supabase.from("product_reviews").select("id", { count: "exact", head: true }).eq("status", s);
+      const [p, a, r] = await Promise.all([q("pending"), q("approved"), q("rejected")]);
+      return { pending: p.count ?? 0, approved: a.count ?? 0, rejected: r.count ?? 0 };
+    },
+  });
+
+  const tabs: { key: Status; label: string }[] = [
+    { key: "pending", label: `Pending (${counts.data?.pending ?? 0})` },
+    { key: "approved", label: `Approved (${counts.data?.approved ?? 0})` },
+    { key: "rejected", label: `Rejected (${counts.data?.rejected ?? 0})` },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-semibold">Reviews</h1>
+        <p className="text-sm text-muted-foreground">Approve or reject customer reviews before they appear on the site.</p>
+      </div>
+
+      <div className="flex gap-2 border-b">
+        {tabs.map((t) => (
+          <button
+            key={t.key}
+            onClick={() => setTab(t.key)}
+            className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px ${
+              tab === t.key ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {isLoading ? (
+        <div className="flex items-center gap-2 text-muted-foreground text-sm"><Loader2 className="w-4 h-4 animate-spin" /> Loading…</div>
+      ) : rows.length === 0 ? (
+        <p className="text-sm text-muted-foreground">No {tab} reviews.</p>
+      ) : (
+        <div className="space-y-3">
+          {rows.map((r) => (
+            <div key={r.id} className="border rounded-lg p-4 bg-card">
+              <div className="flex items-start justify-between gap-4 flex-wrap">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="font-medium">{r.author_name}</span>
+                    {!r.user_id && <span className="text-xs px-1.5 py-0.5 rounded bg-muted text-muted-foreground">Guest</span>}
+                    <span className="text-muted-foreground">· {new Date(r.created_at).toLocaleDateString()}</span>
+                  </div>
+                  <div className="flex text-primary my-1">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <Star key={i} className={`w-4 h-4 ${i <= r.rating ? "fill-current" : "text-muted"}`} />
+                    ))}
+                  </div>
+                  {r.products && (
+                    <p className="text-xs text-muted-foreground">
+                      on <span className="font-medium text-foreground">{r.products.name}</span>
+                    </p>
+                  )}
+                  {r.title && <p className="font-medium mt-2">{r.title}</p>}
+                  {r.body && <p className="text-sm text-muted-foreground mt-1 whitespace-pre-line">{r.body}</p>}
+                </div>
+                <div className="flex gap-2 shrink-0">
+                  {r.status !== "approved" && (
+                    <Button size="sm" onClick={() => setStatus.mutate({ id: r.id, status: "approved" })} disabled={setStatus.isPending}>
+                      <Check className="w-4 h-4 mr-1" /> Approve
+                    </Button>
+                  )}
+                  {r.status !== "rejected" && (
+                    <Button size="sm" variant="outline" onClick={() => setStatus.mutate({ id: r.id, status: "rejected" })} disabled={setStatus.isPending}>
+                      <X className="w-4 h-4 mr-1" /> Reject
+                    </Button>
+                  )}
+                  <Button size="sm" variant="ghost" onClick={() => { if (confirm("Delete this review?")) remove.mutate(r.id); }}>
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
