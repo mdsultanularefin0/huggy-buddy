@@ -140,7 +140,8 @@ function ProductPage() {
   const regular = chosen?.price ?? product.regular_price;
   const sale = chosen?.sale_price ?? product.sale_price;
   const price = effectivePrice(regular, sale);
-  const canAdd = product.in_stock && (!needsSize || sizeIdx !== null);
+  const chosenOut = chosen ? chosen.in_stock === false : false;
+  const canAdd = product.in_stock && !chosenOut && (!needsSize || sizeIdx !== null);
 
   const handleAdd = () => {
     if (!product.in_stock) {
@@ -149,6 +150,10 @@ function ProductPage() {
     }
     if (needsSize && sizeIdx === null) {
       toast.error("Please select a size before adding to cart");
+      return;
+    }
+    if (chosenOut) {
+      toast.error("This variant is out of stock");
       return;
     }
     const sizeLabel = chosen?.size_label ?? null;
