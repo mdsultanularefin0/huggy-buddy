@@ -100,6 +100,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "stylesheet", href: appCss }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "Veloura Essence",
+          description: "Luxury perfumes and curated fragrance boxes in Bangladesh.",
+          areaServed: "BD",
+        }),
+      },
+    ],
   }),
   loader: ({ context }) => {
     void context.queryClient.prefetchQuery(brandingQueryOptions);

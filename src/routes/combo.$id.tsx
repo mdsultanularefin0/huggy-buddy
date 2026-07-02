@@ -113,7 +113,7 @@ function ComboPage() {
         <div className="grid md:grid-cols-2 gap-10">
           <div className="aspect-[4/3] rounded-3xl bg-muted overflow-hidden">
             {combo.image_url ? (
-              <img src={combo.image_url} alt={combo.title} className="w-full h-full object-cover" />
+              <img src={combo.image_url} alt={combo.title} loading="lazy" className="w-full h-full object-cover" />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-muted-foreground"><Gift className="w-12 h-12" /></div>
             )}
@@ -149,7 +149,7 @@ function ComboPage() {
                       } ${isByob ? "hover:border-primary/40 cursor-pointer" : "cursor-default"}`}
                     >
                       <div className="w-12 h-12 rounded-lg bg-muted overflow-hidden flex-shrink-0">
-                        {p.image_url && <img src={p.image_url} alt={p.name} className="w-full h-full object-cover" />}
+                        {p.image_url && <img src={p.image_url} alt={p.name} loading="lazy" className="w-full h-full object-cover" />}
                       </div>
                       <span className="flex-1 text-sm font-medium">{p.name}</span>
                       {isByob && (
