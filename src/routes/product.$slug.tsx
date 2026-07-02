@@ -178,9 +178,24 @@ function ProductPage() {
       <SiteHeader />
       <div className="max-w-7xl mx-auto py-12 px-4 grid grid-cols-1 md:grid-cols-2 gap-12">
         <div>
-          <Link to="/products" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4">
-            <ArrowLeft className="w-4 h-4" /> All products
-          </Link>
+          <nav aria-label="Breadcrumb" className="mb-4 text-sm text-muted-foreground">
+            <ol className="flex flex-wrap items-center gap-1.5">
+              <li><Link to="/products" className="hover:text-foreground">All products</Link></li>
+              {product.category && (
+                <>
+                  <li aria-hidden="true">/</li>
+                  <li>
+                    <Link to="/category/$slug" params={{ slug: product.category.slug }} className="hover:text-foreground">
+                      {product.category.name}
+                    </Link>
+                  </li>
+                </>
+              )}
+              <li aria-hidden="true">/</li>
+              <li aria-current="page" className="text-foreground truncate max-w-[16rem]">{product.name}</li>
+            </ol>
+          </nav>
+
           <div className="aspect-square rounded-2xl bg-gray-50 overflow-hidden">
             {product.image_url ? (
               <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
