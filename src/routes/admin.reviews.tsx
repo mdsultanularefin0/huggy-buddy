@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Star, Check, X, Trash2, Loader2, Plus } from "lucide-react";
+import { Star, Check, X, Trash2, Loader2, Plus, ImagePlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { uploadImage } from "@/lib/upload";
 
 export const Route = createFileRoute("/admin/reviews")({
   head: () => ({ meta: [{ title: "Reviews — Admin" }, { name: "robots", content: "noindex" }] }),
@@ -29,6 +30,7 @@ type Row = {
   created_at: string;
   user_id: string | null;
   product_id: string;
+  images: string[] | null;
   products: { name: string; slug: string } | null;
 };
 
