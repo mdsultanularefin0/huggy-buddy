@@ -265,7 +265,7 @@ function ProductPage() {
             disabled={!canAdd}
             className="mt-4 w-full bg-[#52277a] hover:bg-[#3f1d5e] disabled:opacity-50 text-white rounded-2xl py-4 font-semibold transition-colors"
           >
-            {!product.in_stock ? "Out of stock" : needsSize && sizeIdx === null ? "Select a variant" : "Add to Cart"}
+            {!product.in_stock ? "Out of stock" : needsSize && sizeIdx === null ? "Select a variant" : chosenOut ? "Variant out of stock" : "Add to Cart"}
           </button>
 
           <Accordion type="single" collapsible className="mt-8">
