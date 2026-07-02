@@ -57,7 +57,9 @@ export const Route = createFileRoute("/order/$id")({
   loader: async ({ context, params }) => {
     const o = await context.queryClient.ensureQueryData(orderOptions(params.id));
     if (!o) throw notFound();
+    return { orderNumber: o.order_number };
   },
+
   component: OrderPage,
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
   notFoundComponent: () => (
