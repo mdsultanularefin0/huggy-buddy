@@ -23,6 +23,7 @@ export const Route = createFileRoute("/admin/products")({ component: ProductsPag
 
 const empty = {
   name: "",
+  short_description: "",
   description: "",
   regular_price: 0,
   sale_price: null as number | null,
