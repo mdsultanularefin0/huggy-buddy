@@ -228,19 +228,26 @@ function ProductPage() {
             <div className="mt-8">
               <p className="text-sm font-medium mb-3">Variant</p>
               <div className="flex flex-wrap gap-2">
-                {sizes.map((s, i) => (
-                  <button
-                    key={s.size_label}
-                    onClick={() => setSizeIdx(i)}
-                    className={`px-4 py-2 rounded-xl border text-sm transition-colors ${
-                      i === sizeIdx
-                        ? "border-[#52277a] bg-[#52277a]/5 text-[#52277a] font-medium"
-                        : "border-gray-200 hover:border-[#a555f0]/60"
-                    }`}
-                  >
-                    {s.size_label} — {formatBDT(effectivePrice(s.price, s.sale_price))}
-                  </button>
-                ))}
+                {sizes.map((s, i) => {
+                  const out = s.in_stock === false;
+                  return (
+                    <button
+                      key={s.size_label}
+                      onClick={() => !out && setSizeIdx(i)}
+                      disabled={out}
+                      className={`px-4 py-2 rounded-xl border text-sm transition-colors ${
+                        out
+                          ? "border-gray-200 text-gray-400 line-through cursor-not-allowed"
+                          : i === sizeIdx
+                          ? "border-[#52277a] bg-[#52277a]/5 text-[#52277a] font-medium"
+                          : "border-gray-200 hover:border-[#a555f0]/60"
+                      }`}
+                    >
+                      {s.size_label} — {formatBDT(effectivePrice(s.price, s.sale_price))}
+                      {out && <span className="ml-1 text-xs">(out)</span>}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}
