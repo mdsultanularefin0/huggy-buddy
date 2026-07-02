@@ -78,6 +78,7 @@ function ResetPasswordPage() {
               </Button>
             </form>
           )}
+        </Card>
     </AuthLayout>
   );
 }
