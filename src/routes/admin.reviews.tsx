@@ -277,6 +277,30 @@ function AddReviewDialog({ onCreated }: { onCreated: () => void }) {
             <Textarea rows={4} value={body} onChange={(e) => setBody(e.target.value)} />
           </div>
           <div>
+            <Label>Photos (optional, up to 5)</Label>
+            <div className="flex flex-wrap gap-2 mt-1">
+              {images.map((url) => (
+                <div key={url} className="relative w-16 h-16 rounded border overflow-hidden">
+                  <img src={url} alt="" className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => setImages((p) => p.filter((u) => u !== url))}
+                    className="absolute top-0.5 right-0.5 bg-black/60 text-white rounded-full p-0.5"
+                    aria-label="Remove"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
+              {images.length < 5 && (
+                <label className="w-16 h-16 rounded border-2 border-dashed flex items-center justify-center cursor-pointer text-muted-foreground hover:border-primary">
+                  {uploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ImagePlus className="w-5 h-5" />}
+                  <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => { handleFiles(e.target.files); e.target.value = ""; }} />
+                </label>
+              )}
+            </div>
+          </div>
+          <div>
             <Label>Status</Label>
             <Select value={status} onValueChange={(v) => setStatus(v as Status)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
