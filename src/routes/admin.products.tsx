@@ -71,9 +71,11 @@ function ProductsPage() {
         description: form.description || null,
         regular_price: Number(form.regular_price),
         sale_price: form.sale_price === null || form.sale_price === 0 ? null : Number(form.sale_price),
-        image_url: form.image_url,
+        image_url: form.images[0] ?? null,
+        images_json: form.images as never,
         is_active: form.is_active,
         in_stock: form.in_stock,
+        stock_quantity: Math.max(0, Number(form.stock_quantity) || 0),
         sizes_json: form.sizes_json as never,
         category_id: form.category_id,
       };
