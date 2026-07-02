@@ -1,11 +1,16 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
-import { CheckCircle2 } from "lucide-react";
+import { useState } from "react";
+import { CheckCircle2, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { formatBDT } from "@/lib/currency";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { getOrderById } from "@/lib/orders.functions";
+import { getOrderById, lookupOrder } from "@/lib/orders.functions";
+import { toast } from "sonner";
+
 
 type OrderRow = {
   id: string; order_number: string; total: number; subtotal: number;
@@ -93,11 +98,81 @@ function OrderPage() {
         <p className="text-center text-xs text-muted-foreground mt-6">
           Save this page or bookmark the URL to check your order later — no account required.
         </p>
+        <p className="text-center text-xs text-muted-foreground mt-6">
+          Save this page or bookmark the URL to check your order later — no account required.
+        </p>
         <div className="text-center mt-6">
           <Link to="/"><Button variant="luxe">Continue shopping</Button></Link>
         </div>
+
+        <TrackOrderSection />
       </div>
       <SiteFooter />
     </div>
   );
 }
+
+function TrackOrderSection() {
+  const navigate = useNavigate();
+  const [orderNumber, setOrderNumber] = useState("");
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleLookup(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await lookupOrder({ data: { orderNumber, email } });
+      if (!res.ok) {
+        toast.error(res.error);
+        return;
+      }
+      navigate({ to: "/order/$id", params: { id: res.id } });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Lookup failed");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="mt-12 rounded-2xl border bg-card p-6">
+      <div className="flex items-center gap-2 mb-2">
+        <Search className="w-5 h-5 text-primary" />
+        <h2 className="font-semibold">Track your order</h2>
+      </div>
+      <p className="text-sm text-muted-foreground mb-4">
+        Enter the order number and the email used at checkout to view a different order.
+      </p>
+      <form onSubmit={handleLookup} className="grid gap-3 sm:grid-cols-2">
+        <div className="space-y-1.5">
+          <Label htmlFor="track-order-number">Order number</Label>
+          <Input
+            id="track-order-number"
+            placeholder="VE-XXXXXX-XXXXXX"
+            value={orderNumber}
+            onChange={(e) => setOrderNumber(e.target.value)}
+            required
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="track-email">Email</Label>
+          <Input
+            id="track-email"
+            type="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
+        <div className="sm:col-span-2">
+          <Button type="submit" variant="luxe" className="w-full sm:w-auto" disabled={loading}>
+            {loading ? "Looking up…" : "Track order"}
+          </Button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
