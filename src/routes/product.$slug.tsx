@@ -221,12 +221,25 @@ function ProductPage() {
               <span className="text-base text-muted-foreground line-through">{formatBDT(regular)}</span>
             )}
           </div>
-          {product.short_description && (
-            <p className="text-sm text-gray-600 mt-3 italic">{product.short_description}</p>
-          )}
-          {product.description && (
-            <p className="text-sm text-gray-700 mt-5 whitespace-pre-line leading-relaxed">{product.description}</p>
-          )}
+          {(() => {
+            const lines = (product.short_description ?? "")
+              .split(/\r?\n/)
+              .map((l) => l.trim())
+              .filter(Boolean);
+            if (lines.length === 0) return null;
+            if (lines.length === 1) {
+              return <p className="text-sm text-gray-700 mt-5 leading-relaxed">{lines[0]}</p>;
+            }
+            return (
+              <ul className="mt-5 space-y-1.5 text-sm text-gray-700 list-disc pl-5 marker:text-[#a555f0]">
+                {lines.map((l, i) => (
+                  <li key={i}>{l}</li>
+                ))}
+              </ul>
+            );
+          })()}
+
+
 
 
           {sizes.length > 0 && (
