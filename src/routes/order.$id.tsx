@@ -100,14 +100,13 @@ function OrderPage() {
         <p className="text-center text-xs text-muted-foreground mt-6">
           Save this page or bookmark the URL to check your order later — no account required.
         </p>
-        <p className="text-center text-xs text-muted-foreground mt-6">
-          Save this page or bookmark the URL to check your order later — no account required.
-        </p>
         <div className="text-center mt-6">
           <Link to="/"><Button variant="luxe">Continue shopping</Button></Link>
         </div>
 
+        <ClaimAccountSection order={order} />
         <TrackOrderSection />
+
       </div>
       <SiteFooter />
     </div>
