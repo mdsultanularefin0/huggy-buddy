@@ -8,7 +8,38 @@ import { cn } from "@/lib/utils";
 type ProductHit = { id: string; slug: string; name: string; image_url: string | null };
 type ComboHit = { id: string; title: string; image_url: string | null };
 
-export function SearchInline({ className }: { className?: string }) {
+export function SearchInline({
+  className,
+  autoFocus,
+  onClose,
+}: {
+  className?: string;
+  autoFocus?: boolean;
+  onClose?: () => void;
+}) {
+  const navigate = useNavigate();
+  const [query, setQuery] = useState("");
+  const [focused, setFocused] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (autoFocus) {
+      inputRef.current?.focus();
+      setFocused(true);
+    }
+  }, [autoFocus]);
+
+  useEffect(() => {
+    const onDown = (e: MouseEvent) => {
+      if (!wrapRef.current?.contains(e.target as Node)) {
+        setFocused(false);
+        onClose?.();
+      }
+    };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [onClose]);
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [focused, setFocused] = useState(false);
