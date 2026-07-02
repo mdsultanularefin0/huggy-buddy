@@ -55,7 +55,7 @@ export function ProductReviews({ productId }: { productId: string }) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("product_reviews")
-        .select("id,rating,title,body,author_name,created_at,user_id")
+        .select("id,rating,title,body,author_name,created_at,user_id,images")
         .eq("product_id", productId)
         .eq("status", "approved")
         .order("created_at", { ascending: false });
