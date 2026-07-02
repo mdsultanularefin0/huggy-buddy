@@ -15,7 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 type SearchDialogProps = { open: boolean; onOpenChange: (open: boolean) => void };
 
 type ProductHit = { id: string; slug: string; name: string; image_url: string | null };
-type ComboHit = { id: string; name: string; image_url: string | null };
+type ComboHit = { id: string; title: string; image_url: string | null };
 
 export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
   const navigate = useNavigate();
