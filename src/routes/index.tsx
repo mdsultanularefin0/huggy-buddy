@@ -657,7 +657,7 @@ function Landing() {
                       style={style}
                       className={`relative h-80 rounded-2xl overflow-hidden group cursor-pointer block transition-transform duration-500 hover:-translate-y-2 hover:shadow-2xl ${useTailwindGradient ? `bg-gradient-to-br ${c.gradient}` : ""}`}
                     >
-                      <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors" />
+                      <div className={`absolute inset-0 transition-colors ${hasImage ? "bg-black/30 group-hover:bg-black/40 backdrop-blur-sm" : "bg-black/40 group-hover:bg-black/50"}`} />
                       <div className="absolute inset-0 flex flex-col items-center justify-center text-white px-4">
                         <h3 className="text-2xl font-bold tracking-wide transition-transform duration-500 group-hover:scale-110">{c.title}</h3>
                         <span className="mt-4 px-5 py-2 rounded-lg border border-white/70 text-sm font-semibold opacity-90 group-hover:opacity-100 group-hover:bg-white group-hover:text-[#52277a] transition">
