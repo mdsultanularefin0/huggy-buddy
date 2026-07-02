@@ -521,21 +521,90 @@ function HomepagePage() {
               </Button>
             </div>
             {notes.length === 0 ? <p className="text-xs text-muted-foreground">No cards yet.</p> : null}
-            {notes.map((n, i) => (
+            {notes.map((n, i) => {
+              const updateAt = (patch: Partial<Note>) =>
+                setNotes((arr) => arr.map((x, j) => (j === i ? { ...x, ...patch } : x)));
+              const uploadKey = `note-${i}`;
+              return (
               <div key={i} className="rounded-md border p-3 space-y-2">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div className="space-y-1">
                     <Label className="text-xs">Title</Label>
-                    <Input value={n.title} onChange={(e) => setNotes((arr) => arr.map((x, j) => j === i ? { ...x, title: e.target.value } : x))} />
+                    <Input value={n.title} onChange={(e) => updateAt({ title: e.target.value })} />
                   </div>
                   <div className="space-y-1">
                     <Label className="text-xs">Link</Label>
-                    <Input value={n.link ?? ""} onChange={(e) => setNotes((arr) => arr.map((x, j) => j === i ? { ...x, link: e.target.value } : x))} placeholder="/products" />
+                    <Input value={n.link ?? ""} onChange={(e) => updateAt({ link: e.target.value })} placeholder="/products" />
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-xs">Tailwind gradient (e.g. <code>from-pink-300 to-purple-300</code>)</Label>
-                  <Input value={n.gradient} onChange={(e) => setNotes((arr) => arr.map((x, j) => j === i ? { ...x, gradient: e.target.value } : x))} />
+                  <Label className="text-xs">Background image (optional — overrides color/gradient)</Label>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Input value={n.image ?? ""} onChange={(e) => updateAt({ image: e.target.value })} placeholder="https://…" />
+                    <input
+                      id={`file-${uploadKey}`}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const f = e.target.files?.[0];
+                        if (!f) return;
+                        try {
+                          setUploading(uploadKey as UploadKind);
+                          const url = await uploadImage("hero-images", f);
+                          updateAt({ image: url });
+                          toast.success("Uploaded — click Save to apply");
+                        } catch (err) {
+                          toast.error((err as Error).message);
+                        } finally {
+                          setUploading(null);
+                          e.target.value = "";
+                        }
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      disabled={uploading === uploadKey}
+                      onClick={() => document.getElementById(`file-${uploadKey}`)?.click()}
+                    >
+                      {uploading === uploadKey ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Upload className="w-4 h-4 mr-1" />}
+                      Upload
+                    </Button>
+                    <MediaPicker onPick={(url) => updateAt({ image: url })} />
+                    {n.image ? (
+                      <Button type="button" size="sm" variant="ghost" onClick={() => updateAt({ image: "" })}>
+                        Clear
+                      </Button>
+                    ) : null}
+                  </div>
+                  {n.image ? (
+                    <img src={n.image} alt="" className="mt-1 h-16 w-24 object-cover rounded border" />
+                  ) : null}
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-[auto,1fr] gap-2 items-center">
+                  <div className="space-y-1">
+                    <Label className="text-xs">Color</Label>
+                    <Input
+                      type="color"
+                      value={/^#[0-9a-fA-F]{6}$/.test(n.bg ?? "") ? (n.bg as string) : "#a555f0"}
+                      onChange={(e) => updateAt({ bg: e.target.value })}
+                      className="h-10 w-16 p-1"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Custom background (color or CSS gradient — overrides Tailwind gradient below)</Label>
+                    <Input
+                      value={n.bg ?? ""}
+                      onChange={(e) => updateAt({ bg: e.target.value })}
+                      placeholder="#a555f0  or  linear-gradient(135deg,#a555f0,#52277a)"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Tailwind gradient fallback (e.g. <code>from-pink-300 to-purple-300</code>)</Label>
+                  <Input value={n.gradient} onChange={(e) => updateAt({ gradient: e.target.value })} />
                 </div>
                 <div className="flex justify-end">
                   <Button size="sm" variant="ghost" onClick={() => setNotes((arr) => arr.filter((_, j) => j !== i))}>
@@ -543,7 +612,8 @@ function HomepagePage() {
                   </Button>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </Card>
         </TabsContent>
 
