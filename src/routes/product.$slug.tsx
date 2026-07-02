@@ -221,9 +221,13 @@ function ProductPage() {
               <span className="text-base text-muted-foreground line-through">{formatBDT(regular)}</span>
             )}
           </div>
+          {product.short_description && (
+            <p className="text-sm text-gray-600 mt-3 italic">{product.short_description}</p>
+          )}
           {product.description && (
             <p className="text-sm text-gray-700 mt-5 whitespace-pre-line leading-relaxed">{product.description}</p>
           )}
+
 
           {sizes.length > 0 && (
             <div className="mt-8">
