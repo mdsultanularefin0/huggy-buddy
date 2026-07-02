@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Star } from "lucide-react";
+import { Star, ImagePlus, X, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/use-session";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
+import { uploadImage } from "@/lib/upload";
 
 type Review = {
   id: string;
@@ -14,6 +15,7 @@ type Review = {
   author_name: string;
   created_at: string;
   user_id: string;
+  images: string[] | null;
 };
 
 export function ProductReviews({ productId }: { productId: string }) {
