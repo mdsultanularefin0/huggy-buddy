@@ -61,7 +61,6 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
       : "sticky top-0 z-40 bg-primary text-primary-foreground border-b border-white/10";
 
   return (
-  return (
     <>
     <header className={positionClass}>
       <div className="w-full px-6 lg:px-10 h-16 flex items-center justify-between gap-6">
