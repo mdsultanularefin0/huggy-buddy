@@ -236,20 +236,54 @@ function ProductsPage() {
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div>
-              <Label>Image</Label>
-              <div className="mt-2 flex items-center gap-3">
-                {form.image_url ? (
-                  <div className="relative">
-                    <img src={form.image_url} alt="" className="w-24 h-24 rounded-lg object-cover border" />
-                    <button onClick={() => setForm((f) => ({ ...f, image_url: null }))} className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center">
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                ) : (
-                  <label className="w-24 h-24 rounded-lg border-2 border-dashed flex items-center justify-center cursor-pointer hover:bg-muted/50">
-                    {uploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Upload className="w-5 h-5 text-muted-foreground" />}
-                    <input type="file" accept="image/*" className="hidden" onChange={handleUpload} disabled={uploading} />
+              <Label>Images {form.images.length > 0 && <span className="text-xs text-muted-foreground font-normal">— drag thumbnails to reorder. First image is the main.</span>}</Label>
+              <div
+                className="mt-2 border-2 border-dashed rounded-lg p-3"
+                onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  if (e.dataTransfer.files?.length) uploadFiles(e.dataTransfer.files);
+                }}
+              >
+                <div className="flex flex-wrap gap-3">
+                  {form.images.map((url, i) => (
+                    <div
+                      key={url + i}
+                      draggable
+                      onDragStart={(e) => { e.dataTransfer.setData("text/img-idx", String(i)); e.dataTransfer.effectAllowed = "move"; }}
+                      onDragOver={(e) => { if (e.dataTransfer.types.includes("text/img-idx")) { e.preventDefault(); e.dataTransfer.dropEffect = "move"; } }}
+                      onDrop={(e) => {
+                        const raw = e.dataTransfer.getData("text/img-idx");
+                        if (!raw) return;
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const from = Number(raw);
+                        if (!Number.isNaN(from) && from !== i) reorderImage(from, i);
+                      }}
+                      className="relative group w-24 h-24"
+                    >
+                      <img src={url} alt="" className="w-24 h-24 rounded-lg object-cover border cursor-move" />
+                      {i === 0 && <span className="absolute bottom-1 left-1 text-[10px] px-1.5 py-0.5 rounded bg-primary text-primary-foreground">Main</span>}
+                      <div className="absolute top-1 left-1 w-5 h-5 rounded bg-background/80 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                        <GripVertical className="w-3 h-3 text-muted-foreground" />
+                      </div>
+                      <button type="button" onClick={() => removeImage(i)} className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                  <label className="w-24 h-24 rounded-lg border-2 border-dashed flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 text-center px-1">
+                    {uploading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
+                      <>
+                        <Upload className="w-5 h-5 text-muted-foreground" />
+                        <span className="text-[10px] text-muted-foreground mt-1">Click or drop</span>
+                      </>
+                    )}
+                    <input type="file" accept="image/*" multiple className="hidden" onChange={handleUpload} disabled={uploading} />
                   </label>
+                </div>
+                {form.images.length === 0 && (
+                  <p className="text-xs text-muted-foreground mt-2 text-center">Drop images anywhere in this box to upload multiple at once.</p>
                 )}
               </div>
             </div>
