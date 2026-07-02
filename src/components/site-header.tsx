@@ -163,5 +163,7 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
         </div>
       )}
     </header>
+    <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
+    </>
   );
 }
