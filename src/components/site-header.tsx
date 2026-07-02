@@ -1,19 +1,19 @@
 import { Link } from "@tanstack/react-router";
-import { ShoppingCart, Menu, X, Search, User } from "lucide-react";
+import { ShoppingCart, Menu, X, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { useCart, cartCount } from "@/lib/cart-store";
 import { brandingQueryOptions } from "@/lib/branding-query";
 import { supabase } from "@/integrations/supabase/client";
-import { SearchDialog } from "@/components/search-dialog";
+import { SearchInline } from "@/components/search-inline";
 
 export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { position?: "sticky" | "static" | "floating"; logoUrl?: string | null; logoSize?: number | null } = {}) {
   const items = useCart((s) => s.items);
   const open = useCart((s) => s.open);
   const count = cartCount(items);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
+
   const [signedIn, setSignedIn] = useState(false);
 
   useEffect(() => {
@@ -107,14 +107,8 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
 
         {/* RIGHT — search, profile, cart */}
         <div className="flex items-center gap-2 shrink-0">
-          <button
-            type="button"
-            onClick={() => setSearchOpen(true)}
-            aria-label="Search"
-            className="w-10 h-10 rounded-full hover:bg-white/10 text-primary-foreground flex items-center justify-center transition-colors"
-          >
-            <Search className="w-5 h-5" />
-          </button>
+          <SearchInline className="hidden md:block w-56 lg:w-72" />
+
           <Link
             to={signedIn ? "/account" : "/auth"}
             aria-label={signedIn ? "My account" : "Sign in"}
@@ -163,7 +157,7 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
         </div>
       )}
     </header>
-    <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
     </>
   );
 }
+
