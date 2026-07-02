@@ -8,8 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Sparkles } from "lucide-react";
 import { AuthLayout } from "@/components/auth-layout";
+
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -88,12 +88,10 @@ function AuthPage() {
 
 
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-luxe shadow-luxe mb-4">
-            <Sparkles className="w-7 h-7 text-primary-foreground" />
-          </div>
           <h1 className="text-3xl font-semibold text-gradient-luxe">Sign in</h1>
           <p className="text-sm text-muted-foreground mt-1">Access your account or create a new one</p>
         </div>
+
 
         <Card className="p-6 shadow-luxe border-border/50">
           <Tabs defaultValue="signin">
