@@ -39,7 +39,20 @@ const checkoutOptions = queryOptions({
 });
 
 export const Route = createFileRoute("/checkout")({
-  head: () => ({ meta: [{ title: "Checkout — Veloura Essence" }] }),
+  head: () => ({
+    meta: [
+      { title: "Checkout — Veloura Essence" },
+      { name: "description", content: "Complete your Veloura Essence order. Guest checkout available — no account required." },
+      { name: "robots", content: "noindex,nofollow" },
+      { property: "og:title", content: "Checkout — Veloura Essence" },
+      { property: "og:description", content: "Complete your fragrance order securely. Guest checkout supported." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "/checkout" },
+      { name: "twitter:card", content: "summary" },
+    ],
+    links: [{ rel: "canonical", href: "/checkout" }],
+  }),
+
   loader: ({ context }) => context.queryClient.ensureQueryData(checkoutOptions),
   component: CheckoutPage,
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
