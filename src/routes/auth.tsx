@@ -15,9 +15,17 @@ export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
       { title: "Sign in — Veloura Essence" },
-      { name: "description", content: "Sign in to manage Veloura Essence." },
+      { name: "description", content: "Sign in or create your Veloura Essence account. Shoppers can also check out as a guest." },
+      { name: "robots", content: "noindex,nofollow" },
+      { property: "og:title", content: "Sign in — Veloura Essence" },
+      { property: "og:description", content: "Access your Veloura Essence account or create a new one." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "/auth" },
+      { name: "twitter:card", content: "summary" },
     ],
+    links: [{ rel: "canonical", href: "/auth" }],
   }),
+
   beforeLoad: async ({ search }) => {
     if (typeof window === "undefined") return;
     const { data } = await supabase.auth.getSession();
