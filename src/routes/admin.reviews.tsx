@@ -43,7 +43,7 @@ function AdminReviewsPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("product_reviews")
-        .select("id,rating,title,body,author_name,status,created_at,user_id,product_id,products(name,slug)")
+        .select("id,rating,title,body,author_name,status,created_at,user_id,product_id,images,products(name,slug)")
         .eq("status", tab)
         .order("created_at", { ascending: false });
       if (error) throw error;
