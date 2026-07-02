@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Search as SearchIcon, X } from "lucide-react";
@@ -7,6 +7,9 @@ import { cn } from "@/lib/utils";
 
 type ProductHit = { id: string; slug: string; name: string; image_url: string | null };
 type ComboHit = { id: string; title: string; image_url: string | null };
+type FlatHit =
+  | { kind: "product"; id: string; label: string; image_url: string | null; slug: string }
+  | { kind: "combo"; id: string; label: string; image_url: string | null };
 
 export function SearchInline({
   className,
@@ -20,8 +23,10 @@ export function SearchInline({
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [focused, setFocused] = useState(false);
+  const [activeIdx, setActiveIdx] = useState(0);
   const wrapRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const itemRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
   useEffect(() => {
     if (autoFocus) {
@@ -40,8 +45,6 @@ export function SearchInline({
     document.addEventListener("mousedown", onDown);
     return () => document.removeEventListener("mousedown", onDown);
   }, [onClose]);
-
-
 
   const term = query.trim();
   const { data, isFetching } = useQuery({
@@ -73,6 +76,31 @@ export function SearchInline({
     staleTime: 30_000,
   });
 
+  const flat = useMemo<FlatHit[]>(() => {
+    const p: FlatHit[] = (data?.products ?? []).map((x) => ({
+      kind: "product",
+      id: x.id,
+      label: x.name,
+      image_url: x.image_url,
+      slug: x.slug,
+    }));
+    const c: FlatHit[] = (data?.combos ?? []).map((x) => ({
+      kind: "combo",
+      id: x.id,
+      label: x.title,
+      image_url: x.image_url,
+    }));
+    return [...p, ...c];
+  }, [data]);
+
+  useEffect(() => {
+    setActiveIdx(0);
+  }, [term, flat.length]);
+
+  useEffect(() => {
+    itemRefs.current[activeIdx]?.scrollIntoView({ block: "nearest" });
+  }, [activeIdx]);
+
   const go = (fn: () => void) => {
     fn();
     setQuery("");
@@ -80,8 +108,23 @@ export function SearchInline({
     onClose?.();
   };
 
+  const selectHit = (h: FlatHit) => {
+    if (h.kind === "product") {
+      go(() => navigate({ to: "/product/$slug", params: { slug: h.slug } }));
+    } else {
+      go(() => navigate({ to: "/combo/$id", params: { id: h.id } }));
+    }
+  };
+
   const showDropdown = focused && term.length >= 1;
-  const total = (data?.products.length ?? 0) + (data?.combos.length ?? 0);
+  const total = flat.length;
+
+  const registerRef = (idx: number) => (el: HTMLButtonElement | null) => {
+    itemRefs.current[idx] = el;
+  };
+
+  let productStart = 0;
+  let comboStart = data?.products.length ?? 0;
 
   return (
     <div ref={wrapRef} className={cn("relative", className)}>
@@ -97,10 +140,33 @@ export function SearchInline({
             if (e.key === "Escape") {
               setQuery("");
               onClose?.();
+              return;
+            }
+            if (!showDropdown || total === 0) return;
+            if (e.key === "ArrowDown") {
+              e.preventDefault();
+              setActiveIdx((i) => (i + 1) % total);
+            } else if (e.key === "ArrowUp") {
+              e.preventDefault();
+              setActiveIdx((i) => (i - 1 + total) % total);
+            } else if (e.key === "Home") {
+              e.preventDefault();
+              setActiveIdx(0);
+            } else if (e.key === "End") {
+              e.preventDefault();
+              setActiveIdx(total - 1);
+            } else if (e.key === "Enter") {
+              e.preventDefault();
+              const hit = flat[activeIdx];
+              if (hit) selectHit(hit);
             }
           }}
           placeholder="Search fragrances…"
           aria-label="Search"
+          role="combobox"
+          aria-expanded={showDropdown}
+          aria-controls="search-listbox"
+          aria-activedescendant={showDropdown && flat[activeIdx] ? `search-hit-${activeIdx}` : undefined}
           className="bg-transparent outline-none text-sm w-full placeholder:text-primary-foreground/60 text-primary-foreground"
         />
 
@@ -117,7 +183,11 @@ export function SearchInline({
       </div>
 
       {showDropdown && (
-        <div className="absolute right-0 left-0 mt-2 rounded-lg border bg-popover text-popover-foreground shadow-lg overflow-hidden z-50 max-h-[70vh] overflow-y-auto">
+        <div
+          id="search-listbox"
+          role="listbox"
+          className="absolute right-0 left-0 mt-2 rounded-lg border bg-popover text-popover-foreground shadow-lg overflow-hidden z-50 max-h-[70vh] overflow-y-auto"
+        >
           {isFetching && total === 0 ? (
             <div className="px-3 py-4 text-sm text-muted-foreground">Searching…</div>
           ) : total === 0 ? (
@@ -127,41 +197,65 @@ export function SearchInline({
               {data?.products.length ? (
                 <div className="py-1">
                   <div className="px-3 py-1.5 text-xs font-medium text-muted-foreground">Fragrances</div>
-                  {data.products.map((p) => (
-                    <button
-                      key={p.id}
-                      type="button"
-                      onClick={() => go(() => navigate({ to: "/product/$slug", params: { slug: p.slug } }))}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground text-left"
-                    >
-                      {p.image_url ? (
-                        <img src={p.image_url} alt="" className="w-8 h-8 rounded object-cover" loading="lazy" />
-                      ) : (
-                        <SearchIcon className="w-4 h-4 opacity-50" />
-                      )}
-                      <span className="truncate">{p.name}</span>
-                    </button>
-                  ))}
+                  {data.products.map((p, i) => {
+                    const idx = productStart + i;
+                    const active = idx === activeIdx;
+                    return (
+                      <button
+                        key={p.id}
+                        id={`search-hit-${idx}`}
+                        ref={registerRef(idx)}
+                        type="button"
+                        role="option"
+                        aria-selected={active}
+                        onMouseEnter={() => setActiveIdx(idx)}
+                        onClick={() => go(() => navigate({ to: "/product/$slug", params: { slug: p.slug } }))}
+                        className={cn(
+                          "w-full flex items-center gap-2 px-3 py-2 text-sm text-left",
+                          active ? "bg-accent text-accent-foreground" : "hover:bg-accent hover:text-accent-foreground",
+                        )}
+                      >
+                        {p.image_url ? (
+                          <img src={p.image_url} alt="" className="w-8 h-8 rounded object-cover" loading="lazy" />
+                        ) : (
+                          <SearchIcon className="w-4 h-4 opacity-50" />
+                        )}
+                        <span className="truncate">{p.name}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               ) : null}
               {data?.combos.length ? (
                 <div className="py-1 border-t">
                   <div className="px-3 py-1.5 text-xs font-medium text-muted-foreground">Combos</div>
-                  {data.combos.map((c) => (
-                    <button
-                      key={c.id}
-                      type="button"
-                      onClick={() => go(() => navigate({ to: "/combo/$id", params: { id: c.id } }))}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground text-left"
-                    >
-                      {c.image_url ? (
-                        <img src={c.image_url} alt="" className="w-8 h-8 rounded object-cover" loading="lazy" />
-                      ) : (
-                        <SearchIcon className="w-4 h-4 opacity-50" />
-                      )}
-                      <span className="truncate">{c.title}</span>
-                    </button>
-                  ))}
+                  {data.combos.map((c, i) => {
+                    const idx = comboStart + i;
+                    const active = idx === activeIdx;
+                    return (
+                      <button
+                        key={c.id}
+                        id={`search-hit-${idx}`}
+                        ref={registerRef(idx)}
+                        type="button"
+                        role="option"
+                        aria-selected={active}
+                        onMouseEnter={() => setActiveIdx(idx)}
+                        onClick={() => go(() => navigate({ to: "/combo/$id", params: { id: c.id } }))}
+                        className={cn(
+                          "w-full flex items-center gap-2 px-3 py-2 text-sm text-left",
+                          active ? "bg-accent text-accent-foreground" : "hover:bg-accent hover:text-accent-foreground",
+                        )}
+                      >
+                        {c.image_url ? (
+                          <img src={c.image_url} alt="" className="w-8 h-8 rounded object-cover" loading="lazy" />
+                        ) : (
+                          <SearchIcon className="w-4 h-4 opacity-50" />
+                        )}
+                        <span className="truncate">{c.title}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               ) : null}
             </>
