@@ -13,6 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Plus, Pencil, Trash2, Loader2, Upload, X, GripVertical } from "lucide-react";
 import { toast } from "sonner";
 import { formatBDT } from "@/lib/currency";
+import { HtmlEditor } from "@/components/html-editor";
 import { uploadImage } from "@/lib/upload";
 import type { Database } from "@/integrations/supabase/types";
 
