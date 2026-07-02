@@ -21,6 +21,7 @@ type Product = {
   id: string;
   slug: string;
   name: string;
+  short_description: string | null;
   description: string | null;
   regular_price: number;
   sale_price: number | null;
