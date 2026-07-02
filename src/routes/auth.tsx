@@ -91,8 +91,8 @@ function AuthPage() {
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-luxe shadow-luxe mb-4">
             <Sparkles className="w-7 h-7 text-primary-foreground" />
           </div>
-          <h1 className="text-3xl font-semibold text-gradient-luxe">Veloura Essence</h1>
-          <p className="text-sm text-muted-foreground mt-1">Customer portal</p>
+          <h1 className="text-3xl font-semibold text-gradient-luxe">Sign in</h1>
+          <p className="text-sm text-muted-foreground mt-1">Access your account or create a new one</p>
         </div>
 
         <Card className="p-6 shadow-luxe border-border/50">
