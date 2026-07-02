@@ -405,6 +405,7 @@ export type Database = {
           created_at: string
           guest_email: string | null
           id: string
+          images: string[]
           product_id: string
           rating: number
           status: Database["public"]["Enums"]["review_status"]
@@ -418,6 +419,7 @@ export type Database = {
           created_at?: string
           guest_email?: string | null
           id?: string
+          images?: string[]
           product_id: string
           rating: number
           status?: Database["public"]["Enums"]["review_status"]
@@ -431,6 +433,7 @@ export type Database = {
           created_at?: string
           guest_email?: string | null
           id?: string
+          images?: string[]
           product_id?: string
           rating?: number
           status?: Database["public"]["Enums"]["review_status"]

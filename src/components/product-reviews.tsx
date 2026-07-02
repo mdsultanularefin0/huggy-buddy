@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Star } from "lucide-react";
+import { Star, ImagePlus, X, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/use-session";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
+import { uploadImage } from "@/lib/upload";
 
 type Review = {
   id: string;
@@ -14,6 +15,7 @@ type Review = {
   author_name: string;
   created_at: string;
   user_id: string;
+  images: string[] | null;
 };
 
 export function ProductReviews({ productId }: { productId: string }) {
@@ -24,13 +26,36 @@ export function ProductReviews({ productId }: { productId: string }) {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [name, setName] = useState("");
+  const [images, setImages] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
+
+  async function handleFiles(files: FileList | null) {
+    if (!files || files.length === 0) return;
+    if (images.length + files.length > 5) {
+      toast.error("Up to 5 photos");
+      return;
+    }
+    setUploading(true);
+    try {
+      const uploaded: string[] = [];
+      for (const f of Array.from(files)) {
+        const url = await uploadImage("review-images", f);
+        uploaded.push(url);
+      }
+      setImages((prev) => [...prev, ...uploaded]);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  }
 
   const { data: reviews = [], isLoading } = useQuery({
     queryKey: ["reviews", productId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("product_reviews")
-        .select("id,rating,title,body,author_name,created_at,user_id")
+        .select("id,rating,title,body,author_name,created_at,user_id,images")
         .eq("product_id", productId)
         .eq("status", "approved")
         .order("created_at", { ascending: false });
@@ -51,6 +76,7 @@ export function ProductReviews({ productId }: { productId: string }) {
         rating,
         title: title.trim() || null,
         body: body.trim() || null,
+        images,
         status: "pending",
       });
       if (error) throw error;
@@ -61,6 +87,7 @@ export function ProductReviews({ productId }: { productId: string }) {
       setBody("");
       setName("");
       setRating(5);
+      setImages([]);
       qc.invalidateQueries({ queryKey: ["reviews", productId] });
     },
     onError: (e: Error) => toast.error(e.message),
@@ -146,6 +173,36 @@ export function ProductReviews({ productId }: { productId: string }) {
               rows={4}
               className="w-full border border-gray-200 rounded-xl px-4 py-2 text-sm"
             />
+            <div>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {images.map((url) => (
+                  <div key={url} className="relative w-16 h-16 rounded-lg overflow-hidden border">
+                    <img src={url} alt="" className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => setImages((p) => p.filter((u) => u !== url))}
+                      className="absolute top-0.5 right-0.5 bg-black/60 text-white rounded-full p-0.5"
+                      aria-label="Remove"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+                {images.length < 5 && (
+                  <label className="w-16 h-16 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:border-[#a555f0] text-gray-400">
+                    {uploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ImagePlus className="w-5 h-5" />}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="hidden"
+                      onChange={(e) => { handleFiles(e.target.files); e.target.value = ""; }}
+                    />
+                  </label>
+                )}
+              </div>
+              <p className="text-xs text-gray-500">Add up to 5 photos (optional)</p>
+            </div>
             <button
               type="submit"
               disabled={submit.isPending}
@@ -185,6 +242,15 @@ export function ProductReviews({ productId }: { productId: string }) {
                 </div>
                 {r.title && <p className="font-medium text-sm mt-1">{r.title}</p>}
                 {r.body && <p className="text-sm text-gray-700 mt-1 whitespace-pre-line">{r.body}</p>}
+                {r.images && r.images.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {r.images.map((url) => (
+                      <a key={url} href={url} target="_blank" rel="noreferrer" className="block w-20 h-20 rounded-lg overflow-hidden border">
+                        <img src={url} alt="Review photo" loading="lazy" className="w-full h-full object-cover hover:scale-105 transition-transform" />
+                      </a>
+                    ))}
+                  </div>
+                )}
               </div>
             ))
           )}

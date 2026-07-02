@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Star, Check, X, Trash2, Loader2, Plus } from "lucide-react";
+import { Star, Check, X, Trash2, Loader2, Plus, ImagePlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { uploadImage } from "@/lib/upload";
 
 export const Route = createFileRoute("/admin/reviews")({
   head: () => ({ meta: [{ title: "Reviews — Admin" }, { name: "robots", content: "noindex" }] }),
@@ -29,6 +30,7 @@ type Row = {
   created_at: string;
   user_id: string | null;
   product_id: string;
+  images: string[] | null;
   products: { name: string; slug: string } | null;
 };
 
@@ -41,7 +43,7 @@ function AdminReviewsPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("product_reviews")
-        .select("id,rating,title,body,author_name,status,created_at,user_id,product_id,products(name,slug)")
+        .select("id,rating,title,body,author_name,status,created_at,user_id,product_id,images,products(name,slug)")
         .eq("status", tab)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -142,6 +144,15 @@ function AdminReviewsPage() {
                   )}
                   {r.title && <p className="font-medium mt-2">{r.title}</p>}
                   {r.body && <p className="text-sm text-muted-foreground mt-1 whitespace-pre-line">{r.body}</p>}
+                  {r.images && r.images.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {r.images.map((url) => (
+                        <a key={url} href={url} target="_blank" rel="noreferrer" className="block w-16 h-16 rounded border overflow-hidden">
+                          <img src={url} alt="" className="w-full h-full object-cover" />
+                        </a>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div className="flex gap-2 shrink-0">
                   {r.status !== "approved" && (
@@ -176,6 +187,23 @@ function AddReviewDialog({ onCreated }: { onCreated: () => void }) {
   const [body, setBody] = useState("");
   const [status, setStatus] = useState<Status>("approved");
   const [submitting, setSubmitting] = useState(false);
+  const [images, setImages] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
+
+  async function handleFiles(files: FileList | null) {
+    if (!files || files.length === 0) return;
+    if (images.length + files.length > 5) return toast.error("Up to 5 photos");
+    setUploading(true);
+    try {
+      const uploaded: string[] = [];
+      for (const f of Array.from(files)) uploaded.push(await uploadImage("review-images", f));
+      setImages((p) => [...p, ...uploaded]);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  }
 
   const { data: products = [] } = useQuery({
     queryKey: ["admin", "reviews", "products-list"],
@@ -197,13 +225,14 @@ function AddReviewDialog({ onCreated }: { onCreated: () => void }) {
       rating,
       title: title.trim() || null,
       body: body.trim() || null,
+      images,
       status,
     });
     setSubmitting(false);
     if (error) return toast.error(error.message);
     toast.success("Review added");
     setOpen(false);
-    setProductId(""); setAuthor(""); setRating(5); setTitle(""); setBody(""); setStatus("approved");
+    setProductId(""); setAuthor(""); setRating(5); setTitle(""); setBody(""); setStatus("approved"); setImages([]);
     onCreated();
   }
 
@@ -246,6 +275,30 @@ function AddReviewDialog({ onCreated }: { onCreated: () => void }) {
           <div>
             <Label>Body (optional)</Label>
             <Textarea rows={4} value={body} onChange={(e) => setBody(e.target.value)} />
+          </div>
+          <div>
+            <Label>Photos (optional, up to 5)</Label>
+            <div className="flex flex-wrap gap-2 mt-1">
+              {images.map((url) => (
+                <div key={url} className="relative w-16 h-16 rounded border overflow-hidden">
+                  <img src={url} alt="" className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => setImages((p) => p.filter((u) => u !== url))}
+                    className="absolute top-0.5 right-0.5 bg-black/60 text-white rounded-full p-0.5"
+                    aria-label="Remove"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
+              {images.length < 5 && (
+                <label className="w-16 h-16 rounded border-2 border-dashed flex items-center justify-center cursor-pointer text-muted-foreground hover:border-primary">
+                  {uploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ImagePlus className="w-5 h-5" />}
+                  <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => { handleFiles(e.target.files); e.target.value = ""; }} />
+                </label>
+              )}
+            </div>
           </div>
           <div>
             <Label>Status</Label>
