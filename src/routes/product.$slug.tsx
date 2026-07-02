@@ -308,6 +308,15 @@ function ProductPage() {
           </Accordion>
         </div>
       </div>
+      {product.description && (
+        <section className="max-w-7xl mx-auto px-4 pb-12">
+          <h2 className="text-xl font-semibold text-[#52277a] mb-4">Description</h2>
+          <article
+            className="prose prose-gray max-w-none prose-headings:text-[#52277a] prose-a:text-[#a555f0] prose-li:marker:text-[#a555f0]"
+            dangerouslySetInnerHTML={{ __html: product.description }}
+          />
+        </section>
+      )}
       <ProductReviews productId={product.id} />
       <SiteFooter />
     </div>
