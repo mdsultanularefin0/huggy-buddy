@@ -100,66 +100,65 @@ export function ProductReviews({ productId }: { productId: string }) {
       <div className="grid md:grid-cols-2 gap-10">
         <div>
           <h3 className="font-medium mb-4">Write a review</h3>
-          {!user ? (
-            <p className="text-sm text-gray-600">
-              <Link to="/auth" className="text-[#52277a] underline">Sign in</Link> to share your experience.
-            </p>
-          ) : (
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                submit.mutate();
-              }}
-              className="space-y-3"
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              submit.mutate();
+            }}
+            className="space-y-3"
+          >
+            <div className="flex items-center gap-1">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onMouseEnter={() => setHover(i)}
+                  onMouseLeave={() => setHover(0)}
+                  onClick={() => setRating(i)}
+                  aria-label={`${i} star`}
+                >
+                  <Star
+                    className={`w-6 h-6 transition-colors ${
+                      i <= (hover || rating)
+                        ? "text-[#a555f0] fill-current"
+                        : "text-gray-300"
+                    }`}
+                  />
+                </button>
+              ))}
+            </div>
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder={user ? "Display name (optional)" : "Your name"}
+              className="w-full border border-gray-200 rounded-xl px-4 py-2 text-sm"
+            />
+            <input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Title (optional)"
+              className="w-full border border-gray-200 rounded-xl px-4 py-2 text-sm"
+            />
+            <textarea
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              placeholder="Share your thoughts..."
+              rows={4}
+              className="w-full border border-gray-200 rounded-xl px-4 py-2 text-sm"
+            />
+            <button
+              type="submit"
+              disabled={submit.isPending}
+              className="bg-[#52277a] hover:bg-[#3f1d5e] disabled:opacity-50 text-white rounded-xl px-6 py-2.5 text-sm font-semibold"
             >
-              <div className="flex items-center gap-1">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onMouseEnter={() => setHover(i)}
-                    onMouseLeave={() => setHover(0)}
-                    onClick={() => setRating(i)}
-                    aria-label={`${i} star`}
-                  >
-                    <Star
-                      className={`w-6 h-6 transition-colors ${
-                        i <= (hover || rating)
-                          ? "text-[#a555f0] fill-current"
-                          : "text-gray-300"
-                      }`}
-                    />
-                  </button>
-                ))}
-              </div>
-              <input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Display name (optional)"
-                className="w-full border border-gray-200 rounded-xl px-4 py-2 text-sm"
-              />
-              <input
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Title (optional)"
-                className="w-full border border-gray-200 rounded-xl px-4 py-2 text-sm"
-              />
-              <textarea
-                value={body}
-                onChange={(e) => setBody(e.target.value)}
-                placeholder="Share your thoughts..."
-                rows={4}
-                className="w-full border border-gray-200 rounded-xl px-4 py-2 text-sm"
-              />
-              <button
-                type="submit"
-                disabled={submit.isPending}
-                className="bg-[#52277a] hover:bg-[#3f1d5e] disabled:opacity-50 text-white rounded-xl px-6 py-2.5 text-sm font-semibold"
-              >
-                {submit.isPending ? "Posting..." : "Post Review"}
-              </button>
-            </form>
-          )}
+              {submit.isPending ? "Posting..." : "Post Review"}
+            </button>
+            {!user && (
+              <p className="text-xs text-gray-500">
+                Reviews appear after admin approval. Want to skip? <Link to="/auth" className="underline">Sign in</Link>.
+              </p>
+            )}
+          </form>
         </div>
 
         <div className="space-y-5">
