@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, Loader2, Upload, X } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Upload, X, GripVertical } from "lucide-react";
 import { toast } from "sonner";
 import { formatBDT } from "@/lib/currency";
 import { uploadImage } from "@/lib/upload";
@@ -26,9 +26,10 @@ const empty = {
   description: "",
   regular_price: 0,
   sale_price: null as number | null,
-  image_url: null as string | null,
+  images: [] as string[],
   is_active: true,
   in_stock: true,
+  stock_quantity: 0,
   sizes_json: [] as Size[],
   category_id: null as string | null,
 };
