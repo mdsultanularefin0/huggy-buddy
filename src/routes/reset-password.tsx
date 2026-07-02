@@ -50,8 +50,7 @@ function ResetPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-soft flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <AuthLayout>
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-luxe shadow-luxe mb-4">
             <Sparkles className="w-7 h-7 text-primary-foreground" />
