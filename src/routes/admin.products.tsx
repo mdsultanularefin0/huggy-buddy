@@ -17,7 +17,7 @@ import { uploadImage } from "@/lib/upload";
 import type { Database } from "@/integrations/supabase/types";
 
 type Product = Database["public"]["Tables"]["products"]["Row"];
-type Size = { label: string; price: number; sale_price?: number | null };
+type Size = { label: string; price: number; sale_price?: number | null; in_stock?: boolean };
 
 export const Route = createFileRoute("/admin/products")({ component: ProductsPage });
 
