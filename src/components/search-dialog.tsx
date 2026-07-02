@@ -50,8 +50,8 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
           .limit(8),
         supabase
           .from("combos")
-          .select("id,name,image_url")
-          .ilike("name", like)
+          .select("id,title,image_url")
+          .ilike("title", like)
           .limit(5),
       ]);
       return {
