@@ -69,6 +69,7 @@ function ProductsPage() {
       const payload = {
         name: form.name,
         slug,
+        short_description: form.short_description || null,
         description: form.description || null,
         regular_price: Number(form.regular_price),
         sale_price: form.sale_price === null || form.sale_price === 0 ? null : Number(form.sale_price),
