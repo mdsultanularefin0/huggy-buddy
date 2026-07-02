@@ -40,18 +40,8 @@ export function SearchInline({
     document.addEventListener("mousedown", onDown);
     return () => document.removeEventListener("mousedown", onDown);
   }, [onClose]);
-  const navigate = useNavigate();
-  const [query, setQuery] = useState("");
-  const [focused, setFocused] = useState(false);
-  const wrapRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const onDown = (e: MouseEvent) => {
-      if (!wrapRef.current?.contains(e.target as Node)) setFocused(false);
-    };
-    document.addEventListener("mousedown", onDown);
-    return () => document.removeEventListener("mousedown", onDown);
-  }, []);
+
 
   const term = query.trim();
   const { data, isFetching } = useQuery({
