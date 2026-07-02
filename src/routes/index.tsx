@@ -219,62 +219,72 @@ const whisperReviewsQuery = queryOptions({
 });
 
 
-export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "Veloura Essence — Premium Luxury Fragrances in Bangladesh" },
-      {
-        name: "description",
-        content:
-          "Shop Veloura Essence: high-concentration luxury perfumes with long-lasting silage. Signature scents, curated collections, and honest pricing in Bangladesh.",
-      },
-      { name: "keywords", content: "luxury perfume Bangladesh, premium fragrance, Veloura Essence, oud, floral perfume, woody perfume, attar" },
-      { property: "og:title", content: "Veloura Essence — Premium Luxury Fragrances" },
-      {
-        property: "og:description",
-        content:
-          "Crafted scents, honest pricing, and an experience worthy of every occasion. Discover the Veloura signature collection.",
-      },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: "/" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Veloura Essence — Premium Luxury Fragrances" },
-      {
-        name: "twitter:description",
-        content: "Crafted scents, honest pricing — discover Veloura Essence.",
-      },
-    ],
-    links: [{ rel: "canonical", href: "/" }],
-    scripts: [
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "Store",
-          name: "Veloura Essence",
-          description:
-            "Premium luxury fragrances handcrafted in Bangladesh — long-lasting, honestly priced.",
-          url: "/",
-          makesOffer: [
-            { "@type": "Offer", itemOffered: { "@type": "Product", name: "Velvet Oud" } },
-            { "@type": "Offer", itemOffered: { "@type": "Product", name: "Rose Nuit" } },
-            { "@type": "Offer", itemOffered: { "@type": "Product", name: "Amber Reverie" } },
-            { "@type": "Offer", itemOffered: { "@type": "Product", name: "Citrine Bloom" } },
-          ],
-        }),
-      },
-    ],
+const HERO_OG_IMAGE = "/__l5e/assets-v1/cdb47efc-0449-4721-ba5e-c16e886a1c8b/hero-main.png";
 
-  }),
-  loader: ({ context }) => Promise.all([
-    context.queryClient.ensureQueryData(categoriesQuery),
-    context.queryClient.ensureQueryData(heroSettingsQuery),
-    context.queryClient.ensureQueryData(featuredProductsQuery),
-  ]),
+export const Route = createFileRoute("/")({
+  head: ({ loaderData }) => {
+    const origin = (loaderData as { origin?: string } | undefined)?.origin ?? "";
+    const url = origin ? `${origin}/` : "/";
+    const ogImage = `${origin}${HERO_OG_IMAGE}`;
+    return {
+      meta: [
+        { title: "Veloura Essence | Premium Fragrances in Bangladesh" },
+        {
+          name: "description",
+          content:
+            "Shop Veloura Essence: high-concentration luxury perfumes with long-lasting silage. Signature scents, curated collections, and honest pricing in Bangladesh.",
+        },
+        { name: "keywords", content: "luxury perfume Bangladesh, premium fragrance, Veloura Essence, oud, floral perfume, woody perfume, attar" },
+        { property: "og:title", content: "Veloura Essence | Premium Fragrances in Bangladesh" },
+        {
+          property: "og:description",
+          content:
+            "Crafted scents, honest pricing, and an experience worthy of every occasion. Discover the Veloura signature collection.",
+        },
+        { property: "og:type", content: "website" },
+        { property: "og:url", content: url },
+        { property: "og:image", content: ogImage },
+        { property: "og:image:alt", content: "Veloura Essence luxury perfumes" },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: "Veloura Essence | Premium Fragrances in Bangladesh" },
+        {
+          name: "twitter:description",
+          content: "Crafted scents, honest pricing — discover Veloura Essence.",
+        },
+        { name: "twitter:image", content: ogImage },
+      ],
+      links: [{ rel: "canonical", href: "/" }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Store",
+            name: "Veloura Essence",
+            description:
+              "Premium luxury fragrances handcrafted in Bangladesh — long-lasting, honestly priced.",
+            url: url,
+            image: ogImage,
+          }),
+        },
+      ],
+    };
+  },
+  loader: async ({ context }) => {
+    const { getRequestOrigin } = await import("@/lib/origin.functions");
+    const [, , , origin] = await Promise.all([
+      context.queryClient.ensureQueryData(categoriesQuery),
+      context.queryClient.ensureQueryData(heroSettingsQuery),
+      context.queryClient.ensureQueryData(featuredProductsQuery),
+      getRequestOrigin(),
+    ]);
+    return { origin };
+  },
   component: Landing,
   errorComponent: ({ error }) => <div className="p-8 text-center text-destructive">{error.message}</div>,
   notFoundComponent: () => <div className="p-8 text-center">Not found.</div>,
 });
+
 
 function useCountdown(targetMs: number | null) {
   const [now, setNow] = useState(() => Date.now());
