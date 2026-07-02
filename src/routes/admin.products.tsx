@@ -312,6 +312,10 @@ function ProductsPage() {
               <Input id="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="mt-1" />
             </div>
             <div>
+              <Label htmlFor="short_desc">Short description</Label>
+              <Textarea id="short_desc" value={form.short_description} onChange={(e) => setForm({ ...form, short_description: e.target.value })} rows={2} placeholder="One-line tagline shown near the title" className="mt-1" />
+            </div>
+            <div>
               <Label htmlFor="desc">Description</Label>
               <Textarea id="desc" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} className="mt-1" />
             </div>
