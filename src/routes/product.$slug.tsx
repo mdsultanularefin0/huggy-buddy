@@ -48,13 +48,44 @@ export const Route = createFileRoute("/product/$slug")({
   loader: async ({ context, params }) => {
     const p = await context.queryClient.ensureQueryData(productOptions(params.slug));
     if (!p) throw notFound();
+    const { getRequestOrigin } = await import("@/lib/origin.functions");
+    const origin = await getRequestOrigin();
+    return { origin, name: p.name, description: p.description, image: p.image_url };
   },
-  head: ({ params }) => ({
-    meta: [
-      { title: `${params.slug.replace(/-/g, " ")} — Veloura Essence` },
-      { name: "description", content: `Shop ${params.slug.replace(/-/g, " ")} at Veloura Essence — premium fragrance crafted in Bangladesh.` },
-    ],
-  }),
+  head: ({ params, loaderData }) => {
+    const name = loaderData?.name ?? params.slug.replace(/-/g, " ");
+    const desc =
+      loaderData?.description?.slice(0, 155) ??
+      `Shop ${name} at Veloura Essence — premium fragrance crafted in Bangladesh.`;
+    const origin = loaderData?.origin ?? "";
+    const path = `/product/${params.slug}`;
+    const url = origin ? `${origin}${path}` : path;
+    const img = loaderData?.image
+      ? loaderData.image.startsWith("http")
+        ? loaderData.image
+        : `${origin}${loaderData.image}`
+      : undefined;
+    const meta: Array<Record<string, string>> = [
+      { title: `${name} — Veloura Essence` },
+      { name: "description", content: desc },
+      { property: "og:title", content: `${name} — Veloura Essence` },
+      { property: "og:description", content: desc },
+      { property: "og:type", content: "product" },
+      { property: "og:url", content: url },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: name },
+      { name: "twitter:description", content: desc },
+    ];
+    if (img) {
+      meta.push(
+        { property: "og:image", content: img },
+        { property: "og:image:alt", content: name },
+        { name: "twitter:image", content: img },
+      );
+    }
+    return { meta, links: [{ rel: "canonical", href: path }] };
+  },
+
   component: ProductPage,
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
   notFoundComponent: () => (
