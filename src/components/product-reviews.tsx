@@ -32,6 +32,7 @@ export function ProductReviews({ productId }: { productId: string }) {
         .from("product_reviews")
         .select("id,rating,title,body,author_name,created_at,user_id")
         .eq("product_id", productId)
+        .eq("status", "approved")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data as Review[];
@@ -40,22 +41,25 @@ export function ProductReviews({ productId }: { productId: string }) {
 
   const submit = useMutation({
     mutationFn: async () => {
-      if (!user) throw new Error("Please sign in to leave a review");
-      const author = name.trim() || user.email?.split("@")[0] || "Anonymous";
+      const author = name.trim() || user?.email?.split("@")[0] || "";
+      if (!author) throw new Error("Please enter your name");
+      if (!body.trim()) throw new Error("Please write your review");
       const { error } = await supabase.from("product_reviews").insert({
         product_id: productId,
-        user_id: user.id,
+        user_id: user?.id ?? null,
         author_name: author,
         rating,
         title: title.trim() || null,
         body: body.trim() || null,
+        status: "pending",
       });
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Thanks for your review!");
+      toast.success("Thanks! Your review is awaiting approval.");
       setTitle("");
       setBody("");
+      setName("");
       setRating(5);
       qc.invalidateQueries({ queryKey: ["reviews", productId] });
     },
