@@ -166,3 +166,104 @@ function AdminReviewsPage() {
     </div>
   );
 }
+
+function AddReviewDialog({ onCreated }: { onCreated: () => void }) {
+  const [open, setOpen] = useState(false);
+  const [productId, setProductId] = useState("");
+  const [author, setAuthor] = useState("");
+  const [rating, setRating] = useState(5);
+  const [title, setTitle] = useState("");
+  const [body, setBody] = useState("");
+  const [status, setStatus] = useState<Status>("approved");
+  const [submitting, setSubmitting] = useState(false);
+
+  const { data: products = [] } = useQuery({
+    queryKey: ["admin", "reviews", "products-list"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("products").select("id,name").order("name");
+      if (error) throw error;
+      return data as { id: string; name: string }[];
+    },
+    enabled: open,
+  });
+
+  async function submit() {
+    if (!productId) return toast.error("Pick a product");
+    if (!author.trim()) return toast.error("Author name required");
+    setSubmitting(true);
+    const { error } = await supabase.from("product_reviews").insert({
+      product_id: productId,
+      author_name: author.trim(),
+      rating,
+      title: title.trim() || null,
+      body: body.trim() || null,
+      status,
+    });
+    setSubmitting(false);
+    if (error) return toast.error(error.message);
+    toast.success("Review added");
+    setOpen(false);
+    setProductId(""); setAuthor(""); setRating(5); setTitle(""); setBody(""); setStatus("approved");
+    onCreated();
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm"><Plus className="w-4 h-4 mr-1" /> Add review</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader><DialogTitle>Add review</DialogTitle></DialogHeader>
+        <div className="space-y-3">
+          <div>
+            <Label>Product</Label>
+            <Select value={productId} onValueChange={setProductId}>
+              <SelectTrigger><SelectValue placeholder="Select a product" /></SelectTrigger>
+              <SelectContent>
+                {products.map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Author name</Label>
+              <Input value={author} onChange={(e) => setAuthor(e.target.value)} placeholder="Jane D." />
+            </div>
+            <div>
+              <Label>Rating</Label>
+              <Select value={String(rating)} onValueChange={(v) => setRating(Number(v))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {[5, 4, 3, 2, 1].map((n) => <SelectItem key={n} value={String(n)}>{n} star{n > 1 ? "s" : ""}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div>
+            <Label>Title (optional)</Label>
+            <Input value={title} onChange={(e) => setTitle(e.target.value)} />
+          </div>
+          <div>
+            <Label>Body (optional)</Label>
+            <Textarea rows={4} value={body} onChange={(e) => setBody(e.target.value)} />
+          </div>
+          <div>
+            <Label>Status</Label>
+            <Select value={status} onValueChange={(v) => setStatus(v as Status)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="approved">Approved (visible)</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="rejected">Rejected</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={submitting}>{submitting ? "Adding…" : "Add review"}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
