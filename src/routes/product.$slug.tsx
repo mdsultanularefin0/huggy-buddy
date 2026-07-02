@@ -50,7 +50,14 @@ export const Route = createFileRoute("/product/$slug")({
     if (!p) throw notFound();
     const { getRequestOrigin } = await import("@/lib/origin.functions");
     const origin = await getRequestOrigin();
-    return { origin, name: p.name, description: p.description, image: p.image_url };
+    return {
+      origin,
+      name: p.name,
+      description: p.description,
+      image: p.image_url,
+      price: effectivePrice(p.regular_price, p.sale_price),
+      inStock: p.in_stock,
+    };
   },
   head: ({ params, loaderData }) => {
     const name = loaderData?.name ?? params.slug.replace(/-/g, " ");
@@ -83,7 +90,30 @@ export const Route = createFileRoute("/product/$slug")({
         { name: "twitter:image", content: img },
       );
     }
-    return { meta, links: [{ rel: "canonical", href: path }] };
+    const jsonLd: Record<string, unknown> = {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      name,
+      description: desc,
+      ...(img ? { image: img } : {}),
+      ...(url ? { url } : {}),
+      brand: { "@type": "Brand", name: "Veloura Essence" },
+      offers: {
+        "@type": "Offer",
+        price: loaderData?.price ?? 0,
+        priceCurrency: "BDT",
+        availability:
+          loaderData?.inStock === false
+            ? "https://schema.org/OutOfStock"
+            : "https://schema.org/InStock",
+        ...(url ? { url } : {}),
+      },
+    };
+    return {
+      meta,
+      links: [{ rel: "canonical", href: path }],
+      scripts: [{ type: "application/ld+json", children: JSON.stringify(jsonLd) }],
+    };
   },
 
   component: ProductPage,
@@ -157,7 +187,12 @@ function ProductPage() {
             {[0, 1, 2, 3].map((i) => (
               <div key={i} className="aspect-square rounded-xl bg-gray-50 overflow-hidden border border-gray-100">
                 {product.image_url ? (
-                  <img src={product.image_url} alt="" className="w-full h-full object-cover opacity-80" />
+                  <img
+                    src={product.image_url}
+                    alt={`${product.name} — view ${i + 1}`}
+                    loading="lazy"
+                    className="w-full h-full object-cover opacity-80"
+                  />
                 ) : null}
               </div>
             ))}
