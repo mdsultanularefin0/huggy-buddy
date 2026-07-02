@@ -80,7 +80,7 @@ export function SearchInline({
     onClose?.();
   };
 
-  const showDropdown = focused && term.length >= 2;
+  const showDropdown = focused && term.length >= 1;
   const total = (data?.products.length ?? 0) + (data?.combos.length ?? 0);
 
   return (
