@@ -269,19 +269,25 @@ function ClaimAccountSection({ order }: { order: OrderRow }) {
   }
 
   return (
-    <div className="mt-8 rounded-2xl border bg-card p-6">
+    <div className="mt-8 rounded-2xl border bg-card p-6" aria-labelledby="claim-heading">
       <div className="flex items-center gap-2 mb-2">
-        <UserPlus className="w-5 h-5 text-primary" />
-        <h2 className="font-semibold">Save this order to an account</h2>
+        <UserPlus className="w-5 h-5 text-primary" aria-hidden="true" />
+        <h2 id="claim-heading" className="font-semibold">Save this order to an account</h2>
       </div>
       {signedIn ? (
         <>
           <p className="text-sm text-muted-foreground mb-4">
             Link this order to your signed-in account to view it later under My orders.
           </p>
-          <Button variant="luxe" onClick={handleAttachSignedIn} disabled={loading}>
+          <Button
+            variant="luxe"
+            onClick={handleAttachSignedIn}
+            disabled={loading}
+            aria-busy={loading}
+            aria-describedby="claim-status"
+          >
             {loading ? (
-              <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Linking…</>
+              <><Loader2 className="w-4 h-4 mr-2 animate-spin" aria-hidden="true" /> Linking…</>
             ) : (
               "Link to my account"
             )}
@@ -292,7 +298,7 @@ function ClaimAccountSection({ order }: { order: OrderRow }) {
           <p className="text-sm text-muted-foreground mb-4">
             Create an account with <span className="font-medium text-foreground">{email}</span> to track this order and speed up future checkouts.
           </p>
-          <form onSubmit={handleCreate} className="grid gap-3 sm:grid-cols-[1fr_auto] items-end">
+          <form onSubmit={handleCreate} className="grid gap-3 sm:grid-cols-[1fr_auto] items-end" aria-busy={loading}>
             <div className="space-y-1.5">
               <Label htmlFor="claim-password">Choose a password</Label>
               <Input
@@ -301,14 +307,16 @@ function ClaimAccountSection({ order }: { order: OrderRow }) {
                 minLength={6}
                 required
                 disabled={loading}
+                aria-disabled={loading}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="At least 6 characters"
+                autoComplete="new-password"
               />
             </div>
-            <Button type="submit" variant="luxe" disabled={loading}>
+            <Button type="submit" variant="luxe" disabled={loading} aria-busy={loading} aria-describedby="claim-status">
               {loading ? (
-                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Creating…</>
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" aria-hidden="true" /> Creating…</>
               ) : (
                 "Create account & save"
               )}
@@ -316,17 +324,35 @@ function ClaimAccountSection({ order }: { order: OrderRow }) {
           </form>
         </>
       )}
+
+      {/* Polite status region for spinner state announcements */}
+      <span id="claim-status" role="status" aria-live="polite" className="sr-only">
+        {statusMsg}
+      </span>
+
       {lastError && !loading && (
-        <div className="mt-4 flex items-start justify-between gap-3 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm">
+        <div
+          role="alert"
+          aria-live="assertive"
+          className="mt-4 flex items-start justify-between gap-3 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm"
+        >
           <span className="text-destructive">{lastError}</span>
-          <Button size="sm" variant="outline" onClick={handleRetry} disabled={loading}>
-            <RefreshCw className="w-3.5 h-3.5 mr-1.5" /> Retry
+          <Button
+            ref={retryBtnRef}
+            size="sm"
+            variant="outline"
+            onClick={handleRetry}
+            disabled={loading}
+            aria-label={`Retry: ${lastError}`}
+          >
+            <RefreshCw className="w-3.5 h-3.5 mr-1.5" aria-hidden="true" /> Retry
           </Button>
         </div>
       )}
     </div>
   );
 }
+
 
 
 
