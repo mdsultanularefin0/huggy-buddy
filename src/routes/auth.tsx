@@ -9,8 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Sparkles } from "lucide-react";
-import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
+import { AuthLayout } from "@/components/auth-layout";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
