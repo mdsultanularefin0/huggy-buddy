@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useCart, cartCount } from "@/lib/cart-store";
 import { brandingQueryOptions } from "@/lib/branding-query";
 import { supabase } from "@/integrations/supabase/client";
+import { SearchDialog } from "@/components/search-dialog";
 
 export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { position?: "sticky" | "static" | "floating"; logoUrl?: string | null; logoSize?: number | null } = {}) {
   const items = useCart((s) => s.items);
