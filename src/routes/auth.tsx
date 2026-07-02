@@ -9,8 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Sparkles } from "lucide-react";
-import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
+import { AuthLayout } from "@/components/auth-layout";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -85,10 +84,8 @@ function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-soft">
-      <SiteHeader />
-      <div className="flex-1 flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
+    <AuthLayout>
+
 
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-luxe shadow-luxe mb-4">
@@ -156,9 +153,6 @@ function AuthPage() {
         <p className="text-center text-xs text-muted-foreground mt-6">
           Shoppers can check out as a guest — no account needed.
         </p>
-        </div>
-      </div>
-      <SiteFooter />
-    </div>
+    </AuthLayout>
   );
 }
