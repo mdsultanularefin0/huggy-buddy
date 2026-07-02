@@ -639,11 +639,23 @@ function Landing() {
                 {notesSubtitle ? <p className="text-gray-600 mt-3">{notesSubtitle}</p> : null}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
-                {notes.map((c, i) => (
-                  <Reveal key={c.title} delay={i * 120}>
+                {notes.map((c, i) => {
+                  const hasImage = !!c.image;
+                  const hasBg = !!c.bg;
+                  const style: React.CSSProperties = hasImage
+                    ? { backgroundImage: `url(${c.image})`, backgroundSize: "cover", backgroundPosition: "center" }
+                    : hasBg
+                      ? c.bg!.includes("gradient")
+                        ? { backgroundImage: c.bg }
+                        : { backgroundColor: c.bg }
+                      : {};
+                  const useTailwindGradient = !hasImage && !hasBg;
+                  return (
+                  <Reveal key={`${c.title}-${i}`} delay={i * 120}>
                     <a
                       href={c.link || "#"}
-                      className={`relative h-80 rounded-2xl overflow-hidden group cursor-pointer bg-gradient-to-br ${c.gradient} block transition-transform duration-500 hover:-translate-y-2 hover:shadow-2xl`}
+                      style={style}
+                      className={`relative h-80 rounded-2xl overflow-hidden group cursor-pointer block transition-transform duration-500 hover:-translate-y-2 hover:shadow-2xl ${useTailwindGradient ? `bg-gradient-to-br ${c.gradient}` : ""}`}
                     >
                       <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors" />
                       <div className="absolute inset-0 flex flex-col items-center justify-center text-white px-4">
@@ -654,7 +666,8 @@ function Landing() {
                       </div>
                     </a>
                   </Reveal>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </section>
