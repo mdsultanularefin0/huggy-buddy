@@ -13,6 +13,7 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
   const open = useCart((s) => s.open);
   const count = cartCount(items);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   const [signedIn, setSignedIn] = useState(false);
 
