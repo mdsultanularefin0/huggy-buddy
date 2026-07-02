@@ -26,7 +26,7 @@ export const Route = createFileRoute("/admin/homepage")({ component: HomepagePag
 
 const NONE = "__none__";
 
-type Note = { title: string; gradient: string; link?: string };
+type Note = { title: string; gradient: string; link?: string; image?: string; bg?: string };
 type Faq = { q: string; a: string };
 type Reel = { url: string; caption?: string; link?: string };
 type Whisper = { quote: string; name: string; tag?: string; rating?: number };
