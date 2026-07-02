@@ -130,6 +130,7 @@ function ProductsPage() {
     const imgs = Array.isArray(pAny.images_json) ? (pAny.images_json as string[]).filter(Boolean) : [];
     setForm({
       name: p.name,
+      short_description: (p as Product & { short_description?: string | null }).short_description ?? "",
       description: p.description ?? "",
       regular_price: p.regular_price,
       sale_price: p.sale_price,
