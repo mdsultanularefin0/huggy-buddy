@@ -327,6 +327,8 @@ function CategoryCarousel({ categories }: { categories: Array<{ id: string; slug
           );
         })}
       </CarouselContent>
+      <CarouselPrevious className="left-1 sm:-left-4 z-10" />
+      <CarouselNext className="right-1 sm:-right-4 z-10" />
     </Carousel>
   );
 }
