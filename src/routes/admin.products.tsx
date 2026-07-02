@@ -341,15 +341,28 @@ function ProductsPage() {
               </div>
             </div>
 
-            <div className="flex gap-6">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
-                <span className="text-sm">Active</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <Switch checked={form.in_stock} onCheckedChange={(v) => setForm({ ...form, in_stock: v })} />
-                <span className="text-sm">In stock</span>
-              </label>
+            <div className="grid grid-cols-2 gap-3 items-end">
+              <div>
+                <Label htmlFor="qty">Stock quantity</Label>
+                <Input
+                  id="qty"
+                  type="number"
+                  min={0}
+                  value={form.stock_quantity}
+                  onChange={(e) => setForm({ ...form, stock_quantity: Math.max(0, Number(e.target.value) || 0) })}
+                  className="mt-1"
+                />
+              </div>
+              <div className="flex gap-6 h-10 items-center">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
+                  <span className="text-sm">Active</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <Switch checked={form.in_stock} onCheckedChange={(v) => setForm({ ...form, in_stock: v })} />
+                  <span className="text-sm">In stock</span>
+                </label>
+              </div>
             </div>
           </div>
           <DialogFooter>
