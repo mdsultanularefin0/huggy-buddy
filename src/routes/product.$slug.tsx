@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/accordion";
 import { ProductReviews } from "@/components/product-reviews";
 
-type Size = { size_label: string; price: number; sale_price?: number | null };
+type Size = { size_label: string; price: number; sale_price?: number | null; in_stock?: boolean };
 type Product = {
   id: string;
   slug: string;
@@ -140,7 +140,8 @@ function ProductPage() {
   const regular = chosen?.price ?? product.regular_price;
   const sale = chosen?.sale_price ?? product.sale_price;
   const price = effectivePrice(regular, sale);
-  const canAdd = product.in_stock && (!needsSize || sizeIdx !== null);
+  const chosenOut = chosen ? chosen.in_stock === false : false;
+  const canAdd = product.in_stock && !chosenOut && (!needsSize || sizeIdx !== null);
 
   const handleAdd = () => {
     if (!product.in_stock) {
@@ -149,6 +150,10 @@ function ProductPage() {
     }
     if (needsSize && sizeIdx === null) {
       toast.error("Please select a size before adding to cart");
+      return;
+    }
+    if (chosenOut) {
+      toast.error("This variant is out of stock");
       return;
     }
     const sizeLabel = chosen?.size_label ?? null;
@@ -223,19 +228,26 @@ function ProductPage() {
             <div className="mt-8">
               <p className="text-sm font-medium mb-3">Variant</p>
               <div className="flex flex-wrap gap-2">
-                {sizes.map((s, i) => (
-                  <button
-                    key={s.size_label}
-                    onClick={() => setSizeIdx(i)}
-                    className={`px-4 py-2 rounded-xl border text-sm transition-colors ${
-                      i === sizeIdx
-                        ? "border-[#52277a] bg-[#52277a]/5 text-[#52277a] font-medium"
-                        : "border-gray-200 hover:border-[#a555f0]/60"
-                    }`}
-                  >
-                    {s.size_label} — {formatBDT(effectivePrice(s.price, s.sale_price))}
-                  </button>
-                ))}
+                {sizes.map((s, i) => {
+                  const out = s.in_stock === false;
+                  return (
+                    <button
+                      key={s.size_label}
+                      onClick={() => !out && setSizeIdx(i)}
+                      disabled={out}
+                      className={`px-4 py-2 rounded-xl border text-sm transition-colors ${
+                        out
+                          ? "border-gray-200 text-gray-400 line-through cursor-not-allowed"
+                          : i === sizeIdx
+                          ? "border-[#52277a] bg-[#52277a]/5 text-[#52277a] font-medium"
+                          : "border-gray-200 hover:border-[#a555f0]/60"
+                      }`}
+                    >
+                      {s.size_label} — {formatBDT(effectivePrice(s.price, s.sale_price))}
+                      {out && <span className="ml-1 text-xs">(out)</span>}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -253,7 +265,7 @@ function ProductPage() {
             disabled={!canAdd}
             className="mt-4 w-full bg-[#52277a] hover:bg-[#3f1d5e] disabled:opacity-50 text-white rounded-2xl py-4 font-semibold transition-colors"
           >
-            {!product.in_stock ? "Out of stock" : needsSize && sizeIdx === null ? "Select a variant" : "Add to Cart"}
+            {!product.in_stock ? "Out of stock" : needsSize && sizeIdx === null ? "Select a variant" : chosenOut ? "Variant out of stock" : "Add to Cart"}
           </button>
 
           <Accordion type="single" collapsible className="mt-8">
