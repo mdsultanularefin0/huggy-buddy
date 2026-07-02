@@ -107,7 +107,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
             {data.combos.map((c) => (
               <CommandItem
                 key={c.id}
-                value={`combo-${c.id}-${c.name}`}
+                value={`combo-${c.id}-${c.title}`}
                 onSelect={() => {
                   close();
                   navigate({ to: "/combo/$id", params: { id: c.id } });
@@ -118,7 +118,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
                 ) : (
                   <SearchIcon className="w-4 h-4 opacity-50" />
                 )}
-                <span>{c.name}</span>
+                <span>{c.title}</span>
               </CommandItem>
             ))}
           </CommandGroup>
