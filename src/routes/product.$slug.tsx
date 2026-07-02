@@ -187,7 +187,12 @@ function ProductPage() {
             {[0, 1, 2, 3].map((i) => (
               <div key={i} className="aspect-square rounded-xl bg-gray-50 overflow-hidden border border-gray-100">
                 {product.image_url ? (
-                  <img src={product.image_url} alt="" className="w-full h-full object-cover opacity-80" />
+                  <img
+                    src={product.image_url}
+                    alt={`${product.name} — view ${i + 1}`}
+                    loading="lazy"
+                    className="w-full h-full object-cover opacity-80"
+                  />
                 ) : null}
               </div>
             ))}
