@@ -187,6 +187,23 @@ function AddReviewDialog({ onCreated }: { onCreated: () => void }) {
   const [body, setBody] = useState("");
   const [status, setStatus] = useState<Status>("approved");
   const [submitting, setSubmitting] = useState(false);
+  const [images, setImages] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
+
+  async function handleFiles(files: FileList | null) {
+    if (!files || files.length === 0) return;
+    if (images.length + files.length > 5) return toast.error("Up to 5 photos");
+    setUploading(true);
+    try {
+      const uploaded: string[] = [];
+      for (const f of Array.from(files)) uploaded.push(await uploadImage("review-images", f));
+      setImages((p) => [...p, ...uploaded]);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  }
 
   const { data: products = [] } = useQuery({
     queryKey: ["admin", "reviews", "products-list"],
@@ -208,13 +225,14 @@ function AddReviewDialog({ onCreated }: { onCreated: () => void }) {
       rating,
       title: title.trim() || null,
       body: body.trim() || null,
+      images,
       status,
     });
     setSubmitting(false);
     if (error) return toast.error(error.message);
     toast.success("Review added");
     setOpen(false);
-    setProductId(""); setAuthor(""); setRating(5); setTitle(""); setBody(""); setStatus("approved");
+    setProductId(""); setAuthor(""); setRating(5); setTitle(""); setBody(""); setStatus("approved"); setImages([]);
     onCreated();
   }
 
