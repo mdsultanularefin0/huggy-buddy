@@ -8,19 +8,40 @@ import { cn } from "@/lib/utils";
 type ProductHit = { id: string; slug: string; name: string; image_url: string | null };
 type ComboHit = { id: string; title: string; image_url: string | null };
 
-export function SearchInline({ className }: { className?: string }) {
+export function SearchInline({
+  className,
+  autoFocus,
+  onClose,
+}: {
+  className?: string;
+  autoFocus?: boolean;
+  onClose?: () => void;
+}) {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [focused, setFocused] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (autoFocus) {
+      inputRef.current?.focus();
+      setFocused(true);
+    }
+  }, [autoFocus]);
 
   useEffect(() => {
     const onDown = (e: MouseEvent) => {
-      if (!wrapRef.current?.contains(e.target as Node)) setFocused(false);
+      if (!wrapRef.current?.contains(e.target as Node)) {
+        setFocused(false);
+        onClose?.();
+      }
     };
     document.addEventListener("mousedown", onDown);
     return () => document.removeEventListener("mousedown", onDown);
-  }, []);
+  }, [onClose]);
+
+
 
   const term = query.trim();
   const { data, isFetching } = useQuery({
@@ -44,6 +65,7 @@ export function SearchInline({ className }: { className?: string }) {
     fn();
     setQuery("");
     setFocused(false);
+    onClose?.();
   };
 
   const showDropdown = focused && term.length >= 2;
@@ -54,14 +76,22 @@ export function SearchInline({ className }: { className?: string }) {
       <div className="flex items-center gap-2 h-10 px-3 rounded-full bg-white/10 focus-within:bg-white/15 transition-colors">
         <SearchIcon className="w-4 h-4 opacity-80" />
         <input
+          ref={inputRef}
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setFocused(true)}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") {
+              setQuery("");
+              onClose?.();
+            }
+          }}
           placeholder="Search fragrances…"
           aria-label="Search"
           className="bg-transparent outline-none text-sm w-full placeholder:text-primary-foreground/60 text-primary-foreground"
         />
+
         {query && (
           <button
             type="button"
