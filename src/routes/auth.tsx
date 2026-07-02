@@ -156,7 +156,9 @@ function AuthPage() {
         <p className="text-center text-xs text-muted-foreground mt-6">
           Shoppers can check out as a guest — no account needed.
         </p>
+        </div>
       </div>
+      <SiteFooter />
     </div>
   );
 }
