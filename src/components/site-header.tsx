@@ -107,6 +107,8 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
         {/* RIGHT — search, profile, cart */}
         <div className="flex items-center gap-2 shrink-0">
           <button
+            type="button"
+            onClick={() => setSearchOpen(true)}
             aria-label="Search"
             className="w-10 h-10 rounded-full hover:bg-white/10 text-primary-foreground flex items-center justify-center transition-colors"
           >
