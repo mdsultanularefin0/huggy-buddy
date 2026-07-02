@@ -65,6 +65,7 @@ export function SearchInline({
     fn();
     setQuery("");
     setFocused(false);
+    onClose?.();
   };
 
   const showDropdown = focused && term.length >= 2;
@@ -75,14 +76,22 @@ export function SearchInline({
       <div className="flex items-center gap-2 h-10 px-3 rounded-full bg-white/10 focus-within:bg-white/15 transition-colors">
         <SearchIcon className="w-4 h-4 opacity-80" />
         <input
+          ref={inputRef}
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setFocused(true)}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") {
+              setQuery("");
+              onClose?.();
+            }
+          }}
           placeholder="Search fragrances…"
           aria-label="Search"
           className="bg-transparent outline-none text-sm w-full placeholder:text-primary-foreground/60 text-primary-foreground"
         />
+
         {query && (
           <button
             type="button"
