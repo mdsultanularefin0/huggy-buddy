@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/accordion";
 import { ProductReviews } from "@/components/product-reviews";
 
-type Size = { size_label: string; price: number; sale_price?: number | null };
+type Size = { size_label: string; price: number; sale_price?: number | null; in_stock?: boolean };
 type Product = {
   id: string;
   slug: string;
