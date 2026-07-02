@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import { AuthLayout } from "@/components/auth-layout";
 
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
