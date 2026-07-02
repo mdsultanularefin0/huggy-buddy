@@ -1,12 +1,12 @@
 import { Link } from "@tanstack/react-router";
-import { ShoppingCart, Menu, X, Search, User } from "lucide-react";
+import { ShoppingCart, Menu, X, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { useCart, cartCount } from "@/lib/cart-store";
 import { brandingQueryOptions } from "@/lib/branding-query";
 import { supabase } from "@/integrations/supabase/client";
-import { SearchDialog } from "@/components/search-dialog";
+import { SearchInline } from "@/components/search-inline";
 
 export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { position?: "sticky" | "static" | "floating"; logoUrl?: string | null; logoSize?: number | null } = {}) {
   const items = useCart((s) => s.items);
