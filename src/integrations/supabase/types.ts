@@ -455,6 +455,7 @@ export type Database = {
           description: string | null
           id: string
           image_url: string | null
+          images_json: Json
           in_stock: boolean
           is_active: boolean
           name: string
@@ -462,6 +463,7 @@ export type Database = {
           sale_price: number | null
           sizes_json: Json
           slug: string
+          stock_quantity: number
           updated_at: string
         }
         Insert: {
@@ -470,6 +472,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          images_json?: Json
           in_stock?: boolean
           is_active?: boolean
           name: string
@@ -477,6 +480,7 @@ export type Database = {
           sale_price?: number | null
           sizes_json?: Json
           slug: string
+          stock_quantity?: number
           updated_at?: string
         }
         Update: {
@@ -485,6 +489,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          images_json?: Json
           in_stock?: boolean
           is_active?: boolean
           name?: string
@@ -492,6 +497,7 @@ export type Database = {
           sale_price?: number | null
           sizes_json?: Json
           slug?: string
+          stock_quantity?: number
           updated_at?: string
         }
         Relationships: [
