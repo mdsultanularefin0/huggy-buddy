@@ -185,12 +185,21 @@ function ClaimAccountSection({ order }: { order: OrderRow }) {
   const [claimed, setClaimed] = useState(false);
   const [lastError, setLastError] = useState<string | null>(null);
   const email = order.customer_json?.email ?? "";
+  const retryBtnRef = useRef<HTMLButtonElement>(null);
+  const statusMsg = loading
+    ? (signedIn ? "Linking order to your account…" : "Creating your account…")
+    : "";
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSignedIn(!!data.session));
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSignedIn(!!s));
     return () => sub.subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (lastError && !loading) retryBtnRef.current?.focus();
+  }, [lastError, loading]);
+
 
   if (order.user_id || !email || signedIn === null || claimed) return null;
 
