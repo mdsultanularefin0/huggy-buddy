@@ -183,6 +183,7 @@ function ClaimAccountSection({ order }: { order: OrderRow }) {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [claimed, setClaimed] = useState(false);
+  const [lastError, setLastError] = useState<string | null>(null);
   const email = order.customer_json?.email ?? "";
 
   useEffect(() => {
@@ -193,34 +194,67 @@ function ClaimAccountSection({ order }: { order: OrderRow }) {
 
   if (order.user_id || !email || signedIn === null || claimed) return null;
 
-  async function attach() {
-    const res = await claimGuestOrder({ data: { orderId: order.id } });
-    if (!res.ok) { toast.error(res.error); return false; }
-    toast.success("Order saved to your account");
-    setClaimed(true);
-    await qc.invalidateQueries({ queryKey: ["order", order.id] });
-    return true;
+  async function attach(): Promise<boolean> {
+    const tId = toast.loading("Linking order to your account…");
+    try {
+      const res = await claimGuestOrder({ data: { orderId: order.id } });
+      if (!res.ok) {
+        toast.error(res.error, { id: tId });
+        setLastError(res.error);
+        return false;
+      }
+      toast.success("Order saved to your account", { id: tId });
+      setLastError(null);
+      setClaimed(true);
+      await qc.invalidateQueries({ queryKey: ["order", order.id] });
+      return true;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Network error while linking order.";
+      toast.error(msg, { id: tId, description: "Check your connection and retry." });
+      setLastError(msg);
+      return false;
+    }
   }
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+    setLastError(null);
+    const tId = toast.loading("Creating your account…");
     try {
       const { error } = await supabase.auth.signUp({
         email,
         password,
         options: { emailRedirectTo: window.location.href },
       });
-      if (error) { toast.error(error.message); return; }
+      if (error) {
+        toast.error(error.message, { id: tId });
+        setLastError(error.message);
+        return;
+      }
       const { data } = await supabase.auth.getSession();
-      if (data.session) await attach();
-      else toast.success("Check your email to confirm your account, then sign in to save this order.");
+      if (data.session) {
+        toast.success("Account created", { id: tId });
+        await attach();
+      } else {
+        toast.success("Account created — check your email to confirm, then sign in to save this order.", { id: tId });
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Sign-up failed.";
+      toast.error(msg, { id: tId, description: "Please try again." });
+      setLastError(msg);
     } finally {
       setLoading(false);
     }
   }
 
   async function handleAttachSignedIn() {
+    setLoading(true);
+    setLastError(null);
+    try { await attach(); } finally { setLoading(false); }
+  }
+
+  async function handleRetry() {
     setLoading(true);
     try { await attach(); } finally { setLoading(false); }
   }
@@ -237,7 +271,11 @@ function ClaimAccountSection({ order }: { order: OrderRow }) {
             Link this order to your signed-in account to view it later under My orders.
           </p>
           <Button variant="luxe" onClick={handleAttachSignedIn} disabled={loading}>
-            {loading ? "Linking…" : "Link to my account"}
+            {loading ? (
+              <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Linking…</>
+            ) : (
+              "Link to my account"
+            )}
           </Button>
         </>
       ) : (
@@ -253,19 +291,33 @@ function ClaimAccountSection({ order }: { order: OrderRow }) {
                 type="password"
                 minLength={6}
                 required
+                disabled={loading}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="At least 6 characters"
               />
             </div>
             <Button type="submit" variant="luxe" disabled={loading}>
-              {loading ? "Creating…" : "Create account & save"}
+              {loading ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Creating…</>
+              ) : (
+                "Create account & save"
+              )}
             </Button>
           </form>
         </>
       )}
+      {lastError && !loading && (
+        <div className="mt-4 flex items-start justify-between gap-3 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm">
+          <span className="text-destructive">{lastError}</span>
+          <Button size="sm" variant="outline" onClick={handleRetry} disabled={loading}>
+            <RefreshCw className="w-3.5 h-3.5 mr-1.5" /> Retry
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
+
 
 
