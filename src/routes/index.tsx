@@ -210,6 +210,7 @@ const whisperReviewsQuery = queryOptions({
     const { data, error } = await supabase
       .from("product_reviews")
       .select("id,rating,title,body,author_name,created_at,products(slug,name)")
+      .eq("status", "approved")
       .gte("rating", 4)
       .order("created_at", { ascending: false })
       .limit(6);
