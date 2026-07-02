@@ -13,6 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Plus, Pencil, Trash2, Loader2, Upload, X, GripVertical } from "lucide-react";
 import { toast } from "sonner";
 import { formatBDT } from "@/lib/currency";
+import { HtmlEditor } from "@/components/html-editor";
 import { uploadImage } from "@/lib/upload";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -316,8 +317,10 @@ function ProductsPage() {
               <Textarea id="short_desc" value={form.short_description} onChange={(e) => setForm({ ...form, short_description: e.target.value })} rows={2} placeholder="One-line tagline shown near the title" className="mt-1" />
             </div>
             <div>
-              <Label htmlFor="desc">Description</Label>
-              <Textarea id="desc" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} className="mt-1" />
+              <Label>Description</Label>
+              <div className="mt-1">
+                <HtmlEditor value={form.description} onChange={(html) => setForm({ ...form, description: html })} />
+              </div>
             </div>
             <div>
               <Label htmlFor="cat">Category</Label>
