@@ -144,6 +144,15 @@ function AdminReviewsPage() {
                   )}
                   {r.title && <p className="font-medium mt-2">{r.title}</p>}
                   {r.body && <p className="text-sm text-muted-foreground mt-1 whitespace-pre-line">{r.body}</p>}
+                  {r.images && r.images.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {r.images.map((url) => (
+                        <a key={url} href={url} target="_blank" rel="noreferrer" className="block w-16 h-16 rounded border overflow-hidden">
+                          <img src={url} alt="" className="w-full h-full object-cover" />
+                        </a>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div className="flex gap-2 shrink-0">
                   {r.status !== "approved" && (
