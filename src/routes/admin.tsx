@@ -32,6 +32,7 @@ const NAV: { to: string; label: string; icon: typeof LayoutDashboard; exact?: bo
   { to: "/admin/payments", label: "Payment Methods", icon: CreditCard },
   { to: "/admin/orders", label: "Orders", icon: ShoppingBag },
   { to: "/admin/customers", label: "Customers", icon: Users },
+  { to: "/admin/reviews", label: "Reviews", icon: Star },
   { to: "/admin/referrals", label: "Referrals", icon: Megaphone },
   { to: "/admin/audit-logs", label: "Audit Logs", icon: ScrollText },
   { to: "/admin/settings", label: "Site Settings", icon: Settings },
