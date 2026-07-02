@@ -31,7 +31,29 @@ const orderOptions = (id: string) =>
   });
 
 export const Route = createFileRoute("/order/$id")({
-  head: () => ({ meta: [{ title: "Order Confirmation — Veloura Essence" }] }),
+  head: ({ params, loaderData }) => {
+    const orderNumber = (loaderData as { orderNumber?: string } | undefined)?.orderNumber;
+    const title = orderNumber
+      ? `Order ${orderNumber} — Veloura Essence`
+      : "Order Confirmation — Veloura Essence";
+    const description = orderNumber
+      ? `Status and details for Veloura Essence order ${orderNumber}.`
+      : "Your Veloura Essence order confirmation and status.";
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { name: "robots", content: "noindex,nofollow" },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "website" },
+        { property: "og:url", content: `/order/${params.id}` },
+        { name: "twitter:card", content: "summary" },
+      ],
+      links: [{ rel: "canonical", href: `/order/${params.id}` }],
+    };
+  },
+
   loader: async ({ context, params }) => {
     const o = await context.queryClient.ensureQueryData(orderOptions(params.id));
     if (!o) throw notFound();
