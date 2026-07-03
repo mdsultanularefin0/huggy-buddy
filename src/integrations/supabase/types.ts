@@ -462,6 +462,7 @@ export type Database = {
           in_stock: boolean
           is_active: boolean
           name: string
+          note_type: string | null
           regular_price: number
           sale_price: number | null
           short_description: string | null
@@ -480,6 +481,7 @@ export type Database = {
           in_stock?: boolean
           is_active?: boolean
           name: string
+          note_type?: string | null
           regular_price?: number
           sale_price?: number | null
           short_description?: string | null
@@ -498,6 +500,7 @@ export type Database = {
           in_stock?: boolean
           is_active?: boolean
           name?: string
+          note_type?: string | null
           regular_price?: number
           sale_price?: number | null
           short_description?: string | null

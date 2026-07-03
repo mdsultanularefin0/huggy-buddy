@@ -34,6 +34,7 @@ const empty = {
   stock_quantity: 0,
   sizes_json: [] as Size[],
   category_id: null as string | null,
+  note_type: "" as string,
 };
 
 function ProductsPage() {
@@ -61,6 +62,16 @@ function ProductsPage() {
     },
   });
 
+  const { data: noteOptions = [] } = useQuery({
+    queryKey: ["admin", "note-options"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("site_settings").select("notes_json").maybeSingle();
+      if (error) throw error;
+      const arr = (data?.notes_json as Array<{ title?: string }> | null) ?? [];
+      return arr.map((n) => n?.title).filter((t): t is string => !!t);
+    },
+  });
+
   const save = useMutation({
     mutationFn: async () => {
       const slugify = (s: string) =>
@@ -81,6 +92,7 @@ function ProductsPage() {
         stock_quantity: Math.max(0, Number(form.stock_quantity) || 0),
         sizes_json: form.sizes_json as never,
         category_id: form.category_id,
+        note_type: form.note_type || null,
       };
       if (editing) {
         const { error } = await supabase.from("products").update(payload).eq("id", editing.id);
@@ -141,6 +153,7 @@ function ProductsPage() {
       stock_quantity: pAny.stock_quantity ?? 0,
       sizes_json: (Array.isArray(p.sizes_json) ? p.sizes_json : []) as Size[],
       category_id: (p as Product & { category_id: string | null }).category_id ?? null,
+      note_type: (p as Product & { note_type?: string | null }).note_type ?? "",
     });
     setOpen(true);
   }
@@ -335,6 +348,24 @@ function ProductsPage() {
                   <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
               </select>
+            </div>
+            <div>
+              <Label htmlFor="note_type">Scent note type</Label>
+              <select
+                id="note_type"
+                value={form.note_type}
+                onChange={(e) => setForm({ ...form, note_type: e.target.value })}
+                className="mt-1 w-full h-10 rounded-md border bg-background px-3 text-sm"
+              >
+                <option value="">— None —</option>
+                {noteOptions.map((n) => (
+                  <option key={n} value={n}>{n}</option>
+                ))}
+                {form.note_type && !noteOptions.includes(form.note_type) && (
+                  <option value={form.note_type}>{form.note_type} (custom)</option>
+                )}
+              </select>
+              <p className="text-xs text-muted-foreground mt-1">Options come from the homepage Scent notes section.</p>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
