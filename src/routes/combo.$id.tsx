@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { useState } from "react";
 import { ArrowLeft, Gift, Check } from "lucide-react";
@@ -56,12 +56,14 @@ function ComboPage() {
   const { data } = useSuspenseQuery(comboOptions(id));
   const [selected, setSelected] = useState<string[]>([]);
   const add = useCart((s) => s.add);
+  const navigate = useNavigate();
 
   if (!data) return null;
   const { combo, products } = data;
   const price = effectivePrice(combo.regular_price, combo.sale_price);
   const isByob = combo.combo_type === "byob";
   const limit = combo.max_items_allowed ?? products.length;
+  const isComplete = selected.length === limit;
 
   const toggle = (pid: string) => {
     setSelected((prev) => {
@@ -74,11 +76,7 @@ function ComboPage() {
     });
   };
 
-  const handleAdd = () => {
-    if (isByob && selected.length !== limit) {
-      toast.error(`Please pick exactly ${limit} items.`);
-      return;
-    }
+  const buildLine = () => {
     const selections = isByob
       ? selected.map((pid) => {
           const p = products.find((x) => x.id === pid)!;
@@ -89,9 +87,9 @@ function ComboPage() {
           return { productId: ci.product_id, name: p?.name ?? "" };
         });
     const hash = isByob ? selected.slice().sort().join("-").slice(0, 16) : "fixed";
-    add({
+    return {
       lineId: `${isByob ? "byob" : "combo"}:${combo.id}:${hash}`,
-      kind: isByob ? "byob" : "combo",
+      kind: (isByob ? "byob" : "combo") as "byob" | "combo",
       refId: combo.id,
       name: combo.title,
       imageUrl: combo.image_url,
@@ -99,76 +97,164 @@ function ComboPage() {
       regularPrice: combo.regular_price,
       quantity: 1,
       selections,
-    });
+    };
+  };
+
+  const handleAdd = () => {
+    if (isByob && !isComplete) {
+      toast.error(`Please pick exactly ${limit} items.`);
+      return;
+    }
+    add(buildLine());
     toast.success("Added to cart");
   };
 
+  const handleCheckout = () => {
+    if (isByob && !isComplete) {
+      toast.error(`Please pick exactly ${limit} items.`);
+      return;
+    }
+    add(buildLine());
+    navigate({ to: "/checkout" });
+  };
+
+  // Prebuilt: keep original two-column layout
+  if (!isByob) {
+    const included = combo.products_json
+      .map((ci) => products.find((p) => p.id === ci.product_id))
+      .filter(Boolean) as ProductMini[];
+    return (
+      <div className="min-h-screen bg-background">
+        <SiteHeader />
+        <div className="max-w-6xl mx-auto px-6 py-10">
+          <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6">
+            <ArrowLeft className="w-4 h-4" /> Back to shop
+          </Link>
+          <div className="grid md:grid-cols-2 gap-10">
+            <div className="aspect-[4/3] rounded-3xl bg-muted overflow-hidden">
+              {combo.image_url ? (
+                <img src={combo.image_url} alt={combo.title} loading="lazy" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-muted-foreground"><Gift className="w-12 h-12" /></div>
+              )}
+            </div>
+            <div>
+              <h1 className="text-3xl md:text-4xl font-semibold tracking-tight">{combo.title}</h1>
+              <div className="flex items-baseline gap-3 mt-3">
+                <span className="text-2xl font-semibold">{formatBDT(price)}</span>
+                {hasSale(combo.regular_price, combo.sale_price) && (
+                  <span className="text-base text-muted-foreground line-through">{formatBDT(combo.regular_price)}</span>
+                )}
+              </div>
+              {combo.description && (
+                <p className="text-sm text-muted-foreground mt-5 whitespace-pre-line">{combo.description}</p>
+              )}
+              <div className="mt-8">
+                <p className="text-sm font-medium mb-3">Includes</p>
+                <div className="space-y-2">
+                  {included.map((p) => (
+                    <div key={p.id} className="flex items-center gap-3 p-3 rounded-xl border border-border">
+                      <div className="w-12 h-12 rounded-lg bg-muted overflow-hidden flex-shrink-0">
+                        {p.image_url && <img src={p.image_url} alt={p.name} loading="lazy" className="w-full h-full object-cover" />}
+                      </div>
+                      <span className="flex-1 text-sm font-medium">{p.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <Button variant="hero" size="lg" className="w-full mt-8" onClick={handleAdd}>
+                Add to cart — {formatBDT(price)}
+              </Button>
+            </div>
+          </div>
+        </div>
+        <SiteFooter />
+      </div>
+    );
+  }
+
+  // BYOB: hero + selectable card grid + sticky action bar
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-32">
       <SiteHeader />
       <div className="max-w-6xl mx-auto px-6 py-10">
         <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6">
           <ArrowLeft className="w-4 h-4" /> Back to shop
         </Link>
-        <div className="grid md:grid-cols-2 gap-10">
-          <div className="aspect-[4/3] rounded-3xl bg-muted overflow-hidden">
-            {combo.image_url ? (
-              <img src={combo.image_url} alt={combo.title} loading="lazy" className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-muted-foreground"><Gift className="w-12 h-12" /></div>
+
+        <div className="text-center max-w-2xl mx-auto mb-10">
+          <span className="text-[10px] font-semibold uppercase tracking-widest text-accent">Build your own</span>
+          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight mt-2">{combo.title}</h1>
+          <div className="flex items-baseline justify-center gap-3 mt-3">
+            <span className="text-2xl font-semibold">{formatBDT(price)}</span>
+            {hasSale(combo.regular_price, combo.sale_price) && (
+              <span className="text-base text-muted-foreground line-through">{formatBDT(combo.regular_price)}</span>
             )}
           </div>
-          <div>
-            {isByob && <span className="text-[10px] font-semibold uppercase tracking-widest text-accent">Build your own</span>}
-            <h1 className="text-3xl md:text-4xl font-semibold tracking-tight mt-1">{combo.title}</h1>
-            <div className="flex items-baseline gap-3 mt-3">
-              <span className="text-2xl font-semibold">{formatBDT(price)}</span>
-              {hasSale(combo.regular_price, combo.sale_price) && (
-                <span className="text-base text-muted-foreground line-through">{formatBDT(combo.regular_price)}</span>
-              )}
-            </div>
-            {combo.description && (
-              <p className="text-sm text-muted-foreground mt-5 whitespace-pre-line">{combo.description}</p>
-            )}
+          {combo.description && (
+            <p className="text-sm text-muted-foreground mt-4 whitespace-pre-line">{combo.description}</p>
+          )}
+          <p className="text-sm font-medium mt-6">
+            Pick {limit} items · <span className={isComplete ? "text-primary" : "text-muted-foreground"}>{selected.length}/{limit} selected</span>
+          </p>
+        </div>
 
-            <div className="mt-8">
-              <p className="text-sm font-medium mb-3">
-                {isByob ? `Pick ${limit} items (${selected.length}/${limit})` : "Includes"}
-              </p>
-              <div className="space-y-2 max-h-80 overflow-y-auto pr-2">
-                {(isByob ? products : combo.products_json.map((ci) => products.find((p) => p.id === ci.product_id)).filter(Boolean) as ProductMini[]).map((p) => {
-                  const checked = isByob && selected.includes(p.id);
-                  return (
-                    <button
-                      key={p.id}
-                      type="button"
-                      onClick={() => isByob && toggle(p.id)}
-                      disabled={!isByob}
-                      className={`w-full flex items-center gap-3 p-3 rounded-xl border transition-colors text-left ${
-                        checked ? "border-primary bg-primary/5" : "border-border"
-                      } ${isByob ? "hover:border-primary/40 cursor-pointer" : "cursor-default"}`}
-                    >
-                      <div className="w-12 h-12 rounded-lg bg-muted overflow-hidden flex-shrink-0">
-                        {p.image_url && <img src={p.image_url} alt={p.name} loading="lazy" className="w-full h-full object-cover" />}
-                      </div>
-                      <span className="flex-1 text-sm font-medium">{p.name}</span>
-                      {isByob && (
-                        <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${checked ? "bg-primary border-primary" : "border-border"}`}>
-                          {checked && <Check className="w-3 h-3 text-primary-foreground" />}
-                        </div>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <Button variant="hero" size="lg" className="w-full mt-8" onClick={handleAdd}>
-              Add to cart — {formatBDT(price)}
-            </Button>
-          </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-6">
+          {products.map((p) => {
+            const checked = selected.includes(p.id);
+            const disabled = !checked && selected.length >= limit;
+            return (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => toggle(p.id)}
+                disabled={disabled}
+                aria-pressed={checked}
+                className={`group relative text-left bg-[#f5edff] rounded-3xl transition-all duration-300 ${
+                  checked ? "ring-2 ring-[#52277a] shadow-[0_20px_40px_-15px_rgba(82,39,122,0.35)]" : "hover:shadow-[0_20px_40px_-15px_rgba(82,39,122,0.2)]"
+                } ${disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}`}
+              >
+                {checked && (
+                  <span className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-[#52277a] text-white flex items-center justify-center shadow-lg">
+                    <Check className="w-4 h-4" />
+                  </span>
+                )}
+                <div className="relative aspect-[4/5] overflow-hidden rounded-3xl bg-[#ece2f7]">
+                  {p.image_url ? (
+                    <img src={p.image_url} alt={p.name} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                      <Gift className="w-8 h-8" />
+                    </div>
+                  )}
+                </div>
+                <div className="px-3 py-4 text-center">
+                  <h3 className="text-sm font-serif text-[#1a1a1a] truncate">{p.name}</h3>
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
+
+      {/* Sticky action bar */}
+      <div className="fixed bottom-0 inset-x-0 z-40 border-t bg-background/95 backdrop-blur">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center gap-4">
+          <div className="flex-1 min-w-0">
+            <p className="text-xs text-muted-foreground">{combo.title}</p>
+            <p className="text-sm font-semibold">
+              {selected.length}/{limit} picked · {formatBDT(price)}
+            </p>
+          </div>
+          <Button variant="outline" size="lg" onClick={handleAdd} disabled={!isComplete}>
+            Add to cart
+          </Button>
+          <Button variant="hero" size="lg" onClick={handleCheckout} disabled={!isComplete}>
+            {isComplete ? "Checkout" : `Pick ${limit - selected.length} more`}
+          </Button>
+        </div>
+      </div>
+
       <SiteFooter />
     </div>
   );
