@@ -39,6 +39,7 @@ import { Route as AdminPaymentsRouteImport } from './routes/admin.payments'
 import { Route as AdminPagesRouteImport } from './routes/admin.pages'
 import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
 import { Route as AdminNotesRouteImport } from './routes/admin.notes'
+import { Route as AdminMediaRouteImport } from './routes/admin.media'
 import { Route as AdminHomepageRouteImport } from './routes/admin.homepage'
 import { Route as AdminCustomersRouteImport } from './routes/admin.customers'
 import { Route as AdminCombosRouteImport } from './routes/admin.combos'
@@ -200,6 +201,11 @@ const AdminNotesRoute = AdminNotesRouteImport.update({
   path: '/notes',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminMediaRoute = AdminMediaRouteImport.update({
+  id: '/media',
+  path: '/media',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminHomepageRoute = AdminHomepageRouteImport.update({
   id: '/homepage',
   path: '/homepage',
@@ -282,6 +288,7 @@ export interface FileRoutesByFullPath {
   '/admin/combos': typeof AdminCombosRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/homepage': typeof AdminHomepageRoute
+  '/admin/media': typeof AdminMediaRoute
   '/admin/notes': typeof AdminNotesRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/pages': typeof AdminPagesRoute
@@ -322,6 +329,7 @@ export interface FileRoutesByTo {
   '/admin/combos': typeof AdminCombosRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/homepage': typeof AdminHomepageRoute
+  '/admin/media': typeof AdminMediaRoute
   '/admin/notes': typeof AdminNotesRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/pages': typeof AdminPagesRoute
@@ -366,6 +374,7 @@ export interface FileRoutesById {
   '/admin/combos': typeof AdminCombosRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/homepage': typeof AdminHomepageRoute
+  '/admin/media': typeof AdminMediaRoute
   '/admin/notes': typeof AdminNotesRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/pages': typeof AdminPagesRoute
@@ -410,6 +419,7 @@ export interface FileRouteTypes {
     | '/admin/combos'
     | '/admin/customers'
     | '/admin/homepage'
+    | '/admin/media'
     | '/admin/notes'
     | '/admin/orders'
     | '/admin/pages'
@@ -450,6 +460,7 @@ export interface FileRouteTypes {
     | '/admin/combos'
     | '/admin/customers'
     | '/admin/homepage'
+    | '/admin/media'
     | '/admin/notes'
     | '/admin/orders'
     | '/admin/pages'
@@ -493,6 +504,7 @@ export interface FileRouteTypes {
     | '/admin/combos'
     | '/admin/customers'
     | '/admin/homepage'
+    | '/admin/media'
     | '/admin/notes'
     | '/admin/orders'
     | '/admin/pages'
@@ -749,6 +761,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminNotesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/media': {
+      id: '/admin/media'
+      path: '/media'
+      fullPath: '/admin/media'
+      preLoaderRoute: typeof AdminMediaRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/homepage': {
       id: '/admin/homepage'
       path: '/homepage'
@@ -866,6 +885,7 @@ interface AdminRouteChildren {
   AdminCombosRoute: typeof AdminCombosRoute
   AdminCustomersRoute: typeof AdminCustomersRoute
   AdminHomepageRoute: typeof AdminHomepageRoute
+  AdminMediaRoute: typeof AdminMediaRoute
   AdminNotesRoute: typeof AdminNotesRoute
   AdminOrdersRoute: typeof AdminOrdersRoute
   AdminPagesRoute: typeof AdminPagesRoute
@@ -885,6 +905,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCombosRoute: AdminCombosRoute,
   AdminCustomersRoute: AdminCustomersRoute,
   AdminHomepageRoute: AdminHomepageRoute,
+  AdminMediaRoute: AdminMediaRoute,
   AdminNotesRoute: AdminNotesRoute,
   AdminOrdersRoute: AdminOrdersRoute,
   AdminPagesRoute: AdminPagesRoute,
