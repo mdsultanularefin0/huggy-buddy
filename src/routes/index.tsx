@@ -354,6 +354,7 @@ function Landing() {
   const { data: featuredProducts = [] } = useSuspenseQuery(featuredProductsQuery);
   const { data: branding } = useQuery(brandingQueryOptions);
   const { data: whisperReviews = [] } = useQuery(whisperReviewsQuery);
+  const { data: notesFromTable = [] } = useQuery(notesQuery);
   const footerLogo = branding?.site_logo_url ?? branding?.site_icon_url ?? null;
 
 
