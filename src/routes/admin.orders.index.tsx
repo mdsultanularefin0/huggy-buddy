@@ -1,21 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useEffect } from "react";
-import { Loader2, Eye, Truck } from "lucide-react";
+import { Loader2, Eye, ShieldAlert, X } from "lucide-react";
 import { toast } from "sonner";
 import { formatBDT } from "@/lib/currency";
 import type { Database } from "@/integrations/supabase/types";
 import { useServerFn } from "@tanstack/react-start";
 import { listAdminOrders, updateOrderAdmin } from "@/lib/admin-mutations.functions";
+import { getSteadfastFraudCheck } from "@/lib/integrations.functions";
 
 type Order = Database["public"]["Tables"]["orders"]["Row"];
 type OrderStatus = Database["public"]["Enums"]["order_status"];
@@ -33,15 +31,26 @@ const STATUS_TONE: Record<OrderStatus, string> = {
   Returned: "bg-muted text-muted-foreground",
 };
 
+type FraudResult = {
+  total_parcels: number;
+  total_delivered: number;
+  total_cancelled: number;
+  total_fraud_reports: number;
+};
+
 export const Route = createFileRoute("/admin/orders/")({ component: OrdersPage });
 
 function OrdersPage() {
   const qc = useQueryClient();
   const fetchOrders = useServerFn(listAdminOrders);
   const updateOrder = useServerFn(updateOrderAdmin);
+  const fraudFn = useServerFn(getSteadfastFraudCheck);
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
+  const [paymentFilter, setPaymentFilter] = useState<PaymentStatus | "all">("all");
   const [search, setSearch] = useState("");
-  const [viewing, setViewing] = useState<Order | null>(null);
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [fraud, setFraud] = useState<{ phone: string; loading: boolean; result: FraudResult | null; error?: string } | null>(null);
 
   const { data: orders = [], isLoading, isError, error } = useQuery({
     queryKey: ["admin", "orders", statusFilter],
@@ -60,16 +69,36 @@ function OrdersPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const filtered = orders.filter((o) => {
-    if (!search.trim()) return true;
-    const s = search.toLowerCase();
-    const c = (o.customer_json as { name?: string; phone?: string } | null) ?? {};
-    return (
-      o.order_number.toLowerCase().includes(s) ||
-      (c.phone ?? "").toLowerCase().includes(s) ||
-      (c.name ?? "").toLowerCase().includes(s)
-    );
-  });
+  const filtered = useMemo(() => {
+    const from = dateFrom ? new Date(dateFrom).getTime() : null;
+    const to = dateTo ? new Date(dateTo).getTime() + 86400000 : null;
+    const s = search.trim().toLowerCase();
+    return orders.filter((o) => {
+      const c = (o.customer_json as { name?: string; phone?: string } | null) ?? {};
+      if (paymentFilter !== "all" && o.payment_status !== paymentFilter) return false;
+      const t = new Date(o.created_at).getTime();
+      if (from && t < from) return false;
+      if (to && t >= to) return false;
+      if (s) {
+        const hay = `${o.order_number} ${c.phone ?? ""} ${c.name ?? ""} ${o.tracking_code ?? ""}`.toLowerCase();
+        if (!hay.includes(s)) return false;
+      }
+      return true;
+    });
+  }, [orders, paymentFilter, dateFrom, dateTo, search]);
+
+  async function runFraud(phone: string) {
+    if (!phone) { toast.error("No phone on this order"); return; }
+    setFraud({ phone, loading: true, result: null });
+    try {
+      const r = await fraudFn({ data: { phone } });
+      setFraud({ phone, loading: false, result: r });
+    } catch (e) {
+      setFraud({ phone, loading: false, result: null, error: e instanceof Error ? e.message : "Failed" });
+    }
+  }
+
+  function clearDates() { setDateFrom(""); setDateTo(""); }
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
@@ -78,20 +107,35 @@ function OrdersPage() {
         <p className="text-muted-foreground mt-1">Manage incoming orders and fulfillment.</p>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-end gap-3">
         <Input
-          placeholder="Search order # / phone / name…"
+          placeholder="Search order # / phone / name / tracking…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="max-w-xs"
         />
         <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as OrderStatus | "all")}>
-          <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-40"><SelectValue placeholder="Status" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All statuses</SelectItem>
             {ORDER_STATUSES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
           </SelectContent>
         </Select>
+        <Select value={paymentFilter} onValueChange={(v) => setPaymentFilter(v as PaymentStatus | "all")}>
+          <SelectTrigger className="w-40"><SelectValue placeholder="Payment" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All payments</SelectItem>
+            {PAYMENT_STATUSES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <div className="flex items-center gap-1">
+          <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="w-40" />
+          <span className="text-muted-foreground text-xs">to</span>
+          <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="w-40" />
+          {(dateFrom || dateTo) && (
+            <Button variant="ghost" size="icon" onClick={clearDates} className="h-8 w-8"><X className="w-4 h-4" /></Button>
+          )}
+        </div>
         <span className="text-sm text-muted-foreground ml-auto">{filtered.length} order{filtered.length === 1 ? "" : "s"}</span>
       </div>
 
@@ -107,11 +151,12 @@ function OrdersPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Order</TableHead>
+                <TableHead>Date</TableHead>
                 <TableHead>Customer</TableHead>
                 <TableHead>Total</TableHead>
                 <TableHead>Payment</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Placed</TableHead>
+                <TableHead>Courier ID</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -121,6 +166,10 @@ function OrdersPage() {
                 return (
                   <TableRow key={o.id}>
                     <TableCell className="font-mono text-xs">{o.order_number}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                      {new Date(o.created_at).toLocaleDateString()}
+                      <div className="opacity-60">{new Date(o.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</div>
+                    </TableCell>
                     <TableCell>
                       <div className="text-sm font-medium">{c.name ?? "—"}</div>
                       <div className="text-xs text-muted-foreground">{c.phone ?? ""}</div>
@@ -148,15 +197,29 @@ function OrdersPage() {
                         </SelectContent>
                       </Select>
                     </TableCell>
-                    <TableCell className="text-xs text-muted-foreground">
-                      {new Date(o.created_at).toLocaleDateString()}
+                    <TableCell className="text-xs font-mono">
+                      {o.tracking_code ? (
+                        <span className="px-2 py-0.5 rounded bg-muted">{o.tracking_code}</span>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" asChild>
-                        <Link to="/admin/orders/$id" params={{ id: o.id }}>
-                          <Eye className="w-4 h-4" />
-                        </Link>
-                      </Button>
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          title="Fraud check"
+                          onClick={() => runFraud(c.phone ?? "")}
+                        >
+                          <ShieldAlert className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" asChild>
+                          <Link to="/admin/orders/$id" params={{ id: o.id }}>
+                            <Eye className="w-4 h-4" />
+                          </Link>
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 );
@@ -166,113 +229,56 @@ function OrdersPage() {
         )}
       </Card>
 
-      <OrderDetailDialog
-        order={viewing}
-        onClose={() => setViewing(null)}
-        onSave={(patch) => update.mutate(patch, { onSuccess: () => setViewing(null) })}
-        saving={update.isPending}
-      />
+      <FraudDialog data={fraud} onClose={() => setFraud(null)} />
     </div>
   );
 }
 
-function OrderDetailDialog({
-  order, onClose, onSave, saving,
-}: {
-  order: Order | null;
-  onClose: () => void;
-  onSave: (patch: Partial<Order> & { id: string }) => void;
-  saving: boolean;
-}) {
-  const [tracking, setTracking] = useState("");
-  const [notes, setNotes] = useState("");
-
-  useEffect(() => {
-    if (order) {
-      setTracking(order.tracking_code ?? "");
-      setNotes(order.notes ?? "");
-    }
-  }, [order]);
-
-  function close() {
-    setTracking(""); setNotes("");
-    onClose();
-  }
-
-  if (!order) return null;
-  const c = (order.customer_json as { name?: string; phone?: string; address?: string; email?: string } | null) ?? {};
-  const items = (order.items_json as Array<{ name?: string; qty?: number; price?: number; size?: string }>) ?? [];
-
+function FraudDialog({ data, onClose }: { data: { phone: string; loading: boolean; result: FraudResult | null; error?: string } | null; onClose: () => void }) {
+  if (!data) return null;
+  const r = data.result;
+  const riskPct = r && r.total_parcels > 0 ? Math.round((r.total_cancelled / r.total_parcels) * 100) : 0;
+  const risky = riskPct >= 50 || (r?.total_fraud_reports ?? 0) > 0;
   return (
-    <Dialog open={!!order} onOpenChange={(v) => !v && close()}>
-      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+    <Dialog open={!!data} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-mono text-base">{order.order_number}</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <ShieldAlert className="w-4 h-4" /> Fraud check
+          </DialogTitle>
         </DialogHeader>
-
-        <div className="space-y-5 py-2">
-          <section>
-            <h3 className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Customer</h3>
-            <div className="text-sm space-y-1">
-              <div><span className="font-medium">{c.name ?? "—"}</span> · {c.phone}</div>
-              {c.email && <div className="text-muted-foreground">{c.email}</div>}
-              {c.address && <div className="text-muted-foreground">{c.address}</div>}
-            </div>
-          </section>
-
-          <section>
-            <h3 className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Items</h3>
-            <div className="border rounded-lg divide-y">
-              {items.map((it, i) => (
-                <div key={i} className="flex justify-between items-center p-3 text-sm">
-                  <div>
-                    <div className="font-medium">{it.name}</div>
-                    {it.size && <div className="text-xs text-muted-foreground">{it.size}</div>}
-                  </div>
-                  <div className="text-right">
-                    <div>{formatBDT((it.price ?? 0) * (it.qty ?? 1))}</div>
-                    <div className="text-xs text-muted-foreground">{it.qty} × {formatBDT(it.price ?? 0)}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="mt-3 space-y-1 text-sm">
-              <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{formatBDT(order.subtotal)}</span></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">Shipping</span><span>{formatBDT(order.shipping_fee)}</span></div>
-              {order.discount > 0 && (
-                <div className="flex justify-between"><span className="text-muted-foreground">Discount{order.referral_used ? ` (${order.referral_used})` : ""}</span><span>−{formatBDT(order.discount)}</span></div>
-              )}
-              <div className="flex justify-between font-semibold pt-2 border-t"><span>Total</span><span>{formatBDT(order.total)}</span></div>
-              <div className="text-xs text-muted-foreground pt-1">Payment: {order.payment_method}</div>
-            </div>
-          </section>
-
-          <section>
-            <h3 className="text-xs uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1"><Truck className="w-3.5 h-3.5" /> Fulfillment</h3>
-            <div className="space-y-3">
-              <div>
-                <Label className="text-xs">Tracking code (Steadfast / courier)</Label>
-                <Input value={tracking} onChange={(e) => setTracking(e.target.value)} placeholder="e.g. SF123456" className="mt-1" />
+        <div className="space-y-3">
+          <div className="text-sm text-muted-foreground">Phone: <span className="font-mono text-foreground">{data.phone}</span></div>
+          {data.loading ? (
+            <div className="py-6 text-center text-muted-foreground"><Loader2 className="w-4 h-4 animate-spin inline mr-2" />Checking…</div>
+          ) : data.error ? (
+            <div className="text-sm text-destructive">{data.error}</div>
+          ) : r ? (
+            <>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <Stat label="Total parcels" value={r.total_parcels} />
+                <Stat label="Delivered" value={r.total_delivered} tone="text-emerald-600" />
+                <Stat label="Cancelled" value={r.total_cancelled} tone="text-rose-600" />
+                <Stat label="Fraud reports" value={r.total_fraud_reports} tone={r.total_fraud_reports > 0 ? "text-rose-600" : ""} />
               </div>
-              <div>
-                <Label className="text-xs">Internal notes</Label>
-                <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} className="mt-1" />
+              <div className={`text-xs rounded-md p-2 ${risky ? "bg-rose-50 text-rose-800" : "bg-emerald-50 text-emerald-800"}`}>
+                {risky
+                  ? `⚠ High risk — cancellation rate ${riskPct}%${r.total_fraud_reports > 0 ? `, ${r.total_fraud_reports} fraud report(s)` : ""}.`
+                  : `✓ Low risk — cancellation rate ${riskPct}%.`}
               </div>
-            </div>
-          </section>
+            </>
+          ) : null}
         </div>
-
-        <DialogFooter>
-          <Button variant="outline" onClick={close}>Close</Button>
-          <Button
-            variant="luxe"
-            onClick={() => onSave({ id: order.id, tracking_code: tracking || null, notes: notes || null })}
-            disabled={saving}
-          >
-            {saving && <Loader2 className="w-4 h-4 animate-spin mr-1" />}Save
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function Stat({ label, value, tone = "" }: { label: string; value: number; tone?: string }) {
+  return (
+    <div className="border rounded-md p-2">
+      <div className="text-xs text-muted-foreground">{label}</div>
+      <div className={`text-lg font-semibold ${tone}`}>{value}</div>
+    </div>
   );
 }
