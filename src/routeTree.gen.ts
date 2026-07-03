@@ -43,6 +43,7 @@ import { Route as AdminMediaRouteImport } from './routes/admin.media'
 import { Route as AdminHomepageRouteImport } from './routes/admin.homepage'
 import { Route as AdminCustomersRouteImport } from './routes/admin.customers'
 import { Route as AdminCombosRouteImport } from './routes/admin.combos'
+import { Route as AdminColorPresetsRouteImport } from './routes/admin.color-presets'
 import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
 import { Route as AdminAuditLogsRouteImport } from './routes/admin.audit-logs'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated.account'
@@ -221,6 +222,11 @@ const AdminCombosRoute = AdminCombosRouteImport.update({
   path: '/combos',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminColorPresetsRoute = AdminColorPresetsRouteImport.update({
+  id: '/color-presets',
+  path: '/color-presets',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminCategoriesRoute = AdminCategoriesRouteImport.update({
   id: '/categories',
   path: '/categories',
@@ -285,6 +291,7 @@ export interface FileRoutesByFullPath {
   '/account': typeof AuthenticatedAccountRouteWithChildren
   '/admin/audit-logs': typeof AdminAuditLogsRoute
   '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/color-presets': typeof AdminColorPresetsRoute
   '/admin/combos': typeof AdminCombosRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/homepage': typeof AdminHomepageRoute
@@ -326,6 +333,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/admin/audit-logs': typeof AdminAuditLogsRoute
   '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/color-presets': typeof AdminColorPresetsRoute
   '/admin/combos': typeof AdminCombosRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/homepage': typeof AdminHomepageRoute
@@ -371,6 +379,7 @@ export interface FileRoutesById {
   '/_authenticated/account': typeof AuthenticatedAccountRouteWithChildren
   '/admin/audit-logs': typeof AdminAuditLogsRoute
   '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/color-presets': typeof AdminColorPresetsRoute
   '/admin/combos': typeof AdminCombosRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/homepage': typeof AdminHomepageRoute
@@ -416,6 +425,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/admin/audit-logs'
     | '/admin/categories'
+    | '/admin/color-presets'
     | '/admin/combos'
     | '/admin/customers'
     | '/admin/homepage'
@@ -457,6 +467,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/admin/audit-logs'
     | '/admin/categories'
+    | '/admin/color-presets'
     | '/admin/combos'
     | '/admin/customers'
     | '/admin/homepage'
@@ -501,6 +512,7 @@ export interface FileRouteTypes {
     | '/_authenticated/account'
     | '/admin/audit-logs'
     | '/admin/categories'
+    | '/admin/color-presets'
     | '/admin/combos'
     | '/admin/customers'
     | '/admin/homepage'
@@ -789,6 +801,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCombosRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/color-presets': {
+      id: '/admin/color-presets'
+      path: '/color-presets'
+      fullPath: '/admin/color-presets'
+      preLoaderRoute: typeof AdminColorPresetsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/categories': {
       id: '/admin/categories'
       path: '/categories'
@@ -882,6 +901,7 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 interface AdminRouteChildren {
   AdminAuditLogsRoute: typeof AdminAuditLogsRoute
   AdminCategoriesRoute: typeof AdminCategoriesRoute
+  AdminColorPresetsRoute: typeof AdminColorPresetsRoute
   AdminCombosRoute: typeof AdminCombosRoute
   AdminCustomersRoute: typeof AdminCustomersRoute
   AdminHomepageRoute: typeof AdminHomepageRoute
@@ -902,6 +922,7 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAuditLogsRoute: AdminAuditLogsRoute,
   AdminCategoriesRoute: AdminCategoriesRoute,
+  AdminColorPresetsRoute: AdminColorPresetsRoute,
   AdminCombosRoute: AdminCombosRoute,
   AdminCustomersRoute: AdminCustomersRoute,
   AdminHomepageRoute: AdminHomepageRoute,
