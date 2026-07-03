@@ -62,6 +62,16 @@ function ProductsPage() {
     },
   });
 
+  const { data: noteOptions = [] } = useQuery({
+    queryKey: ["admin", "note-options"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("site_settings").select("notes_json").maybeSingle();
+      if (error) throw error;
+      const arr = (data?.notes_json as Array<{ title?: string }> | null) ?? [];
+      return arr.map((n) => n?.title).filter((t): t is string => !!t);
+    },
+  });
+
   const save = useMutation({
     mutationFn: async () => {
       const slugify = (s: string) =>
