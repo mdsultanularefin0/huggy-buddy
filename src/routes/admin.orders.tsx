@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -16,7 +15,7 @@ import { toast } from "sonner";
 import { formatBDT } from "@/lib/currency";
 import type { Database } from "@/integrations/supabase/types";
 import { useServerFn } from "@tanstack/react-start";
-import { updateOrderAdmin } from "@/lib/admin-mutations.functions";
+import { listAdminOrders, updateOrderAdmin } from "@/lib/admin-mutations.functions";
 
 type Order = Database["public"]["Tables"]["orders"]["Row"];
 type OrderStatus = Database["public"]["Enums"]["order_status"];
@@ -38,20 +37,15 @@ export const Route = createFileRoute("/admin/orders")({ component: OrdersPage })
 
 function OrdersPage() {
   const qc = useQueryClient();
+  const fetchOrders = useServerFn(listAdminOrders);
   const updateOrder = useServerFn(updateOrderAdmin);
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
   const [search, setSearch] = useState("");
   const [viewing, setViewing] = useState<Order | null>(null);
 
-  const { data: orders = [], isLoading } = useQuery({
+  const { data: orders = [], isLoading, isError, error } = useQuery({
     queryKey: ["admin", "orders", statusFilter],
-    queryFn: async () => {
-      let q = supabase.from("orders").select("*").order("created_at", { ascending: false }).limit(200);
-      if (statusFilter !== "all") q = q.eq("order_status", statusFilter);
-      const { data, error } = await q;
-      if (error) throw error;
-      return data;
-    },
+    queryFn: () => fetchOrders({ data: { statusFilter } }),
   });
 
   const update = useMutation({
@@ -104,6 +98,8 @@ function OrdersPage() {
       <Card className="shadow-card overflow-hidden">
         {isLoading ? (
           <div className="p-12 text-center text-muted-foreground"><Loader2 className="w-5 h-5 animate-spin inline mr-2" /> Loading…</div>
+        ) : isError ? (
+          <div className="p-12 text-center text-destructive">{error instanceof Error ? error.message : "Could not load orders."}</div>
         ) : filtered.length === 0 ? (
           <div className="p-12 text-center text-muted-foreground">No orders found.</div>
         ) : (

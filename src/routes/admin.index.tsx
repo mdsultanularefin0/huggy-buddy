@@ -1,12 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { Card } from "@/components/ui/card";
 import { Package, Boxes, ShoppingBag, Sparkles, Truck, CreditCard } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { getAdminOrderCount } from "@/lib/admin-mutations.functions";
 
 export const Route = createFileRoute("/admin/")({ component: AdminDashboard });
 
-function useCount(table: "products" | "combos" | "orders" | "delivery_zones" | "payment_methods") {
+function useCount(table: "products" | "combos" | "delivery_zones" | "payment_methods") {
   return useQuery({
     queryKey: ["admin", "count", table],
     queryFn: async () => {
@@ -18,9 +20,13 @@ function useCount(table: "products" | "combos" | "orders" | "delivery_zones" | "
 }
 
 function AdminDashboard() {
+  const fetchOrderCount = useServerFn(getAdminOrderCount);
   const products = useCount("products");
   const combos = useCount("combos");
-  const orders = useCount("orders");
+  const orders = useQuery({
+    queryKey: ["admin", "count", "orders"],
+    queryFn: () => fetchOrderCount(),
+  });
   const zones = useCount("delivery_zones");
   const payments = useCount("payment_methods");
 

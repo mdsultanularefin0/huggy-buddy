@@ -2,6 +2,31 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+const orderStatusSchema = z.enum(["Pending", "Processing", "Shipped", "Completed", "Cancelled", "Returned"]);
+
+type RoleReader = {
+  from: (table: "user_roles") => {
+    select: (columns: "id") => {
+      eq: (column: "user_id", value: string) => {
+        eq: (column: "role", value: "admin") => {
+          maybeSingle: () => Promise<{ data: { id: string } | null; error: { message: string } | null }>;
+        };
+      };
+    };
+  };
+};
+
+async function assertAdmin(userId: string, supabase: unknown) {
+  const roleReader = supabase as RoleReader;
+  const { data, error } = await roleReader
+    .from("user_roles")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("role", "admin")
+    .maybeSingle();
+  if (error || !data) throw new Error(error?.message ?? "Forbidden");
+}
+
 type AuditEntry = {
   actor_id: string | null;
   entity: "order" | "customer";
@@ -35,7 +60,7 @@ const orderUpdateSchema = z.object({
   id: z.string().uuid(),
   patch: z
     .object({
-      order_status: z.enum(["Pending", "Processing", "Shipped", "Completed", "Cancelled", "Returned"]).optional(),
+      order_status: orderStatusSchema.optional(),
       payment_status: z.enum(["Pending", "Paid", "Failed", "Refunded"]).optional(),
       tracking_code: z.string().nullable().optional(),
       notes: z.string().nullable().optional(),
@@ -52,9 +77,10 @@ export const updateOrderAdmin = createServerFn({ method: "POST" })
     const base = { actor_id: userId, entity: "order" as const, entity_id: data.id, action: "update", fields, payload: data.patch };
     console.log(`[admin.orders.update] user=${userId} order=${data.id} fields=${fields.join(",")}`, data.patch);
 
-    const { data: roleOk, error: roleErr } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
-    if (roleErr || !roleOk) {
-      const msg = roleErr?.message ?? "not admin";
+    try {
+      await assertAdmin(userId, supabase);
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : "not admin";
       console.warn(`[admin.orders.update] forbidden user=${userId} reason=${msg}`);
       await writeAudit({ ...base, status: "forbidden", error: msg });
       throw new Error("Forbidden");
@@ -75,6 +101,45 @@ export const updateOrderAdmin = createServerFn({ method: "POST" })
     return row;
   });
 
+const adminOrdersListSchema = z.object({
+  statusFilter: z.union([orderStatusSchema, z.literal("all")]).default("all"),
+});
+
+export const listAdminOrders = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => adminOrdersListSchema.parse(data ?? {}))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId, context.supabase);
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    let query = supabaseAdmin
+      .from("orders")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(200);
+
+    if (data.statusFilter !== "all") {
+      query = query.eq("order_status", data.statusFilter);
+    }
+
+    const { data: orders, error } = await query;
+    if (error) throw new Error(error.message);
+    return orders ?? [];
+  });
+
+export const getAdminOrderCount = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.userId, context.supabase);
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { count, error } = await supabaseAdmin
+      .from("orders")
+      .select("id", { count: "exact", head: true });
+    if (error) throw new Error(error.message);
+    return count ?? 0;
+  });
+
 const customerUpdateSchema = z.object({
   id: z.string().uuid(),
   patch: z.object({
@@ -93,9 +158,10 @@ export const updateCustomerAdmin = createServerFn({ method: "POST" })
     const base = { actor_id: userId, entity: "customer" as const, entity_id: data.id, action: "update", fields, payload: data.patch };
     console.log(`[admin.customers.update] user=${userId} customer=${data.id} fields=${fields.join(",")}`, data.patch);
 
-    const { data: roleOk, error: roleErr } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
-    if (roleErr || !roleOk) {
-      const msg = roleErr?.message ?? "not admin";
+    try {
+      await assertAdmin(userId, supabase);
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : "not admin";
       console.warn(`[admin.customers.update] forbidden user=${userId} reason=${msg}`);
       await writeAudit({ ...base, status: "forbidden", error: msg });
       throw new Error("Forbidden");
