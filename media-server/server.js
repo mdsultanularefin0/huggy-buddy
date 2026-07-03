@@ -106,10 +106,12 @@ async function maybeTranscodeVideo(file) {
 
     const height = v.height || 0;
     const bitrateKbps = Math.round(Number(info.format?.bit_rate || 0) / 1000);
+    const ext = path.extname(file.filename).toLowerCase();
+    const webFriendly = ext === ".mp4" || ext === ".webm";
     const tooTall = height > MAX_HEIGHT;
     const tooFat = bitrateKbps > MAX_BITRATE_KBPS;
 
-    if (!tooTall && !tooFat) {
+    if (webFriendly && !tooTall && !tooFat) {
       return { transcoded: false, height, bitrateKbps };
     }
 
