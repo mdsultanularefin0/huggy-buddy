@@ -7,13 +7,18 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Truck, Loader2, CheckCircle2, Trash2 } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Truck, Loader2, CheckCircle2, Trash2, Film } from "lucide-react";
 import { toast } from "sonner";
 import {
   getSteadfastStatus,
   saveSteadfastCredentials,
   deleteSteadfastCredentials,
   testSteadfastConnection,
+  getMediaServerStatus,
+  saveMediaServerCredentials,
+  deleteMediaServerCredentials,
+  testMediaServerConnection,
 } from "@/lib/integrations.functions";
 
 export const Route = createFileRoute("/admin/integrations")({
@@ -30,8 +35,142 @@ function AdminIntegrations() {
           Connect third-party services. Credentials are encrypted before being stored.
         </p>
       </div>
-      <SteadfastCard />
+      <Tabs defaultValue="steadfast" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="steadfast"><Truck className="w-4 h-4 mr-2" />Steadfast</TabsTrigger>
+          <TabsTrigger value="media"><Film className="w-4 h-4 mr-2" />Media Server</TabsTrigger>
+        </TabsList>
+        <TabsContent value="steadfast"><SteadfastCard /></TabsContent>
+        <TabsContent value="media"><MediaServerCard /></TabsContent>
+      </Tabs>
     </div>
+  );
+}
+
+function MediaServerCard() {
+  const qc = useQueryClient();
+  const getStatus = useServerFn(getMediaServerStatus);
+  const saveFn = useServerFn(saveMediaServerCredentials);
+  const deleteFn = useServerFn(deleteMediaServerCredentials);
+  const testFn = useServerFn(testMediaServerConnection);
+
+  const { data: status, isLoading } = useQuery({
+    queryKey: ["integration-status", "media_server"],
+    queryFn: () => getStatus(),
+  });
+
+  const [baseUrl, setBaseUrl] = useState("");
+  const [apiKey, setApiKey] = useState("");
+
+  const save = useMutation({
+    mutationFn: () => saveFn({ data: { base_url: baseUrl, api_key: apiKey } }),
+    onSuccess: () => {
+      toast.success("Media Server credentials saved");
+      setApiKey("");
+      qc.invalidateQueries({ queryKey: ["integration-status", "media_server"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const remove = useMutation({
+    mutationFn: () => deleteFn(),
+    onSuccess: () => {
+      toast.success("Credentials removed");
+      qc.invalidateQueries({ queryKey: ["integration-status", "media_server"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const test = useMutation({
+    mutationFn: () => testFn(),
+    onSuccess: () => toast.success("Media server is reachable"),
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-start justify-between gap-4">
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+            <Film className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <CardTitle className="text-lg">Media Server</CardTitle>
+            <CardDescription className="mt-1">
+              Standalone upload server for images and videos with auto-transcoding. See <code>media-server/README.md</code>.
+            </CardDescription>
+          </div>
+        </div>
+        {isLoading ? (
+          <Badge variant="secondary"><Loader2 className="w-3 h-3 mr-1 animate-spin" /> Checking</Badge>
+        ) : status?.configured ? (
+          <Badge className="bg-green-600 hover:bg-green-600"><CheckCircle2 className="w-3 h-3 mr-1" /> Connected</Badge>
+        ) : (
+          <Badge variant="secondary">Not configured</Badge>
+        )}
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {status?.configured && (
+          <div className="text-xs text-muted-foreground">
+            Last updated: {status.updated_at ? new Date(status.updated_at).toLocaleString() : "—"}
+          </div>
+        )}
+        <div className="grid gap-3">
+          <div>
+            <Label htmlFor="ms-url">Base URL</Label>
+            <Input
+              id="ms-url"
+              value={baseUrl}
+              onChange={(e) => setBaseUrl(e.target.value)}
+              placeholder="https://media.yourdomain.com"
+            />
+          </div>
+          <div>
+            <Label htmlFor="ms-key">API Key</Label>
+            <Input
+              id="ms-key"
+              type="password"
+              autoComplete="off"
+              placeholder={status?.configured ? "•••••••• (enter to replace)" : "The API_KEY from your media server .env"}
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+            />
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-2 pt-2">
+          <Button
+            onClick={() => save.mutate()}
+            disabled={!baseUrl || !apiKey || save.isPending}
+          >
+            {save.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+            Save credentials
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => test.mutate()}
+            disabled={!status?.configured || test.isPending}
+          >
+            {test.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+            Test connection
+          </Button>
+          {status?.configured && (
+            <Button
+              variant="ghost"
+              className="text-destructive hover:text-destructive"
+              onClick={() => {
+                if (confirm("Remove Media Server credentials?")) remove.mutate();
+              }}
+              disabled={remove.isPending}
+            >
+              <Trash2 className="w-4 h-4 mr-2" /> Remove
+            </Button>
+          )}
+        </div>
+        <p className="text-xs text-muted-foreground pt-2">
+          Credentials are encrypted with AES-256-GCM before being written to the database.
+        </p>
+      </CardContent>
+    </Card>
   );
 }
 
