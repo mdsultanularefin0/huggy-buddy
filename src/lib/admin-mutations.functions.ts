@@ -140,6 +140,18 @@ export const getAdminOrderCount = createServerFn({ method: "GET" })
     return count ?? 0;
   });
 
+export const getAdminOrderById = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => z.object({ id: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId, context.supabase);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: order, error } = await supabaseAdmin
+      .from("orders").select("*").eq("id", data.id).maybeSingle();
+    if (error) throw new Error(error.message);
+    return order;
+  });
+
 const customerUpdateSchema = z.object({
   id: z.string().uuid(),
   patch: z.object({

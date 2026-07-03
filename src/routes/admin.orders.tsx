@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -152,8 +152,10 @@ function OrdersPage() {
                       {new Date(o.created_at).toLocaleDateString()}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" onClick={() => setViewing(o)}>
-                        <Eye className="w-4 h-4" />
+                      <Button variant="ghost" size="sm" asChild>
+                        <Link to="/admin/orders/$id" params={{ id: o.id }}>
+                          <Eye className="w-4 h-4" />
+                        </Link>
                       </Button>
                     </TableCell>
                   </TableRow>
