@@ -195,6 +195,7 @@ function CouponsPage() {
             <div>
               <Label>Code</Label>
               <Input value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })} className="mt-1 font-mono" placeholder="e.g. WELCOME10" />
+              {fieldErrors.code && <p className="text-xs text-destructive mt-1">{fieldErrors.code}</p>}
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -210,26 +211,31 @@ function CouponsPage() {
               <div>
                 <Label>Value</Label>
                 <Input type="number" value={form.discount_value} onChange={(e) => setForm({ ...form, discount_value: Number(e.target.value) })} className="mt-1" />
+                {fieldErrors.discount_value && <p className="text-xs text-destructive mt-1">{fieldErrors.discount_value}</p>}
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label>Min order (BDT)</Label>
                 <Input type="number" value={form.min_order_amount} onChange={(e) => setForm({ ...form, min_order_amount: Number(e.target.value) })} className="mt-1" />
+                {fieldErrors.min_order_amount && <p className="text-xs text-destructive mt-1">{fieldErrors.min_order_amount}</p>}
               </div>
               <div>
                 <Label>Max discount (BDT)</Label>
                 <Input type="number" value={form.max_discount} onChange={(e) => setForm({ ...form, max_discount: e.target.value })} className="mt-1" placeholder="optional" />
+                {fieldErrors.max_discount && <p className="text-xs text-destructive mt-1">{fieldErrors.max_discount}</p>}
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label>Usage limit</Label>
                 <Input type="number" value={form.usage_limit} onChange={(e) => setForm({ ...form, usage_limit: e.target.value })} className="mt-1" placeholder="unlimited" />
+                {fieldErrors.usage_limit && <p className="text-xs text-destructive mt-1">{fieldErrors.usage_limit}</p>}
               </div>
               <div>
                 <Label>Expires at</Label>
                 <Input type="datetime-local" value={form.expires_at} onChange={(e) => setForm({ ...form, expires_at: e.target.value })} className="mt-1" />
+                {fieldErrors.expires_at && <p className="text-xs text-destructive mt-1">{fieldErrors.expires_at}</p>}
               </div>
             </div>
             <label className="flex items-center gap-2 cursor-pointer">
