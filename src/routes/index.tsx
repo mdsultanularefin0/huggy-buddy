@@ -219,6 +219,19 @@ const whisperReviewsQuery = queryOptions({
   },
 });
 
+const notesQuery = queryOptions({
+  queryKey: ["public", "notes"],
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from("notes")
+      .select("title, subtitle, image, bg, link, sort_order")
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true });
+    if (error) throw error;
+    return (data ?? []) as Array<{ title: string; subtitle: string | null; image: string | null; bg: string | null; link: string | null }>;
+  },
+});
+
 
 const HERO_OG_IMAGE = "/__l5e/assets-v1/cdb47efc-0449-4721-ba5e-c16e886a1c8b/hero-main.png";
 
@@ -273,10 +286,11 @@ export const Route = createFileRoute("/")({
   },
   loader: async ({ context }) => {
     const { getRequestOrigin } = await import("@/lib/origin.functions");
-    const [, , , origin] = await Promise.all([
+    const [, , , , origin] = await Promise.all([
       context.queryClient.ensureQueryData(categoriesQuery),
       context.queryClient.ensureQueryData(heroSettingsQuery),
       context.queryClient.ensureQueryData(featuredProductsQuery),
+      context.queryClient.ensureQueryData(notesQuery),
       getRequestOrigin(),
     ]);
     return { origin };
@@ -340,6 +354,7 @@ function Landing() {
   const { data: featuredProducts = [] } = useSuspenseQuery(featuredProductsQuery);
   const { data: branding } = useQuery(brandingQueryOptions);
   const { data: whisperReviews = [] } = useQuery(whisperReviewsQuery);
+  const { data: notesFromTable = [] } = useQuery(notesQuery);
   const footerLogo = branding?.site_logo_url ?? branding?.site_icon_url ?? null;
 
 
@@ -367,7 +382,16 @@ function Landing() {
 
   const notesTitle = (h.notes_title as string) || "Discover Your Signature Note";
   const notesSubtitle = (h.notes_subtitle as string) || "";
-  const notes = ((h.notes_json as Note[] | null) ?? []) as Note[];
+  const legacyNotes = ((h.notes_json as Note[] | null) ?? []) as Note[];
+  const notes: Note[] = notesFromTable.length > 0
+    ? notesFromTable.map((n) => ({
+        title: n.title,
+        gradient: "from-purple-500 to-pink-500",
+        link: n.link ?? undefined,
+        image: n.image ?? undefined,
+        bg: n.bg ?? undefined,
+      }))
+    : legacyNotes;
   const heroEnabled = (h.hero_enabled as boolean | undefined) ?? true;
   const bannerEnabled = (h.banner_enabled as boolean | undefined) ?? true;
   const signatureEnabled = (h.signature_enabled as boolean | undefined) ?? true;
