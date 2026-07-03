@@ -287,6 +287,36 @@ export type Database = {
         }
         Relationships: []
       }
+      integration_credentials: {
+        Row: {
+          auth_tag: string
+          created_at: string
+          encrypted_data: string
+          iv: string
+          provider: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          auth_tag: string
+          created_at?: string
+          encrypted_data: string
+          iv: string
+          provider: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          auth_tag?: string
+          created_at?: string
+          encrypted_data?: string
+          iv?: string
+          provider?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       notes: {
         Row: {
           bg: string | null
@@ -951,7 +981,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "customer"
