@@ -12,7 +12,7 @@ import { Lightbox } from "@/components/lightbox";
 const BUCKETS = ["hero-images", "product-images", "combo-images", "review-images"] as const;
 const SIGN_TTL = 60 * 60 * 24 * 365 * 10;
 
-type MediaItem = { name: string; url: string; bucket: string; created_at?: string };
+type MediaItem = { name: string; url: string; bucket: string; created_at?: string | null };
 
 async function loadBucket(bucket: string): Promise<MediaItem[]> {
   const { data: files, error } = await supabase.storage
@@ -24,12 +24,14 @@ async function loadBucket(bucket: string): Promise<MediaItem[]> {
   if (names.length === 0) return [];
   const { data: signed } = await supabase.storage.from(bucket).createSignedUrls(names, SIGN_TTL);
   if (signed && signed.length) {
-    return signed.map((s, i) => ({
-      name: names[i],
-      url: s.signedUrl,
-      bucket,
-      created_at: entries[i].created_at,
-    }));
+    return signed
+      .map((s, i) => ({
+        name: names[i],
+        url: s.signedUrl ?? "",
+        bucket,
+        created_at: entries[i].created_at,
+      }))
+      .filter((m) => m.url);
   }
   return entries.map((e) => ({
     name: e.name,
