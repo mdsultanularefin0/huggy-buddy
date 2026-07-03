@@ -9,12 +9,12 @@ import {
   SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger,
   SidebarHeader, SidebarFooter,
 } from "@/components/ui/sidebar";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard, Package, Boxes, Truck, CreditCard, ShoppingBag,
   Users, Megaphone, Settings, LogOut, Sparkles, ScrollText, Tags, Home, Loader2, FileText, Star, Images, Plug,
-
-
+  ChevronDown,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -23,25 +23,56 @@ export const Route = createFileRoute("/admin")({
   component: AdminLayout,
 });
 
-const NAV: { to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean }[] = [
-  { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { to: "/admin/homepage", label: "Homepage", icon: Home },
-  { to: "/admin/pages", label: "Pages", icon: FileText },
-  { to: "/admin/products", label: "Products", icon: Package },
-  { to: "/admin/categories", label: "Categories", icon: Tags },
-  { to: "/admin/combos", label: "Combos", icon: Boxes },
-  { to: "/admin/zones", label: "Delivery Zones", icon: Truck },
-  { to: "/admin/payments", label: "Payment Methods", icon: CreditCard },
-  { to: "/admin/orders", label: "Orders", icon: ShoppingBag },
-  { to: "/admin/customers", label: "Customers", icon: Users },
-  { to: "/admin/reviews", label: "Reviews", icon: Star },
-  { to: "/admin/notes", label: "Scent Notes", icon: Sparkles },
-  { to: "/admin/referrals", label: "Referrals", icon: Megaphone },
-  { to: "/admin/media", label: "Media Library", icon: Images },
-  { to: "/admin/color-presets", label: "Color Presets", icon: Sparkles },
-  { to: "/admin/audit-logs", label: "Audit Logs", icon: ScrollText },
-  { to: "/admin/integrations", label: "Integrations", icon: Plug },
-  { to: "/admin/settings", label: "Site Settings", icon: Settings },
+type NavItem = { to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean };
+type NavGroup = { label: string; items: NavItem[] };
+
+const NAV_GROUPS: NavGroup[] = [
+  {
+    label: "Overview",
+    items: [{ to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true }],
+  },
+  {
+    label: "Storefront",
+    items: [
+      { to: "/admin/homepage", label: "Homepage", icon: Home },
+      { to: "/admin/pages", label: "Pages", icon: FileText },
+      { to: "/admin/media", label: "Media Library", icon: Images },
+      { to: "/admin/color-presets", label: "Color Presets", icon: Sparkles },
+    ],
+  },
+  {
+    label: "Catalog",
+    items: [
+      { to: "/admin/products", label: "Products", icon: Package },
+      { to: "/admin/categories", label: "Categories", icon: Tags },
+      { to: "/admin/combos", label: "Combos", icon: Boxes },
+      { to: "/admin/notes", label: "Scent Notes", icon: Sparkles },
+    ],
+  },
+  {
+    label: "Sales",
+    items: [
+      { to: "/admin/orders", label: "Orders", icon: ShoppingBag },
+      { to: "/admin/customers", label: "Customers", icon: Users },
+      { to: "/admin/reviews", label: "Reviews", icon: Star },
+      { to: "/admin/referrals", label: "Referrals", icon: Megaphone },
+    ],
+  },
+  {
+    label: "Fulfilment",
+    items: [
+      { to: "/admin/zones", label: "Delivery Zones", icon: Truck },
+      { to: "/admin/payments", label: "Payment Methods", icon: CreditCard },
+    ],
+  },
+  {
+    label: "System",
+    items: [
+      { to: "/admin/integrations", label: "Integrations", icon: Plug },
+      { to: "/admin/audit-logs", label: "Audit Logs", icon: ScrollText },
+      { to: "/admin/settings", label: "Site Settings", icon: Settings },
+    ],
+  },
 ];
 
 function AdminLayout() {
@@ -110,23 +141,37 @@ function AdminSidebar({ email }: { email: string }) {
         </Link>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Manage</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {NAV.map((item) => (
-                <SidebarMenuItem key={item.to}>
-                  <SidebarMenuButton asChild isActive={isActive(item.to, item.exact)}>
-                    <Link to={item.to} className="flex items-center gap-2">
-                      <item.icon className="w-4 h-4" />
-                      <span>{item.label}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {NAV_GROUPS.map((group) => {
+          const hasActive = group.items.some((i) => isActive(i.to, i.exact));
+          return (
+            <Collapsible key={group.label} defaultOpen={hasActive} className="group/collapsible">
+              <SidebarGroup>
+                <SidebarGroupLabel asChild>
+                  <CollapsibleTrigger className="flex w-full items-center justify-between hover:text-sidebar-foreground">
+                    {group.label}
+                    <ChevronDown className="w-4 h-4 transition-transform group-data-[state=closed]/collapsible:-rotate-90" />
+                  </CollapsibleTrigger>
+                </SidebarGroupLabel>
+                <CollapsibleContent>
+                  <SidebarGroupContent>
+                    <SidebarMenu>
+                      {group.items.map((item) => (
+                        <SidebarMenuItem key={item.to}>
+                          <SidebarMenuButton asChild isActive={isActive(item.to, item.exact)}>
+                            <Link to={item.to} className="flex items-center gap-2">
+                              <item.icon className="w-4 h-4" />
+                              <span>{item.label}</span>
+                            </Link>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      ))}
+                    </SidebarMenu>
+                  </SidebarGroupContent>
+                </CollapsibleContent>
+              </SidebarGroup>
+            </Collapsible>
+          );
+        })}
       </SidebarContent>
       <SidebarFooter>
         <div className="p-2 text-xs text-sidebar-foreground/70 truncate">{email}</div>
