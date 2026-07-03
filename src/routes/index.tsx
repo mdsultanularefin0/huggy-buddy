@@ -398,9 +398,10 @@ function Landing() {
     ? notesFromTable.map((n) => ({
         title: n.title,
         gradient: "from-purple-500 to-pink-500",
-        link: n.link ?? undefined,
+        link: n.link ?? (n.scent_profile ? `/products?scent=${encodeURIComponent(n.scent_profile)}` : undefined),
         image: n.image ?? undefined,
         bg: n.bg ?? undefined,
+        scentProfile: n.scent_profile ?? undefined,
       }))
     : legacyNotes;
   const heroEnabled = (h.hero_enabled as boolean | undefined) ?? true;
