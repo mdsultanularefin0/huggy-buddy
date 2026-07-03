@@ -42,6 +42,7 @@ import { Route as AdminMediaRouteImport } from './routes/admin.media'
 import { Route as AdminIntegrationsRouteImport } from './routes/admin.integrations'
 import { Route as AdminHomepageRouteImport } from './routes/admin.homepage'
 import { Route as AdminCustomersRouteImport } from './routes/admin.customers'
+import { Route as AdminCouponsRouteImport } from './routes/admin.coupons'
 import { Route as AdminCombosRouteImport } from './routes/admin.combos'
 import { Route as AdminColorPresetsRouteImport } from './routes/admin.color-presets'
 import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
@@ -219,6 +220,11 @@ const AdminCustomersRoute = AdminCustomersRouteImport.update({
   path: '/customers',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminCouponsRoute = AdminCouponsRouteImport.update({
+  id: '/coupons',
+  path: '/coupons',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminCombosRoute = AdminCombosRouteImport.update({
   id: '/combos',
   path: '/combos',
@@ -305,6 +311,7 @@ export interface FileRoutesByFullPath {
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/color-presets': typeof AdminColorPresetsRoute
   '/admin/combos': typeof AdminCombosRoute
+  '/admin/coupons': typeof AdminCouponsRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/homepage': typeof AdminHomepageRoute
   '/admin/integrations': typeof AdminIntegrationsRoute
@@ -349,6 +356,7 @@ export interface FileRoutesByTo {
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/color-presets': typeof AdminColorPresetsRoute
   '/admin/combos': typeof AdminCombosRoute
+  '/admin/coupons': typeof AdminCouponsRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/homepage': typeof AdminHomepageRoute
   '/admin/integrations': typeof AdminIntegrationsRoute
@@ -397,6 +405,7 @@ export interface FileRoutesById {
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/color-presets': typeof AdminColorPresetsRoute
   '/admin/combos': typeof AdminCombosRoute
+  '/admin/coupons': typeof AdminCouponsRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/homepage': typeof AdminHomepageRoute
   '/admin/integrations': typeof AdminIntegrationsRoute
@@ -445,6 +454,7 @@ export interface FileRouteTypes {
     | '/admin/categories'
     | '/admin/color-presets'
     | '/admin/combos'
+    | '/admin/coupons'
     | '/admin/customers'
     | '/admin/homepage'
     | '/admin/integrations'
@@ -489,6 +499,7 @@ export interface FileRouteTypes {
     | '/admin/categories'
     | '/admin/color-presets'
     | '/admin/combos'
+    | '/admin/coupons'
     | '/admin/customers'
     | '/admin/homepage'
     | '/admin/integrations'
@@ -536,6 +547,7 @@ export interface FileRouteTypes {
     | '/admin/categories'
     | '/admin/color-presets'
     | '/admin/combos'
+    | '/admin/coupons'
     | '/admin/customers'
     | '/admin/homepage'
     | '/admin/integrations'
@@ -818,6 +830,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCustomersRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/coupons': {
+      id: '/admin/coupons'
+      path: '/coupons'
+      fullPath: '/admin/coupons'
+      preLoaderRoute: typeof AdminCouponsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/combos': {
       id: '/admin/combos'
       path: '/combos'
@@ -941,6 +960,7 @@ interface AdminRouteChildren {
   AdminCategoriesRoute: typeof AdminCategoriesRoute
   AdminColorPresetsRoute: typeof AdminColorPresetsRoute
   AdminCombosRoute: typeof AdminCombosRoute
+  AdminCouponsRoute: typeof AdminCouponsRoute
   AdminCustomersRoute: typeof AdminCustomersRoute
   AdminHomepageRoute: typeof AdminHomepageRoute
   AdminIntegrationsRoute: typeof AdminIntegrationsRoute
@@ -964,6 +984,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCategoriesRoute: AdminCategoriesRoute,
   AdminColorPresetsRoute: AdminColorPresetsRoute,
   AdminCombosRoute: AdminCombosRoute,
+  AdminCouponsRoute: AdminCouponsRoute,
   AdminCustomersRoute: AdminCustomersRoute,
   AdminHomepageRoute: AdminHomepageRoute,
   AdminIntegrationsRoute: AdminIntegrationsRoute,
