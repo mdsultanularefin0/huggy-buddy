@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Plus, Pencil, Trash2, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 import { MediaPicker } from "@/components/media-picker";
+import { ColorPicker } from "@/components/color-picker";
 
 export const Route = createFileRoute("/admin/notes")({ component: NotesPage });
 
@@ -230,14 +231,14 @@ function NotesPage() {
               {form.image && <img src={form.image} alt="" className="mt-2 h-24 rounded-md object-cover" />}
             </div>
             <div>
-              <Label htmlFor="bg">Background color or gradient (optional)</Label>
-              <Input
-                id="bg"
-                value={form.bg}
-                onChange={(e) => setForm({ ...form, bg: e.target.value })}
-                placeholder="#f5edff  or  linear-gradient(135deg, #a555f0, #52277a)"
-                className="mt-1"
-              />
+              <Label>Background color or gradient (optional)</Label>
+              <div className="mt-1">
+                <ColorPicker
+                  value={form.bg}
+                  onChange={(v) => setForm({ ...form, bg: v })}
+                  placeholder="#f5edff  or  linear-gradient(135deg, #a555f0, #52277a)"
+                />
+              </div>
               <p className="text-xs text-muted-foreground mt-1">Used when no image is set.</p>
             </div>
             <div>
