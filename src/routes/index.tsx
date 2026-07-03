@@ -135,7 +135,14 @@ function LazyReelTile({ reel, index }: { reel: Reel; index: number }) {
             muted
             loop
             playsInline
+            // @ts-expect-error - vendor attrs for iOS/Android in-app browsers
+            webkit-playsinline="true"
+            x5-playsinline="true"
+            x5-video-player-type="h5"
+            x5-video-player-fullscreen="false"
             preload="metadata"
+            controlsList="nodownload noremoteplayback"
+            disablePictureInPicture
             className="absolute inset-0 w-full h-full object-cover bg-black"
           />
         ) : src ? (
