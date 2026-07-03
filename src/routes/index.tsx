@@ -135,7 +135,15 @@ function LazyReelTile({ reel, index }: { reel: Reel; index: number }) {
             muted
             loop
             playsInline
+            {...({
+              "webkit-playsinline": "true",
+              "x5-playsinline": "true",
+              "x5-video-player-type": "h5",
+              "x5-video-player-fullscreen": "false",
+            } as Record<string, string>)}
             preload="metadata"
+            controlsList="nodownload noremoteplayback"
+            disablePictureInPicture
             className="absolute inset-0 w-full h-full object-cover bg-black"
           />
         ) : src ? (
