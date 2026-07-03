@@ -325,6 +325,7 @@ export type Database = {
           image: string | null
           is_active: boolean
           link: string | null
+          scent_profile: string | null
           sort_order: number
           subtitle: string | null
           title: string
@@ -337,6 +338,7 @@ export type Database = {
           image?: string | null
           is_active?: boolean
           link?: string | null
+          scent_profile?: string | null
           sort_order?: number
           subtitle?: string | null
           title: string
@@ -349,6 +351,7 @@ export type Database = {
           image?: string | null
           is_active?: boolean
           link?: string | null
+          scent_profile?: string | null
           sort_order?: number
           subtitle?: string | null
           title?: string
