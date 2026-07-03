@@ -67,6 +67,7 @@ function NotesPage() {
         link: form.link || null,
         sort_order: Number(form.sort_order) || 0,
         is_active: form.is_active,
+        scent_profile: form.scent_profile || null,
       };
       if (editing) {
         const { error } = await supabase.from("notes").update(payload).eq("id", editing.id);
