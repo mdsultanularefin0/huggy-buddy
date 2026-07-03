@@ -142,6 +142,7 @@ function ProductsPage() {
       stock_quantity: pAny.stock_quantity ?? 0,
       sizes_json: (Array.isArray(p.sizes_json) ? p.sizes_json : []) as Size[],
       category_id: (p as Product & { category_id: string | null }).category_id ?? null,
+      note_type: (p as Product & { note_type?: string | null }).note_type ?? "",
     });
     setOpen(true);
   }
