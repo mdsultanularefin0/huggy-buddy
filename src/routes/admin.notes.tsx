@@ -14,8 +14,14 @@ import { toast } from "sonner";
 import { MediaPicker } from "@/components/media-picker";
 import { ColorPicker } from "@/components/color-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { z } from "zod";
 
-const SCENT_PROFILES = ["Fresh & Floral", "Deep & Woody", "Sweet & Oriental"];
+const SCENT_PROFILES = ["Fresh & Floral", "Deep & Woody", "Sweet & Oriental"] as const;
+
+const noteSchema = z.object({
+  title: z.string().trim().min(1, "Title is required").max(60, "Title must be under 60 characters"),
+  scent_profile: z.enum(SCENT_PROFILES, { message: "Scent profile is required" }),
+});
 
 export const Route = createFileRoute("/admin/notes")({ component: NotesPage });
 
