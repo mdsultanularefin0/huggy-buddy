@@ -13,6 +13,9 @@ import { Plus, Pencil, Trash2, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 import { MediaPicker } from "@/components/media-picker";
 import { ColorPicker } from "@/components/color-picker";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+const SCENT_PROFILES = ["Fresh & Floral", "Deep & Woody", "Sweet & Oriental"];
 
 export const Route = createFileRoute("/admin/notes")({ component: NotesPage });
 
