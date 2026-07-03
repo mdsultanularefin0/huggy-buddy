@@ -82,6 +82,7 @@ function ProductsPage() {
         stock_quantity: Math.max(0, Number(form.stock_quantity) || 0),
         sizes_json: form.sizes_json as never,
         category_id: form.category_id,
+        note_type: form.note_type || null,
       };
       if (editing) {
         const { error } = await supabase.from("products").update(payload).eq("id", editing.id);
