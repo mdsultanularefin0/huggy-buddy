@@ -13,6 +13,9 @@ import { Plus, Pencil, Trash2, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 import { MediaPicker } from "@/components/media-picker";
 import { ColorPicker } from "@/components/color-picker";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+const SCENT_PROFILES = ["Fresh & Floral", "Deep & Woody", "Sweet & Oriental"];
 
 export const Route = createFileRoute("/admin/notes")({ component: NotesPage });
 
@@ -25,6 +28,7 @@ type Note = {
   link: string | null;
   sort_order: number;
   is_active: boolean;
+  scent_profile: string | null;
 };
 
 const empty = {
@@ -35,6 +39,7 @@ const empty = {
   link: "",
   sort_order: 0,
   is_active: true,
+  scent_profile: "",
 };
 
 function NotesPage() {
@@ -62,6 +67,7 @@ function NotesPage() {
         link: form.link || null,
         sort_order: Number(form.sort_order) || 0,
         is_active: form.is_active,
+        scent_profile: form.scent_profile || null,
       };
       if (editing) {
         const { error } = await supabase.from("notes").update(payload).eq("id", editing.id);
@@ -123,6 +129,7 @@ function NotesPage() {
       link: n.link ?? "",
       sort_order: n.sort_order,
       is_active: n.is_active,
+      scent_profile: n.scent_profile ?? "",
     });
     setOpen(true);
   }
@@ -244,6 +251,21 @@ function NotesPage() {
             <div>
               <Label htmlFor="link">Link (optional)</Label>
               <Input id="link" value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} placeholder="/category/floral" className="mt-1" />
+            </div>
+            <div>
+              <Label>Scent profile (optional)</Label>
+              <Select
+                value={form.scent_profile || "__none"}
+                onValueChange={(v) => setForm({ ...form, scent_profile: v === "__none" ? "" : v })}
+              >
+                <SelectTrigger className="mt-1"><SelectValue placeholder="Select scent profile" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none">None</SelectItem>
+                  {SCENT_PROFILES.map((s) => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="grid grid-cols-2 gap-3 items-end">
               <div>
