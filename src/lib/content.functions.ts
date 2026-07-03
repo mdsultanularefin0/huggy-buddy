@@ -21,11 +21,29 @@ const faqsSchema = z.object({
   faqs: z.array(faqItem).max(100),
 });
 
-type Ctx = { supabase: { rpc: (...args: unknown[]) => Promise<{ data: unknown; error: { message: string } | null }> }; userId: string };
+type Ctx = {
+  supabase: {
+    from: (table: "user_roles") => {
+      select: (columns: "id") => {
+        eq: (column: "user_id", value: string) => {
+          eq: (column: "role", value: "admin") => {
+            maybeSingle: () => Promise<{ data: { id: string } | null; error: { message: string } | null }>;
+          };
+        };
+      };
+    };
+  };
+  userId: string;
+};
 async function assertAdmin(context: { supabase: unknown; userId: string }) {
   const sb = context.supabase as Ctx["supabase"];
-  const { data: ok, error } = await sb.rpc("has_role", { _user_id: context.userId, _role: "admin" });
-  if (error || !ok) throw new Error("Forbidden");
+  const { data, error } = await sb
+    .from("user_roles")
+    .select("id")
+    .eq("user_id", context.userId)
+    .eq("role", "admin")
+    .maybeSingle();
+  if (error || !data) throw new Error("Forbidden");
 }
 
 export const saveSitePage = createServerFn({ method: "POST" })

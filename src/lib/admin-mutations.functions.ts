@@ -1,16 +1,17 @@
 import { createServerFn } from "@tanstack/react-start";
-import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import type { Database } from "@/integrations/supabase/types";
 
 const orderStatusSchema = z.enum(["Pending", "Processing", "Shipped", "Completed", "Cancelled", "Returned"]);
 
-async function assertAdmin(userId: string, supabase: SupabaseClient<Database>) {
-  const { data: roleOk, error: roleErr } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
-  if (roleErr || !roleOk) {
-    throw new Error(roleErr?.message ?? "Forbidden");
-  }
+async function assertAdmin(userId: string, supabase: { from: (table: "user_roles") => { select: (columns: "id") => { eq: (column: "user_id", value: string) => { eq: (column: "role", value: "admin") => { maybeSingle: () => Promise<{ data: { id: string } | null; error: { message: string } | null }> } } } } } }) {
+  const { data, error } = await supabase
+    .from("user_roles")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("role", "admin")
+    .maybeSingle();
+  if (error || !data) throw new Error(error?.message ?? "Forbidden");
 }
 
 type AuditEntry = {
