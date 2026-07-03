@@ -49,7 +49,7 @@ type WhisperReview = {
 };
 
 function isDirectVideo(url: string): boolean {
-  return /\.(mp4|webm|ogg|mov|m4v)(\?|#|$)/i.test(url);
+  return /\.(mp4|webm|ogg|mov|m4v)(\?|#|$)/i.test(url) || /\/files\/[^/?#]+$/i.test(url);
 }
 
 function reelEmbedSrc(url: string): string | null {
