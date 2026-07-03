@@ -102,6 +102,7 @@ function CouponsPage() {
   function startNew() {
     setEditing(null);
     setForm(empty);
+    setFieldErrors({});
     setOpen(true);
   }
 
@@ -117,8 +118,10 @@ function CouponsPage() {
       expires_at: c.expires_at ? c.expires_at.slice(0, 16) : "",
       is_active: c.is_active,
     });
+    setFieldErrors({});
     setOpen(true);
   }
+
 
   function formatDiscount(c: Coupon) {
     return c.discount_type === "percent" ? `${c.discount_value}%` : formatBDT(c.discount_value);
