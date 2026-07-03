@@ -12,7 +12,8 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard, Package, Boxes, Truck, CreditCard, ShoppingBag,
-  Users, Megaphone, Settings, LogOut, Sparkles, ScrollText, Tags, Home, Loader2, FileText, Star, Images, Plug,
+  Users, Megaphone, Settings, LogOut, Sparkles, ScrollText, Tags, Home, Loader2, FileText, Star, Images, Plug, Server,
+
 } from "lucide-react";
 import { toast } from "sonner";
 

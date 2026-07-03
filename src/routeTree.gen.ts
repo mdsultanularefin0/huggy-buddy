@@ -38,6 +38,7 @@ import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as AdminPaymentsRouteImport } from './routes/admin.payments'
 import { Route as AdminPagesRouteImport } from './routes/admin.pages'
 import { Route as AdminNotesRouteImport } from './routes/admin.notes'
+import { Route as AdminMediaServerRouteImport } from './routes/admin.media-server'
 import { Route as AdminMediaRouteImport } from './routes/admin.media'
 import { Route as AdminIntegrationsRouteImport } from './routes/admin.integrations'
 import { Route as AdminHomepageRouteImport } from './routes/admin.homepage'
@@ -199,6 +200,11 @@ const AdminNotesRoute = AdminNotesRouteImport.update({
   path: '/notes',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminMediaServerRoute = AdminMediaServerRouteImport.update({
+  id: '/media-server',
+  path: '/media-server',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminMediaRoute = AdminMediaRouteImport.update({
   id: '/media',
   path: '/media',
@@ -309,6 +315,7 @@ export interface FileRoutesByFullPath {
   '/admin/homepage': typeof AdminHomepageRoute
   '/admin/integrations': typeof AdminIntegrationsRoute
   '/admin/media': typeof AdminMediaRoute
+  '/admin/media-server': typeof AdminMediaServerRoute
   '/admin/notes': typeof AdminNotesRoute
   '/admin/pages': typeof AdminPagesRoute
   '/admin/payments': typeof AdminPaymentsRoute
@@ -353,6 +360,7 @@ export interface FileRoutesByTo {
   '/admin/homepage': typeof AdminHomepageRoute
   '/admin/integrations': typeof AdminIntegrationsRoute
   '/admin/media': typeof AdminMediaRoute
+  '/admin/media-server': typeof AdminMediaServerRoute
   '/admin/notes': typeof AdminNotesRoute
   '/admin/pages': typeof AdminPagesRoute
   '/admin/payments': typeof AdminPaymentsRoute
@@ -401,6 +409,7 @@ export interface FileRoutesById {
   '/admin/homepage': typeof AdminHomepageRoute
   '/admin/integrations': typeof AdminIntegrationsRoute
   '/admin/media': typeof AdminMediaRoute
+  '/admin/media-server': typeof AdminMediaServerRoute
   '/admin/notes': typeof AdminNotesRoute
   '/admin/pages': typeof AdminPagesRoute
   '/admin/payments': typeof AdminPaymentsRoute
@@ -449,6 +458,7 @@ export interface FileRouteTypes {
     | '/admin/homepage'
     | '/admin/integrations'
     | '/admin/media'
+    | '/admin/media-server'
     | '/admin/notes'
     | '/admin/pages'
     | '/admin/payments'
@@ -493,6 +503,7 @@ export interface FileRouteTypes {
     | '/admin/homepage'
     | '/admin/integrations'
     | '/admin/media'
+    | '/admin/media-server'
     | '/admin/notes'
     | '/admin/pages'
     | '/admin/payments'
@@ -540,6 +551,7 @@ export interface FileRouteTypes {
     | '/admin/homepage'
     | '/admin/integrations'
     | '/admin/media'
+    | '/admin/media-server'
     | '/admin/notes'
     | '/admin/pages'
     | '/admin/payments'
@@ -790,6 +802,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminNotesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/media-server': {
+      id: '/admin/media-server'
+      path: '/media-server'
+      fullPath: '/admin/media-server'
+      preLoaderRoute: typeof AdminMediaServerRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/media': {
       id: '/admin/media'
       path: '/media'
@@ -945,6 +964,7 @@ interface AdminRouteChildren {
   AdminHomepageRoute: typeof AdminHomepageRoute
   AdminIntegrationsRoute: typeof AdminIntegrationsRoute
   AdminMediaRoute: typeof AdminMediaRoute
+  AdminMediaServerRoute: typeof AdminMediaServerRoute
   AdminNotesRoute: typeof AdminNotesRoute
   AdminPagesRoute: typeof AdminPagesRoute
   AdminPaymentsRoute: typeof AdminPaymentsRoute
@@ -968,6 +988,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminHomepageRoute: AdminHomepageRoute,
   AdminIntegrationsRoute: AdminIntegrationsRoute,
   AdminMediaRoute: AdminMediaRoute,
+  AdminMediaServerRoute: AdminMediaServerRoute,
   AdminNotesRoute: AdminNotesRoute,
   AdminPagesRoute: AdminPagesRoute,
   AdminPaymentsRoute: AdminPaymentsRoute,
