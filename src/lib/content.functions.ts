@@ -8,7 +8,7 @@ const pageSchema = z.object({
   slug: z.string().min(1).max(120).regex(slugRe),
   title: z.string().trim().min(1).max(200),
   meta_description: z.string().trim().max(300).nullable().optional(),
-  content: z.string().max(200_000),
+  content: z.string().max(1_000_000),
 });
 
 const faqItem = z.object({
