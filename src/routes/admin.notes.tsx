@@ -65,15 +65,28 @@ function NotesPage() {
 
   const save = useMutation({
     mutationFn: async () => {
-      const payload = {
+      const parsed = noteSchema.safeParse({
         title: form.title,
-        subtitle: form.subtitle || null,
+        scent_profile: form.scent_profile,
+      });
+      if (!parsed.success) {
+        throw new Error(parsed.error.issues[0].message);
+      }
+      const title = parsed.data.title;
+      const dup = notes.find(
+        (n) => n.title.trim().toLowerCase() === title.toLowerCase() && n.id !== editing?.id,
+      );
+      if (dup) throw new Error("A note with this title already exists");
+
+      const payload = {
+        title,
+        subtitle: form.subtitle.trim() || null,
         image: form.image || null,
         bg: form.bg || null,
-        link: form.link || null,
+        link: form.link.trim() || null,
         sort_order: Number(form.sort_order) || 0,
         is_active: form.is_active,
-        scent_profile: form.scent_profile || null,
+        scent_profile: parsed.data.scent_profile,
       };
       if (editing) {
         const { error } = await supabase.from("notes").update(payload).eq("id", editing.id);
