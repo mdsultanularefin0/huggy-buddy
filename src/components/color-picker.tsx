@@ -174,7 +174,7 @@ export function ColorPicker({
         </Popover>
         <Input
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e) => emit(e.target.value)}
           placeholder={placeholder}
         />
       </div>
