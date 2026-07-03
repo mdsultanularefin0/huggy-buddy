@@ -100,66 +100,44 @@ export function ListingShell({
       <div className="max-w-7xl mx-auto px-4 py-10 grid grid-cols-1 lg:grid-cols-4 gap-8">
         <aside className="hidden lg:block lg:col-span-1">
           <div className="sticky top-24 space-y-8">
-            <div>
-              <h3 className="font-semibold text-sm uppercase tracking-wide text-[#52277a] mb-3">Categories</h3>
-              <ul className="space-y-2 text-sm">
-                <li>
-                  <Link to="/products" className={`hover:text-[#a555f0] ${!activeCategorySlug ? "font-semibold text-[#52277a]" : "text-gray-700"}`}>
-                    All
-                  </Link>
-                </li>
-                {categories.map((c) => (
-                  <li key={c.id}>
-                    <Link
-                      to="/category/$slug"
-                      params={{ slug: c.slug }}
-                      className={`hover:text-[#a555f0] ${activeCategorySlug === c.slug ? "font-semibold text-[#52277a]" : "text-gray-700"}`}
-                    >
-                      {c.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-semibold text-sm uppercase tracking-wide text-[#52277a] mb-3">Price Range</h3>
-              <input
-                type="range"
-                min={500}
-                max={10000}
-                step={100}
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(Number(e.target.value))}
-                className="w-full accent-[#a555f0]"
-              />
-              <p className="text-xs text-gray-600 mt-1">Up to {formatBDT(maxPrice)}</p>
-            </div>
-
-            <div>
-              <h3 className="font-semibold text-sm uppercase tracking-wide text-[#52277a] mb-3">Scent Profile</h3>
-              <ul className="space-y-2 text-sm">
-                {SCENT_PROFILES.map((s) => (
-                  <li key={s}>
-                    <label className="flex items-center gap-2 cursor-pointer text-gray-700">
-                      <input
-                        type="checkbox"
-                        checked={scents.includes(s)}
-                        onChange={(e) =>
-                          setScents((prev) => (e.target.checked ? [...prev, s] : prev.filter((x) => x !== s)))
-                        }
-                        className="accent-[#a555f0]"
-                      />
-                      {s}
-                    </label>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <FiltersPanel
+              categories={categories}
+              activeCategorySlug={activeCategorySlug}
+              maxPrice={maxPrice}
+              setMaxPrice={setMaxPrice}
+              scents={scents}
+              setScents={setScents}
+            />
           </div>
         </aside>
 
         <div className="lg:col-span-3">
+          <div className="lg:hidden mb-4 flex justify-between items-center">
+            <p className="text-sm text-gray-600">{filtered.length} product{filtered.length === 1 ? "" : "s"}</p>
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <SlidersHorizontal className="w-4 h-4" /> Filters
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[85vw] max-w-sm overflow-y-auto">
+                <SheetHeader>
+                  <SheetTitle className="text-[#52277a]">Filters</SheetTitle>
+                </SheetHeader>
+                <div className="mt-6 space-y-8">
+                  <FiltersPanel
+                    categories={categories}
+                    activeCategorySlug={activeCategorySlug}
+                    maxPrice={maxPrice}
+                    setMaxPrice={setMaxPrice}
+                    scents={scents}
+                    setScents={setScents}
+                  />
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+
           {filtered.length === 0 ? (
             <div className="rounded-2xl border-2 border-dashed border-gray-200 py-20 text-center text-gray-500">
               <Sparkles className="w-8 h-8 mx-auto mb-3 text-[#a555f0]" />
@@ -176,5 +154,82 @@ export function ListingShell({
       </div>
       <SiteFooter />
     </div>
+  );
+}
+
+function FiltersPanel({
+  categories,
+  activeCategorySlug,
+  maxPrice,
+  setMaxPrice,
+  scents,
+  setScents,
+}: {
+  categories: Cat[];
+  activeCategorySlug?: string;
+  maxPrice: number;
+  setMaxPrice: (n: number) => void;
+  scents: string[];
+  setScents: React.Dispatch<React.SetStateAction<string[]>>;
+}) {
+  return (
+    <>
+      <div>
+        <h3 className="font-semibold text-sm uppercase tracking-wide text-[#52277a] mb-3">Categories</h3>
+        <ul className="space-y-2 text-sm">
+          <li>
+            <Link to="/products" className={`hover:text-[#a555f0] ${!activeCategorySlug ? "font-semibold text-[#52277a]" : "text-gray-700"}`}>
+              All
+            </Link>
+          </li>
+          {categories.map((c) => (
+            <li key={c.id}>
+              <Link
+                to="/category/$slug"
+                params={{ slug: c.slug }}
+                className={`hover:text-[#a555f0] ${activeCategorySlug === c.slug ? "font-semibold text-[#52277a]" : "text-gray-700"}`}
+              >
+                {c.name}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div>
+        <h3 className="font-semibold text-sm uppercase tracking-wide text-[#52277a] mb-3">Price Range</h3>
+        <input
+          type="range"
+          min={500}
+          max={10000}
+          step={100}
+          value={maxPrice}
+          onChange={(e) => setMaxPrice(Number(e.target.value))}
+          className="w-full accent-[#a555f0]"
+        />
+        <p className="text-xs text-gray-600 mt-1">Up to {formatBDT(maxPrice)}</p>
+      </div>
+
+      <div>
+        <h3 className="font-semibold text-sm uppercase tracking-wide text-[#52277a] mb-3">Scent Profile</h3>
+        <ul className="space-y-2 text-sm">
+          {SCENT_PROFILES.map((s) => (
+            <li key={s}>
+              <label className="flex items-center gap-2 cursor-pointer text-gray-700">
+                <input
+                  type="checkbox"
+                  checked={scents.includes(s)}
+                  onChange={(e) =>
+                    setScents((prev) => (e.target.checked ? [...prev, s] : prev.filter((x) => x !== s)))
+                  }
+                  className="accent-[#a555f0]"
+                />
+                {s}
+              </label>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </>
   );
 }
