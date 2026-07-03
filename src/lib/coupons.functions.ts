@@ -86,6 +86,7 @@ export const saveCoupon = createServerFn({ method: "POST" })
       max_discount: data.max_discount,
       usage_limit: data.usage_limit,
       expires_at: data.expires_at,
+      is_active: data.is_active,
     };
 
     const sb = context.supabase as unknown as {
