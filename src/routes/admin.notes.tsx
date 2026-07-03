@@ -252,6 +252,20 @@ function NotesPage() {
               <Label htmlFor="link">Link (optional)</Label>
               <Input id="link" value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} placeholder="/category/floral" className="mt-1" />
             </div>
+            <div>
+              <Label>Scent profile (optional)</Label>
+              <Select
+                value={form.scent_profile || "__none"}
+                onValueChange={(v) => setForm({ ...form, scent_profile: v === "__none" ? "" : v })}
+              >
+                <SelectTrigger className="mt-1"><SelectValue placeholder="Select scent profile" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none">None</SelectItem>
+                  {SCENT_PROFILES.map((s) => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             <div className="grid grid-cols-2 gap-3 items-end">
               <div>
                 <Label htmlFor="sort">Sort order</Label>
