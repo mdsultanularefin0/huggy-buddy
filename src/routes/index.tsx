@@ -382,7 +382,16 @@ function Landing() {
 
   const notesTitle = (h.notes_title as string) || "Discover Your Signature Note";
   const notesSubtitle = (h.notes_subtitle as string) || "";
-  const notes = ((h.notes_json as Note[] | null) ?? []) as Note[];
+  const legacyNotes = ((h.notes_json as Note[] | null) ?? []) as Note[];
+  const notes: Note[] = notesFromTable.length > 0
+    ? notesFromTable.map((n) => ({
+        title: n.title,
+        gradient: "from-purple-500 to-pink-500",
+        link: n.link ?? undefined,
+        image: n.image ?? undefined,
+        bg: n.bg ?? undefined,
+      }))
+    : legacyNotes;
   const heroEnabled = (h.hero_enabled as boolean | undefined) ?? true;
   const bannerEnabled = (h.banner_enabled as boolean | undefined) ?? true;
   const signatureEnabled = (h.signature_enabled as boolean | undefined) ?? true;
