@@ -276,6 +276,28 @@ export const getSteadfastBalance = createServerFn({ method: "GET" })
     return { current_balance: body?.current_balance ?? 0 };
   });
 
+// -------- Fraud check by phone --------
+const fraudSchema = z.object({ phone: z.string().min(3).max(30) });
+
+export const getSteadfastFraudCheck = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => fraudSchema.parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId, context.supabase);
+    const body = await steadfastFetch(`/fraud_check/${encodeURIComponent(data.phone)}`, { method: "GET" }) as
+      Record<string, unknown> | null;
+    const num = (k: string) => {
+      const v = body?.[k];
+      return typeof v === "number" ? v : typeof v === "string" ? Number(v) || 0 : 0;
+    };
+    return {
+      total_parcels: num("Total_parcels") || num("total_parcels"),
+      total_delivered: num("total delivered") || num("total_delivered"),
+      total_cancelled: num("total cancelled") || num("total_cancelled"),
+      total_fraud_reports: num("total_fraud_reports"),
+    };
+  });
+
 
 // ===================== Media Server =====================
 const MEDIA_PROVIDER = "media_server";
