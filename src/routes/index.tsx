@@ -131,6 +131,9 @@ function LazyReelTile({ reel, index }: { reel: Reel; index: number }) {
           <video
             src={reel.url}
             controls
+            autoPlay
+            muted
+            loop
             playsInline
             preload="metadata"
             className="absolute inset-0 w-full h-full object-cover bg-black"
