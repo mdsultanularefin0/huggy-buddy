@@ -20,6 +20,7 @@ import { Loader2, Upload, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { uploadImage } from "@/lib/upload";
 import { MediaPicker } from "@/components/media-picker";
+import { ColorPicker } from "@/components/color-picker";
 import { saveFaqs } from "@/lib/content.functions";
 
 export const Route = createFileRoute("/admin/homepage")({ component: HomepagePage });
