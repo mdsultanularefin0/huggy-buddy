@@ -83,7 +83,13 @@ function AdminOrderDetail() {
   }
 
   const c = (order.customer_json as { name?: string; phone?: string; address?: string; email?: string; district?: string; area?: string } | null) ?? {};
-  const items = (order.items_json as Array<{ name?: string; qty?: number; price?: number; size?: string; image?: string }>) ?? [];
+  const items = ((order.items_json as Array<Record<string, unknown>>) ?? []).map((it) => ({
+    name: (it.name as string | undefined) ?? "",
+    qty: (it.qty as number | undefined) ?? (it.quantity as number | undefined) ?? 1,
+    price: (it.price as number | undefined) ?? (it.unitPrice as number | undefined) ?? 0,
+    size: it.size as string | undefined,
+    image: (it.image as string | undefined) ?? (it.imageUrl as string | undefined),
+  }));
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
