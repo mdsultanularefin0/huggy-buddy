@@ -235,11 +235,11 @@ const notesQuery = queryOptions({
   queryFn: async () => {
     const { data, error } = await supabase
       .from("notes")
-      .select("title, subtitle, image, bg, link, sort_order")
+      .select("title, subtitle, image, bg, link, sort_order, scent_profile")
       .eq("is_active", true)
       .order("sort_order", { ascending: true });
     if (error) throw error;
-    return (data ?? []) as Array<{ title: string; subtitle: string | null; image: string | null; bg: string | null; link: string | null }>;
+    return (data ?? []) as Array<{ title: string; subtitle: string | null; image: string | null; bg: string | null; link: string | null; scent_profile: string | null }>;
   },
 });
 
