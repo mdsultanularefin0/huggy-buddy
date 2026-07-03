@@ -286,10 +286,11 @@ export const Route = createFileRoute("/")({
   },
   loader: async ({ context }) => {
     const { getRequestOrigin } = await import("@/lib/origin.functions");
-    const [, , , origin] = await Promise.all([
+    const [, , , , origin] = await Promise.all([
       context.queryClient.ensureQueryData(categoriesQuery),
       context.queryClient.ensureQueryData(heroSettingsQuery),
       context.queryClient.ensureQueryData(featuredProductsQuery),
+      context.queryClient.ensureQueryData(notesQuery),
       getRequestOrigin(),
     ]);
     return { origin };
