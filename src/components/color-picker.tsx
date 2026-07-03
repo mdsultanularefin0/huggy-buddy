@@ -47,6 +47,14 @@ export function ColorPicker({
   const [presets, setPresets] = useState<string[]>([]);
   useEffect(() => { setPresets(loadPresets()); }, [open]);
 
+  function normalize(v: string) {
+    return v
+      .trim()
+      .replace(/;+\s*$/, "")
+      .replace(/\b(linear|radial|conic|repeating-linear|repeating-radial|repeating-conic)-gradient\s+\(/gi, "$1-gradient(");
+  }
+  const emit = (v: string) => onChange(normalize(v));
+
   const isHex = /^#[0-9a-fA-F]{6}$/.test(value);
   const preview = value || "transparent";
   const previewStyle = value.includes("gradient")
@@ -166,7 +174,7 @@ export function ColorPicker({
         </Popover>
         <Input
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e) => emit(e.target.value)}
           placeholder={placeholder}
         />
       </div>
