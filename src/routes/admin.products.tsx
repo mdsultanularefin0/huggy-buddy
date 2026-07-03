@@ -65,7 +65,7 @@ function ProductsPage() {
   const { data: noteOptions = [] } = useQuery({
     queryKey: ["admin", "note-options"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("notes").select("title").order("sort_order");
+      const { data, error } = await supabase.from("notes").select("title").eq("is_active", true).order("sort_order");
       if (error) throw error;
       return (data ?? []).map((n) => n.title).filter((t): t is string => !!t);
     },
