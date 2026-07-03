@@ -274,3 +274,12 @@ export const testMediaServerConnection = createServerFn({ method: "POST" })
     const body = await res.json().catch(() => ({}));
     return { ok: true, health: body };
   });
+
+// Return decrypted creds for admin browser use (uploads to media server).
+export const getMediaServerConfig = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.userId, context.supabase);
+    const creds = await loadMediaServerCreds();
+    return { base_url: creds.base_url.replace(/\/$/, ""), api_key: creds.api_key };
+  });
