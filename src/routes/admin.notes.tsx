@@ -266,6 +266,7 @@ function NotesPage() {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
             <div className="grid grid-cols-2 gap-3 items-end">
               <div>
                 <Label htmlFor="sort">Sort order</Label>
