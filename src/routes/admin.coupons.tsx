@@ -149,20 +149,46 @@ function CouponsPage() {
                 <TableHead>Code</TableHead>
                 <TableHead>Discount</TableHead>
                 <TableHead>Min order</TableHead>
-                <TableHead>Used</TableHead>
+                <TableHead>Redeemed</TableHead>
+                <TableHead>Remaining</TableHead>
                 <TableHead>Expires</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {coupons.map((c) => (
+              {coupons.map((c) => {
+                const used = c.used_count ?? 0;
+                const limit = c.usage_limit;
+                const remaining = limit == null ? null : Math.max(0, limit - used);
+                const pct = limit && limit > 0 ? Math.min(100, Math.round((used / limit) * 100)) : 0;
+                const exhausted = limit != null && remaining === 0;
+                return (
                 <TableRow key={c.id}>
                   <TableCell className="font-mono font-medium">{c.code}</TableCell>
                   <TableCell>{formatDiscount(c)}</TableCell>
                   <TableCell>{formatBDT(c.min_order_amount)}</TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
-                    {c.used_count}{c.usage_limit ? ` / ${c.usage_limit}` : ""}
+                  <TableCell className="text-sm">
+                    <div className="font-medium">{used}{limit ? ` / ${limit}` : ""}</div>
+                    {limit ? (
+                      <div className="mt-1 h-1.5 w-24 rounded-full bg-muted overflow-hidden">
+                        <div
+                          className={`h-full ${exhausted ? "bg-destructive" : "bg-primary"}`}
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    ) : (
+                      <div className="text-xs text-muted-foreground">unlimited</div>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-sm">
+                    {remaining == null ? (
+                      <span className="text-muted-foreground">∞</span>
+                    ) : (
+                      <span className={exhausted ? "text-destructive font-medium" : ""}>
+                        {remaining}{exhausted ? " (exhausted)" : ""}
+                      </span>
+                    )}
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
                     {c.expires_at ? new Date(c.expires_at).toLocaleDateString() : "—"}
@@ -182,7 +208,8 @@ function CouponsPage() {
                     </Button>
                   </TableCell>
                 </TableRow>
-              ))}
+                );
+              })}
             </TableBody>
           </Table>
         )}
