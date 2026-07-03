@@ -76,6 +76,25 @@ function AdminOrderDetail() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const ship = useMutation({
+    mutationFn: () => shipSteadfast({ data: { order_id: id } }),
+    onSuccess: (r) => {
+      const t = r?.consignment?.tracking_code;
+      toast.success(t ? `Sent to Steadfast (${t})` : "Sent to Steadfast");
+      qc.invalidateQueries({ queryKey: ["admin", "order", id] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const refreshStatus = useMutation({
+    mutationFn: () => checkStatus({ data: { by: "invoice", value: order?.order_number ?? "" } }),
+    onSuccess: (r) => {
+      setRemoteStatus(r?.delivery_status ?? "unknown");
+      toast.success(`Steadfast: ${r?.delivery_status ?? "unknown"}`);
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   if (isLoading) {
     return <div className="p-12 text-center text-muted-foreground"><Loader2 className="w-5 h-5 animate-spin inline mr-2" />Loading…</div>;
   }
