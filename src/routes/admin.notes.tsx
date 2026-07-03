@@ -28,6 +28,7 @@ type Note = {
   link: string | null;
   sort_order: number;
   is_active: boolean;
+  scent_profile: string | null;
 };
 
 const empty = {
@@ -38,6 +39,7 @@ const empty = {
   link: "",
   sort_order: 0,
   is_active: true,
+  scent_profile: "",
 };
 
 function NotesPage() {
