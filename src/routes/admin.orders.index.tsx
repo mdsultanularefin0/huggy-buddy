@@ -33,7 +33,7 @@ const STATUS_TONE: Record<OrderStatus, string> = {
   Returned: "bg-muted text-muted-foreground",
 };
 
-export const Route = createFileRoute("/admin/orders")({ component: OrdersPage });
+export const Route = createFileRoute("/admin/orders/")({ component: OrdersPage });
 
 function OrdersPage() {
   const qc = useQueryClient();
