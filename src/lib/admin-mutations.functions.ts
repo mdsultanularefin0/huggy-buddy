@@ -18,7 +18,6 @@ type RoleReader = {
 
 async function assertAdmin(userId: string, supabase: unknown) {
   const roleReader = supabase as RoleReader;
-  const { data, error } = await supabase
   const { data, error } = await roleReader
     .from("user_roles")
     .select("id")
