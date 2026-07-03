@@ -23,7 +23,7 @@ import Autoplay from "embla-carousel-autoplay";
 import { supabase } from "@/integrations/supabase/client";
 
 type Faq = { q: string; a: string };
-type Note = { title: string; gradient: string; link?: string; image?: string; bg?: string };
+type Note = { title: string; gradient: string; link?: string; image?: string; bg?: string; scentProfile?: string };
 type Reel = { url: string; caption?: string; link?: string };
 type CustomWhisper = { quote: string; name: string; tag?: string; rating?: number };
 
@@ -235,11 +235,11 @@ const notesQuery = queryOptions({
   queryFn: async () => {
     const { data, error } = await supabase
       .from("notes")
-      .select("title, subtitle, image, bg, link, sort_order")
+      .select("title, subtitle, image, bg, link, sort_order, scent_profile")
       .eq("is_active", true)
       .order("sort_order", { ascending: true });
     if (error) throw error;
-    return (data ?? []) as Array<{ title: string; subtitle: string | null; image: string | null; bg: string | null; link: string | null }>;
+    return (data ?? []) as Array<{ title: string; subtitle: string | null; image: string | null; bg: string | null; link: string | null; scent_profile: string | null }>;
   },
 });
 
@@ -398,9 +398,10 @@ function Landing() {
     ? notesFromTable.map((n) => ({
         title: n.title,
         gradient: "from-purple-500 to-pink-500",
-        link: n.link ?? undefined,
+        link: n.link ?? (n.scent_profile ? `/products?scent=${encodeURIComponent(n.scent_profile)}` : undefined),
         image: n.image ?? undefined,
         bg: n.bg ?? undefined,
+        scentProfile: n.scent_profile ?? undefined,
       }))
     : legacyNotes;
   const heroEnabled = (h.hero_enabled as boolean | undefined) ?? true;
@@ -695,6 +696,9 @@ function Landing() {
                       <div className={`absolute inset-0 transition-colors ${hasImage ? "bg-black/30 group-hover:bg-black/40 backdrop-blur-sm" : "bg-black/40 group-hover:bg-black/50"}`} />
                       <div className="absolute inset-0 flex flex-col items-center justify-center text-white px-4">
                         <h3 className="text-2xl font-bold tracking-wide transition-transform duration-500 group-hover:scale-110">{c.title}</h3>
+                        {c.scentProfile ? (
+                          <p className="mt-2 text-sm uppercase tracking-widest text-white/80">{c.scentProfile}</p>
+                        ) : null}
                         <span className="mt-4 px-5 py-2 rounded-lg border border-white/70 text-sm font-semibold opacity-90 group-hover:opacity-100 group-hover:bg-white group-hover:text-[#52277a] transition">
                           Shop Category
                         </span>
