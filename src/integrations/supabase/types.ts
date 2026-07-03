@@ -287,6 +287,45 @@ export type Database = {
         }
         Relationships: []
       }
+      notes: {
+        Row: {
+          bg: string | null
+          created_at: string
+          id: string
+          image: string | null
+          is_active: boolean
+          link: string | null
+          sort_order: number
+          subtitle: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          bg?: string | null
+          created_at?: string
+          id?: string
+          image?: string | null
+          is_active?: boolean
+          link?: string | null
+          sort_order?: number
+          subtitle?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          bg?: string | null
+          created_at?: string
+          id?: string
+          image?: string | null
+          is_active?: boolean
+          link?: string | null
+          sort_order?: number
+          subtitle?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           coupon_used: string | null
