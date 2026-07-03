@@ -23,7 +23,7 @@ import Autoplay from "embla-carousel-autoplay";
 import { supabase } from "@/integrations/supabase/client";
 
 type Faq = { q: string; a: string };
-type Note = { title: string; gradient: string; link?: string; image?: string; bg?: string };
+type Note = { title: string; gradient: string; link?: string; image?: string; bg?: string; scentProfile?: string };
 type Reel = { url: string; caption?: string; link?: string };
 type CustomWhisper = { quote: string; name: string; tag?: string; rating?: number };
 
