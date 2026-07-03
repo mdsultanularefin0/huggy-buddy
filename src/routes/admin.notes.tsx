@@ -299,7 +299,7 @@ function NotesPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button variant="luxe" onClick={() => save.mutate()} disabled={save.isPending || !form.title.trim()}>
+            <Button variant="luxe" onClick={() => save.mutate()} disabled={save.isPending || !form.title.trim() || !form.scent_profile}>
               {save.isPending && <Loader2 className="w-4 h-4 mr-1 animate-spin" />}
               {editing ? "Save changes" : "Create"}
             </Button>
