@@ -37,6 +37,8 @@ function CouponsPage() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Coupon | null>(null);
   const [form, setForm] = useState(empty);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const saveCouponFn = useServerFn(saveCoupon);
 
   const { data: coupons = [], isLoading } = useQuery({
     queryKey: ["admin", "coupons"],
@@ -49,26 +51,24 @@ function CouponsPage() {
 
   const save = useMutation({
     mutationFn: async () => {
-      const code = form.code.trim().toUpperCase();
-      if (!code) throw new Error("Code is required");
-      if (Number(form.discount_value) <= 0) throw new Error("Discount value must be greater than 0");
-      if (form.discount_type === "percent" && Number(form.discount_value) > 100)
-        throw new Error("Percent discount cannot exceed 100");
-
-      const payload = {
-        code,
-        discount_type: form.discount_type,
-        discount_value: Number(form.discount_value),
-        min_order_amount: Number(form.min_order_amount) || 0,
-        max_discount: form.max_discount === "" ? null : Number(form.max_discount),
-        usage_limit: form.usage_limit === "" ? null : Number(form.usage_limit),
-        expires_at: form.expires_at ? new Date(form.expires_at).toISOString() : null,
-        is_active: form.is_active,
-      };
-      const { error } = editing
-        ? await supabase.from("coupons").update(payload).eq("id", editing.id)
-        : await supabase.from("coupons").insert(payload);
-      if (error) throw error;
+      const result = await saveCouponFn({
+        data: {
+          id: editing?.id ?? null,
+          code: form.code,
+          discount_type: form.discount_type,
+          discount_value: Number(form.discount_value),
+          min_order_amount: Number(form.min_order_amount) || 0,
+          max_discount: form.max_discount === "" ? null : Number(form.max_discount),
+          usage_limit: form.usage_limit === "" ? null : Number(form.usage_limit),
+          expires_at: form.expires_at ? new Date(form.expires_at).toISOString() : null,
+          is_active: form.is_active,
+        },
+      });
+      if (!result.ok) {
+        setFieldErrors(result.errors);
+        throw new Error("Please fix the highlighted fields");
+      }
+      setFieldErrors({});
     },
     onSuccess: () => {
       toast.success(editing ? "Coupon updated" : "Coupon created");
