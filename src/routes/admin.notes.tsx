@@ -129,6 +129,7 @@ function NotesPage() {
       link: n.link ?? "",
       sort_order: n.sort_order,
       is_active: n.is_active,
+      scent_profile: n.scent_profile ?? "",
     });
     setOpen(true);
   }
