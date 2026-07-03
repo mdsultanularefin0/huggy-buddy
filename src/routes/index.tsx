@@ -219,6 +219,19 @@ const whisperReviewsQuery = queryOptions({
   },
 });
 
+const notesQuery = queryOptions({
+  queryKey: ["public", "notes"],
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from("notes")
+      .select("title, subtitle, image, bg, link, sort_order")
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true });
+    if (error) throw error;
+    return (data ?? []) as Array<{ title: string; subtitle: string | null; image: string | null; bg: string | null; link: string | null }>;
+  },
+});
+
 
 const HERO_OG_IMAGE = "/__l5e/assets-v1/cdb47efc-0449-4721-ba5e-c16e886a1c8b/hero-main.png";
 
