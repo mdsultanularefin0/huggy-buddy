@@ -14,8 +14,14 @@ import { toast } from "sonner";
 import { MediaPicker } from "@/components/media-picker";
 import { ColorPicker } from "@/components/color-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { z } from "zod";
 
-const SCENT_PROFILES = ["Fresh & Floral", "Deep & Woody", "Sweet & Oriental"];
+const SCENT_PROFILES = ["Fresh & Floral", "Deep & Woody", "Sweet & Oriental"] as const;
+
+const noteSchema = z.object({
+  title: z.string().trim().min(1, "Title is required").max(60, "Title must be under 60 characters"),
+  scent_profile: z.enum(SCENT_PROFILES, { message: "Scent profile is required" }),
+});
 
 export const Route = createFileRoute("/admin/notes")({ component: NotesPage });
 
@@ -59,15 +65,28 @@ function NotesPage() {
 
   const save = useMutation({
     mutationFn: async () => {
-      const payload = {
+      const parsed = noteSchema.safeParse({
         title: form.title,
-        subtitle: form.subtitle || null,
+        scent_profile: form.scent_profile,
+      });
+      if (!parsed.success) {
+        throw new Error(parsed.error.issues[0].message);
+      }
+      const title = parsed.data.title;
+      const dup = notes.find(
+        (n) => n.title.trim().toLowerCase() === title.toLowerCase() && n.id !== editing?.id,
+      );
+      if (dup) throw new Error("A note with this title already exists");
+
+      const payload = {
+        title,
+        subtitle: form.subtitle.trim() || null,
         image: form.image || null,
         bg: form.bg || null,
-        link: form.link || null,
+        link: form.link.trim() || null,
         sort_order: Number(form.sort_order) || 0,
         is_active: form.is_active,
-        scent_profile: form.scent_profile || null,
+        scent_profile: parsed.data.scent_profile,
       };
       if (editing) {
         const { error } = await supabase.from("notes").update(payload).eq("id", editing.id);
@@ -280,7 +299,7 @@ function NotesPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button variant="luxe" onClick={() => save.mutate()} disabled={save.isPending || !form.title.trim()}>
+            <Button variant="luxe" onClick={() => save.mutate()} disabled={save.isPending || !form.title.trim() || !form.scent_profile}>
               {save.isPending && <Loader2 className="w-4 h-4 mr-1 animate-spin" />}
               {editing ? "Save changes" : "Create"}
             </Button>
