@@ -215,6 +215,19 @@ function AdminOrderDetail() {
             >
               {update.isPending && <Loader2 className="w-4 h-4 animate-spin mr-1" />}Save
             </Button>
+            <div className="pt-2 border-t space-y-2">
+              <div className="text-xs uppercase tracking-wider text-muted-foreground">Steadfast courier</div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" className="flex-1" disabled={ship.isPending} onClick={() => ship.mutate()}>
+                  {ship.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Truck className="w-4 h-4 mr-1" />}
+                  Send
+                </Button>
+                <Button variant="outline" size="sm" className="flex-1" disabled={refreshStatus.isPending || !order.order_number} onClick={() => refreshStatus.mutate()}>
+                  {refreshStatus.isPending && <Loader2 className="w-4 h-4 animate-spin mr-1" />}Check status
+                </Button>
+              </div>
+              {remoteStatus && <div className="text-xs text-muted-foreground">Delivery: <span className="font-medium">{remoteStatus}</span></div>}
+            </div>
           </Card>
         </div>
       </div>
