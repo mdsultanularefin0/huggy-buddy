@@ -349,6 +349,24 @@ function ProductsPage() {
                 ))}
               </select>
             </div>
+            <div>
+              <Label htmlFor="note_type">Scent note type</Label>
+              <select
+                id="note_type"
+                value={form.note_type}
+                onChange={(e) => setForm({ ...form, note_type: e.target.value })}
+                className="mt-1 w-full h-10 rounded-md border bg-background px-3 text-sm"
+              >
+                <option value="">— None —</option>
+                {noteOptions.map((n) => (
+                  <option key={n} value={n}>{n}</option>
+                ))}
+                {form.note_type && !noteOptions.includes(form.note_type) && (
+                  <option value={form.note_type}>{form.note_type} (custom)</option>
+                )}
+              </select>
+              <p className="text-xs text-muted-foreground mt-1">Options come from the homepage Scent notes section.</p>
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label htmlFor="reg">Regular price (BDT)</Label>
