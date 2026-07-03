@@ -20,6 +20,7 @@ import { Loader2, Upload, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { uploadImage } from "@/lib/upload";
 import { MediaPicker } from "@/components/media-picker";
+import { ColorPicker } from "@/components/color-picker";
 import { saveFaqs } from "@/lib/content.functions";
 
 export const Route = createFileRoute("/admin/homepage")({ component: HomepagePage });
@@ -583,24 +584,13 @@ function HomepagePage() {
                     <img src={n.image} alt="" className="mt-1 h-16 w-24 object-cover rounded border" />
                   ) : null}
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-[auto,1fr] gap-2 items-center">
-                  <div className="space-y-1">
-                    <Label className="text-xs">Color</Label>
-                    <Input
-                      type="color"
-                      value={/^#[0-9a-fA-F]{6}$/.test(n.bg ?? "") ? (n.bg as string) : "#a555f0"}
-                      onChange={(e) => updateAt({ bg: e.target.value })}
-                      className="h-10 w-16 p-1"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <Label className="text-xs">Custom background (color or CSS gradient — overrides Tailwind gradient below)</Label>
-                    <Input
-                      value={n.bg ?? ""}
-                      onChange={(e) => updateAt({ bg: e.target.value })}
-                      placeholder="#a555f0  or  linear-gradient(135deg,#a555f0,#52277a)"
-                    />
-                  </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Custom background (color or CSS gradient — overrides Tailwind gradient below)</Label>
+                  <ColorPicker
+                    value={n.bg ?? ""}
+                    onChange={(v) => updateAt({ bg: v })}
+                    placeholder="#a555f0  or  linear-gradient(135deg,#a555f0,#52277a)"
+                  />
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs">Tailwind gradient fallback (e.g. <code>from-pink-300 to-purple-300</code>)</Label>
