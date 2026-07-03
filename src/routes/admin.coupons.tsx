@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -13,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, Pencil, Trash2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { formatBDT } from "@/lib/currency";
+import { saveCoupon } from "@/lib/coupons.functions";
 import type { Database } from "@/integrations/supabase/types";
 
 type Coupon = Database["public"]["Tables"]["coupons"]["Row"];
@@ -35,6 +37,8 @@ function CouponsPage() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Coupon | null>(null);
   const [form, setForm] = useState(empty);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const saveCouponFn = useServerFn(saveCoupon);
 
   const { data: coupons = [], isLoading } = useQuery({
     queryKey: ["admin", "coupons"],
@@ -47,26 +51,24 @@ function CouponsPage() {
 
   const save = useMutation({
     mutationFn: async () => {
-      const code = form.code.trim().toUpperCase();
-      if (!code) throw new Error("Code is required");
-      if (Number(form.discount_value) <= 0) throw new Error("Discount value must be greater than 0");
-      if (form.discount_type === "percent" && Number(form.discount_value) > 100)
-        throw new Error("Percent discount cannot exceed 100");
-
-      const payload = {
-        code,
-        discount_type: form.discount_type,
-        discount_value: Number(form.discount_value),
-        min_order_amount: Number(form.min_order_amount) || 0,
-        max_discount: form.max_discount === "" ? null : Number(form.max_discount),
-        usage_limit: form.usage_limit === "" ? null : Number(form.usage_limit),
-        expires_at: form.expires_at ? new Date(form.expires_at).toISOString() : null,
-        is_active: form.is_active,
-      };
-      const { error } = editing
-        ? await supabase.from("coupons").update(payload).eq("id", editing.id)
-        : await supabase.from("coupons").insert(payload);
-      if (error) throw error;
+      const result = await saveCouponFn({
+        data: {
+          id: editing?.id ?? null,
+          code: form.code,
+          discount_type: form.discount_type,
+          discount_value: Number(form.discount_value),
+          min_order_amount: Number(form.min_order_amount) || 0,
+          max_discount: form.max_discount === "" ? null : Number(form.max_discount),
+          usage_limit: form.usage_limit === "" ? null : Number(form.usage_limit),
+          expires_at: form.expires_at ? new Date(form.expires_at).toISOString() : null,
+          is_active: form.is_active,
+        },
+      });
+      if (!result.ok) {
+        setFieldErrors(result.errors);
+        throw new Error("Please fix the highlighted fields");
+      }
+      setFieldErrors({});
     },
     onSuccess: () => {
       toast.success(editing ? "Coupon updated" : "Coupon created");
@@ -100,6 +102,7 @@ function CouponsPage() {
   function startNew() {
     setEditing(null);
     setForm(empty);
+    setFieldErrors({});
     setOpen(true);
   }
 
@@ -115,8 +118,10 @@ function CouponsPage() {
       expires_at: c.expires_at ? c.expires_at.slice(0, 16) : "",
       is_active: c.is_active,
     });
+    setFieldErrors({});
     setOpen(true);
   }
+
 
   function formatDiscount(c: Coupon) {
     return c.discount_type === "percent" ? `${c.discount_value}%` : formatBDT(c.discount_value);
@@ -190,6 +195,7 @@ function CouponsPage() {
             <div>
               <Label>Code</Label>
               <Input value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })} className="mt-1 font-mono" placeholder="e.g. WELCOME10" />
+              {fieldErrors.code && <p className="text-xs text-destructive mt-1">{fieldErrors.code}</p>}
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -205,26 +211,31 @@ function CouponsPage() {
               <div>
                 <Label>Value</Label>
                 <Input type="number" value={form.discount_value} onChange={(e) => setForm({ ...form, discount_value: Number(e.target.value) })} className="mt-1" />
+                {fieldErrors.discount_value && <p className="text-xs text-destructive mt-1">{fieldErrors.discount_value}</p>}
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label>Min order (BDT)</Label>
                 <Input type="number" value={form.min_order_amount} onChange={(e) => setForm({ ...form, min_order_amount: Number(e.target.value) })} className="mt-1" />
+                {fieldErrors.min_order_amount && <p className="text-xs text-destructive mt-1">{fieldErrors.min_order_amount}</p>}
               </div>
               <div>
                 <Label>Max discount (BDT)</Label>
                 <Input type="number" value={form.max_discount} onChange={(e) => setForm({ ...form, max_discount: e.target.value })} className="mt-1" placeholder="optional" />
+                {fieldErrors.max_discount && <p className="text-xs text-destructive mt-1">{fieldErrors.max_discount}</p>}
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label>Usage limit</Label>
                 <Input type="number" value={form.usage_limit} onChange={(e) => setForm({ ...form, usage_limit: e.target.value })} className="mt-1" placeholder="unlimited" />
+                {fieldErrors.usage_limit && <p className="text-xs text-destructive mt-1">{fieldErrors.usage_limit}</p>}
               </div>
               <div>
                 <Label>Expires at</Label>
                 <Input type="datetime-local" value={form.expires_at} onChange={(e) => setForm({ ...form, expires_at: e.target.value })} className="mt-1" />
+                {fieldErrors.expires_at && <p className="text-xs text-destructive mt-1">{fieldErrors.expires_at}</p>}
               </div>
             </div>
             <label className="flex items-center gap-2 cursor-pointer">
