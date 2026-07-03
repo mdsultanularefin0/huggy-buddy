@@ -29,6 +29,7 @@ const couponInputSchema = z.object({
   max_discount: z.number().finite().nullable(),
   usage_limit: z.number().finite().nullable(),
   expires_at: z.string().nullable(),
+  is_active: z.boolean(),
 });
 
 export type CouponInput = z.input<typeof couponInputSchema>;
