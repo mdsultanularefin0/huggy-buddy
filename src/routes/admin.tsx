@@ -36,6 +36,7 @@ const NAV: { to: string; label: string; icon: typeof LayoutDashboard; exact?: bo
   { to: "/admin/notes", label: "Scent Notes", icon: Sparkles },
   { to: "/admin/referrals", label: "Referrals", icon: Megaphone },
   { to: "/admin/media", label: "Media Library", icon: Images },
+  { to: "/admin/color-presets", label: "Color Presets", icon: Sparkles },
   { to: "/admin/audit-logs", label: "Audit Logs", icon: ScrollText },
   { to: "/admin/settings", label: "Site Settings", icon: Settings },
 ];
