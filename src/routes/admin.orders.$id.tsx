@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getAdminOrderById, updateOrderAdmin } from "@/lib/admin-mutations.functions";
+import { createSteadfastShipment, getSteadfastDeliveryStatus } from "@/lib/integrations.functions";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -43,11 +44,14 @@ function AdminOrderDetail() {
   const qc = useQueryClient();
   const fetchOrder = useServerFn(getAdminOrderById);
   const updateOrder = useServerFn(updateOrderAdmin);
+  const shipSteadfast = useServerFn(createSteadfastShipment);
+  const checkStatus = useServerFn(getSteadfastDeliveryStatus);
 
   const { data: order, isLoading, isError, error } = useQuery({
     queryKey: ["admin", "order", id],
     queryFn: () => fetchOrder({ data: { id } }),
   });
+  const [remoteStatus, setRemoteStatus] = useState<string | null>(null);
 
   const [tracking, setTracking] = useState("");
   const [notes, setNotes] = useState("");
@@ -68,6 +72,25 @@ function AdminOrderDetail() {
       qc.invalidateQueries({ queryKey: ["admin", "order", id] });
       qc.invalidateQueries({ queryKey: ["admin", "orders"] });
       router.invalidate();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const ship = useMutation({
+    mutationFn: () => shipSteadfast({ data: { order_id: id } }),
+    onSuccess: (r) => {
+      const t = r?.consignment?.tracking_code;
+      toast.success(t ? `Sent to Steadfast (${t})` : "Sent to Steadfast");
+      qc.invalidateQueries({ queryKey: ["admin", "order", id] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const refreshStatus = useMutation({
+    mutationFn: () => checkStatus({ data: { by: "invoice", value: order?.order_number ?? "" } }),
+    onSuccess: (r) => {
+      setRemoteStatus(r?.delivery_status ?? "unknown");
+      toast.success(`Steadfast: ${r?.delivery_status ?? "unknown"}`);
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -192,6 +215,19 @@ function AdminOrderDetail() {
             >
               {update.isPending && <Loader2 className="w-4 h-4 animate-spin mr-1" />}Save
             </Button>
+            <div className="pt-2 border-t space-y-2">
+              <div className="text-xs uppercase tracking-wider text-muted-foreground">Steadfast courier</div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" className="flex-1" disabled={ship.isPending} onClick={() => ship.mutate()}>
+                  {ship.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Truck className="w-4 h-4 mr-1" />}
+                  Send
+                </Button>
+                <Button variant="outline" size="sm" className="flex-1" disabled={refreshStatus.isPending || !order.order_number} onClick={() => refreshStatus.mutate()}>
+                  {refreshStatus.isPending && <Loader2 className="w-4 h-4 animate-spin mr-1" />}Check status
+                </Button>
+              </div>
+              {remoteStatus && <div className="text-xs text-muted-foreground">Delivery: <span className="font-medium">{remoteStatus}</span></div>}
+            </div>
           </Card>
         </div>
       </div>

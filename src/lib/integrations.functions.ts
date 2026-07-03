@@ -162,21 +162,26 @@ export const createSteadfastShipment = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (!order) throw new Error("Order not found");
 
-    const shipping = (order as { shipping_address?: Record<string, unknown> }).shipping_address ?? {};
-    const payload = {
-      invoice: (order as { order_number?: string }).order_number ?? data.order_id.slice(0, 8),
-      recipient_name: String(shipping.name ?? (order as { customer_name?: string }).customer_name ?? ""),
-      recipient_phone: String(shipping.phone ?? (order as { customer_phone?: string }).customer_phone ?? ""),
-      recipient_address: [shipping.address_line1, shipping.address_line2, shipping.city, shipping.district]
-        .filter(Boolean).join(", "),
-      cod_amount: Number((order as { total?: number }).total ?? 0),
-      note: (order as { admin_notes?: string }).admin_notes ?? "",
+    const c = ((order as { customer_json?: Record<string, unknown> }).customer_json ?? {}) as {
+      name?: string; phone?: string; email?: string; alt_phone?: string;
+      address?: string; area?: string; district?: string;
     };
+    const address = [c.address, c.area, c.district].filter(Boolean).join(", ").slice(0, 250);
+    const payload: Record<string, unknown> = {
+      invoice: (order as { order_number?: string }).order_number ?? data.order_id.slice(0, 8),
+      recipient_name: (c.name ?? "").slice(0, 100),
+      recipient_phone: c.phone ?? "",
+      recipient_address: address,
+      cod_amount: Number((order as { total?: number }).total ?? 0),
+      note: (order as { notes?: string }).notes ?? "",
+    };
+    if (c.alt_phone) payload.alternative_phone = c.alt_phone;
+    if (c.email) payload.recipient_email = c.email;
 
     const body = await steadfastFetch("/create_order", {
       method: "POST",
       body: JSON.stringify(payload),
-    }) as { consignment?: { consignment_id?: number; tracking_code?: string } } | null;
+    }) as { consignment?: { consignment_id?: number; tracking_code?: string; status?: string } } | null;
 
     const tracking = body?.consignment?.tracking_code ?? null;
     if (tracking) {
@@ -187,6 +192,90 @@ export const createSteadfastShipment = createServerFn({ method: "POST" })
     }
     return { ok: true, consignment: body?.consignment ?? null };
   });
+
+// -------- Bulk create shipments --------
+const bulkCreateSchema = z.object({
+  order_ids: z.array(z.string().uuid()).min(1).max(500),
+});
+
+export const bulkCreateSteadfastShipments = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => bulkCreateSchema.parse(data))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId, context.supabase);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: orders, error } = await supabaseAdmin
+      .from("orders")
+      .select("id, order_number, customer_json, total, notes")
+      .in("id", data.order_ids);
+    if (error) throw new Error(error.message);
+    if (!orders?.length) throw new Error("No orders found");
+
+    const items = orders.map((o) => {
+      const c = ((o as { customer_json?: Record<string, unknown> }).customer_json ?? {}) as {
+        name?: string; phone?: string; email?: string; alt_phone?: string;
+        address?: string; area?: string; district?: string;
+      };
+      return {
+        invoice: o.order_number ?? o.id.slice(0, 8),
+        recipient_name: (c.name ?? "").slice(0, 100),
+        recipient_phone: c.phone ?? "",
+        recipient_address: [c.address, c.area, c.district].filter(Boolean).join(", ").slice(0, 250),
+        cod_amount: Number(o.total ?? 0),
+        note: o.notes ?? "",
+      };
+    });
+
+    const body = await steadfastFetch("/create_order/bulk-order", {
+      method: "POST",
+      body: JSON.stringify({ data: JSON.stringify(items) }),
+    }) as { data?: Array<{ invoice: string; tracking_code?: string; status?: string }> } | Array<{ invoice: string; tracking_code?: string; status?: string }> | null;
+
+    const results = Array.isArray(body) ? body : body?.data ?? [];
+    // Write tracking codes back by matching invoice → order_number
+    const byInvoice = new Map(orders.map((o) => [o.order_number ?? o.id.slice(0, 8), o.id] as const));
+    await Promise.all(
+      results
+        .filter((r) => r.status === "success" && r.tracking_code)
+        .map((r) => {
+          const id = byInvoice.get(r.invoice);
+          if (!id) return Promise.resolve();
+          return supabaseAdmin.from("orders").update({ tracking_code: r.tracking_code! }).eq("id", id);
+        }),
+    );
+    return { ok: true, results };
+  });
+
+// -------- Delivery status lookups --------
+const statusSchema = z.object({
+  by: z.enum(["cid", "invoice", "tracking"]),
+  value: z.string().min(1).max(120),
+});
+
+export const getSteadfastDeliveryStatus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => statusSchema.parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId, context.supabase);
+    const path =
+      data.by === "cid" ? `/status_by_cid/${encodeURIComponent(data.value)}` :
+      data.by === "invoice" ? `/status_by_invoice/${encodeURIComponent(data.value)}` :
+      `/status_by_trackingcode/${encodeURIComponent(data.value)}`;
+    const body = await steadfastFetch(path, { method: "GET" }) as
+      { status?: number; delivery_status?: string; message?: string } | null;
+    return { delivery_status: body?.delivery_status ?? null, message: body?.message ?? null };
+  });
+
+// -------- Current balance --------
+export const getSteadfastBalance = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.userId, context.supabase);
+    const body = await steadfastFetch("/get_balance", { method: "GET" }) as
+      { status?: number; current_balance?: number } | null;
+    return { current_balance: body?.current_balance ?? 0 };
+  });
+
 
 // ===================== Media Server =====================
 const MEDIA_PROVIDER = "media_server";
