@@ -158,9 +158,10 @@ export const updateCustomerAdmin = createServerFn({ method: "POST" })
     const base = { actor_id: userId, entity: "customer" as const, entity_id: data.id, action: "update", fields, payload: data.patch };
     console.log(`[admin.customers.update] user=${userId} customer=${data.id} fields=${fields.join(",")}`, data.patch);
 
-    const { data: roleOk, error: roleErr } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
-    if (roleErr || !roleOk) {
-      const msg = roleErr?.message ?? "not admin";
+    try {
+      await assertAdmin(userId, supabase);
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : "not admin";
       console.warn(`[admin.customers.update] forbidden user=${userId} reason=${msg}`);
       await writeAudit({ ...base, status: "forbidden", error: msg });
       throw new Error("Forbidden");
