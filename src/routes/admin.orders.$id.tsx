@@ -44,11 +44,14 @@ function AdminOrderDetail() {
   const qc = useQueryClient();
   const fetchOrder = useServerFn(getAdminOrderById);
   const updateOrder = useServerFn(updateOrderAdmin);
+  const shipSteadfast = useServerFn(createSteadfastShipment);
+  const checkStatus = useServerFn(getSteadfastDeliveryStatus);
 
   const { data: order, isLoading, isError, error } = useQuery({
     queryKey: ["admin", "order", id],
     queryFn: () => fetchOrder({ data: { id } }),
   });
+  const [remoteStatus, setRemoteStatus] = useState<string | null>(null);
 
   const [tracking, setTracking] = useState("");
   const [notes, setNotes] = useState("");
