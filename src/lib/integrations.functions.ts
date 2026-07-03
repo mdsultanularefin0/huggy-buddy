@@ -187,3 +187,90 @@ export const createSteadfastShipment = createServerFn({ method: "POST" })
     }
     return { ok: true, consignment: body?.consignment ?? null };
   });
+
+// ===================== Media Server =====================
+const MEDIA_PROVIDER = "media_server";
+
+type MediaServerCreds = {
+  base_url: string;
+  api_key: string;
+};
+
+export const getMediaServerStatus = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.userId, context.supabase);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("integration_credentials")
+      .select("provider, updated_at")
+      .eq("provider", MEDIA_PROVIDER)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    return { configured: !!data, updated_at: data?.updated_at ?? null };
+  });
+
+const saveMediaSchema = z.object({
+  base_url: z.string().url().max(300),
+  api_key: z.string().min(1).max(500),
+});
+
+export const saveMediaServerCredentials = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => saveMediaSchema.parse(data))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId, context.supabase);
+    const { encryptJson } = await import("@/lib/integration-crypto.server");
+    const enc = encryptJson(data satisfies MediaServerCreds);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("integration_credentials")
+      .upsert({
+        provider: MEDIA_PROVIDER,
+        encrypted_data: enc.encrypted_data,
+        iv: enc.iv,
+        auth_tag: enc.auth_tag,
+        updated_by: context.userId,
+        updated_at: new Date().toISOString(),
+      });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const deleteMediaServerCredentials = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.userId, context.supabase);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("integration_credentials")
+      .delete()
+      .eq("provider", MEDIA_PROVIDER);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+async function loadMediaServerCreds(): Promise<MediaServerCreds> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data, error } = await supabaseAdmin
+    .from("integration_credentials")
+    .select("encrypted_data, iv, auth_tag")
+    .eq("provider", MEDIA_PROVIDER)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!data) throw new Error("Media Server is not configured. Save credentials first.");
+  const { decryptJson } = await import("@/lib/integration-crypto.server");
+  return decryptJson<MediaServerCreds>(data);
+}
+
+export const testMediaServerConnection = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.userId, context.supabase);
+    const creds = await loadMediaServerCreds();
+    const url = `${creds.base_url.replace(/\/$/, "")}/health`;
+    const res = await fetch(url, { headers: { "x-api-key": creds.api_key } });
+    if (!res.ok) throw new Error(`Media server responded ${res.status}`);
+    const body = await res.json().catch(() => ({}));
+    return { ok: true, health: body };
+  });
