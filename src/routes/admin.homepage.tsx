@@ -313,15 +313,17 @@ function HomepagePage() {
           <Card className="p-6 space-y-4 shadow-card">
             <div className="space-y-2">
               <Label>Hero image (left container)</Label>
-              <div
-                className="rounded-lg border flex items-center justify-center bg-muted h-64 overflow-hidden bg-contain bg-center bg-no-repeat"
-                style={
-                  heroImageUrl
-                    ? { backgroundImage: `url(${heroImageUrl})`, backgroundSize: `${heroImageZoom}% auto` }
-                    : undefined
-                }
-              >
-                {heroImageUrl ? null : <span className="text-xs text-muted-foreground">No image</span>}
+              <div className="relative rounded-lg border bg-muted h-64 flex items-center justify-center">
+                {heroImageUrl ? (
+                  <img
+                    src={heroImageUrl}
+                    alt=""
+                    className="absolute inset-0 w-full h-full object-contain origin-center"
+                    style={{ transform: `scale(${heroImageZoom / 100})` }}
+                  />
+                ) : (
+                  <span className="text-xs text-muted-foreground">No image</span>
+                )}
               </div>
               <div className="flex flex-wrap gap-2">
                 <Input value={heroImageUrl} onChange={(e) => setHeroImageUrl(e.target.value)} placeholder="Image URL" className="flex-1 min-w-[200px]" />
