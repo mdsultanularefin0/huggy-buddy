@@ -359,8 +359,15 @@ function HomepagePage() {
 
             <div className="space-y-2">
               <Label>Hero overlay image</Label>
-              <div className="rounded-lg border flex items-center justify-center bg-[conic-gradient(at_top_left,_#eee_25%,_#fff_0,_#fff_50%,_#eee_0,_#eee_75%,_#fff_0)] bg-[length:16px_16px] h-64 overflow-hidden">
-                {heroOverlayUrl ? <img src={heroOverlayUrl} alt="Hero overlay" className="max-h-full max-w-full object-contain" /> : <span className="text-xs text-muted-foreground">No overlay</span>}
+              <div
+                className="rounded-lg border flex items-center justify-center bg-[conic-gradient(at_top_left,_#eee_25%,_#fff_0,_#fff_50%,_#eee_0,_#eee_75%,_#fff_0)] bg-[length:16px_16px] h-64 overflow-hidden bg-contain bg-center bg-no-repeat"
+                style={
+                  heroOverlayUrl
+                    ? { backgroundImage: `url(${heroOverlayUrl})`, backgroundSize: `${heroOverlayZoom}% auto` }
+                    : undefined
+                }
+              >
+                {heroOverlayUrl ? null : <span className="text-xs text-muted-foreground">No overlay</span>}
               </div>
               <div className="flex flex-wrap gap-2">
                 <Input value={heroOverlayUrl} onChange={(e) => setHeroOverlayUrl(e.target.value)} placeholder="Overlay URL" className="flex-1 min-w-[200px]" />
@@ -370,6 +377,28 @@ function HomepagePage() {
                   <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f, "overlay"); e.target.value = ""; }} />
                 </label>
                 <MediaPicker onPick={setHeroOverlayUrl} />
+              </div>
+              <div className="flex items-center gap-3 pt-2">
+                <Label className="text-xs shrink-0">Zoom</Label>
+                <input
+                  type="range"
+                  min={50}
+                  max={300}
+                  step={5}
+                  value={heroOverlayZoom}
+                  onChange={(e) => setHeroOverlayZoom(Number(e.target.value))}
+                  className="flex-1 accent-primary"
+                />
+                <Input
+                  type="number"
+                  min={50}
+                  max={300}
+                  value={heroOverlayZoom}
+                  onChange={(e) => setHeroOverlayZoom(Number(e.target.value) || 100)}
+                  className="w-20"
+                />
+                <span className="text-xs text-muted-foreground w-6">%</span>
+                <Button variant="ghost" size="sm" onClick={() => setHeroOverlayZoom(100)}>Reset</Button>
               </div>
             </div>
           </Card>
