@@ -104,14 +104,7 @@ export function SiteFooter(_props: {
           <p className="text-gray-300 text-sm mb-3">
             Get early access to drops and member-only offers.
           </p>
-          <input
-            type="email"
-            placeholder="Your email"
-            className="bg-white/10 rounded-lg py-2 px-4 w-full text-white placeholder-gray-400 focus:outline-none"
-          />
-          <button className="bg-[#a555f0] text-white rounded-lg py-2 w-full mt-3 font-semibold hover:bg-[#9442e0] transition-colors">
-            Subscribe
-          </button>
+          <SubscribeForm />
         </div>
       </div>
       <div className="max-w-7xl mx-auto px-4 mt-12 pt-8 border-t border-white/20 flex flex-col md:flex-row justify-between items-center text-sm text-gray-400 gap-4">
