@@ -388,6 +388,7 @@ function Landing() {
     : allCategories;
 
   const heroImage = hero?.hero_image ?? null;
+  const heroImageZoom = Number(((hero ?? {}) as Record<string, unknown>).hero_image_zoom ?? 100) || 100;
   const heroOverlay = hero?.hero_overlay_image ?? null;
 
   const h = (hero ?? {}) as Record<string, unknown>;
