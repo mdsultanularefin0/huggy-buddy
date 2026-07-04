@@ -280,20 +280,14 @@ function OrdersPage() {
                       </Select>
                     </TableCell>
                     <TableCell className="text-xs font-mono">
-                      {o.tracking_code ? (
-                        <div className="space-y-0.5">
-                          <span className="px-2 py-0.5 rounded bg-muted inline-block">{o.tracking_code}</span>
-                          {o.consignment_id && (
-                            <div className="text-[10px] text-muted-foreground">{o.consignment_id}</div>
-                          )}
-                          {o.courier_status && (
-                            <div className="text-[10px] text-muted-foreground capitalize">{o.courier_status.replace(/_/g, " ")}</div>
-                          )}
-                        </div>
+                      {o.consignment_id ? (
+                        <span className="px-2 py-0.5 rounded bg-muted inline-block">{o.consignment_id}</span>
                       ) : (
                         <span className="text-muted-foreground">—</span>
                       )}
                     </TableCell>
+
+
 
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
