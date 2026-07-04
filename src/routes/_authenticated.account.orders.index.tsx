@@ -96,9 +96,9 @@ function OrdersList() {
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
-                        variant="ghost"
+                        variant="outline"
                         size="icon"
-                        className="h-8 w-8"
+                        className="h-8 w-8 bg-background"
                         aria-label="Order actions"
                         onClick={(e) => e.stopPropagation()}
                       >
