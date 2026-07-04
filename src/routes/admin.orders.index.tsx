@@ -91,6 +91,31 @@ function OrdersPage() {
     });
   }, [orders, paymentFilter, dateFrom, dateTo, search]);
 
+  const selection = useSelection(filtered);
+  const bulkShipFn = useServerFn(bulkCreateSteadfastShipments);
+
+  const bulkStatus = useMutation({
+    mutationFn: async ({ ids, order_status }: { ids: string[]; order_status: OrderStatus }) => {
+      await Promise.all(ids.map((id) => updateOrder({ data: { id, patch: { order_status } } })));
+    },
+    onSuccess: (_d, v) => {
+      toast.success(`Updated ${v.ids.length} order${v.ids.length === 1 ? "" : "s"}`);
+      qc.invalidateQueries({ queryKey: ["admin", "orders"] });
+      selection.clear();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const bulkShip = useMutation({
+    mutationFn: async (ids: string[]) => bulkShipFn({ data: { order_ids: ids } }),
+    onSuccess: () => {
+      toast.success("Shipments created");
+      qc.invalidateQueries({ queryKey: ["admin", "orders"] });
+      selection.clear();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   async function runFraud(phone: string) {
     if (!phone) { toast.error("No phone on this order"); return; }
     setFraud({ phone, loading: true, result: null });
