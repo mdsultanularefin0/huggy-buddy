@@ -48,7 +48,7 @@ const categoryPageOptions = (slug: string) =>
       if (pe) throw pe;
       return {
         category: cat,
-        products: (products ?? []) as ProductRow[],
+        products: (products ?? []) as unknown as ProductRow[],
         categories: (cats ?? []) as Cat[],
       };
     },
