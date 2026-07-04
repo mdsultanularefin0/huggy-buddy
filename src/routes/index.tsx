@@ -423,6 +423,9 @@ function Landing() {
   const artEnabled = (h.art_enabled as boolean | undefined) ?? true;
   const notesEnabled = (h.notes_enabled as boolean | undefined) ?? true;
   const whispersEnabled = (h.whispers_enabled as boolean | undefined) ?? true;
+  const shopcatEnabled = (h.shopcat_enabled as boolean | undefined) ?? true;
+  const shopcatTitle = (h.shopcat_title as string) || "Shop by Category";
+  const shopcatSubtitle = (h.shopcat_subtitle as string) || "";
   const whispersTitle = (h.whispers_title as string) || "Customer Whispers";
   const customWhispers = ((h.whispers_json as CustomWhisper[] | null) ?? []) as CustomWhisper[];
   const whisperCards: WhisperCard[] = [
