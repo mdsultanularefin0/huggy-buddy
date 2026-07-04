@@ -88,6 +88,22 @@ function CustomersPage() {
     return (c.phone ?? "").toLowerCase().includes(s) || (c.name ?? "").toLowerCase().includes(s) || (c.email ?? "").toLowerCase().includes(s);
   });
 
+  const selection = useSelection(filtered);
+
+  const bulkRisk = useMutation({
+    mutationFn: async ({ ids, risk_level }: { ids: string[]; risk_level: RiskLevel }) => {
+      await Promise.all(
+        ids.map((id) => updateCustomer({ data: { id, patch: { risk_level } } })),
+      );
+    },
+    onSuccess: (_d, v) => {
+      toast.success(`Updated ${v.ids.length} customer${v.ids.length === 1 ? "" : "s"}`);
+      qc.invalidateQueries({ queryKey: ["admin", "customers"] });
+      selection.clear();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       <div>
