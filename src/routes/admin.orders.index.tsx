@@ -7,16 +7,26 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, Eye, ShieldAlert, X, Truck, CheckCheck } from "lucide-react";
+import { Loader2, Eye, ShieldAlert, X, Truck, CheckCheck, MoreVertical, FileText, ExternalLink, Copy, Phone, PackageCheck, PackageX, Ban } from "lucide-react";
 import { toast } from "sonner";
 import { formatBDT } from "@/lib/currency";
 import type { Database } from "@/integrations/supabase/types";
 import { useServerFn } from "@tanstack/react-start";
 import { listAdminOrders, updateOrderAdmin } from "@/lib/admin-mutations.functions";
 import { getSteadfastFraudCheck, bulkCreateSteadfastShipments } from "@/lib/integrations.functions";
+import { getInvoiceToken } from "@/lib/invoice.functions";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useSelection } from "@/hooks/use-selection";
 import { BulkActionBar } from "@/components/bulk-action-bar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useNavigate } from "@tanstack/react-router";
 
 
 type Order = Database["public"]["Tables"]["orders"]["Row"];
