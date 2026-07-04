@@ -164,6 +164,9 @@ function HomepagePage() {
     setArtEnabled((s.art_enabled as boolean) ?? true);
     setNotesEnabled((s.notes_enabled as boolean) ?? true);
     setWhispersEnabled((s.whispers_enabled as boolean) ?? true);
+    setShopcatEnabled((s.shopcat_enabled as boolean) ?? true);
+    setShopcatTitle((s.shopcat_title as string) ?? "");
+    setShopcatSubtitle((s.shopcat_subtitle as string) ?? "");
   }, [settings]);
 
 
