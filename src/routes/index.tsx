@@ -260,15 +260,17 @@ export const Route = createFileRoute("/")({
         { title },
         {
           name: "description",
-          content:
-            "Shop Veloura Essence: high-concentration luxury perfumes with long-lasting silage. Signature scents, curated collections, and honest pricing in Bangladesh.",
+          content: tagline
+            ? `${shopName} — ${tagline}. Shop high-concentration luxury perfumes with long-lasting silage, curated collections, and honest pricing in Bangladesh.`
+            : `Shop ${shopName}: high-concentration luxury perfumes with long-lasting silage. Signature scents, curated collections, and honest pricing in Bangladesh.`,
         },
         { name: "keywords", content: "luxury perfume Bangladesh, premium fragrance, Veloura Essence, oud, floral perfume, woody perfume, attar" },
         { property: "og:title", content: title },
         {
           property: "og:description",
-          content:
-            "Crafted scents, honest pricing, and an experience worthy of every occasion. Discover the Veloura signature collection.",
+          content: tagline
+            ? `${shopName} — ${tagline}. Crafted scents, honest pricing, and an experience worthy of every occasion.`
+            : `Crafted scents, honest pricing, and an experience worthy of every occasion. Discover the ${shopName} signature collection.`,
         },
         { property: "og:type", content: "website" },
         { property: "og:url", content: url },
