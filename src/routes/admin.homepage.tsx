@@ -287,6 +287,7 @@ function HomepagePage() {
           <TabsTrigger value="banner">Banner</TabsTrigger>
           <TabsTrigger value="signature">Signature</TabsTrigger>
           <TabsTrigger value="art">Art</TabsTrigger>
+          <TabsTrigger value="shopcat">Shop by Category</TabsTrigger>
           <TabsTrigger value="notes">Notes</TabsTrigger>
           <TabsTrigger value="whispers">Whispers</TabsTrigger>
           <TabsTrigger value="reels">Reels</TabsTrigger>
