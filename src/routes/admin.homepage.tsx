@@ -220,6 +220,9 @@ function HomepagePage() {
         art_enabled: artEnabled,
         notes_enabled: notesEnabled,
         whispers_enabled: whispersEnabled,
+        shopcat_enabled: shopcatEnabled,
+        shopcat_title: shopcatTitle,
+        shopcat_subtitle: shopcatSubtitle,
 
       };
       if (settings?.id) {
