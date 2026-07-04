@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, useQuery, queryOptions } from "@tanstack/react-query";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Sparkles, SlidersHorizontal } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBDT, effectivePrice, hasSale } from "@/lib/currency";
@@ -20,7 +20,9 @@ type ProductRow = {
   sizes_json: { size_label: string; price: number; sale_price?: number | null }[] | null;
   image_url: string | null;
   category_id: string | null;
+  note_type?: string | null;
 };
+
 type Cat = { id: string; name: string; slug: string };
 
 const productsPageOptions = queryOptions({
@@ -29,7 +31,7 @@ const productsPageOptions = queryOptions({
     const [{ data: products, error: pe }, { data: cats, error: ce }] = await Promise.all([
       supabase
         .from("products")
-        .select("id,slug,name,regular_price,sale_price,sizes_json,image_url,category_id,in_stock")
+        .select("id,slug,name,regular_price,sale_price,sizes_json,image_url,category_id,in_stock,note_type")
         .eq("is_active", true)
         .order("created_at", { ascending: false }),
       supabase
@@ -78,15 +80,24 @@ export function ListingShell({
   const [maxPrice, setMaxPrice] = useState<number>(10000);
   const [scents, setScents] = useState<string[]>([]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const initial = new URLSearchParams(window.location.search).get("scent");
+    if (initial) setScents([initial]);
+  }, []);
+
   const filtered = useMemo(() => {
     return products.filter((p) => {
       const min = p.sizes_json?.[0];
       const reg = min?.price ?? p.regular_price;
       const sale = min?.sale_price ?? p.sale_price;
       const price = effectivePrice(reg, sale);
-      return price <= maxPrice;
+      if (price > maxPrice) return false;
+      if (scents.length > 0 && (!p.note_type || !scents.includes(p.note_type))) return false;
+      return true;
     });
-  }, [products, maxPrice]);
+  }, [products, maxPrice, scents]);
+
 
   return (
     <div className="min-h-screen bg-white">

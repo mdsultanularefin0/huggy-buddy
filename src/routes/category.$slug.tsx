@@ -12,7 +12,9 @@ type ProductRow = {
   sizes_json: { size_label: string; price: number; sale_price?: number | null }[] | null;
   image_url: string | null;
   category_id: string | null;
+  note_type?: string | null;
 };
+
 type Cat = { id: string; name: string; slug: string };
 
 const categoryPageOptions = (slug: string) =>
@@ -30,7 +32,7 @@ const categoryPageOptions = (slug: string) =>
       const [{ data: products, error: pe }, { data: cats }] = await Promise.all([
         supabase
           .from("products")
-          .select("id,slug,name,regular_price,sale_price,sizes_json,image_url,category_id,in_stock")
+          .select("id,slug,name,regular_price,sale_price,sizes_json,image_url,category_id,in_stock,note_type")
           .eq("category_id", cat.id)
           .eq("is_active", true)
           .order("created_at", { ascending: false }),
