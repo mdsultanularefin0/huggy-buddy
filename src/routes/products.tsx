@@ -235,7 +235,7 @@ function ScentProfileFilter({
   scents: string[];
   setScents: React.Dispatch<React.SetStateAction<string[]>>;
 }) {
-  const { data: profiles = [] } = useQuery({
+  const { data: profiles = [], isLoading } = useQuery({
     queryKey: ["public", "notes", "scent-profiles"],
     queryFn: async () => {
       const { data, error } = await supabase
