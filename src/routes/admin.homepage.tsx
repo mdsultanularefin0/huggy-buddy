@@ -170,6 +170,7 @@ function HomepagePage() {
         hero_image: heroImageUrl || null,
         hero_image_zoom: Math.max(50, Math.min(300, Math.round(heroImageZoom || 100))),
         hero_overlay_image: heroOverlayUrl || null,
+        hero_overlay_zoom: Math.max(50, Math.min(300, Math.round(heroOverlayZoom || 100))),
         marquee_text: marqueeText,
         banner_image: bannerImage || null,
         flash_timer_title: flashTitle,
