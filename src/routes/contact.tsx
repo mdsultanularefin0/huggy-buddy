@@ -71,6 +71,13 @@ function ContactPage() {
           )}
         </div>
 
+        <section className="mt-12">
+          <h2 className="text-2xl font-semibold text-center mb-6">Send us a message</h2>
+          <ContactForm />
+        </section>
+
+
+
         {socials.length > 0 && (
           <section className="mt-12 text-center">
             <h2 className="text-xl font-semibold mb-4">Follow us</h2>
