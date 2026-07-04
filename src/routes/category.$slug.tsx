@@ -55,7 +55,9 @@ const categoryPageOptions = (slug: string) =>
   });
 
 export const Route = createFileRoute("/category/$slug")({
+  validateSearch: zodValidator(listingSearchSchema),
   loader: ({ context, params }) => context.queryClient.ensureQueryData(categoryPageOptions(params.slug)),
+
   head: ({ params }) => ({
     meta: [
       { title: `${params.slug.replace(/-/g, " ")} — Veloura Essence` },
