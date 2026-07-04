@@ -256,7 +256,26 @@ function ScentProfileFilter({
     staleTime: 5 * 60 * 1000,
   });
 
-  if (profiles.length === 0) return null;
+  if (isLoading) {
+    return (
+      <div>
+        <h3 className="font-semibold text-sm uppercase tracking-wide text-[#52277a] mb-3">Scent Profile</h3>
+        <p className="text-xs text-gray-500">Loading…</p>
+      </div>
+    );
+  }
+
+  if (profiles.length === 0) {
+    return (
+      <div>
+        <h3 className="font-semibold text-sm uppercase tracking-wide text-[#52277a] mb-3">Scent Profile</h3>
+        <p className="text-xs text-gray-500">
+          No scent profiles yet. Add active notes with a scent profile from the admin panel to filter by scent.
+        </p>
+      </div>
+    );
+  }
+
 
   return (
     <div>
