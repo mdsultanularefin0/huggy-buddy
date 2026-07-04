@@ -10,6 +10,7 @@ export type ProductCardData = {
   sale_price: number | null;
   sizes_json?: { size_label: string; price: number; sale_price?: number | null }[] | null;
   badge?: string | null;
+  in_stock?: boolean | null;
 };
 
 export function ProductCard({ product }: { product: ProductCardData }) {
@@ -18,6 +19,7 @@ export function ProductCard({ product }: { product: ProductCardData }) {
   const sale = min?.sale_price ?? product.sale_price;
   const onSale = hasSale(reg, sale);
   const price = effectivePrice(reg, sale);
+  const outOfStock = product.in_stock === false;
 
   return (
     <Link
