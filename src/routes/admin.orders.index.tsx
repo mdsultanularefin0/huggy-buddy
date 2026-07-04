@@ -230,6 +230,7 @@ function OrdersPage() {
                 <TableHead>Customer</TableHead>
                 <TableHead>Total</TableHead>
                 <TableHead>Payment</TableHead>
+                <TableHead>Paid / Due</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Courier ID</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
