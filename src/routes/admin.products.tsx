@@ -450,10 +450,17 @@ function ProductsPage() {
                     )}
                     <input type="file" accept="image/*" multiple className="hidden" onChange={handleUpload} disabled={uploading} />
                   </label>
+                  <div className="w-24 h-24">
+                    <MediaPicker
+                      label="Library"
+                      onPick={(url) => setForm((f) => f.images.includes(url) ? f : { ...f, images: [...f.images, url] })}
+                    />
+                  </div>
                 </div>
                 {form.images.length === 0 && (
-                  <p className="text-xs text-muted-foreground mt-2 text-center">Drop images anywhere in this box to upload multiple at once.</p>
+                  <p className="text-xs text-muted-foreground mt-2 text-center">Drop images, upload, or pick from the media library.</p>
                 )}
+
               </div>
             </div>
             <div>
