@@ -90,6 +90,10 @@ function HomepagePage() {
   const [artEnabled, setArtEnabled] = useState(true);
   const [notesEnabled, setNotesEnabled] = useState(true);
   const [whispersEnabled, setWhispersEnabled] = useState(true);
+  // Shop by Category
+  const [shopcatEnabled, setShopcatEnabled] = useState(true);
+  const [shopcatTitle, setShopcatTitle] = useState("");
+  const [shopcatSubtitle, setShopcatSubtitle] = useState("");
 
 
   type UploadKind = "hero" | "overlay" | "art" | "banner" | "signature" | `note-${number}`;
@@ -160,6 +164,9 @@ function HomepagePage() {
     setArtEnabled((s.art_enabled as boolean) ?? true);
     setNotesEnabled((s.notes_enabled as boolean) ?? true);
     setWhispersEnabled((s.whispers_enabled as boolean) ?? true);
+    setShopcatEnabled((s.shopcat_enabled as boolean) ?? true);
+    setShopcatTitle((s.shopcat_title as string) ?? "");
+    setShopcatSubtitle((s.shopcat_subtitle as string) ?? "");
   }, [settings]);
 
 
@@ -213,6 +220,9 @@ function HomepagePage() {
         art_enabled: artEnabled,
         notes_enabled: notesEnabled,
         whispers_enabled: whispersEnabled,
+        shopcat_enabled: shopcatEnabled,
+        shopcat_title: shopcatTitle,
+        shopcat_subtitle: shopcatSubtitle,
 
       };
       if (settings?.id) {
@@ -277,6 +287,7 @@ function HomepagePage() {
           <TabsTrigger value="banner">Banner</TabsTrigger>
           <TabsTrigger value="signature">Signature</TabsTrigger>
           <TabsTrigger value="art">Art</TabsTrigger>
+          <TabsTrigger value="shopcat">Shop by Category</TabsTrigger>
           <TabsTrigger value="notes">Notes</TabsTrigger>
           <TabsTrigger value="whispers">Whispers</TabsTrigger>
           <TabsTrigger value="reels">Reels</TabsTrigger>
@@ -295,6 +306,7 @@ function HomepagePage() {
               ["The Art of Veloura", artEnabled, setArtEnabled],
               ["Scent notes", notesEnabled, setNotesEnabled],
               ["Customer whispers", whispersEnabled, setWhispersEnabled],
+              ["Shop by Category", shopcatEnabled, setShopcatEnabled],
               ["Reels", reelsEnabled, setReelsEnabled],
               ["FAQ", faqsEnabled, setFaqsEnabled],
             ] as const).map(([label, value, setter]) => (
@@ -566,6 +578,24 @@ function HomepagePage() {
                 </label>
                 <MediaPicker onPick={setArtImage} />
               </div>
+            </div>
+          </Card>
+        </TabsContent>
+
+        {/* SHOP BY CATEGORY */}
+        <TabsContent value="shopcat" className="mt-4 space-y-4">
+          <Card className="p-6 space-y-3 shadow-card">
+            <h2 className="text-lg font-semibold">Shop by Category section</h2>
+            <p className="text-xs text-muted-foreground">
+              Displays every active category. Manage the list and images in <span className="font-medium">Categories</span>.
+            </p>
+            <div className="space-y-2">
+              <Label>Title</Label>
+              <Input value={shopcatTitle} onChange={(e) => setShopcatTitle(e.target.value)} placeholder="Shop by Category" />
+            </div>
+            <div className="space-y-2">
+              <Label>Subtitle</Label>
+              <Textarea value={shopcatSubtitle} onChange={(e) => setShopcatSubtitle(e.target.value)} rows={2} placeholder="Optional supporting text" />
             </div>
           </Card>
         </TabsContent>

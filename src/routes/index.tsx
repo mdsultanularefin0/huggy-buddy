@@ -423,6 +423,9 @@ function Landing() {
   const artEnabled = (h.art_enabled as boolean | undefined) ?? true;
   const notesEnabled = (h.notes_enabled as boolean | undefined) ?? true;
   const whispersEnabled = (h.whispers_enabled as boolean | undefined) ?? true;
+  const shopcatEnabled = (h.shopcat_enabled as boolean | undefined) ?? true;
+  const shopcatTitle = (h.shopcat_title as string) || "Shop by Category";
+  const shopcatSubtitle = (h.shopcat_subtitle as string) || "";
   const whispersTitle = (h.whispers_title as string) || "Customer Whispers";
   const customWhispers = ((h.whispers_json as CustomWhisper[] | null) ?? []) as CustomWhisper[];
   const whisperCards: WhisperCard[] = [
@@ -695,6 +698,48 @@ function Landing() {
         </section>
         </>
         ) : null}
+
+        {/* Shop by Category */}
+        {shopcatEnabled && allCategories.length > 0 ? (
+          <section className="w-full py-16 bg-white">
+            <div className="max-w-7xl mx-auto px-4">
+              <div className="text-center max-w-2xl mx-auto">
+                <h2 className="text-3xl font-bold text-gray-900">{shopcatTitle}</h2>
+                {shopcatSubtitle ? <p className="text-gray-600 mt-3">{shopcatSubtitle}</p> : null}
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 mt-10">
+                {allCategories.map((c, i) => (
+                  <Reveal key={c.id} delay={i * 80}>
+                    <Link
+                      to="/category/$slug"
+                      params={{ slug: c.slug }}
+                      className="group relative block aspect-[4/5] rounded-2xl overflow-hidden bg-[#f5edff] shadow-sm hover:shadow-xl transition-all duration-500"
+                    >
+                      {c.image_url ? (
+                        <img
+                          src={c.image_url}
+                          alt={c.name}
+                          loading="lazy"
+                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 bg-gradient-to-br from-[#52277a]/20 to-[#a555f0]/20" />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                      <div className="absolute inset-x-0 bottom-0 p-4 text-center">
+                        <h3 className="text-white font-semibold text-base sm:text-lg tracking-wide">{c.name}</h3>
+                        <span className="mt-2 inline-block text-[10px] tracking-[0.2em] uppercase text-white/90 border-b border-white/60 pb-0.5 opacity-0 group-hover:opacity-100 transition">
+                          Shop now
+                        </span>
+                      </div>
+                    </Link>
+                  </Reveal>
+                ))}
+              </div>
+            </div>
+          </section>
+        ) : null}
+
 
         {/* Discover by Scent Profile */}
         {notesEnabled && notes.length > 0 ? (
