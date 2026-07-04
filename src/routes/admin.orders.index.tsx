@@ -468,13 +468,16 @@ function Stat({ label, value, tone = "" }: { label: string; value: number; tone?
 }
 
 function PaidCell({ order, onSave }: { order: Order; onSave: (amount: number) => void }) {
+  const total = Number(order.total);
   const [val, setVal] = useState<string>(String(order.amount_paid ?? 0));
-  const paid = Number(val) || 0;
-  const due = Math.max(0, Number(order.total) - paid);
+  const paid = Math.min(Math.max(0, Number(val) || 0), total);
+  const due = Math.max(0, total - paid);
   const commit = () => {
     const n = Number(val);
     if (!Number.isFinite(n) || n < 0) { setVal(String(order.amount_paid ?? 0)); return; }
-    if (n !== Number(order.amount_paid ?? 0)) onSave(n);
+    const clamped = Math.min(Math.max(0, n), total);
+    if (clamped !== n) setVal(String(clamped));
+    if (clamped !== Number(order.amount_paid ?? 0)) onSave(clamped);
   };
   return (
     <div className="space-y-1">
