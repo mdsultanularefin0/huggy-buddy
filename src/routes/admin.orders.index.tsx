@@ -66,9 +66,38 @@ function OrdersPage() {
   const [dateTo, setDateTo] = useState("");
   const [fraud, setFraud] = useState<{ phone: string; loading: boolean; result: FraudResult | null; error?: string } | null>(null);
 
+  const invoiceTokenFn = useServerFn(getInvoiceToken);
+  const navigate = useNavigate();
+
   const { data: orders = [], isLoading, isError, error } = useQuery({
     queryKey: ["admin", "orders", statusFilter],
     queryFn: () => fetchOrders({ data: { statusFilter } }),
+  });
+
+  async function openInvoice(orderId: string, newTab = false) {
+    try {
+      const { token } = await invoiceTokenFn({ data: { id: orderId } });
+      const url = `/invoice/${orderId}?token=${encodeURIComponent(token)}`;
+      if (newTab) window.open(url, "_blank");
+      else navigate({ to: "/invoice/$id", params: { id: orderId }, search: { token } });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not open invoice");
+    }
+  }
+
+  async function copyText(value: string, label: string) {
+    try {
+      await navigator.clipboard.writeText(value);
+      toast.success(`${label} copied`);
+    } catch {
+      toast.error("Copy failed");
+    }
+  }
+
+  const shipOne = useMutation({
+    mutationFn: async (id: string) => bulkShipFn({ data: { order_ids: [id] } }),
+    onSuccess: () => { toast.success("Shipment created"); qc.invalidateQueries({ queryKey: ["admin", "orders"] }); },
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const update = useMutation({
