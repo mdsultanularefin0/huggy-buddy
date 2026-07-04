@@ -20,6 +20,7 @@ import type { Database } from "@/integrations/supabase/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useSelection } from "@/hooks/use-selection";
 import { BulkActionBar } from "@/components/bulk-action-bar";
+import { MediaPicker } from "@/components/media-picker";
 
 type Product = Database["public"]["Tables"]["products"]["Row"];
 type Size = { label: string; price: number; sale_price?: number | null; in_stock?: boolean };
@@ -450,10 +451,17 @@ function ProductsPage() {
                     )}
                     <input type="file" accept="image/*" multiple className="hidden" onChange={handleUpload} disabled={uploading} />
                   </label>
+                  <div className="w-24 h-24">
+                    <MediaPicker
+                      label="Library"
+                      onPick={(url: string) => setForm((f) => f.images.includes(url) ? f : { ...f, images: [...f.images, url] })}
+                    />
+                  </div>
                 </div>
                 {form.images.length === 0 && (
-                  <p className="text-xs text-muted-foreground mt-2 text-center">Drop images anywhere in this box to upload multiple at once.</p>
+                  <p className="text-xs text-muted-foreground mt-2 text-center">Drop images, upload, or pick from the media library.</p>
                 )}
+
               </div>
             </div>
             <div>
