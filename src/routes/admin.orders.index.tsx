@@ -170,11 +170,18 @@ function OrdersPage() {
   async function runFraud(phone: string) {
     if (!phone) { toast.error("No phone on this order"); return; }
     setFraud({ phone, loading: true, result: null });
+    setFraudByPhone((m) => ({ ...m, [phone]: { ...m[phone], loading: true } }));
     try {
       const r = await fraudFn({ data: { phone } });
       setFraud({ phone, loading: false, result: r });
+      setFraudByPhone((m) => ({ ...m, [phone]: { loading: false, result: r } }));
+      const pct = r.total_parcels > 0 ? Math.round((r.total_cancelled / r.total_parcels) * 100) : 0;
+      const risky = pct >= 50 || r.total_fraud_reports > 0;
+      toast[risky ? "warning" : "success"](`Fraud check: ${pct}% cancel rate${r.total_fraud_reports > 0 ? `, ${r.total_fraud_reports} report(s)` : ""}`);
     } catch (e) {
-      setFraud({ phone, loading: false, result: null, error: e instanceof Error ? e.message : "Failed" });
+      const msg = e instanceof Error ? e.message : "Failed";
+      setFraud({ phone, loading: false, result: null, error: msg });
+      setFraudByPhone((m) => ({ ...m, [phone]: { loading: false, error: msg } }));
     }
   }
 
