@@ -56,11 +56,17 @@ export const getInvoiceOrder = createServerFn({ method: "GET" })
     if (!allowed) {
       const { getRequest } = await import("@tanstack/react-start/server");
       const req = getRequest();
-      const authHeader = req?.headers.get("authorization");
+      const authHeader = req?.headers.get("authorization") ?? req?.headers.get("Authorization");
       const bearer = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
-      if (bearer) {
-        const { data: userRes } = await supabaseAdmin.auth.getUser(bearer);
-        const uid = userRes?.user?.id;
+      if (bearer && bearer.split(".").length === 3) {
+        const { createClient } = await import("@supabase/supabase-js");
+        const authClient = createClient(
+          process.env.SUPABASE_URL!,
+          process.env.SUPABASE_PUBLISHABLE_KEY!,
+          { auth: { storage: undefined, persistSession: false, autoRefreshToken: false } },
+        );
+        const { data: claimsRes } = await authClient.auth.getClaims(bearer);
+        const uid = claimsRes?.claims?.sub as string | undefined;
         if (uid) {
           if (order.user_id && uid === order.user_id) {
             allowed = true;
