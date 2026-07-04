@@ -243,6 +243,13 @@ function ProductsPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-10">
+                  <Checkbox
+                    checked={selection.allChecked ? true : selection.someChecked ? "indeterminate" : false}
+                    onCheckedChange={(v) => selection.toggleAll(!!v)}
+                    aria-label="Select all"
+                  />
+                </TableHead>
                 <TableHead className="w-16"></TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Price</TableHead>
