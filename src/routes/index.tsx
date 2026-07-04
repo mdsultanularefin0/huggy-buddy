@@ -485,8 +485,8 @@ function Landing() {
         style={heroImage ? { backgroundImage: `url(${heroImage})`, backgroundSize: `${heroImageZoom}% auto` } : undefined}
       />
       <div
-        className="absolute inset-0 z-30 rounded-2xl overflow-hidden bg-contain bg-center bg-no-repeat pointer-events-none"
-        style={heroOverlay ? { backgroundImage: `url(${heroOverlay})` } : undefined}
+        className="absolute inset-0 z-30 rounded-2xl overflow-hidden bg-center bg-no-repeat pointer-events-none"
+        style={heroOverlay ? { backgroundImage: `url(${heroOverlay})`, backgroundSize: `${heroOverlayZoom}% auto` } : undefined}
       />
     </div>
   );
