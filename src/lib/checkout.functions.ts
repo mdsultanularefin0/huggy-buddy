@@ -275,6 +275,50 @@ export const createOrder = createServerFn({ method: "POST" })
       }
     }
 
+    // Best-effort: send order confirmation + admin notification via SMTP.
+    try {
+      const { sendMail } = await import("@/lib/email.functions");
+      const { supabaseAdmin: sa } = await import("@/integrations/supabase/client.server");
+      const { data: enc } = await sa
+        .from("integration_credentials")
+        .select("encrypted_data, iv, auth_tag").eq("provider", "smtp").maybeSingle();
+      if (enc) {
+        const itemLines = data.items.map(
+          (i) => `<tr><td>${i.name}${i.size ? ` (${i.size})` : ""} × ${i.quantity}</td><td style="text-align:right">৳ ${i.unitPrice * i.quantity}</td></tr>`,
+        ).join("");
+        const html = `
+          <h2>Thank you for your order!</h2>
+          <p>Order <strong>#${orderNumber}</strong> received.</p>
+          <table style="width:100%;border-collapse:collapse">${itemLines}
+            <tr><td>Subtotal</td><td style="text-align:right">৳ ${subtotal}</td></tr>
+            <tr><td>Shipping</td><td style="text-align:right">৳ ${shippingFee}</td></tr>
+            ${discount > 0 ? `<tr><td>Discount</td><td style="text-align:right">-৳ ${discount}</td></tr>` : ""}
+            <tr><td><strong>Total</strong></td><td style="text-align:right"><strong>৳ ${total}</strong></td></tr>
+          </table>
+          <p>We'll notify you when it ships.</p>`;
+        if (data.customer.email) {
+          void sendMail({
+            to: data.customer.email,
+            subject: `Order #${orderNumber} — Veloura Essence`,
+            html, kind: "order_confirmation",
+          });
+        }
+        try {
+          const { decryptJson } = await import("@/lib/integration-crypto.server");
+          const c = decryptJson<{ admin_email?: string; from_email: string }>(enc);
+          const adminTo = c.admin_email || c.from_email;
+          void sendMail({
+            to: adminTo,
+            subject: `New order #${orderNumber} — ৳ ${total}`,
+            html: `<h3>New order</h3>
+              <p><strong>${data.customer.name}</strong> (${normalizedPhone}${data.customer.email ? `, ${data.customer.email}` : ""})</p>
+              <p>Zone: ${zone.zone_name} · ${data.paymentMethod}</p>` + html,
+            kind: "order_admin_notify",
+          });
+        } catch { /* ignore */ }
+      }
+    } catch { /* SMTP missing or send failed — order still succeeds */ }
+
     return {
       id: order.id,
       orderNumber: order.order_number,
