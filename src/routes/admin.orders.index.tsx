@@ -270,6 +270,12 @@ function OrdersPage() {
                       </Select>
                     </TableCell>
                     <TableCell>
+                      <PaidCell
+                        order={o}
+                        onSave={(amount_paid) => update.mutate({ id: o.id, amount_paid })}
+                      />
+                    </TableCell>
+                    <TableCell>
                       <Select
                         value={o.order_status}
                         onValueChange={(v) => update.mutate({ id: o.id, order_status: v as OrderStatus })}
