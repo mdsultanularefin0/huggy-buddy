@@ -13,9 +13,10 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard, Package, Boxes, Truck, CreditCard, ShoppingBag,
-  Users, Megaphone, Settings, LogOut, Sparkles, ScrollText, Tags, Home, Loader2, FileText, Star, Images, Plug,
-  ChevronDown,
+  Users, Megaphone, Settings, LogOut, Palette, Droplet, ScrollText, Tags, Home, Loader2, FileText, Star, Images, Plug,
+  ChevronDown, Store,
 } from "lucide-react";
+
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin")({
@@ -37,7 +38,7 @@ const NAV_GROUPS: NavGroup[] = [
       { to: "/admin/homepage", label: "Homepage", icon: Home },
       { to: "/admin/pages", label: "Pages", icon: FileText },
       { to: "/admin/media", label: "Media Library", icon: Images },
-      { to: "/admin/color-presets", label: "Color Presets", icon: Sparkles },
+      { to: "/admin/color-presets", label: "Color Presets", icon: Palette },
     ],
   },
   {
@@ -46,7 +47,7 @@ const NAV_GROUPS: NavGroup[] = [
       { to: "/admin/products", label: "Products", icon: Package },
       { to: "/admin/categories", label: "Categories", icon: Tags },
       { to: "/admin/combos", label: "Combos", icon: Boxes },
-      { to: "/admin/notes", label: "Scent Notes", icon: Sparkles },
+      { to: "/admin/notes", label: "Scent Notes", icon: Droplet },
     ],
   },
   {
@@ -134,7 +135,7 @@ function AdminSidebar({ email }: { email: string }) {
           ) : (
             <>
               <div className="w-8 h-8 rounded-lg bg-gradient-luxe flex items-center justify-center shadow-soft shrink-0">
-                <Sparkles className="w-4 h-4 text-primary-foreground" />
+                <Store className="w-4 h-4 text-primary-foreground" />
               </div>
               <span className="font-semibold text-sidebar-foreground truncate">Veloura</span>
             </>

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import { Sparkles } from "lucide-react";
+import { KeyRound } from "lucide-react";
 import { toast } from "sonner";
 import { AuthLayout } from "@/components/auth-layout";
 
@@ -61,7 +61,7 @@ function ResetPasswordPage() {
     <AuthLayout>
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-luxe shadow-luxe mb-4">
-            <Sparkles className="w-7 h-7 text-primary-foreground" />
+            <KeyRound className="w-7 h-7 text-primary-foreground" />
           </div>
           <h1 className="text-3xl font-semibold text-gradient-luxe">Reset password</h1>
           <p className="text-sm text-muted-foreground mt-1">Choose a new password for your account.</p>

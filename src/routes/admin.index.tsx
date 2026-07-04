@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Card } from "@/components/ui/card";
-import { Package, Boxes, ShoppingBag, Sparkles, Truck, CreditCard } from "lucide-react";
+import { Package, Boxes, ShoppingBag, CheckCircle2, Truck, CreditCard } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getAdminOrderCount } from "@/lib/admin-mutations.functions";
 
@@ -48,7 +48,7 @@ function AdminDashboard() {
       <Card className="p-6 bg-gradient-luxe text-primary-foreground border-0 shadow-luxe">
         <div className="flex items-start gap-4">
           <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center shrink-0">
-            <Sparkles className="w-5 h-5" />
+            <CheckCircle2 className="w-5 h-5" />
           </div>
           <div>
             <h2 className="text-lg font-semibold">Phase 2 complete</h2>
