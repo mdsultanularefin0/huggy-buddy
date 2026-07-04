@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Pencil, Trash2, Loader2, Upload, X, GripVertical, Eye, EyeOff, PackageCheck, PackageX } from "lucide-react";
@@ -22,6 +23,8 @@ import { BulkActionBar } from "@/components/bulk-action-bar";
 
 type Product = Database["public"]["Tables"]["products"]["Row"];
 type Size = { label: string; price: number; sale_price?: number | null; in_stock?: boolean };
+type ActiveFilter = "all" | "active" | "inactive";
+type StockFilter = "all" | "in" | "out";
 
 export const Route = createFileRoute("/admin/products")({ component: ProductsPage });
 
