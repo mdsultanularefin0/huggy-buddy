@@ -261,7 +261,14 @@ function OrdersPage() {
                     <TableCell>
                       <Select
                         value={o.payment_status}
-                        onValueChange={(v) => update.mutate({ id: o.id, payment_status: v as PaymentStatus })}
+                        onValueChange={(v) => {
+                          const ps = v as PaymentStatus;
+                          update.mutate(
+                            ps === "Paid"
+                              ? { id: o.id, payment_status: ps, amount_paid: Number(o.total) }
+                              : { id: o.id, payment_status: ps }
+                          );
+                        }}
                       >
                         <SelectTrigger className="h-8 w-32"><SelectValue /></SelectTrigger>
                         <SelectContent>
@@ -353,7 +360,7 @@ function OrdersPage() {
                             <DropdownMenuItem onClick={() => update.mutate({ id: o.id, order_status: "Returned" })}>
                               <PackageX className="w-4 h-4 mr-2" /> Mark Returned
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => update.mutate({ id: o.id, payment_status: "Paid" })}>
+                            <DropdownMenuItem onClick={() => update.mutate({ id: o.id, payment_status: "Paid", amount_paid: Number(o.total) })}>
                               <CheckCheck className="w-4 h-4 mr-2" /> Mark Paid
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
