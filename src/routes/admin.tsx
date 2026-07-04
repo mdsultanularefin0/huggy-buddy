@@ -38,7 +38,7 @@ const NAV_GROUPS: NavGroup[] = [
       { to: "/admin/homepage", label: "Homepage", icon: Home },
       { to: "/admin/pages", label: "Pages", icon: FileText },
       { to: "/admin/media", label: "Media Library", icon: Images },
-      { to: "/admin/color-presets", label: "Color Presets", icon: Sparkles },
+      { to: "/admin/color-presets", label: "Color Presets", icon: Palette },
     ],
   },
   {
