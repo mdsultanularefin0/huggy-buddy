@@ -152,7 +152,7 @@ export function ListingShell({
 
           {filtered.length === 0 ? (
             <div className="rounded-2xl border-2 border-dashed border-gray-200 py-20 text-center text-gray-500">
-              <Sparkles className="w-8 h-8 mx-auto mb-3 text-[#a555f0]" />
+              
               No products match your filters.
             </div>
           ) : (
