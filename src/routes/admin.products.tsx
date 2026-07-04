@@ -454,7 +454,7 @@ function ProductsPage() {
                   <div className="w-24 h-24">
                     <MediaPicker
                       label="Library"
-                      onPick={(url) => setForm((f) => f.images.includes(url) ? f : { ...f, images: [...f.images, url] })}
+                      onPick={(url: string) => setForm((f) => f.images.includes(url) ? f : { ...f, images: [...f.images, url] })}
                     />
                   </div>
                 </div>
