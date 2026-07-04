@@ -1,10 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { Mail, Phone, MapPin, Clock, Facebook, Instagram, Twitter, Youtube, Music2, MessageCircle } from "lucide-react";
+import { useState } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { Mail, Phone, MapPin, Clock, Facebook, Instagram, Twitter, Youtube, Music2, MessageCircle, Loader2 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { brandingQueryOptions } from "@/lib/branding-query";
+import { sendContactMessage } from "@/lib/email.functions";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
