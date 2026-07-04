@@ -505,7 +505,7 @@ function ProductsPage() {
               </select>
             </div>
             <div>
-              <Label htmlFor="note_type">Scent note type</Label>
+              <Label htmlFor="note_type">Scent profile</Label>
               <select
                 id="note_type"
                 value={form.note_type}
@@ -520,7 +520,8 @@ function ProductsPage() {
                   <option value={form.note_type}>{form.note_type} (custom)</option>
                 )}
               </select>
-              <p className="text-xs text-muted-foreground mt-1">Options come from the homepage Scent notes section.</p>
+              <p className="text-xs text-muted-foreground mt-1">Scent profiles come from the admin Notes section and drive the storefront filter.</p>
+
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
