@@ -313,15 +313,17 @@ function HomepagePage() {
           <Card className="p-6 space-y-4 shadow-card">
             <div className="space-y-2">
               <Label>Hero image (left container)</Label>
-              <div
-                className="rounded-lg border flex items-center justify-center bg-muted h-64 overflow-hidden bg-contain bg-center bg-no-repeat"
-                style={
-                  heroImageUrl
-                    ? { backgroundImage: `url(${heroImageUrl})`, backgroundSize: `${heroImageZoom}% auto` }
-                    : undefined
-                }
-              >
-                {heroImageUrl ? null : <span className="text-xs text-muted-foreground">No image</span>}
+              <div className="relative rounded-lg border bg-muted h-64 flex items-center justify-center">
+                {heroImageUrl ? (
+                  <img
+                    src={heroImageUrl}
+                    alt=""
+                    className="absolute inset-0 w-full h-full object-contain origin-center"
+                    style={{ transform: `scale(${heroImageZoom / 100})` }}
+                  />
+                ) : (
+                  <span className="text-xs text-muted-foreground">No image</span>
+                )}
               </div>
               <div className="flex flex-wrap gap-2">
                 <Input value={heroImageUrl} onChange={(e) => setHeroImageUrl(e.target.value)} placeholder="Image URL" className="flex-1 min-w-[200px]" />
@@ -359,15 +361,17 @@ function HomepagePage() {
 
             <div className="space-y-2">
               <Label>Hero overlay image</Label>
-              <div
-                className="rounded-lg border flex items-center justify-center bg-[conic-gradient(at_top_left,_#eee_25%,_#fff_0,_#fff_50%,_#eee_0,_#eee_75%,_#fff_0)] bg-[length:16px_16px] h-64 overflow-hidden bg-contain bg-center bg-no-repeat"
-                style={
-                  heroOverlayUrl
-                    ? { backgroundImage: `url(${heroOverlayUrl})`, backgroundSize: `${heroOverlayZoom}% auto` }
-                    : undefined
-                }
-              >
-                {heroOverlayUrl ? null : <span className="text-xs text-muted-foreground">No overlay</span>}
+              <div className="relative rounded-lg border bg-[conic-gradient(at_top_left,_#eee_25%,_#fff_0,_#fff_50%,_#eee_0,_#eee_75%,_#fff_0)] bg-[length:16px_16px] h-64 flex items-center justify-center">
+                {heroOverlayUrl ? (
+                  <img
+                    src={heroOverlayUrl}
+                    alt=""
+                    className="absolute inset-0 w-full h-full object-contain origin-center"
+                    style={{ transform: `scale(${heroOverlayZoom / 100})` }}
+                  />
+                ) : (
+                  <span className="text-xs text-muted-foreground">No overlay</span>
+                )}
               </div>
               <div className="flex flex-wrap gap-2">
                 <Input value={heroOverlayUrl} onChange={(e) => setHeroOverlayUrl(e.target.value)} placeholder="Overlay URL" className="flex-1 min-w-[200px]" />
