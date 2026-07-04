@@ -274,13 +274,21 @@ function OrdersPage() {
                         value={o.payment_status}
                         onValueChange={(v) => {
                           const ps = v as PaymentStatus;
-                          update.mutate(
-                            ps === "Paid"
-                              ? { id: o.id, payment_status: ps, amount_paid: Number(o.total) }
-                              : ps === "Pending"
-                                ? { id: o.id, payment_status: ps, amount_paid: 0 }
-                                : { id: o.id, payment_status: ps }
-                          );
+                          if (ps === "Paid") {
+                            update.mutate({ id: o.id, payment_status: ps, amount_paid: Number(o.total) });
+                          } else if (ps === "Pending") {
+                            update.mutate({ id: o.id, payment_status: ps, amount_paid: 0 });
+                          } else if (ps === "Partially Paid") {
+                            const current = Number(o.amount_paid ?? 0);
+                            const input = window.prompt(`Enter amount paid (0 – ${o.total}):`, String(current || ""));
+                            if (input === null) return;
+                            const n = Number(input);
+                            if (!Number.isFinite(n) || n < 0) { toast.error("Invalid amount"); return; }
+                            const clamped = Math.min(Math.max(0, n), Number(o.total));
+                            update.mutate({ id: o.id, payment_status: ps, amount_paid: clamped });
+                          } else {
+                            update.mutate({ id: o.id, payment_status: ps });
+                          }
                         }}
                       >
                         <SelectTrigger className="h-8 w-32"><SelectValue /></SelectTrigger>
