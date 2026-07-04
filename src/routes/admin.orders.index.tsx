@@ -279,11 +279,11 @@ function OrdersPage() {
                         </SelectContent>
                       </Select>
                     </TableCell>
-                    <TableCell className="text-xs font-mono">
+                    <TableCell className="font-mono">
                       {o.consignment_id ? (
-                        <span className="px-2 py-0.5 rounded bg-muted inline-block">{o.consignment_id}</span>
+                        <span className="px-2 py-1 rounded bg-muted text-sm font-bold tracking-wide text-foreground inline-block">{o.consignment_id}</span>
                       ) : (
-                        <span className="text-muted-foreground">—</span>
+                        <span className="text-muted-foreground text-xs">—</span>
                       )}
                     </TableCell>
 
