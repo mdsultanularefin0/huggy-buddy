@@ -534,9 +534,9 @@ export type Database = {
           in_stock: boolean
           is_active: boolean
           name: string
-          note_type: string | null
           regular_price: number
           sale_price: number | null
+          scent_profile: string | null
           short_description: string | null
           sizes_json: Json
           slug: string
@@ -553,9 +553,9 @@ export type Database = {
           in_stock?: boolean
           is_active?: boolean
           name: string
-          note_type?: string | null
           regular_price?: number
           sale_price?: number | null
+          scent_profile?: string | null
           short_description?: string | null
           sizes_json?: Json
           slug: string
@@ -572,9 +572,9 @@ export type Database = {
           in_stock?: boolean
           is_active?: boolean
           name?: string
-          note_type?: string | null
           regular_price?: number
           sale_price?: number | null
+          scent_profile?: string | null
           short_description?: string | null
           sizes_json?: Json
           slug?: string
