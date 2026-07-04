@@ -66,10 +66,6 @@ function ProductsPage() {
       return data;
     },
   });
-      if (error) throw error;
-      return data;
-    },
-  });
 
   const { data: categories = [] } = useQuery({
     queryKey: ["admin", "categories"],
