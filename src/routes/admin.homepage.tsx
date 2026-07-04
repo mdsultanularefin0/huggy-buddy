@@ -384,8 +384,8 @@ function HomepagePage() {
           </Card>
           <Card className="p-6 space-y-3 shadow-card">
             <div>
-              <h2 className="text-lg font-semibold">Hero / banner background image</h2>
-              <p className="text-xs text-muted-foreground">Sits behind the marquee. When the Hero section is turned off, this image is shown full-width as a fallback hero banner.</p>
+              <h2 className="text-lg font-semibold">Fallback hero banner image</h2>
+              <p className="text-xs text-muted-foreground">Shown full-width as the hero when the Hero section is turned off.</p>
             </div>
             <div className="rounded-lg border flex items-center justify-center bg-muted h-40 overflow-hidden">
               {bannerImage ? <img src={bannerImage} alt="Banner" className="max-h-full max-w-full object-contain" /> : <span className="text-xs text-muted-foreground">No image</span>}
