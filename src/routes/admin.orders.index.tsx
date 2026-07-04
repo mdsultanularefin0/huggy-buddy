@@ -266,7 +266,9 @@ function OrdersPage() {
                           update.mutate(
                             ps === "Paid"
                               ? { id: o.id, payment_status: ps, amount_paid: Number(o.total) }
-                              : { id: o.id, payment_status: ps }
+                              : ps === "Pending"
+                                ? { id: o.id, payment_status: ps, amount_paid: 0 }
+                                : { id: o.id, payment_status: ps }
                           );
                         }}
                       >

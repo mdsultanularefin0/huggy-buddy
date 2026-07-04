@@ -142,6 +142,9 @@ function AdminOrderDetail() {
             if (ps === "Paid") {
               setAmountPaid(String(order.total));
               update.mutate({ payment_status: ps, amount_paid: Number(order.total) });
+            } else if (ps === "Pending") {
+              setAmountPaid("0");
+              update.mutate({ payment_status: ps, amount_paid: 0 });
             } else {
               update.mutate({ payment_status: ps });
             }
