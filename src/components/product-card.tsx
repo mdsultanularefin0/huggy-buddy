@@ -48,7 +48,7 @@ export function ProductCard({ product }: { product: ProductCardData }) {
 
         {outOfStock ? (
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="bg-gray-900/85 backdrop-blur-sm text-white px-6 py-2.5 text-[10px] font-bold tracking-[0.2em] uppercase rounded-full">
+            <span className="bg-red-600 text-white px-6 py-2.5 text-[10px] font-bold tracking-[0.2em] uppercase rounded-full shadow-lg">
               Out of stock
             </span>
           </div>
