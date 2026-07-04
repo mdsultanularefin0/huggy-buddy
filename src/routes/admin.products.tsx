@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Pencil, Trash2, Loader2, Upload, X, GripVertical, Eye, EyeOff, PackageCheck, PackageX } from "lucide-react";
@@ -22,6 +23,8 @@ import { BulkActionBar } from "@/components/bulk-action-bar";
 
 type Product = Database["public"]["Tables"]["products"]["Row"];
 type Size = { label: string; price: number; sale_price?: number | null; in_stock?: boolean };
+type ActiveFilter = "all" | "active" | "inactive";
+type StockFilter = "all" | "in" | "out";
 
 export const Route = createFileRoute("/admin/products")({ component: ProductsPage });
 
@@ -46,11 +49,19 @@ function ProductsPage() {
   const [editing, setEditing] = useState<Product | null>(null);
   const [form, setForm] = useState(empty);
   const [uploading, setUploading] = useState(false);
+  const [search, setSearch] = useState("");
+  const [activeFilter, setActiveFilter] = useState<ActiveFilter>("all");
+  const [stockFilter, setStockFilter] = useState<StockFilter>("all");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
 
   const { data: products = [], isLoading } = useQuery({
     queryKey: ["admin", "products"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("products").select("*").order("created_at", { ascending: false });
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .order("is_active", { ascending: false })
+        .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
     },
@@ -133,7 +144,20 @@ function ProductsPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const selection = useSelection(products);
+  const filtered = useMemo(() => {
+    const s = search.trim().toLowerCase();
+    return products.filter((p) => {
+      if (activeFilter === "active" && !p.is_active) return false;
+      if (activeFilter === "inactive" && p.is_active) return false;
+      if (stockFilter === "in" && p.in_stock === false) return false;
+      if (stockFilter === "out" && p.in_stock !== false) return false;
+      if (categoryFilter !== "all" && (p.category_id ?? "") !== categoryFilter) return false;
+      if (s && !p.name.toLowerCase().includes(s)) return false;
+      return true;
+    });
+  }, [products, search, activeFilter, stockFilter, categoryFilter]);
+
+  const selection = useSelection(filtered);
 
   const bulk = useMutation({
     mutationFn: async ({ patch, ids }: { patch: Partial<Product>; ids: string[] }) => {
@@ -234,11 +258,51 @@ function ProductsPage() {
         <Button onClick={startNew} variant="luxe"><Plus className="w-4 h-4 mr-1" /> New product</Button>
       </div>
 
+      <div className="flex flex-wrap items-center gap-3">
+        <Input
+          placeholder="Search by name…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="max-w-xs"
+        />
+        <Select value={activeFilter} onValueChange={(v) => setActiveFilter(v as ActiveFilter)}>
+          <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All statuses</SelectItem>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="inactive">Hidden</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={stockFilter} onValueChange={(v) => setStockFilter(v as StockFilter)}>
+          <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All stock</SelectItem>
+            <SelectItem value="in">In stock</SelectItem>
+            <SelectItem value="out">Out of stock</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+          <SelectTrigger className="w-44"><SelectValue placeholder="Category" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All categories</SelectItem>
+            {categories.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        {(search || activeFilter !== "all" || stockFilter !== "all" || categoryFilter !== "all") && (
+          <Button variant="ghost" size="sm" onClick={() => { setSearch(""); setActiveFilter("all"); setStockFilter("all"); setCategoryFilter("all"); }}>
+            <X className="w-4 h-4 mr-1" /> Clear
+          </Button>
+        )}
+        <span className="text-sm text-muted-foreground ml-auto">
+          {filtered.length} of {products.length}
+        </span>
+      </div>
+
       <Card className="shadow-card overflow-hidden">
         {isLoading ? (
           <div className="p-12 text-center text-muted-foreground"><Loader2 className="w-5 h-5 animate-spin inline mr-2" /> Loading…</div>
-        ) : products.length === 0 ? (
-          <div className="p-12 text-center text-muted-foreground">No products yet. Create your first one.</div>
+        ) : filtered.length === 0 ? (
+          <div className="p-12 text-center text-muted-foreground">{products.length === 0 ? "No products yet. Create your first one." : "No products match these filters."}</div>
         ) : (
           <Table>
             <TableHeader>
@@ -258,7 +322,7 @@ function ProductsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {products.map((p) => (
+              {filtered.map((p) => (
                 <TableRow key={p.id} data-state={selection.isSelected(p.id) ? "selected" : undefined}>
                   <TableCell>
                     <Checkbox
