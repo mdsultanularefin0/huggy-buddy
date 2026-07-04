@@ -29,6 +29,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
 import { Route as OrderIdRouteImport } from './routes/order.$id'
+import { Route as InvoiceIdRouteImport } from './routes/invoice.$id'
 import { Route as ComboIdRouteImport } from './routes/combo.$id'
 import { Route as CategorySlugRouteImport } from './routes/category.$slug'
 import { Route as AdminZonesRouteImport } from './routes/admin.zones'
@@ -156,6 +157,11 @@ const ProductSlugRoute = ProductSlugRouteImport.update({
 const OrderIdRoute = OrderIdRouteImport.update({
   id: '/order/$id',
   path: '/order/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InvoiceIdRoute = InvoiceIdRouteImport.update({
+  id: '/invoice/$id',
+  path: '/invoice/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ComboIdRoute = ComboIdRouteImport.update({
@@ -348,6 +354,7 @@ export interface FileRoutesByFullPath {
   '/admin/zones': typeof AdminZonesRoute
   '/category/$slug': typeof CategorySlugRoute
   '/combo/$id': typeof ComboIdRoute
+  '/invoice/$id': typeof InvoiceIdRoute
   '/order/$id': typeof OrderIdRoute
   '/product/$slug': typeof ProductSlugRoute
   '/admin/': typeof AdminIndexRoute
@@ -396,6 +403,7 @@ export interface FileRoutesByTo {
   '/admin/zones': typeof AdminZonesRoute
   '/category/$slug': typeof CategorySlugRoute
   '/combo/$id': typeof ComboIdRoute
+  '/invoice/$id': typeof InvoiceIdRoute
   '/order/$id': typeof OrderIdRoute
   '/product/$slug': typeof ProductSlugRoute
   '/admin': typeof AdminIndexRoute
@@ -448,6 +456,7 @@ export interface FileRoutesById {
   '/admin/zones': typeof AdminZonesRoute
   '/category/$slug': typeof CategorySlugRoute
   '/combo/$id': typeof ComboIdRoute
+  '/invoice/$id': typeof InvoiceIdRoute
   '/order/$id': typeof OrderIdRoute
   '/product/$slug': typeof ProductSlugRoute
   '/admin/': typeof AdminIndexRoute
@@ -500,6 +509,7 @@ export interface FileRouteTypes {
     | '/admin/zones'
     | '/category/$slug'
     | '/combo/$id'
+    | '/invoice/$id'
     | '/order/$id'
     | '/product/$slug'
     | '/admin/'
@@ -548,6 +558,7 @@ export interface FileRouteTypes {
     | '/admin/zones'
     | '/category/$slug'
     | '/combo/$id'
+    | '/invoice/$id'
     | '/order/$id'
     | '/product/$slug'
     | '/admin'
@@ -599,6 +610,7 @@ export interface FileRouteTypes {
     | '/admin/zones'
     | '/category/$slug'
     | '/combo/$id'
+    | '/invoice/$id'
     | '/order/$id'
     | '/product/$slug'
     | '/admin/'
@@ -631,6 +643,7 @@ export interface RootRouteChildren {
   UnsubscribeRoute: typeof UnsubscribeRoute
   CategorySlugRoute: typeof CategorySlugRoute
   ComboIdRoute: typeof ComboIdRoute
+  InvoiceIdRoute: typeof InvoiceIdRoute
   OrderIdRoute: typeof OrderIdRoute
   ProductSlugRoute: typeof ProductSlugRoute
 }
@@ -775,6 +788,13 @@ declare module '@tanstack/react-router' {
       path: '/order/$id'
       fullPath: '/order/$id'
       preLoaderRoute: typeof OrderIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/invoice/$id': {
+      id: '/invoice/$id'
+      path: '/invoice/$id'
+      fullPath: '/invoice/$id'
+      preLoaderRoute: typeof InvoiceIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/combo/$id': {
@@ -1086,6 +1106,7 @@ const rootRouteChildren: RootRouteChildren = {
   UnsubscribeRoute: UnsubscribeRoute,
   CategorySlugRoute: CategorySlugRoute,
   ComboIdRoute: ComboIdRoute,
+  InvoiceIdRoute: InvoiceIdRoute,
   OrderIdRoute: OrderIdRoute,
   ProductSlugRoute: ProductSlugRoute,
 }
