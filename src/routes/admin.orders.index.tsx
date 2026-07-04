@@ -67,6 +67,7 @@ function OrdersPage() {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [fraud, setFraud] = useState<{ phone: string; loading: boolean; result: FraudResult | null; error?: string } | null>(null);
+  const [fraudByPhone, setFraudByPhone] = useState<Record<string, { loading?: boolean; result?: FraudResult; error?: string }>>({});
 
   const invoiceTokenFn = useServerFn(getInvoiceToken);
   const navigate = useNavigate();
