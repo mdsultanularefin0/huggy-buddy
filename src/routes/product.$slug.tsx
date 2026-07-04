@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { useState } from "react";
-import { ArrowLeft, Sparkles, Star } from "lucide-react";
+import { ArrowLeft, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBDT, effectivePrice, hasSale } from "@/lib/currency";
 import { SiteHeader } from "@/components/site-header";
