@@ -25,7 +25,7 @@ type Cat = { id: string; name: string; slug: string };
 const productsPageOptions = queryOptions({
   queryKey: ["public", "products-page"],
   queryFn: async () => {
-    const [{ data: products, error: pe }, { data: cats, error: ce }] = await Promise.all([
+    const [{ data: products, error: pe }, { data: cats, error: ce }, { data: notes, error: ne }] = await Promise.all([
       supabase
         .from("products")
         .select("id,slug,name,regular_price,sale_price,sizes_json,image_url,category_id,in_stock")
@@ -36,10 +36,24 @@ const productsPageOptions = queryOptions({
         .select("id,name,slug")
         .eq("is_active", true)
         .order("sort_order", { ascending: true }),
+      supabase
+        .from("notes")
+        .select("scent_profile")
+        .eq("is_active", true)
+        .not("scent_profile", "is", null)
+        .order("sort_order", { ascending: true }),
     ]);
     if (pe) throw pe;
     if (ce) throw ce;
-    return { products: (products ?? []) as ProductRow[], categories: (cats ?? []) as Cat[] };
+    if (ne) throw ne;
+    const scentProfiles = Array.from(
+      new Set(
+        ((notes ?? []) as { scent_profile: string | null }[])
+          .map((n) => n.scent_profile)
+          .filter((s): s is string => Boolean(s)),
+      ),
+    );
+    return { products: (products ?? []) as ProductRow[], categories: (cats ?? []) as Cat[], scentProfiles };
   },
 });
 
@@ -54,7 +68,6 @@ export const Route = createFileRoute("/products")({
   component: ProductsPage,
 });
 
-const SCENT_PROFILES = ["Fresh & Floral", "Deep & Woody", "Sweet & Oriental"];
 
 function ProductsPage() {
   const { data } = useSuspenseQuery(productsPageOptions);
