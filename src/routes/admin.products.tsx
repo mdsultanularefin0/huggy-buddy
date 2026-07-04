@@ -133,6 +133,34 @@ function ProductsPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const selection = useSelection(products);
+
+  const bulk = useMutation({
+    mutationFn: async ({ patch, ids }: { patch: Partial<Product>; ids: string[] }) => {
+      const { error } = await supabase.from("products").update(patch).in("id", ids);
+      if (error) throw error;
+    },
+    onSuccess: (_d, v) => {
+      toast.success(`Updated ${v.ids.length} product${v.ids.length === 1 ? "" : "s"}`);
+      qc.invalidateQueries({ queryKey: ["admin", "products"] });
+      selection.clear();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const bulkDelete = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase.from("products").delete().in("id", ids);
+      if (error) throw error;
+    },
+    onSuccess: (_d, ids) => {
+      toast.success(`Deleted ${ids.length} product${ids.length === 1 ? "" : "s"}`);
+      qc.invalidateQueries({ queryKey: ["admin", "products"] });
+      selection.clear();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   function startNew() {
     setEditing(null);
     setForm(empty);
