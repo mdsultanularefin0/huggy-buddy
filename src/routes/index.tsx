@@ -600,7 +600,7 @@ function Landing() {
                 style={{ backgroundImage: `url(${bannerImage})`, aspectRatio: "16 / 6" }}
               />
             ) : null}
-            {bannerEnabled ? marquee : null}
+            {bannerEnabled ? <div className="[&>*]:mt-0">{marquee}</div> : null}
           </>
         )}
 
