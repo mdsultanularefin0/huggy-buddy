@@ -129,3 +129,35 @@ export function SiteFooter(_props: {
     </footer>
   );
 }
+
+function SubscribeForm() {
+  const subscribe = useServerFn(subscribeNewsletter);
+  const [email, setEmail] = useState("");
+  const m = useMutation({
+    mutationFn: (e: string) => subscribe({ data: { email: e, source: "footer" } }),
+    onSuccess: (r) => {
+      toast.success(r.already ? "You're already subscribed" : "Subscribed! Thank you.");
+      setEmail("");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  return (
+    <form
+      onSubmit={(e) => { e.preventDefault(); if (email) m.mutate(email); }}
+      className="space-y-3"
+    >
+      <input
+        type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
+        placeholder="Your email"
+        className="bg-white/10 rounded-lg py-2 px-4 w-full text-white placeholder-gray-400 focus:outline-none"
+      />
+      <button
+        type="submit" disabled={m.isPending}
+        className="bg-[#a555f0] text-white rounded-lg py-2 w-full font-semibold hover:bg-[#9442e0] transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+      >
+        {m.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
+        Subscribe
+      </button>
+    </form>
+  );
+}
