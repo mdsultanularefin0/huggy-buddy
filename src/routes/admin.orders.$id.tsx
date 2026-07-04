@@ -66,6 +66,17 @@ function AdminOrderDetail() {
     }
   }, [order]);
 
+  useEffect(() => {
+    const ch = supabase
+      .channel(`admin-order-${id}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "orders", filter: `id=eq.${id}` }, () => {
+        qc.invalidateQueries({ queryKey: ["admin", "order", id] });
+        qc.invalidateQueries({ queryKey: ["admin", "orders"] });
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [id, qc]);
+
   const update = useMutation({
     mutationFn: async (patch: Record<string, unknown>) => {
       await updateOrder({ data: { id, patch } });
