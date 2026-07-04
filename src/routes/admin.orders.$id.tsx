@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowLeft, FileText, Loader2, Truck } from "lucide-react";
 import { toast } from "sonner";
 import { formatBDT } from "@/lib/currency";
+import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 
 type OrderStatus = Database["public"]["Enums"]["order_status"];
@@ -64,6 +65,17 @@ function AdminOrderDetail() {
       setAmountPaid(String(order.amount_paid ?? 0));
     }
   }, [order]);
+
+  useEffect(() => {
+    const ch = supabase
+      .channel(`admin-order-${id}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "orders", filter: `id=eq.${id}` }, () => {
+        qc.invalidateQueries({ queryKey: ["admin", "order", id] });
+        qc.invalidateQueries({ queryKey: ["admin", "orders"] });
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [id, qc]);
 
   const update = useMutation({
     mutationFn: async (patch: Record<string, unknown>) => {
