@@ -144,7 +144,20 @@ function ProductsPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const selection = useSelection(products);
+  const filtered = useMemo(() => {
+    const s = search.trim().toLowerCase();
+    return products.filter((p) => {
+      if (activeFilter === "active" && !p.is_active) return false;
+      if (activeFilter === "inactive" && p.is_active) return false;
+      if (stockFilter === "in" && p.in_stock === false) return false;
+      if (stockFilter === "out" && p.in_stock !== false) return false;
+      if (categoryFilter !== "all" && (p.category_id ?? "") !== categoryFilter) return false;
+      if (s && !p.name.toLowerCase().includes(s)) return false;
+      return true;
+    });
+  }, [products, search, activeFilter, stockFilter, categoryFilter]);
+
+  const selection = useSelection(filtered);
 
   const bulk = useMutation({
     mutationFn: async ({ patch, ids }: { patch: Partial<Product>; ids: string[] }) => {
