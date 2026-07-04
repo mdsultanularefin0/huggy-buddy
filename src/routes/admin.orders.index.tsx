@@ -132,7 +132,6 @@ function OrdersPage() {
   }, [orders, paymentFilter, dateFrom, dateTo, search]);
 
   const selection = useSelection(filtered);
-  const bulkShipFn = useServerFn(bulkCreateSteadfastShipments);
 
   const bulkStatus = useMutation({
     mutationFn: async ({ ids, order_status }: { ids: string[]; order_status: OrderStatus }) => {
