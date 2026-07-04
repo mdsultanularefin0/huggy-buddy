@@ -47,7 +47,7 @@ const NAV_GROUPS: NavGroup[] = [
       { to: "/admin/products", label: "Products", icon: Package },
       { to: "/admin/categories", label: "Categories", icon: Tags },
       { to: "/admin/combos", label: "Combos", icon: Boxes },
-      { to: "/admin/notes", label: "Scent Notes", icon: Sparkles },
+      { to: "/admin/notes", label: "Scent Notes", icon: Droplet },
     ],
   },
   {
