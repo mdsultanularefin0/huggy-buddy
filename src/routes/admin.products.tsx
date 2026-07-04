@@ -10,12 +10,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, Loader2, Upload, X, GripVertical } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Upload, X, GripVertical, Eye, EyeOff, PackageCheck, PackageX } from "lucide-react";
 import { toast } from "sonner";
 import { formatBDT } from "@/lib/currency";
 import { HtmlEditor } from "@/components/html-editor";
 import { uploadImage } from "@/lib/upload";
 import type { Database } from "@/integrations/supabase/types";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useSelection } from "@/hooks/use-selection";
+import { BulkActionBar } from "@/components/bulk-action-bar";
 
 type Product = Database["public"]["Tables"]["products"]["Row"];
 type Size = { label: string; price: number; sale_price?: number | null; in_stock?: boolean };
