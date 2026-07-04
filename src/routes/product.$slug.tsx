@@ -200,10 +200,9 @@ function ProductPage() {
             {product.image_url ? (
               <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                <Sparkles className="w-12 h-12" />
-              </div>
+              <div className="w-full h-full bg-gray-50" aria-hidden="true" />
             )}
+
           </div>
           <div className="grid grid-cols-4 gap-3 mt-4">
             {[0, 1, 2, 3].map((i) => (
