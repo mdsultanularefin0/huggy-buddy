@@ -189,7 +189,7 @@ export function ProductReviews({ productId }: { productId: string }) {
                     </button>
                   </div>
                 ))}
-                {images.length < 5 && (
+                {user && images.length < 5 && (
                   <label className="w-16 h-16 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:border-[#a555f0] text-gray-400">
                     {uploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ImagePlus className="w-5 h-5" />}
                     <input
@@ -202,7 +202,9 @@ export function ProductReviews({ productId }: { productId: string }) {
                   </label>
                 )}
               </div>
-              <p className="text-xs text-gray-500">Add up to 5 photos (optional)</p>
+              <p className="text-xs text-gray-500">
+                {user ? "Add up to 5 photos (optional)" : "Sign in to attach photos"}
+              </p>
             </div>
             <button
               type="submit"
