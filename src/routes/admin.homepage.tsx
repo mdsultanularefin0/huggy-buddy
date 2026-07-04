@@ -582,6 +582,24 @@ function HomepagePage() {
           </Card>
         </TabsContent>
 
+        {/* SHOP BY CATEGORY */}
+        <TabsContent value="shopcat" className="mt-4 space-y-4">
+          <Card className="p-6 space-y-3 shadow-card">
+            <h2 className="text-lg font-semibold">Shop by Category section</h2>
+            <p className="text-xs text-muted-foreground">
+              Displays every active category. Manage the list and images in <span className="font-medium">Categories</span>.
+            </p>
+            <div className="space-y-2">
+              <Label>Title</Label>
+              <Input value={shopcatTitle} onChange={(e) => setShopcatTitle(e.target.value)} placeholder="Shop by Category" />
+            </div>
+            <div className="space-y-2">
+              <Label>Subtitle</Label>
+              <Textarea value={shopcatSubtitle} onChange={(e) => setShopcatSubtitle(e.target.value)} rows={2} placeholder="Optional supporting text" />
+            </div>
+          </Card>
+        </TabsContent>
+
         {/* NOTES */}
         <TabsContent value="notes" className="mt-4 space-y-4">
           <Card className="p-6 space-y-3 shadow-card">
