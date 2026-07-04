@@ -51,11 +51,19 @@ export function ProductCard({ product }: { product: ProductCardData }) {
           </div>
         )}
 
-        <div className="absolute inset-0 flex items-end justify-center pb-6 opacity-0 translate-y-2 transition-all duration-500 group-hover:opacity-100 group-hover:translate-y-0">
-          <span className="bg-white/95 backdrop-blur-sm text-[#52277a] px-8 py-3 text-[10px] font-bold tracking-[0.2em] uppercase rounded-full border border-[#52277a]/10 group-hover:bg-[#52277a] group-hover:text-white transition-colors duration-300">
-            View Details
-          </span>
-        </div>
+        {outOfStock ? (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="bg-gray-900/85 backdrop-blur-sm text-white px-6 py-2.5 text-[10px] font-bold tracking-[0.2em] uppercase rounded-full">
+              Out of stock
+            </span>
+          </div>
+        ) : (
+          <div className="absolute inset-0 flex items-end justify-center pb-6 opacity-0 translate-y-2 transition-all duration-500 group-hover:opacity-100 group-hover:translate-y-0">
+            <span className="bg-white/95 backdrop-blur-sm text-[#52277a] px-8 py-3 text-[10px] font-bold tracking-[0.2em] uppercase rounded-full border border-[#52277a]/10 group-hover:bg-[#52277a] group-hover:text-white transition-colors duration-300">
+              View Details
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="px-4 py-6 text-center">
