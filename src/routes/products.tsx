@@ -80,15 +80,24 @@ export function ListingShell({
   const [maxPrice, setMaxPrice] = useState<number>(10000);
   const [scents, setScents] = useState<string[]>([]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const initial = new URLSearchParams(window.location.search).get("scent");
+    if (initial) setScents([initial]);
+  }, []);
+
   const filtered = useMemo(() => {
     return products.filter((p) => {
       const min = p.sizes_json?.[0];
       const reg = min?.price ?? p.regular_price;
       const sale = min?.sale_price ?? p.sale_price;
       const price = effectivePrice(reg, sale);
-      return price <= maxPrice;
+      if (price > maxPrice) return false;
+      if (scents.length > 0 && (!p.note_type || !scents.includes(p.note_type))) return false;
+      return true;
     });
-  }, [products, maxPrice]);
+  }, [products, maxPrice, scents]);
+
 
   return (
     <div className="min-h-screen bg-white">
