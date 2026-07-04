@@ -261,7 +261,14 @@ function OrdersPage() {
                     <TableCell>
                       <Select
                         value={o.payment_status}
-                        onValueChange={(v) => update.mutate({ id: o.id, payment_status: v as PaymentStatus })}
+                        onValueChange={(v) => {
+                          const ps = v as PaymentStatus;
+                          update.mutate(
+                            ps === "Paid"
+                              ? { id: o.id, payment_status: ps, amount_paid: Number(o.total) }
+                              : { id: o.id, payment_status: ps }
+                          );
+                        }}
                       >
                         <SelectTrigger className="h-8 w-32"><SelectValue /></SelectTrigger>
                         <SelectContent>
