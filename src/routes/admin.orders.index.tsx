@@ -485,4 +485,3 @@ function PaidCell({ order, onSave }: { order: Order; onSave: (amount: number) =>
     </div>
   );
 }
-}
