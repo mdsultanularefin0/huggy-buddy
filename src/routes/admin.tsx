@@ -135,7 +135,7 @@ function AdminSidebar({ email }: { email: string }) {
           ) : (
             <>
               <div className="w-8 h-8 rounded-lg bg-gradient-luxe flex items-center justify-center shadow-soft shrink-0">
-                <Sparkles className="w-4 h-4 text-primary-foreground" />
+                <Store className="w-4 h-4 text-primary-foreground" />
               </div>
               <span className="font-semibold text-sidebar-foreground truncate">Veloura</span>
             </>
