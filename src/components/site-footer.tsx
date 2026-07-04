@@ -1,9 +1,13 @@
 import { Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { Mail, Phone, MapPin } from "lucide-react";
+import { useState } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { Mail, Phone, MapPin, Loader2 } from "lucide-react";
 import { FaFacebookF, FaInstagram, FaXTwitter, FaYoutube, FaTiktok, FaWhatsapp } from "react-icons/fa6";
 import type { IconType } from "react-icons";
 import { brandingQueryOptions } from "@/lib/branding-query";
+import { subscribeNewsletter } from "@/lib/email.functions";
+import { toast } from "sonner";
 
 const SHOP_LINKS = [
   { label: "Female Scent", slug: "female-fragrance" },
