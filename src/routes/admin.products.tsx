@@ -20,6 +20,7 @@ import type { Database } from "@/integrations/supabase/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useSelection } from "@/hooks/use-selection";
 import { BulkActionBar } from "@/components/bulk-action-bar";
+import { MediaPicker } from "@/components/media-picker";
 
 type Product = Database["public"]["Tables"]["products"]["Row"];
 type Size = { label: string; price: number; sale_price?: number | null; in_stock?: boolean };
