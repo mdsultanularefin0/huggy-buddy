@@ -3,7 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getMyOrder } from "@/lib/account.functions";
 import { formatBDT } from "@/lib/currency";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, FileText } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/account/orders/$id")({
   component: OrderDetail,
@@ -34,9 +35,16 @@ function OrderDetail() {
 
   return (
     <div className="space-y-6">
-      <Link to="/account/orders" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary">
-        <ArrowLeft className="w-4 h-4" /> Back to orders
-      </Link>
+      <div className="flex items-center justify-between">
+        <Link to="/account/orders" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary">
+          <ArrowLeft className="w-4 h-4" /> Back to orders
+        </Link>
+        <Button asChild variant="outline" size="sm">
+          <Link to="/invoice/$id" params={{ id: o.id }} target="_blank">
+            <FileText className="w-4 h-4 mr-1" /> View invoice
+          </Link>
+        </Button>
+      </div>
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold">{o.order_number}</h1>

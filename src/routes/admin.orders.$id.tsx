@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Loader2, Truck } from "lucide-react";
+import { ArrowLeft, FileText, Loader2, Truck } from "lucide-react";
 import { toast } from "sonner";
 import { formatBDT } from "@/lib/currency";
 import type { Database } from "@/integrations/supabase/types";
@@ -116,9 +116,14 @@ function AdminOrderDetail() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
-      <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between gap-3">
         <Button variant="ghost" size="sm" asChild>
           <Link to="/admin/orders"><ArrowLeft className="w-4 h-4 mr-1" />Back to orders</Link>
+        </Button>
+        <Button variant="outline" size="sm" asChild>
+          <Link to="/invoice/$id" params={{ id }} target="_blank">
+            <FileText className="w-4 h-4 mr-1" /> View invoice
+          </Link>
         </Button>
       </div>
 

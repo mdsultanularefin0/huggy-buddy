@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { CheckCircle2, Search, UserPlus, Loader2, RefreshCw } from "lucide-react";
+import { CheckCircle2, FileText, Search, UserPlus, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +9,7 @@ import { formatBDT } from "@/lib/currency";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { getOrderById, lookupOrder, claimGuestOrder } from "@/lib/orders.functions";
+import { getInvoiceToken } from "@/lib/invoice.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -124,8 +125,9 @@ function OrderPage() {
         <p className="text-center text-xs text-muted-foreground mt-6">
           Save this page or bookmark the URL to check your order later — no account required.
         </p>
-        <div className="text-center mt-6">
+        <div className="text-center mt-6 flex flex-wrap gap-2 justify-center">
           <Link to="/"><Button variant="luxe">Continue shopping</Button></Link>
+          <InvoiceButton orderId={order.id} />
         </div>
 
         <ClaimAccountSection order={order} />
@@ -374,6 +376,27 @@ function ClaimAccountSection({ order }: { order: OrderRow }) {
         </div>
       )}
     </div>
+  );
+}
+
+function InvoiceButton({ orderId }: { orderId: string }) {
+  const [loading, setLoading] = useState(false);
+  async function open() {
+    setLoading(true);
+    try {
+      const { token } = await getInvoiceToken({ data: { id: orderId } });
+      window.open(`/invoice/${orderId}?token=${token}`, "_blank");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not open invoice");
+    } finally {
+      setLoading(false);
+    }
+  }
+  return (
+    <Button variant="outline" onClick={open} disabled={loading}>
+      {loading ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <FileText className="w-4 h-4 mr-1" />}
+      View invoice
+    </Button>
   );
 }
 
