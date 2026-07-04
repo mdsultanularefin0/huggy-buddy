@@ -706,9 +706,6 @@ function Landing() {
               <div className="text-center max-w-2xl mx-auto">
                 <h2 className="text-3xl font-bold text-gray-900">{shopcatTitle}</h2>
                 {shopcatSubtitle ? <p className="text-gray-600 mt-3">{shopcatSubtitle}</p> : null}
-                <Link to="/categories" className="mt-4 inline-block text-sm text-[#52277a] underline hover:text-[#a555f0]">
-                  View all categories
-                </Link>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 mt-10">
                 {allCategories.map((c, i) => (
