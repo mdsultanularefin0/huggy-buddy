@@ -258,11 +258,51 @@ function ProductsPage() {
         <Button onClick={startNew} variant="luxe"><Plus className="w-4 h-4 mr-1" /> New product</Button>
       </div>
 
+      <div className="flex flex-wrap items-center gap-3">
+        <Input
+          placeholder="Search by name…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="max-w-xs"
+        />
+        <Select value={activeFilter} onValueChange={(v) => setActiveFilter(v as ActiveFilter)}>
+          <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All statuses</SelectItem>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="inactive">Hidden</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={stockFilter} onValueChange={(v) => setStockFilter(v as StockFilter)}>
+          <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All stock</SelectItem>
+            <SelectItem value="in">In stock</SelectItem>
+            <SelectItem value="out">Out of stock</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+          <SelectTrigger className="w-44"><SelectValue placeholder="Category" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All categories</SelectItem>
+            {categories.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        {(search || activeFilter !== "all" || stockFilter !== "all" || categoryFilter !== "all") && (
+          <Button variant="ghost" size="sm" onClick={() => { setSearch(""); setActiveFilter("all"); setStockFilter("all"); setCategoryFilter("all"); }}>
+            <X className="w-4 h-4 mr-1" /> Clear
+          </Button>
+        )}
+        <span className="text-sm text-muted-foreground ml-auto">
+          {filtered.length} of {products.length}
+        </span>
+      </div>
+
       <Card className="shadow-card overflow-hidden">
         {isLoading ? (
           <div className="p-12 text-center text-muted-foreground"><Loader2 className="w-5 h-5 animate-spin inline mr-2" /> Loading…</div>
-        ) : products.length === 0 ? (
-          <div className="p-12 text-center text-muted-foreground">No products yet. Create your first one.</div>
+        ) : filtered.length === 0 ? (
+          <div className="p-12 text-center text-muted-foreground">{products.length === 0 ? "No products yet. Create your first one." : "No products match these filters."}</div>
         ) : (
           <Table>
             <TableHeader>
