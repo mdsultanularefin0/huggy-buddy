@@ -41,7 +41,7 @@ const empty = {
   stock_quantity: 0,
   sizes_json: [] as Size[],
   category_id: null as string | null,
-  note_type: "" as string,
+  scent_profile: "" as string,
 };
 
 function ProductsPage() {
@@ -118,7 +118,7 @@ function ProductsPage() {
         stock_quantity: Math.max(0, Number(form.stock_quantity) || 0),
         sizes_json: form.sizes_json as never,
         category_id: form.category_id,
-        note_type: form.note_type || null,
+        scent_profile: form.scent_profile || null,
       };
       if (editing) {
         const { error } = await supabase.from("products").update(payload).eq("id", editing.id);
@@ -220,7 +220,7 @@ function ProductsPage() {
       stock_quantity: pAny.stock_quantity ?? 0,
       sizes_json: (Array.isArray(p.sizes_json) ? p.sizes_json : []) as Size[],
       category_id: (p as Product & { category_id: string | null }).category_id ?? null,
-      note_type: (p as Product & { note_type?: string | null }).note_type ?? "",
+      scent_profile: (p as Product & { scent_profile?: string | null }).scent_profile ?? "",
     });
     setOpen(true);
   }
@@ -505,24 +505,27 @@ function ProductsPage() {
               </select>
             </div>
             <div>
-              <Label htmlFor="note_type">Scent profile</Label>
+              <Label htmlFor="scent_profile">
+                Scent profile <span className="text-destructive">*</span>
+              </Label>
               <select
-                id="note_type"
-                value={form.note_type}
-                onChange={(e) => setForm({ ...form, note_type: e.target.value })}
+                id="scent_profile"
+                required
+                value={form.scent_profile}
+                onChange={(e) => setForm({ ...form, scent_profile: e.target.value })}
                 className="mt-1 w-full h-10 rounded-md border bg-background px-3 text-sm"
               >
-                <option value="">— None —</option>
+                <option value="">— Select a scent profile —</option>
                 {noteOptions.map((n) => (
                   <option key={n} value={n}>{n}</option>
                 ))}
-                {form.note_type && !noteOptions.includes(form.note_type) && (
-                  <option value={form.note_type}>{form.note_type} (custom)</option>
+                {form.scent_profile && !noteOptions.includes(form.scent_profile) && (
+                  <option value={form.scent_profile}>{form.scent_profile} (custom)</option>
                 )}
               </select>
-              <p className="text-xs text-muted-foreground mt-1">Scent profiles come from the admin Notes section and drive the storefront filter.</p>
-
+              <p className="text-xs text-muted-foreground mt-1">Required. Scent profiles come from the admin Notes section and drive the storefront filter.</p>
             </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label htmlFor="reg">Regular price (BDT)</Label>
@@ -585,7 +588,7 @@ function ProductsPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button variant="luxe" onClick={() => save.mutate()} disabled={save.isPending || !form.name}>
+            <Button variant="luxe" onClick={() => save.mutate()} disabled={save.isPending || !form.name || !form.scent_profile}>
               {save.isPending && <Loader2 className="w-4 h-4 animate-spin mr-1" />}
               Save
             </Button>

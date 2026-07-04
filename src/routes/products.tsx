@@ -1,10 +1,11 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useSuspenseQuery, useQuery, queryOptions } from "@tanstack/react-query";
-
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { SlidersHorizontal } from "lucide-react";
+import { zodValidator, fallback } from "@tanstack/zod-adapter";
+import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
-import { formatBDT, effectivePrice, hasSale } from "@/lib/currency";
+import { formatBDT, effectivePrice } from "@/lib/currency";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ProductCard } from "@/components/product-card";
@@ -20,7 +21,8 @@ type ProductRow = {
   sizes_json: { size_label: string; price: number; sale_price?: number | null }[] | null;
   image_url: string | null;
   category_id: string | null;
-  note_type?: string | null;
+  in_stock?: boolean | null;
+  scent_profile?: string | null;
 };
 
 type Cat = { id: string; name: string; slug: string };
@@ -31,7 +33,7 @@ const productsPageOptions = queryOptions({
     const [{ data: products, error: pe }, { data: cats, error: ce }] = await Promise.all([
       supabase
         .from("products")
-        .select("id,slug,name,regular_price,sale_price,sizes_json,image_url,category_id,in_stock,note_type")
+        .select("id,slug,name,regular_price,sale_price,sizes_json,image_url,category_id,in_stock,scent_profile")
         .eq("is_active", true)
         .order("created_at", { ascending: false }),
       supabase
@@ -42,12 +44,21 @@ const productsPageOptions = queryOptions({
     ]);
     if (pe) throw pe;
     if (ce) throw ce;
-    return { products: (products ?? []) as ProductRow[], categories: (cats ?? []) as Cat[] };
-
+    return { products: (products ?? []) as unknown as ProductRow[], categories: (cats ?? []) as Cat[] };
   },
 });
 
+export const MAX_PRICE_DEFAULT = 10000;
+
+export const listingSearchSchema = z.object({
+  scent: fallback(z.array(z.string()).or(z.string()).optional(), undefined),
+  maxPrice: fallback(z.coerce.number().int().min(0).max(1_000_000), MAX_PRICE_DEFAULT).default(MAX_PRICE_DEFAULT),
+});
+
+export type ListingSearch = z.infer<typeof listingSearchSchema>;
+
 export const Route = createFileRoute("/products")({
+  validateSearch: zodValidator(listingSearchSchema),
   head: () => ({
     meta: [
       { title: "All Fragrances — Veloura Essence" },
@@ -58,10 +69,14 @@ export const Route = createFileRoute("/products")({
   component: ProductsPage,
 });
 
-
 function ProductsPage() {
   const { data } = useSuspenseQuery(productsPageOptions);
   return <ListingShell title="All Fragrances" subtitle="Every Veloura scent, one place." products={data.products} categories={data.categories} />;
+}
+
+export function normalizeScents(scent: string[] | string | undefined): string[] {
+  if (!scent) return [];
+  return Array.isArray(scent) ? scent : [scent];
 }
 
 export function ListingShell({
@@ -77,14 +92,34 @@ export function ListingShell({
   categories: Cat[];
   activeCategorySlug?: string;
 }) {
-  const [maxPrice, setMaxPrice] = useState<number>(10000);
-  const [scents, setScents] = useState<string[]>([]);
+  // Both /products and /category/$slug use listingSearchSchema, so strict:false is safe.
+  const search = useSearch({ strict: false }) as Partial<ListingSearch>;
+  const navigate = useNavigate();
+  const scents = normalizeScents(search.scent);
+  const maxPrice = search.maxPrice ?? MAX_PRICE_DEFAULT;
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const initial = new URLSearchParams(window.location.search).get("scent");
-    if (initial) setScents([initial]);
-  }, []);
+  const setMaxPrice = (n: number) => {
+    void navigate({
+      to: ".",
+      search: ((prev: Record<string, unknown>) => ({
+        ...prev,
+        maxPrice: n === MAX_PRICE_DEFAULT ? undefined : n,
+      })) as never,
+      replace: true,
+    });
+  };
+
+  const setScents = (updater: (prev: string[]) => string[]) => {
+    const next = updater(scents);
+    void navigate({
+      to: ".",
+      search: ((prev: Record<string, unknown>) => ({
+        ...prev,
+        scent: next.length === 0 ? undefined : next,
+      })) as never,
+      replace: true,
+    });
+  };
 
   const filtered = useMemo(() => {
     return products.filter((p) => {
@@ -93,11 +128,10 @@ export function ListingShell({
       const sale = min?.sale_price ?? p.sale_price;
       const price = effectivePrice(reg, sale);
       if (price > maxPrice) return false;
-      if (scents.length > 0 && (!p.note_type || !scents.includes(p.note_type))) return false;
+      if (scents.length > 0 && (!p.scent_profile || !scents.includes(p.scent_profile))) return false;
       return true;
     });
   }, [products, maxPrice, scents]);
-
 
   return (
     <div className="min-h-screen bg-white">
@@ -152,7 +186,6 @@ export function ListingShell({
 
           {filtered.length === 0 ? (
             <div className="rounded-2xl border-2 border-dashed border-gray-200 py-20 text-center text-gray-500">
-              
               No products match your filters.
             </div>
           ) : (
@@ -182,7 +215,7 @@ function FiltersPanel({
   maxPrice: number;
   setMaxPrice: (n: number) => void;
   scents: string[];
-  setScents: React.Dispatch<React.SetStateAction<string[]>>;
+  setScents: (updater: (prev: string[]) => string[]) => void;
 }) {
   return (
     <>
@@ -223,7 +256,6 @@ function FiltersPanel({
       </div>
 
       <ScentProfileFilter scents={scents} setScents={setScents} />
-
     </>
   );
 }
@@ -233,7 +265,7 @@ function ScentProfileFilter({
   setScents,
 }: {
   scents: string[];
-  setScents: React.Dispatch<React.SetStateAction<string[]>>;
+  setScents: (updater: (prev: string[]) => string[]) => void;
 }) {
   const { data: profiles = [], isLoading } = useQuery({
     queryKey: ["public", "notes", "scent-profiles"],
@@ -276,7 +308,6 @@ function ScentProfileFilter({
     );
   }
 
-
   return (
     <div>
       <h3 className="font-semibold text-sm uppercase tracking-wide text-[#52277a] mb-3">Scent Profile</h3>
@@ -300,4 +331,3 @@ function ScentProfileFilter({
     </div>
   );
 }
-

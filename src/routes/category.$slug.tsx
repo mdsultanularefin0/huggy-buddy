@@ -1,7 +1,8 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
+import { zodValidator } from "@tanstack/zod-adapter";
 import { supabase } from "@/integrations/supabase/client";
-import { ListingShell } from "./products";
+import { ListingShell, listingSearchSchema } from "./products";
 
 type ProductRow = {
   id: string;
@@ -12,8 +13,10 @@ type ProductRow = {
   sizes_json: { size_label: string; price: number; sale_price?: number | null }[] | null;
   image_url: string | null;
   category_id: string | null;
-  note_type?: string | null;
+  in_stock?: boolean | null;
+  scent_profile?: string | null;
 };
+
 
 type Cat = { id: string; name: string; slug: string };
 
@@ -32,7 +35,7 @@ const categoryPageOptions = (slug: string) =>
       const [{ data: products, error: pe }, { data: cats }] = await Promise.all([
         supabase
           .from("products")
-          .select("id,slug,name,regular_price,sale_price,sizes_json,image_url,category_id,in_stock,note_type")
+          .select("id,slug,name,regular_price,sale_price,sizes_json,image_url,category_id,in_stock,scent_profile")
           .eq("category_id", cat.id)
           .eq("is_active", true)
           .order("created_at", { ascending: false }),
@@ -45,14 +48,16 @@ const categoryPageOptions = (slug: string) =>
       if (pe) throw pe;
       return {
         category: cat,
-        products: (products ?? []) as ProductRow[],
+        products: (products ?? []) as unknown as ProductRow[],
         categories: (cats ?? []) as Cat[],
       };
     },
   });
 
 export const Route = createFileRoute("/category/$slug")({
+  validateSearch: zodValidator(listingSearchSchema),
   loader: ({ context, params }) => context.queryClient.ensureQueryData(categoryPageOptions(params.slug)),
+
   head: ({ params }) => ({
     meta: [
       { title: `${params.slug.replace(/-/g, " ")} — Veloura Essence` },
