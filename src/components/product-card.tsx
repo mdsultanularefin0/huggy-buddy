@@ -41,10 +41,9 @@ export function ProductCard({ product }: { product: ProductCardData }) {
             className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-400">
-            <Sparkles className="w-8 h-8" />
-          </div>
+          <div className="w-full h-full bg-[#ece2f7]" aria-hidden="true" />
         )}
+
 
         {outOfStock ? (
           <div className="absolute inset-0 flex items-center justify-center">
