@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useSuspenseQuery, useQuery, queryOptions } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { SlidersHorizontal } from "lucide-react";
@@ -48,12 +48,14 @@ const productsPageOptions = queryOptions({
   },
 });
 
-const MAX_PRICE_DEFAULT = 10000;
+export const MAX_PRICE_DEFAULT = 10000;
 
 export const listingSearchSchema = z.object({
   scent: fallback(z.array(z.string()).or(z.string()).optional(), undefined),
   maxPrice: fallback(z.coerce.number().int().min(0).max(1_000_000), MAX_PRICE_DEFAULT).default(MAX_PRICE_DEFAULT),
 });
+
+export type ListingSearch = z.infer<typeof listingSearchSchema>;
 
 export const Route = createFileRoute("/products")({
   validateSearch: zodValidator(listingSearchSchema),
@@ -90,31 +92,31 @@ export function ListingShell({
   categories: Cat[];
   activeCategorySlug?: string;
 }) {
+  // Both /products and /category/$slug use listingSearchSchema, so strict:false is safe.
+  const search = useSearch({ strict: false }) as Partial<ListingSearch>;
   const navigate = useNavigate();
-  // Read from either /products or /category/$slug — both share the schema.
-  const search = Route.useSearch({ strict: false }) as {
-    scent?: string[] | string;
-    maxPrice?: number;
-  };
   const scents = normalizeScents(search.scent);
   const maxPrice = search.maxPrice ?? MAX_PRICE_DEFAULT;
 
-  const setMaxPrice = (n: number) =>
-    navigate({
-      search: (prev: Record<string, unknown>) => ({
+  const setMaxPrice = (n: number) => {
+    void navigate({
+      to: ".",
+      search: ((prev: Record<string, unknown>) => ({
         ...prev,
         maxPrice: n === MAX_PRICE_DEFAULT ? undefined : n,
-      }),
+      })) as never,
       replace: true,
     });
+  };
 
   const setScents = (updater: (prev: string[]) => string[]) => {
     const next = updater(scents);
-    navigate({
-      search: (prev: Record<string, unknown>) => ({
+    void navigate({
+      to: ".",
+      search: ((prev: Record<string, unknown>) => ({
         ...prev,
         scent: next.length === 0 ? undefined : next,
-      }),
+      })) as never,
       replace: true,
     });
   };
