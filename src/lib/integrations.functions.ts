@@ -184,14 +184,18 @@ export const createSteadfastShipment = createServerFn({ method: "POST" })
     }) as { consignment?: { consignment_id?: number; tracking_code?: string; status?: string } } | null;
 
     const tracking = body?.consignment?.tracking_code ?? null;
-    if (tracking) {
-      await supabaseAdmin
-        .from("orders")
-        .update({ tracking_code: tracking })
-        .eq("id", data.order_id);
+    const consignmentId = body?.consignment?.consignment_id ?? null;
+    const courierStatus = body?.consignment?.status ?? null;
+    if (tracking || consignmentId || courierStatus) {
+      const patch: Record<string, unknown> = {};
+      if (tracking) patch.tracking_code = tracking;
+      if (consignmentId) patch.consignment_id = consignmentId;
+      if (courierStatus) patch.courier_status = courierStatus;
+      await supabaseAdmin.from("orders").update(patch).eq("id", data.order_id);
     }
     return { ok: true, consignment: body?.consignment ?? null };
   });
+
 
 // -------- Bulk create shipments --------
 const bulkCreateSchema = z.object({
