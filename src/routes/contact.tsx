@@ -1,10 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { Mail, Phone, MapPin, Clock, Facebook, Instagram, Twitter, Youtube, Music2, MessageCircle } from "lucide-react";
+import { useState } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { Mail, Phone, MapPin, Clock, Facebook, Instagram, Twitter, Youtube, Music2, MessageCircle, Loader2 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { brandingQueryOptions } from "@/lib/branding-query";
+import { sendContactMessage } from "@/lib/email.functions";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -63,6 +71,13 @@ function ContactPage() {
           )}
         </div>
 
+        <section className="mt-12">
+          <h2 className="text-2xl font-semibold text-center mb-6">Send us a message</h2>
+          <ContactForm />
+        </section>
+
+
+
         {socials.length > 0 && (
           <section className="mt-12 text-center">
             <h2 className="text-xl font-semibold mb-4">Follow us</h2>
@@ -102,6 +117,52 @@ function InfoCard({ Icon, title, children }: { Icon: typeof Mail; title: string;
         <h3 className="font-semibold">{title}</h3>
         <div className="text-sm text-muted-foreground mt-1">{children}</div>
       </div>
+    </Card>
+  );
+}
+
+function ContactForm() {
+  const sendFn = useServerFn(sendContactMessage);
+  const [form, setForm] = useState({ name: "", email: "", phone: "", subject: "", message: "" });
+  const upd = <K extends keyof typeof form>(k: K, v: string) => setForm((f) => ({ ...f, [k]: v }));
+  const m = useMutation({
+    mutationFn: () => sendFn({ data: form }),
+    onSuccess: () => {
+      toast.success("Thanks — we'll get back to you shortly.");
+      setForm({ name: "", email: "", phone: "", subject: "", message: "" });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  return (
+    <Card className="p-6 max-w-2xl mx-auto shadow-card">
+      <form onSubmit={(e) => { e.preventDefault(); m.mutate(); }} className="space-y-4">
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="cf-name">Name</Label>
+            <Input id="cf-name" required maxLength={100} value={form.name} onChange={(e) => upd("name", e.target.value)} />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="cf-email">Email</Label>
+            <Input id="cf-email" type="email" required maxLength={200} value={form.email} onChange={(e) => upd("email", e.target.value)} />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="cf-phone">Phone (optional)</Label>
+            <Input id="cf-phone" maxLength={30} value={form.phone} onChange={(e) => upd("phone", e.target.value)} />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="cf-subject">Subject</Label>
+            <Input id="cf-subject" required maxLength={150} value={form.subject} onChange={(e) => upd("subject", e.target.value)} />
+          </div>
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="cf-message">Message</Label>
+          <Textarea id="cf-message" required maxLength={2000} rows={6} value={form.message} onChange={(e) => upd("message", e.target.value)} />
+        </div>
+        <Button type="submit" disabled={m.isPending} className="w-full sm:w-auto">
+          {m.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+          Send message
+        </Button>
+      </form>
     </Card>
   );
 }

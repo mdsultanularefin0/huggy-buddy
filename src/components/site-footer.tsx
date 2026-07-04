@@ -1,9 +1,13 @@
 import { Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { Mail, Phone, MapPin } from "lucide-react";
+import { useState } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { Mail, Phone, MapPin, Loader2 } from "lucide-react";
 import { FaFacebookF, FaInstagram, FaXTwitter, FaYoutube, FaTiktok, FaWhatsapp } from "react-icons/fa6";
 import type { IconType } from "react-icons";
 import { brandingQueryOptions } from "@/lib/branding-query";
+import { subscribeNewsletter } from "@/lib/email.functions";
+import { toast } from "sonner";
 
 const SHOP_LINKS = [
   { label: "Female Scent", slug: "female-fragrance" },
@@ -100,14 +104,7 @@ export function SiteFooter(_props: {
           <p className="text-gray-300 text-sm mb-3">
             Get early access to drops and member-only offers.
           </p>
-          <input
-            type="email"
-            placeholder="Your email"
-            className="bg-white/10 rounded-lg py-2 px-4 w-full text-white placeholder-gray-400 focus:outline-none"
-          />
-          <button className="bg-[#a555f0] text-white rounded-lg py-2 w-full mt-3 font-semibold hover:bg-[#9442e0] transition-colors">
-            Subscribe
-          </button>
+          <SubscribeForm />
         </div>
       </div>
       <div className="max-w-7xl mx-auto px-4 mt-12 pt-8 border-t border-white/20 flex flex-col md:flex-row justify-between items-center text-sm text-gray-400 gap-4">
@@ -130,5 +127,37 @@ export function SiteFooter(_props: {
         )}
       </div>
     </footer>
+  );
+}
+
+function SubscribeForm() {
+  const subscribe = useServerFn(subscribeNewsletter);
+  const [email, setEmail] = useState("");
+  const m = useMutation({
+    mutationFn: (e: string) => subscribe({ data: { email: e, source: "footer" } }),
+    onSuccess: (r) => {
+      toast.success(r.already ? "You're already subscribed" : "Subscribed! Thank you.");
+      setEmail("");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  return (
+    <form
+      onSubmit={(e) => { e.preventDefault(); if (email) m.mutate(email); }}
+      className="space-y-3"
+    >
+      <input
+        type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
+        placeholder="Your email"
+        className="bg-white/10 rounded-lg py-2 px-4 w-full text-white placeholder-gray-400 focus:outline-none"
+      />
+      <button
+        type="submit" disabled={m.isPending}
+        className="bg-[#a555f0] text-white rounded-lg py-2 w-full font-semibold hover:bg-[#9442e0] transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+      >
+        {m.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
+        Subscribe
+      </button>
+    </form>
   );
 }
