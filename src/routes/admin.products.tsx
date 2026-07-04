@@ -259,7 +259,14 @@ function ProductsPage() {
             </TableHeader>
             <TableBody>
               {products.map((p) => (
-                <TableRow key={p.id}>
+                <TableRow key={p.id} data-state={selection.isSelected(p.id) ? "selected" : undefined}>
+                  <TableCell>
+                    <Checkbox
+                      checked={selection.isSelected(p.id)}
+                      onCheckedChange={(v) => selection.toggle(p.id, !!v)}
+                      aria-label={`Select ${p.name}`}
+                    />
+                  </TableCell>
                   <TableCell>
                     {p.image_url ? (
                       <img src={p.image_url} alt={p.name} className="w-12 h-12 rounded-md object-cover" />
