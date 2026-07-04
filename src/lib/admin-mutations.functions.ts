@@ -88,8 +88,17 @@ export const updateOrderAdmin = createServerFn({ method: "POST" })
     }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const patch = { ...data.patch };
+    if (typeof patch.amount_paid === "number") {
+      const { data: cur, error: readErr } = await supabaseAdmin
+        .from("orders").select("total").eq("id", data.id).single();
+      if (readErr || !cur) throw new Error(readErr?.message ?? "Order not found");
+      patch.amount_paid = Math.min(Math.max(0, patch.amount_paid), Number(cur.total));
+    }
+
     const { data: row, error } = await supabaseAdmin
-      .from("orders").update(data.patch).eq("id", data.id)
+      .from("orders").update(patch).eq("id", data.id)
       .select("id, order_status, payment_status").single();
 
     if (error) {
