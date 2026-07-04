@@ -10,6 +10,7 @@ export type ProductCardData = {
   sale_price: number | null;
   sizes_json?: { size_label: string; price: number; sale_price?: number | null }[] | null;
   badge?: string | null;
+  in_stock?: boolean | null;
 };
 
 export function ProductCard({ product }: { product: ProductCardData }) {
@@ -18,6 +19,7 @@ export function ProductCard({ product }: { product: ProductCardData }) {
   const sale = min?.sale_price ?? product.sale_price;
   const onSale = hasSale(reg, sale);
   const price = effectivePrice(reg, sale);
+  const outOfStock = product.in_stock === false;
 
   return (
     <Link
@@ -25,12 +27,17 @@ export function ProductCard({ product }: { product: ProductCardData }) {
       params={{ slug: product.slug }}
       className="group relative block bg-[#f5edff] rounded-3xl transition-shadow duration-500 hover:shadow-[0_30px_60px_-15px_rgba(82,39,122,0.25)]"
     >
-      {(product.badge || onSale) && (
+      {(product.badge || onSale) && !outOfStock && (
         <span className="absolute -top-2 -left-2 sm:-top-3 sm:-left-3 md:-top-4 md:-left-4 z-10 w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 rounded-full bg-red-600 text-white flex items-center justify-center text-[7px] sm:text-[8px] md:text-[10px] font-bold tracking-widest uppercase shadow-lg ring-2 sm:ring-4 ring-white">
           {product.badge ?? "Sale"}
         </span>
       )}
-      <div className="relative aspect-[4/5] overflow-hidden rounded-3xl bg-[#ece2f7]">
+      {outOfStock && (
+        <span className="absolute -top-2 -left-2 sm:-top-3 sm:-left-3 md:-top-4 md:-left-4 z-10 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-gray-900 text-white text-[8px] sm:text-[10px] font-bold tracking-widest uppercase shadow-lg ring-2 sm:ring-4 ring-white">
+          Sold out
+        </span>
+      )}
+      <div className={`relative aspect-[4/5] overflow-hidden rounded-3xl bg-[#ece2f7] ${outOfStock ? "opacity-70" : ""}`}>
         {product.image_url ? (
           <img
             src={product.image_url}
@@ -44,11 +51,19 @@ export function ProductCard({ product }: { product: ProductCardData }) {
           </div>
         )}
 
-        <div className="absolute inset-0 flex items-end justify-center pb-6 opacity-0 translate-y-2 transition-all duration-500 group-hover:opacity-100 group-hover:translate-y-0">
-          <span className="bg-white/95 backdrop-blur-sm text-[#52277a] px-8 py-3 text-[10px] font-bold tracking-[0.2em] uppercase rounded-full border border-[#52277a]/10 group-hover:bg-[#52277a] group-hover:text-white transition-colors duration-300">
-            View Details
-          </span>
-        </div>
+        {outOfStock ? (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="bg-gray-900/85 backdrop-blur-sm text-white px-6 py-2.5 text-[10px] font-bold tracking-[0.2em] uppercase rounded-full">
+              Out of stock
+            </span>
+          </div>
+        ) : (
+          <div className="absolute inset-0 flex items-end justify-center pb-6 opacity-0 translate-y-2 transition-all duration-500 group-hover:opacity-100 group-hover:translate-y-0">
+            <span className="bg-white/95 backdrop-blur-sm text-[#52277a] px-8 py-3 text-[10px] font-bold tracking-[0.2em] uppercase rounded-full border border-[#52277a]/10 group-hover:bg-[#52277a] group-hover:text-white transition-colors duration-300">
+              View Details
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="px-4 py-6 text-center">
