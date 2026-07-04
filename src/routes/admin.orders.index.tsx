@@ -273,6 +273,26 @@ function OrdersPage() {
       </Card>
 
       <FraudDialog data={fraud} onClose={() => setFraud(null)} />
+
+      <BulkActionBar count={selection.count} onClear={selection.clear}>
+        <Button variant="ghost" size="sm" disabled={bulkStatus.isPending} onClick={() => bulkStatus.mutate({ ids: selection.selectedIds, order_status: "Processing" })}>
+          Processing
+        </Button>
+        <Button variant="ghost" size="sm" disabled={bulkStatus.isPending} onClick={() => bulkStatus.mutate({ ids: selection.selectedIds, order_status: "Shipped" })}>
+          Shipped
+        </Button>
+        <Button variant="ghost" size="sm" disabled={bulkStatus.isPending} onClick={() => bulkStatus.mutate({ ids: selection.selectedIds, order_status: "Completed" })}>
+          <CheckCheck className="w-4 h-4 mr-1" /> Complete
+        </Button>
+        <Button variant="ghost" size="sm" className="text-rose-600" disabled={bulkStatus.isPending} onClick={() => {
+          if (confirm(`Cancel ${selection.count} order(s)?`)) bulkStatus.mutate({ ids: selection.selectedIds, order_status: "Cancelled" });
+        }}>
+          Cancel
+        </Button>
+        <Button variant="ghost" size="sm" disabled={bulkShip.isPending} onClick={() => bulkShip.mutate(selection.selectedIds)}>
+          <Truck className="w-4 h-4 mr-1" /> Send to Steadfast
+        </Button>
+      </BulkActionBar>
     </div>
   );
 }
