@@ -305,6 +305,7 @@ function HomepagePage() {
               ["The Art of Veloura", artEnabled, setArtEnabled],
               ["Scent notes", notesEnabled, setNotesEnabled],
               ["Customer whispers", whispersEnabled, setWhispersEnabled],
+              ["Shop by Category", shopcatEnabled, setShopcatEnabled],
               ["Reels", reelsEnabled, setReelsEnabled],
               ["FAQ", faqsEnabled, setFaqsEnabled],
             ] as const).map(([label, value, setter]) => (
