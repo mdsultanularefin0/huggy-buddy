@@ -233,22 +233,28 @@ export const bulkCreateSteadfastShipments = createServerFn({ method: "POST" })
     const body = await steadfastFetch("/create_order/bulk-order", {
       method: "POST",
       body: JSON.stringify({ data: JSON.stringify(items) }),
-    }) as { data?: Array<{ invoice: string; tracking_code?: string; status?: string }> } | Array<{ invoice: string; tracking_code?: string; status?: string }> | null;
+    }) as { data?: Array<{ invoice: string; tracking_code?: string; status?: string; consignment_id?: number }> } | Array<{ invoice: string; tracking_code?: string; status?: string; consignment_id?: number }> | null;
 
     const results = Array.isArray(body) ? body : body?.data ?? [];
     // Write tracking codes back by matching invoice → order_number
     const byInvoice = new Map(orders.map((o) => [o.order_number ?? o.id.slice(0, 8), o.id] as const));
     await Promise.all(
       results
-        .filter((r) => r.status === "success" && r.tracking_code)
+        .filter((r) => r.status === "success")
         .map((r) => {
           const id = byInvoice.get(r.invoice);
           if (!id) return Promise.resolve();
-          return supabaseAdmin.from("orders").update({ tracking_code: r.tracking_code! }).eq("id", id);
+          const patch: { tracking_code?: string; consignment_id?: number; courier_status?: string } = {};
+          if (r.tracking_code) patch.tracking_code = r.tracking_code;
+          if (r.consignment_id) patch.consignment_id = r.consignment_id;
+          if (r.status) patch.courier_status = r.status;
+          if (Object.keys(patch).length === 0) return Promise.resolve();
+          return supabaseAdmin.from("orders").update(patch).eq("id", id);
         }),
     );
     return { ok: true, results };
   });
+
 
 // -------- Delivery status lookups --------
 const statusSchema = z.object({
