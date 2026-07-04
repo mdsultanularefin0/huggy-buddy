@@ -157,6 +157,14 @@ function AdminOrderDetail() {
             } else if (ps === "Pending") {
               setAmountPaid("0");
               update.mutate({ payment_status: ps, amount_paid: 0 });
+            } else if (ps === "Partially Paid") {
+              const input = window.prompt(`Enter amount paid (0 – ${order.total}):`, String(order.amount_paid ?? ""));
+              if (input === null) return;
+              const n = Number(input);
+              if (!Number.isFinite(n) || n < 0) { toast.error("Invalid amount"); return; }
+              const clamped = Math.min(Math.max(0, n), Number(order.total));
+              setAmountPaid(String(clamped));
+              update.mutate({ payment_status: ps, amount_paid: clamped });
             } else {
               update.mutate({ payment_status: ps });
             }
