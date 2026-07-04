@@ -326,6 +326,15 @@ function OrdersPage() {
 
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          title="Fraud check"
+                          disabled={!c.phone}
+                          onClick={() => runFraud(c.phone ?? "")}
+                        >
+                          <ShieldAlert className="w-4 h-4" />
+                        </Button>
                         <Button variant="ghost" size="sm" asChild title="View">
                           <Link to="/admin/orders/$id" params={{ id: o.id }}>
                             <Eye className="w-4 h-4" />
