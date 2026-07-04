@@ -61,9 +61,10 @@ const orderUpdateSchema = z.object({
   patch: z
     .object({
       order_status: orderStatusSchema.optional(),
-      payment_status: z.enum(["Pending", "Paid", "Failed", "Refunded"]).optional(),
+      payment_status: z.enum(["Pending", "Paid", "Partially Paid", "Failed", "Refunded"]).optional(),
       tracking_code: z.string().nullable().optional(),
       notes: z.string().nullable().optional(),
+      amount_paid: z.number().min(0).optional(),
     })
     .refine((p) => Object.keys(p).length > 0, "No fields to update"),
 });
