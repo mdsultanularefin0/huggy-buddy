@@ -591,9 +591,18 @@ function Landing() {
               </div>
             </div>
           </>
-        ) : bannerEnabled ? (
-          marquee
-        ) : null}
+        ) : (
+          <>
+            {bannerImage ? (
+              <section
+                aria-label="Hero banner"
+                className="w-full bg-cover bg-center"
+                style={{ backgroundImage: `url(${bannerImage})`, aspectRatio: "16 / 6" }}
+              />
+            ) : null}
+            {bannerEnabled ? <div className="[&>*]:mt-0">{marquee}</div> : null}
+          </>
+        )}
 
 
         {signatureEnabled ? (
