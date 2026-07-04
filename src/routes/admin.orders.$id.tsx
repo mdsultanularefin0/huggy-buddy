@@ -137,7 +137,15 @@ function AdminOrderDetail() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Select value={order.payment_status} onValueChange={(v) => update.mutate({ payment_status: v as PaymentStatus })}>
+          <Select value={order.payment_status} onValueChange={(v) => {
+            const ps = v as PaymentStatus;
+            if (ps === "Paid") {
+              setAmountPaid(String(order.total));
+              update.mutate({ payment_status: ps, amount_paid: Number(order.total) });
+            } else {
+              update.mutate({ payment_status: ps });
+            }
+          }}>
             <SelectTrigger className="h-9 w-36"><SelectValue /></SelectTrigger>
             <SelectContent>
               {PAYMENT_STATUSES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
