@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Sparkles } from "lucide-react";
+
 import { formatBDT, effectivePrice, hasSale } from "@/lib/currency";
 
 export type ProductCardData = {
