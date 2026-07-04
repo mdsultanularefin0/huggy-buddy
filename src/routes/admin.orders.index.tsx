@@ -34,7 +34,7 @@ type OrderStatus = Database["public"]["Enums"]["order_status"];
 type PaymentStatus = Database["public"]["Enums"]["payment_status"];
 
 const ORDER_STATUSES: OrderStatus[] = ["Pending", "Processing", "Shipped", "Completed", "Cancelled", "Returned"];
-const PAYMENT_STATUSES: PaymentStatus[] = ["Pending", "Paid", "Failed", "Refunded"];
+const PAYMENT_STATUSES: PaymentStatus[] = ["Pending", "Paid", "Partially Paid", "Failed", "Refunded"];
 
 const STATUS_TONE: Record<OrderStatus, string> = {
   Pending: "bg-amber-100 text-amber-800",
@@ -230,6 +230,7 @@ function OrdersPage() {
                 <TableHead>Customer</TableHead>
                 <TableHead>Total</TableHead>
                 <TableHead>Payment</TableHead>
+                <TableHead>Paid / Due</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Courier ID</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -267,6 +268,12 @@ function OrdersPage() {
                           {PAYMENT_STATUSES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                         </SelectContent>
                       </Select>
+                    </TableCell>
+                    <TableCell>
+                      <PaidCell
+                        order={o}
+                        onSave={(amount_paid) => update.mutate({ id: o.id, amount_paid })}
+                      />
                     </TableCell>
                     <TableCell>
                       <Select
@@ -447,6 +454,34 @@ function Stat({ label, value, tone = "" }: { label: string; value: number; tone?
     <div className="border rounded-md p-2">
       <div className="text-xs text-muted-foreground">{label}</div>
       <div className={`text-lg font-semibold ${tone}`}>{value}</div>
+    </div>
+  );
+}
+
+function PaidCell({ order, onSave }: { order: Order; onSave: (amount: number) => void }) {
+  const [val, setVal] = useState<string>(String(order.amount_paid ?? 0));
+  const paid = Number(val) || 0;
+  const due = Math.max(0, Number(order.total) - paid);
+  const commit = () => {
+    const n = Number(val);
+    if (!Number.isFinite(n) || n < 0) { setVal(String(order.amount_paid ?? 0)); return; }
+    if (n !== Number(order.amount_paid ?? 0)) onSave(n);
+  };
+  return (
+    <div className="space-y-1">
+      <Input
+        type="number"
+        min={0}
+        step="0.01"
+        value={val}
+        onChange={(e) => setVal(e.target.value)}
+        onBlur={commit}
+        onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }}
+        className="h-8 w-24 text-xs"
+      />
+      <div className={`text-[11px] ${due > 0 ? "text-amber-600" : "text-emerald-600"}`}>
+        Due: {formatBDT(due)}
+      </div>
     </div>
   );
 }

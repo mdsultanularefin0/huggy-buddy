@@ -19,7 +19,7 @@ type OrderStatus = Database["public"]["Enums"]["order_status"];
 type PaymentStatus = Database["public"]["Enums"]["payment_status"];
 
 const ORDER_STATUSES: OrderStatus[] = ["Pending", "Processing", "Shipped", "Completed", "Cancelled", "Returned"];
-const PAYMENT_STATUSES: PaymentStatus[] = ["Pending", "Paid", "Failed", "Refunded"];
+const PAYMENT_STATUSES: PaymentStatus[] = ["Pending", "Paid", "Partially Paid", "Failed", "Refunded"];
 
 const STATUS_TONE: Record<OrderStatus, string> = {
   Pending: "bg-amber-100 text-amber-800",
@@ -55,11 +55,13 @@ function AdminOrderDetail() {
 
   const [tracking, setTracking] = useState("");
   const [notes, setNotes] = useState("");
+  const [amountPaid, setAmountPaid] = useState("0");
 
   useEffect(() => {
     if (order) {
       setTracking(order.tracking_code ?? "");
       setNotes(order.notes ?? "");
+      setAmountPaid(String(order.amount_paid ?? 0));
     }
   }, [order]);
 
@@ -212,11 +214,40 @@ function AdminOrderDetail() {
               <Label className="text-xs">Internal notes</Label>
               <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} className="mt-1" />
             </div>
+            <div className="rounded-lg border p-3 space-y-2 bg-muted/30">
+              <Label className="text-xs">Amount paid</Label>
+              <Input
+                type="number"
+                min={0}
+                step="0.01"
+                value={amountPaid}
+                onChange={(e) => setAmountPaid(e.target.value)}
+                className="mt-1"
+              />
+              <div className="flex justify-between text-xs">
+                <span className="text-muted-foreground">Total</span>
+                <span className="font-medium">{formatBDT(order.total)}</span>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span className="text-muted-foreground">Balance due</span>
+                <span className={`font-semibold ${Math.max(0, order.total - (Number(amountPaid) || 0)) > 0 ? "text-amber-600" : "text-emerald-600"}`}>
+                  {formatBDT(Math.max(0, order.total - (Number(amountPaid) || 0)))}
+                </span>
+              </div>
+            </div>
             <Button
               variant="luxe"
               className="w-full"
               disabled={update.isPending}
-              onClick={() => update.mutate({ tracking_code: tracking || null, notes: notes || null })}
+              onClick={() => {
+                const n = Number(amountPaid);
+                const paid = Number.isFinite(n) && n >= 0 ? n : 0;
+                update.mutate({
+                  tracking_code: tracking || null,
+                  notes: notes || null,
+                  amount_paid: paid,
+                });
+              }}
             >
               {update.isPending && <Loader2 className="w-4 h-4 animate-spin mr-1" />}Save
             </Button>
