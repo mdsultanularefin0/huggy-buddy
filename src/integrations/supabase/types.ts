@@ -430,6 +430,7 @@ export type Database = {
       }
       orders: {
         Row: {
+          amount_paid: number
           consignment_id: number | null
           coupon_used: string | null
           courier_status: string | null
@@ -454,6 +455,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          amount_paid?: number
           consignment_id?: number | null
           coupon_used?: string | null
           courier_status?: string | null
@@ -478,6 +480,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          amount_paid?: number
           consignment_id?: number | null
           coupon_used?: string | null
           courier_status?: string | null
@@ -1092,7 +1095,12 @@ export type Database = {
         | "Completed"
         | "Cancelled"
         | "Returned"
-      payment_status: "Pending" | "Paid" | "Failed" | "Refunded"
+      payment_status:
+        | "Pending"
+        | "Paid"
+        | "Failed"
+        | "Refunded"
+        | "Partially Paid"
       review_status: "pending" | "approved" | "rejected"
       risk_level: "normal" | "high"
     }
@@ -1232,7 +1240,13 @@ export const Constants = {
         "Cancelled",
         "Returned",
       ],
-      payment_status: ["Pending", "Paid", "Failed", "Refunded"],
+      payment_status: [
+        "Pending",
+        "Paid",
+        "Failed",
+        "Refunded",
+        "Partially Paid",
+      ],
       review_status: ["pending", "approved", "rejected"],
       risk_level: ["normal", "high"],
     },
