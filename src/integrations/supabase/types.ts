@@ -287,6 +287,36 @@ export type Database = {
         }
         Relationships: []
       }
+      email_log: {
+        Row: {
+          created_at: string
+          error: string | null
+          id: string
+          kind: string
+          status: string
+          subject: string
+          to_email: string
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          id?: string
+          kind: string
+          status: string
+          subject: string
+          to_email: string
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          id?: string
+          kind?: string
+          status?: string
+          subject?: string
+          to_email?: string
+        }
+        Relationships: []
+      }
       integration_credentials: {
         Row: {
           auth_tag: string
@@ -314,6 +344,45 @@ export type Database = {
           provider?: string
           updated_at?: string
           updated_by?: string | null
+        }
+        Relationships: []
+      }
+      newsletter_subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          is_active: boolean
+          name: string | null
+          source: string
+          subscribed_at: string
+          unsubscribe_token: string
+          unsubscribed_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          is_active?: boolean
+          name?: string | null
+          source?: string
+          subscribed_at?: string
+          unsubscribe_token?: string
+          unsubscribed_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          is_active?: boolean
+          name?: string | null
+          source?: string
+          subscribed_at?: string
+          unsubscribe_token?: string
+          unsubscribed_at?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
