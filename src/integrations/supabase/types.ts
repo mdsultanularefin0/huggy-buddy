@@ -830,6 +830,9 @@ export type Database = {
           shop_name: string | null
           shop_phone: string | null
           shop_tagline: string | null
+          shopcat_enabled: boolean
+          shopcat_subtitle: string
+          shopcat_title: string
           signature_enabled: boolean
           signature_image: string | null
           signature_subtitle: string | null
@@ -907,6 +910,9 @@ export type Database = {
           shop_name?: string | null
           shop_phone?: string | null
           shop_tagline?: string | null
+          shopcat_enabled?: boolean
+          shopcat_subtitle?: string
+          shopcat_title?: string
           signature_enabled?: boolean
           signature_image?: string | null
           signature_subtitle?: string | null
@@ -984,6 +990,9 @@ export type Database = {
           shop_name?: string | null
           shop_phone?: string | null
           shop_tagline?: string | null
+          shopcat_enabled?: boolean
+          shopcat_subtitle?: string
+          shopcat_title?: string
           signature_enabled?: boolean
           signature_image?: string | null
           signature_subtitle?: string | null
