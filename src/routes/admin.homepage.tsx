@@ -44,6 +44,7 @@ function HomepagePage() {
   const qc = useQueryClient();
   // Hero
   const [heroImageUrl, setHeroImageUrl] = useState("");
+  const [heroImageZoom, setHeroImageZoom] = useState(100);
   const [heroOverlayUrl, setHeroOverlayUrl] = useState("");
   // Banner
   const [marqueeText, setMarqueeText] = useState("");
