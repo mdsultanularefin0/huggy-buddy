@@ -379,6 +379,27 @@ function ClaimAccountSection({ order }: { order: OrderRow }) {
   );
 }
 
+function InvoiceButton({ orderId }: { orderId: string }) {
+  const [loading, setLoading] = useState(false);
+  async function open() {
+    setLoading(true);
+    try {
+      const { token } = await getInvoiceToken({ data: { id: orderId } });
+      window.open(`/invoice/${orderId}?token=${token}`, "_blank");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not open invoice");
+    } finally {
+      setLoading(false);
+    }
+  }
+  return (
+    <Button variant="outline" onClick={open} disabled={loading}>
+      {loading ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <FileText className="w-4 h-4 mr-1" />}
+      View invoice
+    </Button>
+  );
+}
+
 
 
 
