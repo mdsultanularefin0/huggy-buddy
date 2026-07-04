@@ -39,11 +39,13 @@ function AdminIntegrations() {
           Connect third-party services. Credentials are encrypted before being stored.
         </p>
       </div>
-      <Tabs defaultValue="steadfast" className="space-y-4">
+      <Tabs defaultValue="smtp" className="space-y-4">
         <TabsList>
+          <TabsTrigger value="smtp"><Mail className="w-4 h-4 mr-2" />SMTP Email</TabsTrigger>
           <TabsTrigger value="steadfast"><Truck className="w-4 h-4 mr-2" />Steadfast</TabsTrigger>
           <TabsTrigger value="media"><Film className="w-4 h-4 mr-2" />Media Server</TabsTrigger>
         </TabsList>
+        <TabsContent value="smtp"><SmtpCard /></TabsContent>
         <TabsContent value="steadfast"><SteadfastCard /></TabsContent>
         <TabsContent value="media"><MediaServerCard /></TabsContent>
       </Tabs>
@@ -51,7 +53,166 @@ function AdminIntegrations() {
   );
 }
 
-function MediaServerCard() {
+function SmtpCard() {
+  const qc = useQueryClient();
+  const getStatus = useServerFn(getSmtpStatus);
+  const saveFn = useServerFn(saveSmtpCredentials);
+  const deleteFn = useServerFn(deleteSmtpCredentials);
+  const testFn = useServerFn(testSmtpConnection);
+
+  const { data: status, isLoading } = useQuery({
+    queryKey: ["integration-status", "smtp"],
+    queryFn: () => getStatus(),
+  });
+
+  const [host, setHost] = useState("");
+  const [port, setPort] = useState(465);
+  const [secure, setSecure] = useState(true);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [fromEmail, setFromEmail] = useState("");
+  const [fromName, setFromName] = useState("Veloura Essence");
+  const [adminEmail, setAdminEmail] = useState("");
+  const [testTo, setTestTo] = useState("");
+
+  const save = useMutation({
+    mutationFn: () => saveFn({ data: {
+      host, port, secure, username, password,
+      from_email: fromEmail, from_name: fromName,
+      admin_email: adminEmail || undefined,
+    } }),
+    onSuccess: () => {
+      toast.success("SMTP credentials saved");
+      setPassword("");
+      qc.invalidateQueries({ queryKey: ["integration-status", "smtp"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const remove = useMutation({
+    mutationFn: () => deleteFn(),
+    onSuccess: () => {
+      toast.success("SMTP credentials removed");
+      qc.invalidateQueries({ queryKey: ["integration-status", "smtp"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const test = useMutation({
+    mutationFn: () => testFn({ data: { to: testTo } }),
+    onSuccess: () => toast.success(`Test email sent to ${testTo}`),
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-start justify-between gap-4">
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+            <Mail className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <CardTitle className="text-lg">SMTP (cPanel Email)</CardTitle>
+            <CardDescription className="mt-1">
+              Send order confirmations, admin alerts, contact-form replies and newsletter broadcasts using your cPanel mail account.
+            </CardDescription>
+          </div>
+        </div>
+        {isLoading ? (
+          <Badge variant="secondary"><Loader2 className="w-3 h-3 mr-1 animate-spin" /> Checking</Badge>
+        ) : status?.configured ? (
+          <Badge className="bg-green-600 hover:bg-green-600"><CheckCircle2 className="w-3 h-3 mr-1" /> Connected</Badge>
+        ) : (
+          <Badge variant="secondary">Not configured</Badge>
+        )}
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {status?.configured && (
+          <div className="text-xs text-muted-foreground">
+            Host: <code>{status.host}</code> · From: <code>{status.from_email}</code>
+            {status.admin_email ? <> · Admin: <code>{status.admin_email}</code></> : null}
+          </div>
+        )}
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="sm:col-span-2">
+            <Label htmlFor="smtp-host">SMTP host</Label>
+            <Input id="smtp-host" value={host} onChange={(e) => setHost(e.target.value)}
+              placeholder="mail.yourdomain.com" />
+          </div>
+          <div>
+            <Label htmlFor="smtp-port">Port</Label>
+            <Input id="smtp-port" type="number" value={port}
+              onChange={(e) => setPort(Number(e.target.value) || 0)} />
+          </div>
+          <div className="flex items-end gap-2">
+            <div className="flex items-center gap-2">
+              <Switch id="smtp-secure" checked={secure} onCheckedChange={setSecure} />
+              <Label htmlFor="smtp-secure" className="text-sm">TLS/SSL (secure)</Label>
+            </div>
+            <p className="text-xs text-muted-foreground ml-auto">Use 465+on or 587+off</p>
+          </div>
+          <div>
+            <Label htmlFor="smtp-user">Username</Label>
+            <Input id="smtp-user" value={username} onChange={(e) => setUsername(e.target.value)}
+              placeholder="you@yourdomain.com" autoComplete="off" />
+          </div>
+          <div>
+            <Label htmlFor="smtp-pass">Password</Label>
+            <Input id="smtp-pass" type="password" value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder={status?.configured ? "•••••••• (enter to replace)" : "Mailbox password"}
+              autoComplete="off" />
+          </div>
+          <div>
+            <Label htmlFor="smtp-from-email">From email</Label>
+            <Input id="smtp-from-email" type="email" value={fromEmail}
+              onChange={(e) => setFromEmail(e.target.value)}
+              placeholder="no-reply@yourdomain.com" />
+          </div>
+          <div>
+            <Label htmlFor="smtp-from-name">From name</Label>
+            <Input id="smtp-from-name" value={fromName} onChange={(e) => setFromName(e.target.value)} />
+          </div>
+          <div className="sm:col-span-2">
+            <Label htmlFor="smtp-admin">Admin notification email (optional)</Label>
+            <Input id="smtp-admin" type="email" value={adminEmail}
+              onChange={(e) => setAdminEmail(e.target.value)}
+              placeholder="admin@yourdomain.com — receives new-order + contact form emails" />
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-2 pt-2">
+          <Button onClick={() => save.mutate()}
+            disabled={!host || !port || !username || (!password && !status?.configured) || !fromEmail || !fromName || save.isPending}>
+            {save.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+            Save credentials
+          </Button>
+          {status?.configured && (
+            <Button variant="ghost" className="text-destructive hover:text-destructive"
+              onClick={() => { if (confirm("Remove SMTP credentials?")) remove.mutate(); }}
+              disabled={remove.isPending}>
+              <Trash2 className="w-4 h-4 mr-2" /> Remove
+            </Button>
+          )}
+        </div>
+        <div className="border-t pt-4">
+          <Label htmlFor="smtp-test-to">Send a test email to</Label>
+          <div className="flex gap-2 mt-2">
+            <Input id="smtp-test-to" type="email" value={testTo}
+              onChange={(e) => setTestTo(e.target.value)} placeholder="you@example.com" />
+            <Button variant="outline" onClick={() => test.mutate()}
+              disabled={!status?.configured || !testTo || test.isPending}>
+              {test.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Send test
+            </Button>
+          </div>
+        </div>
+        <p className="text-xs text-muted-foreground pt-2">
+          Credentials are encrypted with AES-256-GCM before being written to the database.
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
   const qc = useQueryClient();
   const getStatus = useServerFn(getMediaServerStatus);
   const saveFn = useServerFn(saveMediaServerCredentials);
