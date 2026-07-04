@@ -310,8 +310,15 @@ function HomepagePage() {
           <Card className="p-6 space-y-4 shadow-card">
             <div className="space-y-2">
               <Label>Hero image (left container)</Label>
-              <div className="rounded-lg border flex items-center justify-center bg-muted h-64 overflow-hidden">
-                {heroImageUrl ? <img src={heroImageUrl} alt="Hero" className="max-h-full max-w-full object-contain" /> : <span className="text-xs text-muted-foreground">No image</span>}
+              <div
+                className="rounded-lg border flex items-center justify-center bg-muted h-64 overflow-hidden bg-contain bg-center bg-no-repeat"
+                style={
+                  heroImageUrl
+                    ? { backgroundImage: `url(${heroImageUrl})`, backgroundSize: `${heroImageZoom}% auto` }
+                    : undefined
+                }
+              >
+                {heroImageUrl ? null : <span className="text-xs text-muted-foreground">No image</span>}
               </div>
               <div className="flex flex-wrap gap-2">
                 <Input value={heroImageUrl} onChange={(e) => setHeroImageUrl(e.target.value)} placeholder="Image URL" className="flex-1 min-w-[200px]" />
@@ -322,7 +329,30 @@ function HomepagePage() {
                 </label>
                 <MediaPicker onPick={setHeroImageUrl} />
               </div>
+              <div className="flex items-center gap-3 pt-2">
+                <Label className="text-xs shrink-0">Zoom</Label>
+                <input
+                  type="range"
+                  min={50}
+                  max={300}
+                  step={5}
+                  value={heroImageZoom}
+                  onChange={(e) => setHeroImageZoom(Number(e.target.value))}
+                  className="flex-1 accent-primary"
+                />
+                <Input
+                  type="number"
+                  min={50}
+                  max={300}
+                  value={heroImageZoom}
+                  onChange={(e) => setHeroImageZoom(Number(e.target.value) || 100)}
+                  className="w-20"
+                />
+                <span className="text-xs text-muted-foreground w-6">%</span>
+                <Button variant="ghost" size="sm" onClick={() => setHeroImageZoom(100)}>Reset</Button>
+              </div>
             </div>
+
 
             <div className="space-y-2">
               <Label>Hero overlay image</Label>
