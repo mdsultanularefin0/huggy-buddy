@@ -742,6 +742,7 @@ export type Database = {
           hero_overlay_image: string | null
           hero_overlay_left: string | null
           hero_overlay_right: string | null
+          hero_overlay_zoom: number
           hero_subtitle: string | null
           hero_title: string | null
           homepage_category_ids: string[]
@@ -818,6 +819,7 @@ export type Database = {
           hero_overlay_image?: string | null
           hero_overlay_left?: string | null
           hero_overlay_right?: string | null
+          hero_overlay_zoom?: number
           hero_subtitle?: string | null
           hero_title?: string | null
           homepage_category_ids?: string[]
@@ -894,6 +896,7 @@ export type Database = {
           hero_overlay_image?: string | null
           hero_overlay_left?: string | null
           hero_overlay_right?: string | null
+          hero_overlay_zoom?: number
           hero_subtitle?: string | null
           hero_title?: string | null
           homepage_category_ids?: string[]

@@ -390,6 +390,7 @@ function Landing() {
   const heroImage = hero?.hero_image ?? null;
   const heroImageZoom = Number(((hero ?? {}) as Record<string, unknown>).hero_image_zoom ?? 100) || 100;
   const heroOverlay = hero?.hero_overlay_image ?? null;
+  const heroOverlayZoom = Number(((hero ?? {}) as Record<string, unknown>).hero_overlay_zoom ?? 100) || 100;
 
   const h = (hero ?? {}) as Record<string, unknown>;
   const signatureTitle = (h.signature_title as string) || "Our Signature Collection";
@@ -484,8 +485,8 @@ function Landing() {
         style={heroImage ? { backgroundImage: `url(${heroImage})`, backgroundSize: `${heroImageZoom}% auto` } : undefined}
       />
       <div
-        className="absolute inset-0 z-30 rounded-2xl overflow-hidden bg-contain bg-center bg-no-repeat pointer-events-none"
-        style={heroOverlay ? { backgroundImage: `url(${heroOverlay})` } : undefined}
+        className="absolute inset-0 z-30 rounded-2xl overflow-hidden bg-center bg-no-repeat pointer-events-none"
+        style={heroOverlay ? { backgroundImage: `url(${heroOverlay})`, backgroundSize: `${heroOverlayZoom}% auto` } : undefined}
       />
     </div>
   );
