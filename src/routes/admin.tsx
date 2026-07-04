@@ -13,9 +13,10 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard, Package, Boxes, Truck, CreditCard, ShoppingBag,
-  Users, Megaphone, Settings, LogOut, Sparkles, ScrollText, Tags, Home, Loader2, FileText, Star, Images, Plug,
-  ChevronDown,
+  Users, Megaphone, Settings, LogOut, Palette, Droplet, ScrollText, Tags, Home, Loader2, FileText, Star, Images, Plug,
+  ChevronDown, Store,
 } from "lucide-react";
+
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin")({
