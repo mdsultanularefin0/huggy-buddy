@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Card } from "@/components/ui/card";
-import { Package, Boxes, ShoppingBag, Sparkles, Truck, CreditCard } from "lucide-react";
+import { Package, Boxes, ShoppingBag, CheckCircle2, Truck, CreditCard } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getAdminOrderCount } from "@/lib/admin-mutations.functions";
 
