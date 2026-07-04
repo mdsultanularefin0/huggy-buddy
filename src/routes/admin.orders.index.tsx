@@ -7,13 +7,17 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, Eye, ShieldAlert, X } from "lucide-react";
+import { Loader2, Eye, ShieldAlert, X, Truck, CheckCheck } from "lucide-react";
 import { toast } from "sonner";
 import { formatBDT } from "@/lib/currency";
 import type { Database } from "@/integrations/supabase/types";
 import { useServerFn } from "@tanstack/react-start";
 import { listAdminOrders, updateOrderAdmin } from "@/lib/admin-mutations.functions";
-import { getSteadfastFraudCheck } from "@/lib/integrations.functions";
+import { getSteadfastFraudCheck, bulkCreateSteadfastShipments } from "@/lib/integrations.functions";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useSelection } from "@/hooks/use-selection";
+import { BulkActionBar } from "@/components/bulk-action-bar";
+
 
 type Order = Database["public"]["Tables"]["orders"]["Row"];
 type OrderStatus = Database["public"]["Enums"]["order_status"];
@@ -87,6 +91,31 @@ function OrdersPage() {
     });
   }, [orders, paymentFilter, dateFrom, dateTo, search]);
 
+  const selection = useSelection(filtered);
+  const bulkShipFn = useServerFn(bulkCreateSteadfastShipments);
+
+  const bulkStatus = useMutation({
+    mutationFn: async ({ ids, order_status }: { ids: string[]; order_status: OrderStatus }) => {
+      await Promise.all(ids.map((id) => updateOrder({ data: { id, patch: { order_status } } })));
+    },
+    onSuccess: (_d, v) => {
+      toast.success(`Updated ${v.ids.length} order${v.ids.length === 1 ? "" : "s"}`);
+      qc.invalidateQueries({ queryKey: ["admin", "orders"] });
+      selection.clear();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const bulkShip = useMutation({
+    mutationFn: async (ids: string[]) => bulkShipFn({ data: { order_ids: ids } }),
+    onSuccess: () => {
+      toast.success("Shipments created");
+      qc.invalidateQueries({ queryKey: ["admin", "orders"] });
+      selection.clear();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   async function runFraud(phone: string) {
     if (!phone) { toast.error("No phone on this order"); return; }
     setFraud({ phone, loading: true, result: null });
@@ -150,6 +179,13 @@ function OrdersPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-10">
+                  <Checkbox
+                    checked={selection.allChecked ? true : selection.someChecked ? "indeterminate" : false}
+                    onCheckedChange={(v) => selection.toggleAll(!!v)}
+                    aria-label="Select all"
+                  />
+                </TableHead>
                 <TableHead>Order</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Customer</TableHead>
@@ -164,7 +200,14 @@ function OrdersPage() {
               {filtered.map((o) => {
                 const c = (o.customer_json as { name?: string; phone?: string } | null) ?? {};
                 return (
-                  <TableRow key={o.id}>
+                  <TableRow key={o.id} data-state={selection.isSelected(o.id) ? "selected" : undefined}>
+                    <TableCell>
+                      <Checkbox
+                        checked={selection.isSelected(o.id)}
+                        onCheckedChange={(v) => selection.toggle(o.id, !!v)}
+                        aria-label={`Select ${o.order_number}`}
+                      />
+                    </TableCell>
                     <TableCell className="font-mono text-xs">{o.order_number}</TableCell>
                     <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
                       {new Date(o.created_at).toLocaleDateString()}
@@ -230,6 +273,26 @@ function OrdersPage() {
       </Card>
 
       <FraudDialog data={fraud} onClose={() => setFraud(null)} />
+
+      <BulkActionBar count={selection.count} onClear={selection.clear}>
+        <Button variant="ghost" size="sm" disabled={bulkStatus.isPending} onClick={() => bulkStatus.mutate({ ids: selection.selectedIds, order_status: "Processing" })}>
+          Processing
+        </Button>
+        <Button variant="ghost" size="sm" disabled={bulkStatus.isPending} onClick={() => bulkStatus.mutate({ ids: selection.selectedIds, order_status: "Shipped" })}>
+          Shipped
+        </Button>
+        <Button variant="ghost" size="sm" disabled={bulkStatus.isPending} onClick={() => bulkStatus.mutate({ ids: selection.selectedIds, order_status: "Completed" })}>
+          <CheckCheck className="w-4 h-4 mr-1" /> Complete
+        </Button>
+        <Button variant="ghost" size="sm" className="text-rose-600" disabled={bulkStatus.isPending} onClick={() => {
+          if (confirm(`Cancel ${selection.count} order(s)?`)) bulkStatus.mutate({ ids: selection.selectedIds, order_status: "Cancelled" });
+        }}>
+          Cancel
+        </Button>
+        <Button variant="ghost" size="sm" disabled={bulkShip.isPending} onClick={() => bulkShip.mutate(selection.selectedIds)}>
+          <Truck className="w-4 h-4 mr-1" /> Send to Steadfast
+        </Button>
+      </BulkActionBar>
     </div>
   );
 }

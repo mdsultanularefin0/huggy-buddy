@@ -10,12 +10,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, Loader2, Upload, X, GripVertical } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Upload, X, GripVertical, Eye, EyeOff, PackageCheck, PackageX } from "lucide-react";
 import { toast } from "sonner";
 import { formatBDT } from "@/lib/currency";
 import { HtmlEditor } from "@/components/html-editor";
 import { uploadImage } from "@/lib/upload";
 import type { Database } from "@/integrations/supabase/types";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useSelection } from "@/hooks/use-selection";
+import { BulkActionBar } from "@/components/bulk-action-bar";
 
 type Product = Database["public"]["Tables"]["products"]["Row"];
 type Size = { label: string; price: number; sale_price?: number | null; in_stock?: boolean };
@@ -130,6 +133,34 @@ function ProductsPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const selection = useSelection(products);
+
+  const bulk = useMutation({
+    mutationFn: async ({ patch, ids }: { patch: Partial<Product>; ids: string[] }) => {
+      const { error } = await supabase.from("products").update(patch).in("id", ids);
+      if (error) throw error;
+    },
+    onSuccess: (_d, v) => {
+      toast.success(`Updated ${v.ids.length} product${v.ids.length === 1 ? "" : "s"}`);
+      qc.invalidateQueries({ queryKey: ["admin", "products"] });
+      selection.clear();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const bulkDelete = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase.from("products").delete().in("id", ids);
+      if (error) throw error;
+    },
+    onSuccess: (_d, ids) => {
+      toast.success(`Deleted ${ids.length} product${ids.length === 1 ? "" : "s"}`);
+      qc.invalidateQueries({ queryKey: ["admin", "products"] });
+      selection.clear();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   function startNew() {
     setEditing(null);
     setForm(empty);
@@ -212,6 +243,13 @@ function ProductsPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-10">
+                  <Checkbox
+                    checked={selection.allChecked ? true : selection.someChecked ? "indeterminate" : false}
+                    onCheckedChange={(v) => selection.toggleAll(!!v)}
+                    aria-label="Select all"
+                  />
+                </TableHead>
                 <TableHead className="w-16"></TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Price</TableHead>
@@ -221,7 +259,14 @@ function ProductsPage() {
             </TableHeader>
             <TableBody>
               {products.map((p) => (
-                <TableRow key={p.id}>
+                <TableRow key={p.id} data-state={selection.isSelected(p.id) ? "selected" : undefined}>
+                  <TableCell>
+                    <Checkbox
+                      checked={selection.isSelected(p.id)}
+                      onCheckedChange={(v) => selection.toggle(p.id, !!v)}
+                      aria-label={`Select ${p.name}`}
+                    />
+                  </TableCell>
                   <TableCell>
                     {p.image_url ? (
                       <img src={p.image_url} alt={p.name} className="w-12 h-12 rounded-md object-cover" />
@@ -261,6 +306,33 @@ function ProductsPage() {
           </Table>
         )}
       </Card>
+
+      <BulkActionBar count={selection.count} onClear={selection.clear}>
+        <Button variant="ghost" size="sm" onClick={() => bulk.mutate({ ids: selection.selectedIds, patch: { is_active: true } })} disabled={bulk.isPending}>
+          <Eye className="w-4 h-4 mr-1" /> Activate
+        </Button>
+        <Button variant="ghost" size="sm" onClick={() => bulk.mutate({ ids: selection.selectedIds, patch: { is_active: false } })} disabled={bulk.isPending}>
+          <EyeOff className="w-4 h-4 mr-1" /> Hide
+        </Button>
+        <Button variant="ghost" size="sm" onClick={() => bulk.mutate({ ids: selection.selectedIds, patch: { in_stock: true } })} disabled={bulk.isPending}>
+          <PackageCheck className="w-4 h-4 mr-1" /> In stock
+        </Button>
+        <Button variant="ghost" size="sm" onClick={() => bulk.mutate({ ids: selection.selectedIds, patch: { in_stock: false } })} disabled={bulk.isPending}>
+          <PackageX className="w-4 h-4 mr-1" /> Out of stock
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-destructive"
+          disabled={bulkDelete.isPending}
+          onClick={() => {
+            if (confirm(`Delete ${selection.count} product(s)? This cannot be undone.`)) bulkDelete.mutate(selection.selectedIds);
+          }}
+        >
+          <Trash2 className="w-4 h-4 mr-1" /> Delete
+        </Button>
+      </BulkActionBar>
+
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">

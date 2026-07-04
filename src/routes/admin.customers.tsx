@@ -10,12 +10,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, AlertTriangle, Pencil } from "lucide-react";
+import { Loader2, AlertTriangle, Pencil, ShieldAlert, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { formatBDT } from "@/lib/currency";
 import type { Database } from "@/integrations/supabase/types";
 import { useServerFn } from "@tanstack/react-start";
 import { updateCustomerAdmin } from "@/lib/admin-mutations.functions";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useSelection } from "@/hooks/use-selection";
+import { BulkActionBar } from "@/components/bulk-action-bar";
 
 type Customer = Database["public"]["Tables"]["customers"]["Row"];
 type RiskLevel = Database["public"]["Enums"]["risk_level"];
@@ -85,6 +88,22 @@ function CustomersPage() {
     return (c.phone ?? "").toLowerCase().includes(s) || (c.name ?? "").toLowerCase().includes(s) || (c.email ?? "").toLowerCase().includes(s);
   });
 
+  const selection = useSelection(filtered);
+
+  const bulkRisk = useMutation({
+    mutationFn: async ({ ids, risk_level }: { ids: string[]; risk_level: RiskLevel }) => {
+      await Promise.all(
+        ids.map((id) => updateCustomer({ data: { id, patch: { risk_level } } })),
+      );
+    },
+    onSuccess: (_d, v) => {
+      toast.success(`Updated ${v.ids.length} customer${v.ids.length === 1 ? "" : "s"}`);
+      qc.invalidateQueries({ queryKey: ["admin", "customers"] });
+      selection.clear();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       <div>
@@ -106,6 +125,13 @@ function CustomersPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-10">
+                  <Checkbox
+                    checked={selection.allChecked ? true : selection.someChecked ? "indeterminate" : false}
+                    onCheckedChange={(v) => selection.toggleAll(!!v)}
+                    aria-label="Select all"
+                  />
+                </TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Phone</TableHead>
                 <TableHead>Orders</TableHead>
@@ -118,7 +144,14 @@ function CustomersPage() {
               {filtered.map((c) => {
                 const s = orderStats[c.id] ?? { count: 0, spent: 0, cancelled: 0 };
                 return (
-                  <TableRow key={c.id}>
+                  <TableRow key={c.id} data-state={selection.isSelected(c.id) ? "selected" : undefined}>
+                    <TableCell>
+                      <Checkbox
+                        checked={selection.isSelected(c.id)}
+                        onCheckedChange={(v) => selection.toggle(c.id, !!v)}
+                        aria-label={`Select ${c.name ?? c.phone}`}
+                      />
+                    </TableCell>
                     <TableCell className="font-medium">{c.name ?? "—"}</TableCell>
                     <TableCell className="text-sm">{c.phone}</TableCell>
                     <TableCell>
@@ -145,6 +178,16 @@ function CustomersPage() {
           </Table>
         )}
       </Card>
+
+      <BulkActionBar count={selection.count} onClear={selection.clear}>
+        <Button variant="ghost" size="sm" disabled={bulkRisk.isPending} onClick={() => bulkRisk.mutate({ ids: selection.selectedIds, risk_level: "high" })}>
+          <ShieldAlert className="w-4 h-4 mr-1 text-rose-600" /> Flag high risk
+        </Button>
+        <Button variant="ghost" size="sm" disabled={bulkRisk.isPending} onClick={() => bulkRisk.mutate({ ids: selection.selectedIds, risk_level: "normal" })}>
+          <ShieldCheck className="w-4 h-4 mr-1 text-emerald-600" /> Mark normal
+        </Button>
+      </BulkActionBar>
+
 
       <Dialog open={!!editing} onOpenChange={(v) => !v && setEditing(null)}>
         <DialogContent>
