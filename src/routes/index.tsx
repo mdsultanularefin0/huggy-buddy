@@ -736,6 +736,14 @@ function Landing() {
                   </Reveal>
                 ))}
               </div>
+              <div className="mt-10 flex justify-center">
+                <Link
+                  to="/categories"
+                  className="inline-flex items-center gap-2 px-8 py-3 rounded-xl border-2 border-[#52277a] text-[#52277a] font-semibold hover:bg-[#52277a] hover:text-white transition-all hover:scale-105 transform-gpu"
+                >
+                  Explore Categories
+                </Link>
+              </div>
             </div>
           </section>
         ) : null}
