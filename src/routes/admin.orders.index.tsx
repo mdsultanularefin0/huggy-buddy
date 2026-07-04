@@ -284,7 +284,7 @@ function OrdersPage() {
                         <div className="space-y-0.5">
                           <span className="px-2 py-0.5 rounded bg-muted inline-block">{o.tracking_code}</span>
                           {o.consignment_id && (
-                            <div className="text-[10px] text-muted-foreground">CID: {o.consignment_id}</div>
+                            <div className="text-[10px] text-muted-foreground">{o.consignment_id}</div>
                           )}
                           {o.courier_status && (
                             <div className="text-[10px] text-muted-foreground capitalize">{o.courier_status.replace(/_/g, " ")}</div>
