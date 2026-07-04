@@ -222,6 +222,13 @@ function AdminOrderDetail() {
             </Button>
             <div className="pt-2 border-t space-y-2">
               <div className="text-xs uppercase tracking-wider text-muted-foreground">Steadfast courier</div>
+              {(order.consignment_id || order.tracking_code || order.courier_status) && (
+                <div className="text-xs space-y-1 rounded bg-muted/50 p-2">
+                  {order.consignment_id && <div>Consignment ID: <span className="font-mono">{order.consignment_id}</span></div>}
+                  {order.tracking_code && <div>Tracking code: <span className="font-mono">{order.tracking_code}</span></div>}
+                  {order.courier_status && <div className="capitalize">Status: <span className="font-medium">{order.courier_status.replace(/_/g, " ")}</span></div>}
+                </div>
+              )}
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" className="flex-1" disabled={ship.isPending} onClick={() => ship.mutate()}>
                   {ship.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Truck className="w-4 h-4 mr-1" />}
