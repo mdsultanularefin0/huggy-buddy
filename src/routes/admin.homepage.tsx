@@ -166,6 +166,7 @@ function HomepagePage() {
       const cleanFaqs = await saveFaqs({ data: { faqs_title: faqsTitle, faqs } });
       const payload = {
         hero_image: heroImageUrl || null,
+        hero_image_zoom: Math.max(50, Math.min(300, Math.round(heroImageZoom || 100))),
         hero_overlay_image: heroOverlayUrl || null,
         marquee_text: marqueeText,
         banner_image: bannerImage || null,
