@@ -125,8 +125,9 @@ function OrderPage() {
         <p className="text-center text-xs text-muted-foreground mt-6">
           Save this page or bookmark the URL to check your order later — no account required.
         </p>
-        <div className="text-center mt-6">
+        <div className="text-center mt-6 flex flex-wrap gap-2 justify-center">
           <Link to="/"><Button variant="luxe">Continue shopping</Button></Link>
+          <InvoiceButton orderId={order.id} />
         </div>
 
         <ClaimAccountSection order={order} />
