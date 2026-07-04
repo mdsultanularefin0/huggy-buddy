@@ -307,6 +307,33 @@ function ProductsPage() {
         )}
       </Card>
 
+      <BulkActionBar count={selection.count} onClear={selection.clear}>
+        <Button variant="ghost" size="sm" onClick={() => bulk.mutate({ ids: selection.selectedIds, patch: { is_active: true } })} disabled={bulk.isPending}>
+          <Eye className="w-4 h-4 mr-1" /> Activate
+        </Button>
+        <Button variant="ghost" size="sm" onClick={() => bulk.mutate({ ids: selection.selectedIds, patch: { is_active: false } })} disabled={bulk.isPending}>
+          <EyeOff className="w-4 h-4 mr-1" /> Hide
+        </Button>
+        <Button variant="ghost" size="sm" onClick={() => bulk.mutate({ ids: selection.selectedIds, patch: { in_stock: true } })} disabled={bulk.isPending}>
+          <PackageCheck className="w-4 h-4 mr-1" /> In stock
+        </Button>
+        <Button variant="ghost" size="sm" onClick={() => bulk.mutate({ ids: selection.selectedIds, patch: { in_stock: false } })} disabled={bulk.isPending}>
+          <PackageX className="w-4 h-4 mr-1" /> Out of stock
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-destructive"
+          disabled={bulkDelete.isPending}
+          onClick={() => {
+            if (confirm(`Delete ${selection.count} product(s)? This cannot be undone.`)) bulkDelete.mutate(selection.selectedIds);
+          }}
+        >
+          <Trash2 className="w-4 h-4 mr-1" /> Delete
+        </Button>
+      </BulkActionBar>
+
+
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
