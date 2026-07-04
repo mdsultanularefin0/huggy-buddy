@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
+import { useSuspenseQuery, useQuery, queryOptions } from "@tanstack/react-query";
+
 import { useMemo, useState } from "react";
 import { Sparkles, SlidersHorizontal } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -40,6 +41,7 @@ const productsPageOptions = queryOptions({
     if (pe) throw pe;
     if (ce) throw ce;
     return { products: (products ?? []) as ProductRow[], categories: (cats ?? []) as Cat[] };
+
   },
 });
 
@@ -54,7 +56,6 @@ export const Route = createFileRoute("/products")({
   component: ProductsPage,
 });
 
-const SCENT_PROFILES = ["Fresh & Floral", "Deep & Woody", "Sweet & Oriental"];
 
 function ProductsPage() {
   const { data } = useSuspenseQuery(productsPageOptions);
@@ -210,26 +211,63 @@ function FiltersPanel({
         <p className="text-xs text-gray-600 mt-1">Up to {formatBDT(maxPrice)}</p>
       </div>
 
-      <div>
-        <h3 className="font-semibold text-sm uppercase tracking-wide text-[#52277a] mb-3">Scent Profile</h3>
-        <ul className="space-y-2 text-sm">
-          {SCENT_PROFILES.map((s) => (
-            <li key={s}>
-              <label className="flex items-center gap-2 cursor-pointer text-gray-700">
-                <input
-                  type="checkbox"
-                  checked={scents.includes(s)}
-                  onChange={(e) =>
-                    setScents((prev) => (e.target.checked ? [...prev, s] : prev.filter((x) => x !== s)))
-                  }
-                  className="accent-[#a555f0]"
-                />
-                {s}
-              </label>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <ScentProfileFilter scents={scents} setScents={setScents} />
+
     </>
   );
 }
+
+function ScentProfileFilter({
+  scents,
+  setScents,
+}: {
+  scents: string[];
+  setScents: React.Dispatch<React.SetStateAction<string[]>>;
+}) {
+  const { data: profiles = [] } = useQuery({
+    queryKey: ["public", "notes", "scent-profiles"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("notes")
+        .select("scent_profile")
+        .eq("is_active", true)
+        .not("scent_profile", "is", null)
+        .order("sort_order", { ascending: true });
+      if (error) throw error;
+      return Array.from(
+        new Set(
+          (data as { scent_profile: string | null }[])
+            .map((n) => n.scent_profile)
+            .filter((s): s is string => Boolean(s)),
+        ),
+      );
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
+  if (profiles.length === 0) return null;
+
+  return (
+    <div>
+      <h3 className="font-semibold text-sm uppercase tracking-wide text-[#52277a] mb-3">Scent Profile</h3>
+      <ul className="space-y-2 text-sm">
+        {profiles.map((s) => (
+          <li key={s}>
+            <label className="flex items-center gap-2 cursor-pointer text-gray-700">
+              <input
+                type="checkbox"
+                checked={scents.includes(s)}
+                onChange={(e) =>
+                  setScents((prev) => (e.target.checked ? [...prev, s] : prev.filter((x) => x !== s)))
+                }
+                className="accent-[#a555f0]"
+              />
+              {s}
+            </label>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
