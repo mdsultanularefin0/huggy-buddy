@@ -334,15 +334,32 @@ function OrdersPage() {
 
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          title="Fraud check"
-                          disabled={!c.phone}
-                          onClick={() => runFraud(c.phone ?? "")}
-                        >
-                          <ShieldAlert className="w-4 h-4" />
-                        </Button>
+                        {(() => {
+                          const f = c.phone ? fraudByPhone[c.phone] : undefined;
+                          const r = f?.result;
+                          const pct = r && r.total_parcels > 0 ? Math.round((r.total_cancelled / r.total_parcels) * 100) : null;
+                          const risky = r ? (pct !== null && pct >= 50) || r.total_fraud_reports > 0 : false;
+                          const tone = f?.error
+                            ? "text-rose-600"
+                            : r
+                              ? risky ? "text-rose-600" : "text-emerald-600"
+                              : "";
+                          return (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              title={r ? `Cancel rate ${pct}%, ${r.total_fraud_reports} report(s)` : f?.error ?? "Fraud check"}
+                              disabled={!c.phone || f?.loading}
+                              onClick={() => runFraud(c.phone ?? "")}
+                              className={tone}
+                            >
+                              {f?.loading
+                                ? <Loader2 className="w-4 h-4 animate-spin" />
+                                : <ShieldAlert className="w-4 h-4" />}
+                              {pct !== null && <span className="ml-1 text-[11px] font-semibold">{pct}%</span>}
+                            </Button>
+                          );
+                        })()}
                         <Button variant="ghost" size="sm" asChild title="View">
                           <Link to="/admin/orders/$id" params={{ id: o.id }}>
                             <Eye className="w-4 h-4" />
