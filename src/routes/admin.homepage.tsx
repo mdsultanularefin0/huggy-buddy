@@ -90,6 +90,10 @@ function HomepagePage() {
   const [artEnabled, setArtEnabled] = useState(true);
   const [notesEnabled, setNotesEnabled] = useState(true);
   const [whispersEnabled, setWhispersEnabled] = useState(true);
+  // Shop by Category
+  const [shopcatEnabled, setShopcatEnabled] = useState(true);
+  const [shopcatTitle, setShopcatTitle] = useState("");
+  const [shopcatSubtitle, setShopcatSubtitle] = useState("");
 
 
   type UploadKind = "hero" | "overlay" | "art" | "banner" | "signature" | `note-${number}`;
