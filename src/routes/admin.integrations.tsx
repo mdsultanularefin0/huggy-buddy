@@ -7,8 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Truck, Loader2, CheckCircle2, Trash2, Film } from "lucide-react";
+import { Truck, Loader2, CheckCircle2, Trash2, Film, Mail } from "lucide-react";
 import { toast } from "sonner";
 import {
   getSteadfastStatus,
@@ -20,6 +21,9 @@ import {
   deleteMediaServerCredentials,
   testMediaServerConnection,
 } from "@/lib/integrations.functions";
+import {
+  getSmtpStatus, saveSmtpCredentials, deleteSmtpCredentials, testSmtpConnection,
+} from "@/lib/email.functions";
 
 export const Route = createFileRoute("/admin/integrations")({
   head: () => ({ meta: [{ title: "Integrations — Admin" }, { name: "robots", content: "noindex" }] }),
