@@ -12,7 +12,9 @@ type ProductRow = {
   sizes_json: { size_label: string; price: number; sale_price?: number | null }[] | null;
   image_url: string | null;
   category_id: string | null;
+  note_type?: string | null;
 };
+
 type Cat = { id: string; name: string; slug: string };
 
 const categoryPageOptions = (slug: string) =>
