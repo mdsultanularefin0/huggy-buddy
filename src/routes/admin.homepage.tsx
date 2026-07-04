@@ -46,6 +46,7 @@ function HomepagePage() {
   const [heroImageUrl, setHeroImageUrl] = useState("");
   const [heroImageZoom, setHeroImageZoom] = useState(100);
   const [heroOverlayUrl, setHeroOverlayUrl] = useState("");
+  const [heroOverlayZoom, setHeroOverlayZoom] = useState(100);
   // Banner
   const [marqueeText, setMarqueeText] = useState("");
   const [bannerImage, setBannerImage] = useState("");
