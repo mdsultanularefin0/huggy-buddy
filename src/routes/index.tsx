@@ -193,7 +193,7 @@ const featuredProductsQuery = queryOptions({
   queryFn: async () => {
     const { data, error } = await supabase
       .from("products")
-      .select("id, slug, name, regular_price, sale_price, sizes_json, image_url")
+      .select("id, slug, name, regular_price, sale_price, sizes_json, image_url, in_stock")
       .eq("is_active", true)
       .order("created_at", { ascending: false })
       .limit(4);

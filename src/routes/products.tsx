@@ -28,7 +28,7 @@ const productsPageOptions = queryOptions({
     const [{ data: products, error: pe }, { data: cats, error: ce }] = await Promise.all([
       supabase
         .from("products")
-        .select("id,slug,name,regular_price,sale_price,sizes_json,image_url,category_id")
+        .select("id,slug,name,regular_price,sale_price,sizes_json,image_url,category_id,in_stock")
         .eq("is_active", true)
         .order("created_at", { ascending: false }),
       supabase
