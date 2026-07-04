@@ -179,6 +179,13 @@ function OrdersPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-10">
+                  <Checkbox
+                    checked={selection.allChecked ? true : selection.someChecked ? "indeterminate" : false}
+                    onCheckedChange={(v) => selection.toggleAll(!!v)}
+                    aria-label="Select all"
+                  />
+                </TableHead>
                 <TableHead>Order</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Customer</TableHead>
@@ -193,7 +200,14 @@ function OrdersPage() {
               {filtered.map((o) => {
                 const c = (o.customer_json as { name?: string; phone?: string } | null) ?? {};
                 return (
-                  <TableRow key={o.id}>
+                  <TableRow key={o.id} data-state={selection.isSelected(o.id) ? "selected" : undefined}>
+                    <TableCell>
+                      <Checkbox
+                        checked={selection.isSelected(o.id)}
+                        onCheckedChange={(v) => selection.toggle(o.id, !!v)}
+                        aria-label={`Select ${o.order_number}`}
+                      />
+                    </TableCell>
                     <TableCell className="font-mono text-xs">{o.order_number}</TableCell>
                     <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
                       {new Date(o.created_at).toLocaleDateString()}
