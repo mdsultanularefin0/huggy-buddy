@@ -505,24 +505,27 @@ function ProductsPage() {
               </select>
             </div>
             <div>
-              <Label htmlFor="note_type">Scent profile</Label>
+              <Label htmlFor="scent_profile">
+                Scent profile <span className="text-destructive">*</span>
+              </Label>
               <select
-                id="note_type"
-                value={form.note_type}
-                onChange={(e) => setForm({ ...form, note_type: e.target.value })}
+                id="scent_profile"
+                required
+                value={form.scent_profile}
+                onChange={(e) => setForm({ ...form, scent_profile: e.target.value })}
                 className="mt-1 w-full h-10 rounded-md border bg-background px-3 text-sm"
               >
-                <option value="">— None —</option>
+                <option value="">— Select a scent profile —</option>
                 {noteOptions.map((n) => (
                   <option key={n} value={n}>{n}</option>
                 ))}
-                {form.note_type && !noteOptions.includes(form.note_type) && (
-                  <option value={form.note_type}>{form.note_type} (custom)</option>
+                {form.scent_profile && !noteOptions.includes(form.scent_profile) && (
+                  <option value={form.scent_profile}>{form.scent_profile} (custom)</option>
                 )}
               </select>
-              <p className="text-xs text-muted-foreground mt-1">Scent profiles come from the admin Notes section and drive the storefront filter.</p>
-
+              <p className="text-xs text-muted-foreground mt-1">Required. Scent profiles come from the admin Notes section and drive the storefront filter.</p>
             </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label htmlFor="reg">Regular price (BDT)</Label>
