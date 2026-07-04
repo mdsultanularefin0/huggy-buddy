@@ -1,7 +1,8 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
+import { zodValidator } from "@tanstack/zod-adapter";
 import { supabase } from "@/integrations/supabase/client";
-import { ListingShell } from "./products";
+import { ListingShell, listingSearchSchema } from "./products";
 
 type ProductRow = {
   id: string;
@@ -12,8 +13,10 @@ type ProductRow = {
   sizes_json: { size_label: string; price: number; sale_price?: number | null }[] | null;
   image_url: string | null;
   category_id: string | null;
-  note_type?: string | null;
+  in_stock?: boolean | null;
+  scent_profile?: string | null;
 };
+
 
 type Cat = { id: string; name: string; slug: string };
 
