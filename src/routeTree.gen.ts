@@ -38,6 +38,7 @@ import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as AdminPaymentsRouteImport } from './routes/admin.payments'
 import { Route as AdminPagesRouteImport } from './routes/admin.pages'
 import { Route as AdminNotesRouteImport } from './routes/admin.notes'
+import { Route as AdminNewsletterRouteImport } from './routes/admin.newsletter'
 import { Route as AdminMediaRouteImport } from './routes/admin.media'
 import { Route as AdminIntegrationsRouteImport } from './routes/admin.integrations'
 import { Route as AdminHomepageRouteImport } from './routes/admin.homepage'
@@ -200,6 +201,11 @@ const AdminNotesRoute = AdminNotesRouteImport.update({
   path: '/notes',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminNewsletterRoute = AdminNewsletterRouteImport.update({
+  id: '/newsletter',
+  path: '/newsletter',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminMediaRoute = AdminMediaRouteImport.update({
   id: '/media',
   path: '/media',
@@ -316,6 +322,7 @@ export interface FileRoutesByFullPath {
   '/admin/homepage': typeof AdminHomepageRoute
   '/admin/integrations': typeof AdminIntegrationsRoute
   '/admin/media': typeof AdminMediaRoute
+  '/admin/newsletter': typeof AdminNewsletterRoute
   '/admin/notes': typeof AdminNotesRoute
   '/admin/pages': typeof AdminPagesRoute
   '/admin/payments': typeof AdminPaymentsRoute
@@ -361,6 +368,7 @@ export interface FileRoutesByTo {
   '/admin/homepage': typeof AdminHomepageRoute
   '/admin/integrations': typeof AdminIntegrationsRoute
   '/admin/media': typeof AdminMediaRoute
+  '/admin/newsletter': typeof AdminNewsletterRoute
   '/admin/notes': typeof AdminNotesRoute
   '/admin/pages': typeof AdminPagesRoute
   '/admin/payments': typeof AdminPaymentsRoute
@@ -410,6 +418,7 @@ export interface FileRoutesById {
   '/admin/homepage': typeof AdminHomepageRoute
   '/admin/integrations': typeof AdminIntegrationsRoute
   '/admin/media': typeof AdminMediaRoute
+  '/admin/newsletter': typeof AdminNewsletterRoute
   '/admin/notes': typeof AdminNotesRoute
   '/admin/pages': typeof AdminPagesRoute
   '/admin/payments': typeof AdminPaymentsRoute
@@ -459,6 +468,7 @@ export interface FileRouteTypes {
     | '/admin/homepage'
     | '/admin/integrations'
     | '/admin/media'
+    | '/admin/newsletter'
     | '/admin/notes'
     | '/admin/pages'
     | '/admin/payments'
@@ -504,6 +514,7 @@ export interface FileRouteTypes {
     | '/admin/homepage'
     | '/admin/integrations'
     | '/admin/media'
+    | '/admin/newsletter'
     | '/admin/notes'
     | '/admin/pages'
     | '/admin/payments'
@@ -552,6 +563,7 @@ export interface FileRouteTypes {
     | '/admin/homepage'
     | '/admin/integrations'
     | '/admin/media'
+    | '/admin/newsletter'
     | '/admin/notes'
     | '/admin/pages'
     | '/admin/payments'
@@ -802,6 +814,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminNotesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/newsletter': {
+      id: '/admin/newsletter'
+      path: '/newsletter'
+      fullPath: '/admin/newsletter'
+      preLoaderRoute: typeof AdminNewsletterRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/media': {
       id: '/admin/media'
       path: '/media'
@@ -965,6 +984,7 @@ interface AdminRouteChildren {
   AdminHomepageRoute: typeof AdminHomepageRoute
   AdminIntegrationsRoute: typeof AdminIntegrationsRoute
   AdminMediaRoute: typeof AdminMediaRoute
+  AdminNewsletterRoute: typeof AdminNewsletterRoute
   AdminNotesRoute: typeof AdminNotesRoute
   AdminPagesRoute: typeof AdminPagesRoute
   AdminPaymentsRoute: typeof AdminPaymentsRoute
@@ -989,6 +1009,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminHomepageRoute: AdminHomepageRoute,
   AdminIntegrationsRoute: AdminIntegrationsRoute,
   AdminMediaRoute: AdminMediaRoute,
+  AdminNewsletterRoute: AdminNewsletterRoute,
   AdminNotesRoute: AdminNotesRoute,
   AdminPagesRoute: AdminPagesRoute,
   AdminPaymentsRoute: AdminPaymentsRoute,
