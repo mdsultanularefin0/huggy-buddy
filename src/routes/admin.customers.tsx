@@ -179,6 +179,16 @@ function CustomersPage() {
         )}
       </Card>
 
+      <BulkActionBar count={selection.count} onClear={selection.clear}>
+        <Button variant="ghost" size="sm" disabled={bulkRisk.isPending} onClick={() => bulkRisk.mutate({ ids: selection.selectedIds, risk_level: "high" })}>
+          <ShieldAlert className="w-4 h-4 mr-1 text-rose-600" /> Flag high risk
+        </Button>
+        <Button variant="ghost" size="sm" disabled={bulkRisk.isPending} onClick={() => bulkRisk.mutate({ ids: selection.selectedIds, risk_level: "normal" })}>
+          <ShieldCheck className="w-4 h-4 mr-1 text-emerald-600" /> Mark normal
+        </Button>
+      </BulkActionBar>
+
+
       <Dialog open={!!editing} onOpenChange={(v) => !v && setEditing(null)}>
         <DialogContent>
           <DialogHeader><DialogTitle>Edit customer</DialogTitle></DialogHeader>
