@@ -360,7 +360,7 @@ function OrdersPage() {
                             <DropdownMenuItem onClick={() => update.mutate({ id: o.id, order_status: "Returned" })}>
                               <PackageX className="w-4 h-4 mr-2" /> Mark Returned
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => update.mutate({ id: o.id, payment_status: "Paid" })}>
+                            <DropdownMenuItem onClick={() => update.mutate({ id: o.id, payment_status: "Paid", amount_paid: Number(o.total) })}>
                               <CheckCheck className="w-4 h-4 mr-2" /> Mark Paid
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
