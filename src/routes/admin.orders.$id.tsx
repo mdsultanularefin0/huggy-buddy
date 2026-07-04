@@ -262,7 +262,9 @@ function AdminOrderDetail() {
               disabled={update.isPending}
               onClick={() => {
                 const n = Number(amountPaid);
-                const paid = Number.isFinite(n) && n >= 0 ? n : 0;
+                const raw = Number.isFinite(n) && n >= 0 ? n : 0;
+                const paid = Math.min(raw, Number(order.total));
+                if (paid !== raw) setAmountPaid(String(paid));
                 update.mutate({
                   tracking_code: tracking || null,
                   notes: notes || null,
