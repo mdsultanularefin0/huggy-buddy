@@ -248,19 +248,23 @@ const HERO_OG_IMAGE = "/__l5e/assets-v1/cdb47efc-0449-4721-ba5e-c16e886a1c8b/her
 
 export const Route = createFileRoute("/")({
   head: ({ loaderData }) => {
-    const origin = (loaderData as { origin?: string } | undefined)?.origin ?? "";
+    const data = loaderData as { origin?: string; shopName?: string | null; tagline?: string | null } | undefined;
+    const origin = data?.origin ?? "";
+    const shopName = data?.shopName?.trim() || "Veloura Essence";
+    const tagline = data?.tagline?.trim() || "";
+    const title = tagline ? `${shopName} | ${tagline}` : `${shopName} | Premium Fragrances in Bangladesh`;
     const url = origin ? `${origin}/` : "/";
     const ogImage = `${origin}${HERO_OG_IMAGE}`;
     return {
       meta: [
-        { title: "Veloura Essence | Premium Fragrances in Bangladesh" },
+        { title },
         {
           name: "description",
           content:
             "Shop Veloura Essence: high-concentration luxury perfumes with long-lasting silage. Signature scents, curated collections, and honest pricing in Bangladesh.",
         },
         { name: "keywords", content: "luxury perfume Bangladesh, premium fragrance, Veloura Essence, oud, floral perfume, woody perfume, attar" },
-        { property: "og:title", content: "Veloura Essence | Premium Fragrances in Bangladesh" },
+        { property: "og:title", content: title },
         {
           property: "og:description",
           content:
@@ -269,9 +273,9 @@ export const Route = createFileRoute("/")({
         { property: "og:type", content: "website" },
         { property: "og:url", content: url },
         { property: "og:image", content: ogImage },
-        { property: "og:image:alt", content: "Veloura Essence luxury perfumes" },
+        { property: "og:image:alt", content: `${shopName} luxury perfumes` },
         { name: "twitter:card", content: "summary_large_image" },
-        { name: "twitter:title", content: "Veloura Essence | Premium Fragrances in Bangladesh" },
+        { name: "twitter:title", content: title },
         {
           name: "twitter:description",
           content: "Crafted scents, honest pricing — discover Veloura Essence.",
@@ -285,9 +289,9 @@ export const Route = createFileRoute("/")({
           children: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Store",
-            name: "Veloura Essence",
+            name: shopName,
             description:
-              "Premium luxury fragrances handcrafted in Bangladesh — long-lasting, honestly priced.",
+              tagline || "Premium luxury fragrances handcrafted in Bangladesh — long-lasting, honestly priced.",
             url: url,
             image: ogImage,
           }),
@@ -297,14 +301,19 @@ export const Route = createFileRoute("/")({
   },
   loader: async ({ context }) => {
     const { getRequestOrigin } = await import("@/lib/origin.functions");
-    const [, , , , origin] = await Promise.all([
+    const [, , , , branding, origin] = await Promise.all([
       context.queryClient.ensureQueryData(categoriesQuery),
       context.queryClient.ensureQueryData(heroSettingsQuery),
       context.queryClient.ensureQueryData(featuredProductsQuery),
       context.queryClient.ensureQueryData(notesQuery),
+      context.queryClient.ensureQueryData(brandingQueryOptions),
       getRequestOrigin(),
     ]);
-    return { origin };
+    return {
+      origin,
+      shopName: branding?.shop_name ?? null,
+      tagline: branding?.shop_tagline ?? null,
+    };
   },
   component: Landing,
   errorComponent: ({ error }) => <div className="p-8 text-center text-destructive">{error.message}</div>,
