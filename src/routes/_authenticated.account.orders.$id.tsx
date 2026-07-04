@@ -35,9 +35,16 @@ function OrderDetail() {
 
   return (
     <div className="space-y-6">
-      <Link to="/account/orders" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary">
-        <ArrowLeft className="w-4 h-4" /> Back to orders
-      </Link>
+      <div className="flex items-center justify-between">
+        <Link to="/account/orders" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary">
+          <ArrowLeft className="w-4 h-4" /> Back to orders
+        </Link>
+        <Button asChild variant="outline" size="sm">
+          <Link to="/invoice/$id" params={{ id: o.id }} target="_blank">
+            <FileText className="w-4 h-4 mr-1" /> View invoice
+          </Link>
+        </Button>
+      </div>
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold">{o.order_number}</h1>
