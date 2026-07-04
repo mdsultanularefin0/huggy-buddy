@@ -55,11 +55,13 @@ function AdminOrderDetail() {
 
   const [tracking, setTracking] = useState("");
   const [notes, setNotes] = useState("");
+  const [amountPaid, setAmountPaid] = useState("0");
 
   useEffect(() => {
     if (order) {
       setTracking(order.tracking_code ?? "");
       setNotes(order.notes ?? "");
+      setAmountPaid(String(order.amount_paid ?? 0));
     }
   }, [order]);
 
