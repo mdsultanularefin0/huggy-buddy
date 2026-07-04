@@ -288,19 +288,82 @@ function OrdersPage() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          title="Fraud check"
-                          onClick={() => runFraud(c.phone ?? "")}
-                        >
-                          <ShieldAlert className="w-4 h-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" asChild>
+                        <Button variant="ghost" size="sm" asChild title="View">
                           <Link to="/admin/orders/$id" params={{ id: o.id }}>
                             <Eye className="w-4 h-4" />
                           </Link>
                         </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="icon" className="h-8 w-8" aria-label="More actions">
+                              <MoreVertical className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-56">
+                            <DropdownMenuLabel className="font-mono text-xs">{o.order_number}</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => navigate({ to: "/admin/orders/$id", params: { id: o.id } })}>
+                              <Eye className="w-4 h-4 mr-2" /> View details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => openInvoice(o.id, false)}>
+                              <FileText className="w-4 h-4 mr-2" /> View invoice
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => openInvoice(o.id, true)}>
+                              <ExternalLink className="w-4 h-4 mr-2" /> Invoice in new tab
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => runFraud(c.phone ?? "")}>
+                              <ShieldAlert className="w-4 h-4 mr-2" /> Fraud check
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              disabled={shipOne.isPending || !!o.tracking_code}
+                              onClick={() => shipOne.mutate(o.id)}
+                            >
+                              <Truck className="w-4 h-4 mr-2" />
+                              {o.tracking_code ? "Already shipped" : "Send to Steadfast"}
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => update.mutate({ id: o.id, order_status: "Processing" })}>
+                              <PackageCheck className="w-4 h-4 mr-2" /> Mark Processing
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => update.mutate({ id: o.id, order_status: "Shipped" })}>
+                              <Truck className="w-4 h-4 mr-2" /> Mark Shipped
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => update.mutate({ id: o.id, order_status: "Completed" })}>
+                              <CheckCheck className="w-4 h-4 mr-2" /> Mark Completed
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="text-rose-600 focus:text-rose-600"
+                              onClick={() => {
+                                if (confirm(`Cancel order ${o.order_number}?`)) update.mutate({ id: o.id, order_status: "Cancelled" });
+                              }}
+                            >
+                              <Ban className="w-4 h-4 mr-2" /> Cancel order
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => update.mutate({ id: o.id, order_status: "Returned" })}>
+                              <PackageX className="w-4 h-4 mr-2" /> Mark Returned
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => update.mutate({ id: o.id, payment_status: "Paid" })}>
+                              <CheckCheck className="w-4 h-4 mr-2" /> Mark Paid
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => copyText(o.order_number, "Order #")}>
+                              <Copy className="w-4 h-4 mr-2" /> Copy order #
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              disabled={!c.phone}
+                              onClick={() => copyText(c.phone ?? "", "Phone")}
+                            >
+                              <Phone className="w-4 h-4 mr-2" /> Copy phone
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              disabled={!o.tracking_code}
+                              onClick={() => copyText(o.tracking_code ?? "", "Tracking")}
+                            >
+                              <Copy className="w-4 h-4 mr-2" /> Copy tracking
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </TableCell>
                   </TableRow>
