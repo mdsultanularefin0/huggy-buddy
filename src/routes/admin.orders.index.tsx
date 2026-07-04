@@ -76,6 +76,16 @@ function OrdersPage() {
     queryFn: () => fetchOrders({ data: { statusFilter } }),
   });
 
+  useEffect(() => {
+    const ch = supabase
+      .channel("admin-orders-list")
+      .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, () => {
+        qc.invalidateQueries({ queryKey: ["admin", "orders"] });
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [qc]);
+
   async function openInvoice(orderId: string, newTab = false) {
     try {
       const { token } = await invoiceTokenFn({ data: { id: orderId } });
