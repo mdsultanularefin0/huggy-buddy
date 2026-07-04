@@ -230,21 +230,31 @@ function AdminOrderDetail() {
               <Input
                 type="number"
                 min={0}
+                max={order.total}
                 step="0.01"
                 value={amountPaid}
                 onChange={(e) => setAmountPaid(e.target.value)}
                 className="mt-1"
               />
-              <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground">Total</span>
-                <span className="font-medium">{formatBDT(order.total)}</span>
-              </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground">Balance due</span>
-                <span className={`font-semibold ${Math.max(0, order.total - (Number(amountPaid) || 0)) > 0 ? "text-amber-600" : "text-emerald-600"}`}>
-                  {formatBDT(Math.max(0, order.total - (Number(amountPaid) || 0)))}
-                </span>
-              </div>
+              {(() => {
+                const raw = Number(amountPaid);
+                const paid = Number.isFinite(raw) ? Math.min(Math.max(0, raw), Number(order.total)) : 0;
+                const due = Math.max(0, Number(order.total) - paid);
+                return (
+                  <>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-muted-foreground">Total</span>
+                      <span className="font-medium">{formatBDT(order.total)}</span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-muted-foreground">Balance due</span>
+                      <span className={`font-semibold ${due > 0 ? "text-amber-600" : "text-emerald-600"}`}>
+                        {formatBDT(due)}
+                      </span>
+                    </div>
+                  </>
+                );
+              })()}
             </div>
             <Button
               variant="luxe"
@@ -252,7 +262,9 @@ function AdminOrderDetail() {
               disabled={update.isPending}
               onClick={() => {
                 const n = Number(amountPaid);
-                const paid = Number.isFinite(n) && n >= 0 ? n : 0;
+                const raw = Number.isFinite(n) && n >= 0 ? n : 0;
+                const paid = Math.min(raw, Number(order.total));
+                if (paid !== raw) setAmountPaid(String(paid));
                 update.mutate({
                   tracking_code: tracking || null,
                   notes: notes || null,
