@@ -484,6 +484,7 @@ function PaidCell({ order, onSave }: { order: Order; onSave: (amount: number) =>
       <Input
         type="number"
         min={0}
+        max={total}
         step="0.01"
         value={val}
         onChange={(e) => setVal(e.target.value)}
