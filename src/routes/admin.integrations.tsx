@@ -213,6 +213,8 @@ function SmtpCard() {
     </Card>
   );
 }
+
+function MediaServerCard() {
   const qc = useQueryClient();
   const getStatus = useServerFn(getMediaServerStatus);
   const saveFn = useServerFn(saveMediaServerCredentials);
