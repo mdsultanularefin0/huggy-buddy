@@ -125,6 +125,13 @@ function CustomersPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-10">
+                  <Checkbox
+                    checked={selection.allChecked ? true : selection.someChecked ? "indeterminate" : false}
+                    onCheckedChange={(v) => selection.toggleAll(!!v)}
+                    aria-label="Select all"
+                  />
+                </TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Phone</TableHead>
                 <TableHead>Orders</TableHead>
@@ -137,7 +144,14 @@ function CustomersPage() {
               {filtered.map((c) => {
                 const s = orderStats[c.id] ?? { count: 0, spent: 0, cancelled: 0 };
                 return (
-                  <TableRow key={c.id}>
+                  <TableRow key={c.id} data-state={selection.isSelected(c.id) ? "selected" : undefined}>
+                    <TableCell>
+                      <Checkbox
+                        checked={selection.isSelected(c.id)}
+                        onCheckedChange={(v) => selection.toggle(c.id, !!v)}
+                        aria-label={`Select ${c.name ?? c.phone}`}
+                      />
+                    </TableCell>
                     <TableCell className="font-medium">{c.name ?? "—"}</TableCell>
                     <TableCell className="text-sm">{c.phone}</TableCell>
                     <TableCell>
