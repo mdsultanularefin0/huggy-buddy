@@ -322,7 +322,7 @@ function ProductsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {products.map((p) => (
+              {filtered.map((p) => (
                 <TableRow key={p.id} data-state={selection.isSelected(p.id) ? "selected" : undefined}>
                   <TableCell>
                     <Checkbox
