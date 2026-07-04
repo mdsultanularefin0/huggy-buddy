@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { CheckCircle2, Search, UserPlus, Loader2, RefreshCw } from "lucide-react";
+import { CheckCircle2, FileText, Search, UserPlus, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +9,7 @@ import { formatBDT } from "@/lib/currency";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { getOrderById, lookupOrder, claimGuestOrder } from "@/lib/orders.functions";
+import { getInvoiceToken } from "@/lib/invoice.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
