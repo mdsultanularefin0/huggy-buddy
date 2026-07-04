@@ -17,7 +17,7 @@ import { getSteadfastFraudCheck, bulkCreateSteadfastShipments } from "@/lib/inte
 import { Checkbox } from "@/components/ui/checkbox";
 import { useSelection } from "@/hooks/use-selection";
 import { BulkActionBar } from "@/components/bulk-action-bar";
-import { getSteadfastFraudCheck } from "@/lib/integrations.functions";
+
 
 type Order = Database["public"]["Tables"]["orders"]["Row"];
 type OrderStatus = Database["public"]["Enums"]["order_status"];
