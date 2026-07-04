@@ -224,26 +224,8 @@ function FiltersPanel({
         <p className="text-xs text-gray-600 mt-1">Up to {formatBDT(maxPrice)}</p>
       </div>
 
-      <div>
-        <h3 className="font-semibold text-sm uppercase tracking-wide text-[#52277a] mb-3">Scent Profile</h3>
-        <ul className="space-y-2 text-sm">
-          {SCENT_PROFILES.map((s) => (
-            <li key={s}>
-              <label className="flex items-center gap-2 cursor-pointer text-gray-700">
-                <input
-                  type="checkbox"
-                  checked={scents.includes(s)}
-                  onChange={(e) =>
-                    setScents((prev) => (e.target.checked ? [...prev, s] : prev.filter((x) => x !== s)))
-                  }
-                  className="accent-[#a555f0]"
-                />
-                {s}
-              </label>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <ScentProfileFilter scents={scents} setScents={setScents} />
+
     </>
   );
 }
