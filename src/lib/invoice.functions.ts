@@ -54,8 +54,9 @@ export const getInvoiceOrder = createServerFn({ method: "GET" })
 
     // 2) Authenticated user: owner or admin.
     if (!allowed) {
-      const { getRequestHeader } = await import("@tanstack/react-start/server");
-      const authHeader = getRequestHeader("authorization");
+      const { getRequest } = await import("@tanstack/react-start/server");
+      const req = getRequest();
+      const authHeader = req?.headers.get("authorization");
       const bearer = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
       if (bearer) {
         const { data: userRes } = await supabaseAdmin.auth.getUser(bearer);
