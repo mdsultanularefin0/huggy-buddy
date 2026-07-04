@@ -480,7 +480,7 @@ function Landing() {
 
   const heroImageBlock = (
     <div className="relative w-full max-w-[300px] mx-auto lg:mx-0 aspect-[3/4] mb-2 lg:mb-12">
-      <div className="absolute inset-0 z-0 rounded-2xl bg-gradient-to-br from-purple-100 to-purple-50" />
+      <div className="absolute inset-0 z-0 rounded-2xl" />
       {heroImage ? (
         <img
           src={heroImage}
