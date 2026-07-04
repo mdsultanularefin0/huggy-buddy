@@ -120,6 +120,7 @@ function HomepagePage() {
     if (!settings) return;
     const s = settings as Record<string, unknown>;
     setHeroImageUrl((s.hero_image as string) ?? "");
+    setHeroImageZoom(Number((s.hero_image_zoom as number | null) ?? 100));
     setHeroOverlayUrl((s.hero_overlay_image as string) ?? "");
     setMarqueeText((s.marquee_text as string) ?? "");
     setBannerImage((s.banner_image as string) ?? "");
