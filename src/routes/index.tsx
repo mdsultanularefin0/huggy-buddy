@@ -390,6 +390,7 @@ function Landing() {
   const heroImage = hero?.hero_image ?? null;
   const heroImageZoom = Number(((hero ?? {}) as Record<string, unknown>).hero_image_zoom ?? 100) || 100;
   const heroOverlay = hero?.hero_overlay_image ?? null;
+  const heroOverlayZoom = Number(((hero ?? {}) as Record<string, unknown>).hero_overlay_zoom ?? 100) || 100;
 
   const h = (hero ?? {}) as Record<string, unknown>;
   const signatureTitle = (h.signature_title as string) || "Our Signature Collection";
