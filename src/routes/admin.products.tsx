@@ -41,7 +41,7 @@ const empty = {
   stock_quantity: 0,
   sizes_json: [] as Size[],
   category_id: null as string | null,
-  note_type: "" as string,
+  scent_profile: "" as string,
 };
 
 function ProductsPage() {
