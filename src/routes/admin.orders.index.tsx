@@ -7,16 +7,26 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, Eye, ShieldAlert, X, Truck, CheckCheck } from "lucide-react";
+import { Loader2, Eye, ShieldAlert, X, Truck, CheckCheck, MoreVertical, FileText, ExternalLink, Copy, Phone, PackageCheck, PackageX, Ban } from "lucide-react";
 import { toast } from "sonner";
 import { formatBDT } from "@/lib/currency";
 import type { Database } from "@/integrations/supabase/types";
 import { useServerFn } from "@tanstack/react-start";
 import { listAdminOrders, updateOrderAdmin } from "@/lib/admin-mutations.functions";
 import { getSteadfastFraudCheck, bulkCreateSteadfastShipments } from "@/lib/integrations.functions";
+import { getInvoiceToken } from "@/lib/invoice.functions";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useSelection } from "@/hooks/use-selection";
 import { BulkActionBar } from "@/components/bulk-action-bar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useNavigate } from "@tanstack/react-router";
 
 
 type Order = Database["public"]["Tables"]["orders"]["Row"];
@@ -49,6 +59,7 @@ function OrdersPage() {
   const fetchOrders = useServerFn(listAdminOrders);
   const updateOrder = useServerFn(updateOrderAdmin);
   const fraudFn = useServerFn(getSteadfastFraudCheck);
+  const bulkShipFn = useServerFn(bulkCreateSteadfastShipments);
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
   const [paymentFilter, setPaymentFilter] = useState<PaymentStatus | "all">("all");
   const [search, setSearch] = useState("");
@@ -56,9 +67,38 @@ function OrdersPage() {
   const [dateTo, setDateTo] = useState("");
   const [fraud, setFraud] = useState<{ phone: string; loading: boolean; result: FraudResult | null; error?: string } | null>(null);
 
+  const invoiceTokenFn = useServerFn(getInvoiceToken);
+  const navigate = useNavigate();
+
   const { data: orders = [], isLoading, isError, error } = useQuery({
     queryKey: ["admin", "orders", statusFilter],
     queryFn: () => fetchOrders({ data: { statusFilter } }),
+  });
+
+  async function openInvoice(orderId: string, newTab = false) {
+    try {
+      const { token } = await invoiceTokenFn({ data: { id: orderId } });
+      const url = `/invoice/${orderId}?token=${encodeURIComponent(token)}`;
+      if (newTab) window.open(url, "_blank");
+      else navigate({ to: "/invoice/$id", params: { id: orderId }, search: { token } });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not open invoice");
+    }
+  }
+
+  async function copyText(value: string, label: string) {
+    try {
+      await navigator.clipboard.writeText(value);
+      toast.success(`${label} copied`);
+    } catch {
+      toast.error("Copy failed");
+    }
+  }
+
+  const shipOne = useMutation({
+    mutationFn: async (id: string) => bulkShipFn({ data: { order_ids: [id] } }),
+    onSuccess: () => { toast.success("Shipment created"); qc.invalidateQueries({ queryKey: ["admin", "orders"] }); },
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const update = useMutation({
@@ -92,7 +132,6 @@ function OrdersPage() {
   }, [orders, paymentFilter, dateFrom, dateTo, search]);
 
   const selection = useSelection(filtered);
-  const bulkShipFn = useServerFn(bulkCreateSteadfastShipments);
 
   const bulkStatus = useMutation({
     mutationFn: async ({ ids, order_status }: { ids: string[]; order_status: OrderStatus }) => {
@@ -249,19 +288,82 @@ function OrdersPage() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          title="Fraud check"
-                          onClick={() => runFraud(c.phone ?? "")}
-                        >
-                          <ShieldAlert className="w-4 h-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" asChild>
+                        <Button variant="ghost" size="sm" asChild title="View">
                           <Link to="/admin/orders/$id" params={{ id: o.id }}>
                             <Eye className="w-4 h-4" />
                           </Link>
                         </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="icon" className="h-8 w-8" aria-label="More actions">
+                              <MoreVertical className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-56">
+                            <DropdownMenuLabel className="font-mono text-xs">{o.order_number}</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => navigate({ to: "/admin/orders/$id", params: { id: o.id } })}>
+                              <Eye className="w-4 h-4 mr-2" /> View details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => openInvoice(o.id, false)}>
+                              <FileText className="w-4 h-4 mr-2" /> View invoice
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => openInvoice(o.id, true)}>
+                              <ExternalLink className="w-4 h-4 mr-2" /> Invoice in new tab
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => runFraud(c.phone ?? "")}>
+                              <ShieldAlert className="w-4 h-4 mr-2" /> Fraud check
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              disabled={shipOne.isPending || !!o.tracking_code}
+                              onClick={() => shipOne.mutate(o.id)}
+                            >
+                              <Truck className="w-4 h-4 mr-2" />
+                              {o.tracking_code ? "Already shipped" : "Send to Steadfast"}
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => update.mutate({ id: o.id, order_status: "Processing" })}>
+                              <PackageCheck className="w-4 h-4 mr-2" /> Mark Processing
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => update.mutate({ id: o.id, order_status: "Shipped" })}>
+                              <Truck className="w-4 h-4 mr-2" /> Mark Shipped
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => update.mutate({ id: o.id, order_status: "Completed" })}>
+                              <CheckCheck className="w-4 h-4 mr-2" /> Mark Completed
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="text-rose-600 focus:text-rose-600"
+                              onClick={() => {
+                                if (confirm(`Cancel order ${o.order_number}?`)) update.mutate({ id: o.id, order_status: "Cancelled" });
+                              }}
+                            >
+                              <Ban className="w-4 h-4 mr-2" /> Cancel order
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => update.mutate({ id: o.id, order_status: "Returned" })}>
+                              <PackageX className="w-4 h-4 mr-2" /> Mark Returned
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => update.mutate({ id: o.id, payment_status: "Paid" })}>
+                              <CheckCheck className="w-4 h-4 mr-2" /> Mark Paid
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => copyText(o.order_number, "Order #")}>
+                              <Copy className="w-4 h-4 mr-2" /> Copy order #
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              disabled={!c.phone}
+                              onClick={() => copyText(c.phone ?? "", "Phone")}
+                            >
+                              <Phone className="w-4 h-4 mr-2" /> Copy phone
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              disabled={!o.tracking_code}
+                              onClick={() => copyText(o.tracking_code ?? "", "Tracking")}
+                            >
+                              <Copy className="w-4 h-4 mr-2" /> Copy tracking
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </TableCell>
                   </TableRow>
