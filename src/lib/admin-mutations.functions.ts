@@ -95,6 +95,8 @@ export const updateOrderAdmin = createServerFn({ method: "POST" })
 
 const adminOrdersListSchema = z.object({
   statusFilter: z.union([orderStatusSchema, z.literal("all")]).default("all"),
+  page: z.number().int().min(1).default(1),
+  limit: z.number().int().min(1).max(200).default(50),
 });
 
 export const listAdminOrders = createServerFn({ method: "GET" })
@@ -104,19 +106,28 @@ export const listAdminOrders = createServerFn({ method: "GET" })
     await assertAdmin(context.userId, context.supabase);
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const from = (data.page - 1) * data.limit;
+    const to = from + data.limit - 1;
+
     let query = supabaseAdmin
       .from("orders")
-      .select("*")
+      .select("*", { count: "exact" })
       .order("created_at", { ascending: false })
-      .limit(200);
+      .range(from, to);
 
     if (data.statusFilter !== "all") {
       query = query.eq("order_status", data.statusFilter);
     }
 
-    const { data: orders, error } = await query;
+    const { data: orders, error, count } = await query;
     if (error) throw new Error(error.message);
-    return orders ?? [];
+    return {
+      orders: orders ?? [],
+      total: count ?? 0,
+      page: data.page,
+      limit: data.limit,
+      totalPages: Math.max(1, Math.ceil((count ?? 0) / data.limit)),
+    };
   });
 
 export const getAdminOrderCount = createServerFn({ method: "GET" })

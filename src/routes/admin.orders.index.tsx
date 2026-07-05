@@ -66,16 +66,23 @@ function OrdersPage() {
   const [search, setSearch] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const [page, setPage] = useState(1);
+  const limit = 50;
   const [fraud, setFraud] = useState<{ phone: string; loading: boolean; result: FraudResult | null; error?: string } | null>(null);
   const [fraudByPhone, setFraudByPhone] = useState<Record<string, { loading?: boolean; result?: FraudResult; error?: string }>>({});
 
   const invoiceTokenFn = useServerFn(getInvoiceToken);
   const navigate = useNavigate();
 
-  const { data: orders = [], isLoading, isError, error } = useQuery({
-    queryKey: ["admin", "orders", statusFilter],
-    queryFn: () => fetchOrders({ data: { statusFilter } }),
+  useEffect(() => { setPage(1); }, [statusFilter]);
+
+  const { data: pageData, isLoading, isError, error } = useQuery({
+    queryKey: ["admin", "orders", statusFilter, page, limit],
+    queryFn: () => fetchOrders({ data: { statusFilter, page, limit } }),
   });
+  const orders: Order[] = pageData?.orders ?? [];
+  const total = pageData?.total ?? 0;
+  const totalPages = pageData?.totalPages ?? 1;
 
   useEffect(() => {
     const ch = supabase
@@ -223,7 +230,9 @@ function OrdersPage() {
             <Button variant="ghost" size="icon" onClick={clearDates} className="h-8 w-8"><X className="w-4 h-4" /></Button>
           )}
         </div>
-        <span className="text-sm text-muted-foreground ml-auto">{filtered.length} order{filtered.length === 1 ? "" : "s"}</span>
+        <span className="text-sm text-muted-foreground ml-auto">
+          {filtered.length} of {total} order{total === 1 ? "" : "s"}
+        </span>
       </div>
 
       <Card className="shadow-card overflow-hidden">
@@ -445,6 +454,30 @@ function OrdersPage() {
           </Table>
         )}
       </Card>
+
+      <div className="flex items-center justify-between gap-3">
+        <div className="text-xs text-muted-foreground">
+          Page {page} of {totalPages} · {total} total
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={page <= 1 || isLoading}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+          >
+            Previous
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={page >= totalPages || isLoading}
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+          >
+            Next
+          </Button>
+        </div>
+      </div>
 
       <FraudDialog data={fraud} onClose={() => setFraud(null)} />
 
