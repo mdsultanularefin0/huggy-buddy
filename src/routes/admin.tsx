@@ -101,8 +101,6 @@ function AdminLayout() {
         <div className="flex-1 flex flex-col min-w-0">
           <header className="h-14 border-b border-border/60 bg-background/70 backdrop-blur-xl flex items-center px-4 gap-3 sticky top-0 z-30">
             <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
-            <div className="h-5 w-px bg-border/70" />
-            <span className="text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">Veloura Essence · Admin</span>
           </header>
           <main className="flex-1 p-6 lg:p-8">
             <Outlet />
@@ -136,7 +134,7 @@ function AdminSidebar({ email }: { email: string }) {
       className="border-r border-sidebar-border/60 [&_[data-sidebar=sidebar]]:bg-[linear-gradient(180deg,oklch(0.24_0.08_305)_0%,oklch(0.18_0.06_305)_100%)]"
     >
       <SidebarHeader className="border-b border-sidebar-border/40 px-3 py-4">
-        <Link to="/admin" className="flex items-center gap-2.5 group">
+        <Link to="/" className="flex items-center gap-2.5 group">
           {logoUrl ? (
             <img src={logoUrl} alt="Site logo" className="h-9 w-auto object-contain shrink-0 transition-transform group-hover:scale-[1.03]" />
           ) : (
