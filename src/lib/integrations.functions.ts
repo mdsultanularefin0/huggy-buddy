@@ -371,19 +371,6 @@ async function loadMediaServerCreds(): Promise<MediaServerCreds> {
 
 // -------- Media server proxies (API key never leaves the server) --------
 
-/** Tells the admin UI whether the media server is configured. Never returns the API key. */
-export const getMediaServerStatus = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    await assertAdmin(context.userId, context.supabase);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data } = await supabaseAdmin
-      .from("integration_credentials")
-      .select("provider")
-      .eq("provider", MEDIA_PROVIDER)
-      .maybeSingle();
-    return { configured: !!data };
-  });
 
 export const testMediaServerConnection = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
