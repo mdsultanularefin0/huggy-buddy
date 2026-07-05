@@ -50,41 +50,45 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
+  const { queryClient } = Route.useRouteContext();
   useEffect(() => {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <SiteHeader />
-      <main className="flex-1 flex items-center justify-center px-4 py-16">
-        <div className="max-w-md text-center">
-          <h1 className="text-xl font-semibold tracking-tight text-foreground">
-            This page didn't load
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Something went wrong on our end. Try refreshing or head back home.
-          </p>
-          <div className="mt-6 flex flex-wrap justify-center gap-2">
-            <button
-              onClick={() => { router.invalidate(); reset(); }}
-              className="inline-flex h-10 items-center justify-center rounded-xl bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-            >
-              Try again
-            </button>
-            <a
-              href="/"
-              className="inline-flex h-10 items-center justify-center rounded-xl border border-input bg-background px-5 text-sm font-medium text-foreground transition-colors hover:bg-accent/10"
-            >
-              Go home
-            </a>
+    <QueryClientProvider client={queryClient}>
+      <div className="min-h-screen flex flex-col bg-background">
+        <SiteHeader />
+        <main className="flex-1 flex items-center justify-center px-4 py-16">
+          <div className="max-w-md text-center">
+            <h1 className="text-xl font-semibold tracking-tight text-foreground">
+              This page didn't load
+            </h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {error?.message || "Something went wrong on our end. Try refreshing or head back home."}
+            </p>
+            <div className="mt-6 flex flex-wrap justify-center gap-2">
+              <button
+                onClick={() => { router.invalidate(); reset(); }}
+                className="inline-flex h-10 items-center justify-center rounded-xl bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+              >
+                Try again
+              </button>
+              <a
+                href="/"
+                className="inline-flex h-10 items-center justify-center rounded-xl border border-input bg-background px-5 text-sm font-medium text-foreground transition-colors hover:bg-accent/10"
+              >
+                Go home
+              </a>
+            </div>
           </div>
-        </div>
-      </main>
-      <SiteFooter />
-    </div>
+        </main>
+        <SiteFooter />
+      </div>
+    </QueryClientProvider>
   );
 }
+
 
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
