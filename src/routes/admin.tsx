@@ -82,6 +82,7 @@ function AdminLayout() {
   const navigate = useNavigate();
   const { user, loading } = useSession();
   const isAdmin = useIsAdmin(user?.id);
+  const { data: branding } = useQuery(brandingQueryOptions);
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth", search: { redirect: "/admin" } });
