@@ -134,7 +134,7 @@ function AdminSidebar({ email }: { email: string }) {
       className="border-r border-sidebar-border/60 [&_[data-sidebar=sidebar]]:bg-[linear-gradient(180deg,oklch(0.24_0.08_305)_0%,oklch(0.18_0.06_305)_100%)]"
     >
       <SidebarHeader className="border-b border-sidebar-border/40 px-3 py-4">
-        <Link to="/admin" className="flex items-center gap-2.5 group">
+        <Link to="/" className="flex items-center gap-2.5 group">
           {logoUrl ? (
             <img src={logoUrl} alt="Site logo" className="h-9 w-auto object-contain shrink-0 transition-transform group-hover:scale-[1.03]" />
           ) : (
