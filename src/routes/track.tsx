@@ -164,7 +164,8 @@ function currentStatusLabel(o: OrderInfo) {
 }
 
 function TrackPage() {
-  const [query, setQuery] = useState("");
+  const [orderNumber, setOrderNumber] = useState("");
+  const [contact, setContact] = useState("");
   const [loading, setLoading] = useState(false);
   const [orders, setOrders] = useState<OrderInfo[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -175,7 +176,7 @@ function TrackPage() {
     setOrders([]);
     setSelectedId(null);
     try {
-      const res = await lookupOrder({ data: { query } });
+      const res = await lookupOrder({ data: { orderNumber, contact } });
       if (!res.ok) {
         toast.error(res.error);
         return;
@@ -201,18 +202,29 @@ function TrackPage() {
             <h1 className="text-3xl font-semibold tracking-tight">Track your order</h1>
           </div>
           <p className="text-muted-foreground text-sm">
-            Look up by your order number, email, or phone number.
+            Enter your order number and the email or phone used at checkout.
           </p>
         </div>
 
         <form onSubmit={handleLookup} className="rounded-2xl border bg-card p-6 grid gap-4">
           <div className="space-y-1.5">
-            <Label htmlFor="track-query">Order number, email, or phone</Label>
+            <Label htmlFor="track-order">Order number</Label>
             <Input
-              id="track-query"
-              placeholder="VE-XXXXXX-XXXXXX, you@example.com, or 01XXXXXXXXX"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              id="track-order"
+              placeholder="VE-XXXXXX-XXXXXX"
+              value={orderNumber}
+              onChange={(e) => setOrderNumber(e.target.value)}
+              minLength={3}
+              required
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="track-contact">Email or phone</Label>
+            <Input
+              id="track-contact"
+              placeholder="you@example.com or 01XXXXXXXXX"
+              value={contact}
+              onChange={(e) => setContact(e.target.value)}
               minLength={3}
               required
             />
@@ -221,6 +233,7 @@ function TrackPage() {
             {loading ? "Looking up…" : "Track order"}
           </Button>
         </form>
+
 
         {orders.length > 1 && (
           <div className="mt-6 rounded-2xl border bg-card p-4">
