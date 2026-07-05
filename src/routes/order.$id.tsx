@@ -141,20 +141,23 @@ function OrderPage() {
 
 function TrackOrderSection() {
   const navigate = useNavigate();
-  const [orderNumber, setOrderNumber] = useState("");
-  const [email, setEmail] = useState("");
+  const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleLookup(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await lookupOrder({ data: { orderNumber, email } });
+      const res = await lookupOrder({ data: { query } });
       if (!res.ok) {
         toast.error(res.error);
         return;
       }
+      if (res.orders.length > 1) {
+        toast.info(`Found ${res.orders.length} orders — showing the most recent.`);
+      }
       navigate({ to: "/order/$id", params: { id: res.id } });
+
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Lookup failed");
     } finally {
@@ -169,31 +172,20 @@ function TrackOrderSection() {
         <h2 className="font-semibold">Track your order</h2>
       </div>
       <p className="text-sm text-muted-foreground mb-4">
-        Enter the order number and the email used at checkout to view a different order.
+        Enter your order number, email, or phone to view a different order.
       </p>
-      <form onSubmit={handleLookup} className="grid gap-3 sm:grid-cols-2">
+      <form onSubmit={handleLookup} className="grid gap-3 sm:grid-cols-[1fr_auto]">
         <div className="space-y-1.5">
-          <Label htmlFor="track-order-number">Order number</Label>
+          <Label htmlFor="track-query">Order number, email or phone</Label>
           <Input
-            id="track-order-number"
-            placeholder="VE-XXXXXX-XXXXXX"
-            value={orderNumber}
-            onChange={(e) => setOrderNumber(e.target.value)}
+            id="track-query"
+            placeholder="VE-XXXXXX-XXXXXX, you@example.com, or 01XXXXXXXXX"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
             required
           />
         </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="track-email">Email</Label>
-          <Input
-            id="track-email"
-            type="email"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <div className="sm:col-span-2">
+        <div className="flex items-end">
           <Button type="submit" variant="luxe" className="w-full sm:w-auto" disabled={loading}>
             {loading ? "Looking up…" : "Track order"}
           </Button>
@@ -202,6 +194,7 @@ function TrackOrderSection() {
     </div>
   );
 }
+
 
 function ClaimAccountSection({ order }: { order: OrderRow }) {
   const qc = useQueryClient();

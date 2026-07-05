@@ -164,28 +164,32 @@ function currentStatusLabel(o: OrderInfo) {
 }
 
 function TrackPage() {
-  const [orderNumber, setOrderNumber] = useState("");
-  const [email, setEmail] = useState("");
+  const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
-  const [order, setOrder] = useState<OrderInfo | null>(null);
+  const [orders, setOrders] = useState<OrderInfo[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   async function handleLookup(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    setOrder(null);
+    setOrders([]);
+    setSelectedId(null);
     try {
-      const res = await lookupOrder({ data: { orderNumber, email } });
+      const res = await lookupOrder({ data: { query } });
       if (!res.ok) {
         toast.error(res.error);
         return;
       }
-      setOrder(res.order);
+      setOrders(res.orders);
+      setSelectedId(res.orders[0].id);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Lookup failed");
     } finally {
       setLoading(false);
     }
   }
+
+  const order = orders.find((o) => o.id === selectedId) ?? null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -197,29 +201,19 @@ function TrackPage() {
             <h1 className="text-3xl font-semibold tracking-tight">Track your order</h1>
           </div>
           <p className="text-muted-foreground text-sm">
-            Enter your order number and the email you used at checkout.
+            Look up by your order number, email, or phone number.
           </p>
         </div>
 
         <form onSubmit={handleLookup} className="rounded-2xl border bg-card p-6 grid gap-4">
           <div className="space-y-1.5">
-            <Label htmlFor="track-order-number">Order number</Label>
+            <Label htmlFor="track-query">Order number, email, or phone</Label>
             <Input
-              id="track-order-number"
-              placeholder="VE-XXXXXX-XXXXXX"
-              value={orderNumber}
-              onChange={(e) => setOrderNumber(e.target.value)}
-              required
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="track-email">Email</Label>
-            <Input
-              id="track-email"
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              id="track-query"
+              placeholder="VE-XXXXXX-XXXXXX, you@example.com, or 01XXXXXXXXX"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              minLength={3}
               required
             />
           </div>
@@ -227,6 +221,37 @@ function TrackPage() {
             {loading ? "Looking up…" : "Track order"}
           </Button>
         </form>
+
+        {orders.length > 1 && (
+          <div className="mt-6 rounded-2xl border bg-card p-4">
+            <p className="text-xs uppercase tracking-wide text-muted-foreground mb-3">
+              {orders.length} orders found — select one
+            </p>
+            <div className="grid gap-2">
+              {orders.map((o) => {
+                const active = o.id === selectedId;
+                return (
+                  <button
+                    key={o.id}
+                    type="button"
+                    onClick={() => setSelectedId(o.id)}
+                    className={`text-left rounded-lg border px-3 py-2 flex items-center justify-between gap-3 transition-colors ${
+                      active ? "border-primary bg-primary/5" : "hover:bg-muted/40"
+                    }`}
+                  >
+                    <div>
+                      <p className="text-sm font-medium">{o.order_number}</p>
+                      <p className="text-xs text-muted-foreground">{fmtDate(o.created_at)}</p>
+                    </div>
+                    <span className={`text-xs ${statusTone(o.order_status)}`}>
+                      {o.order_status ?? "pending"}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {order && (
           <div className="mt-8 rounded-2xl border bg-card p-6">
@@ -302,3 +327,4 @@ function TrackPage() {
     </div>
   );
 }
+
