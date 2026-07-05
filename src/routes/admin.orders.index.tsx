@@ -230,7 +230,9 @@ function OrdersPage() {
             <Button variant="ghost" size="icon" onClick={clearDates} className="h-8 w-8"><X className="w-4 h-4" /></Button>
           )}
         </div>
-        <span className="text-sm text-muted-foreground ml-auto">{filtered.length} order{filtered.length === 1 ? "" : "s"}</span>
+        <span className="text-sm text-muted-foreground ml-auto">
+          {filtered.length} of {total} order{total === 1 ? "" : "s"}
+        </span>
       </div>
 
       <Card className="shadow-card overflow-hidden">
