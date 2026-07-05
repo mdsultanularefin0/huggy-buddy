@@ -82,7 +82,6 @@ function AdminLayout() {
   const navigate = useNavigate();
   const { user, loading } = useSession();
   const isAdmin = useIsAdmin(user?.id);
-  const { data: branding } = useQuery(brandingQueryOptions);
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth", search: { redirect: "/admin" } });
@@ -103,7 +102,7 @@ function AdminLayout() {
           <header className="h-14 border-b border-border/60 bg-background/70 backdrop-blur-xl flex items-center px-4 gap-3 sticky top-0 z-30">
             <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
             <div className="h-5 w-px bg-border/70" />
-            <span className="text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">{branding?.shop_name ?? "Admin"} · Admin</span>
+            <span className="text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">Veloura Essence · Admin</span>
           </header>
           <main className="flex-1 p-6 lg:p-8">
             <Outlet />
