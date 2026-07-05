@@ -74,9 +74,39 @@ export const getInvoiceOrder = createServerFn({ method: "GET" })
     return { order, branding: settings ?? null };
   });
 
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+
 export const getInvoiceToken = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: order, error } = await supabaseAdmin
+      .from("orders")
+      .select("id,user_id,customer_json")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!order) throw new Error("Order not found");
+
+    let allowed = false;
+    if (order.user_id && order.user_id === context.userId) allowed = true;
+    if (!allowed) {
+      const { data: role } = await supabaseAdmin
+        .from("user_roles")
+        .select("id")
+        .eq("user_id", context.userId)
+        .eq("role", "admin")
+        .maybeSingle();
+      if (role) allowed = true;
+    }
+    if (!allowed) {
+      const orderEmail = (order.customer_json as { email?: string } | null)?.email?.toLowerCase().trim();
+      const userEmail = (context.claims as { email?: string } | null)?.email?.toLowerCase().trim();
+      if (orderEmail && userEmail && orderEmail === userEmail) allowed = true;
+    }
+    if (!allowed) throw new Error("Not authorized to generate invoice token");
+
     const { signInvoiceId } = await import("@/lib/invoice-sign.server");
     return { token: signInvoiceId(data.id) };
   });

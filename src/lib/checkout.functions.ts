@@ -117,31 +117,39 @@ export const createOrder = createServerFn({ method: "POST" })
       .maybeSingle();
     if (zoneErr || !zone || !zone.is_active) throw new Error("Invalid delivery zone");
 
-    // Validate stock availability for every product line in the cart
-    const productIds = Array.from(
-      new Set(data.items.filter((i) => i.kind === "product").map((i) => i.refId)),
-    );
-    if (productIds.length > 0) {
-      const { data: stockRows, error: stockErr } = await supabaseAdmin
-        .from("products")
-        .select("id,name,in_stock,is_active")
-        .in("id", productIds);
-      if (stockErr) throw new Error("Could not verify stock");
-      const byId = new Map((stockRows ?? []).map((p) => [p.id, p]));
-      const unavailable: string[] = [];
-      for (const item of data.items) {
-        if (item.kind !== "product") continue;
-        const p = byId.get(item.refId);
-        if (!p || !p.is_active || !p.in_stock) {
-          unavailable.push(`${p?.name ?? item.name}${item.size ? ` (${item.size})` : ""}`);
-        }
-        if (item.quantity < 1 || item.quantity > 99) {
-          throw new Error(`Invalid quantity for ${item.name}`);
-        }
+    // Atomically decrement stock for every product line. Aggregate quantities
+    // per product id so multiple lines of the same product share one decrement.
+    const qtyByProduct = new Map<string, number>();
+    for (const item of data.items) {
+      if (item.kind !== "product") continue;
+      if (item.quantity < 1 || item.quantity > 99) {
+        throw new Error(`Invalid quantity for ${item.name}`);
       }
-      if (unavailable.length > 0) {
-        throw new Error(`Out of stock: ${unavailable.join(", ")}`);
+      qtyByProduct.set(item.refId, (qtyByProduct.get(item.refId) ?? 0) + item.quantity);
+    }
+    const decremented: Array<{ id: string; qty: number }> = [];
+    for (const [pid, qty] of qtyByProduct) {
+      const { data: ok, error: decErr } = await supabaseAdmin.rpc(
+        "decrement_product_stock",
+        { p_id: pid, p_qty: qty },
+      );
+      if (decErr || ok !== true) {
+        // Roll back any prior decrements before failing.
+        for (const d of decremented) {
+          const { data: cur } = await supabaseAdmin
+            .from("products").select("stock_quantity").eq("id", d.id).maybeSingle();
+          if (cur) {
+            await supabaseAdmin
+              .from("products")
+              .update({ stock_quantity: (cur.stock_quantity ?? 0) + d.qty, in_stock: true })
+              .eq("id", d.id);
+          }
+        }
+        const { data: p } = await supabaseAdmin
+          .from("products").select("name").eq("id", pid).maybeSingle();
+        throw new Error(`Out of stock: ${p?.name ?? "item"}`);
       }
+      decremented.push({ id: pid, qty });
     }
 
 
@@ -263,15 +271,16 @@ export const createOrder = createServerFn({ method: "POST" })
         .insert({ referral_code: referralApplied, order_id: order.id });
     }
 
-    // Increment coupon used_count (best-effort)
+    // Atomic increment of coupon usage — prevents concurrent checkouts from
+    // exceeding usage_limit. If it fails (limit reached in a race), we still
+    // keep the order but null out coupon_used to reflect reality.
     if (couponApplied) {
-      const { data: cur } = await supabaseAdmin
-        .from("coupons").select("used_count").eq("code", couponApplied).maybeSingle();
-      if (cur) {
-        await supabaseAdmin
-          .from("coupons")
-          .update({ used_count: (cur.used_count ?? 0) + 1 })
-          .eq("code", couponApplied);
+      const { data: incOk } = await supabaseAdmin.rpc(
+        "increment_coupon_usage",
+        { p_code: couponApplied },
+      );
+      if (incOk !== true) {
+        await supabaseAdmin.from("orders").update({ coupon_used: null }).eq("id", order.id);
       }
     }
 
