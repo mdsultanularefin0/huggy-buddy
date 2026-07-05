@@ -51,7 +51,6 @@ const NAV_GROUPS: NavGroup[] = [
       { to: "/admin/coupons", label: "Coupons", icon: Tags },
       { to: "/admin/newsletter", label: "Newsletter", icon: Mail },
     ],
-    ],
   },
   {
     label: "Fulfilment",
@@ -59,6 +58,7 @@ const NAV_GROUPS: NavGroup[] = [
       { to: "/admin/zones", label: "Delivery Zones", icon: Truck },
       { to: "/admin/payments", label: "Payment Methods", icon: CreditCard },
     ],
+  },
   {
     label: "Storefront",
     items: [
