@@ -203,3 +203,105 @@ export const updateCustomerAdmin = createServerFn({ method: "POST" })
     await writeAudit({ ...base, status: "ok" });
     return row;
   });
+
+export const getAdminDashboardStats = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.userId, context.supabase);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+    const start30 = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    const start60 = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000).toISOString();
+
+    const [
+      ordersRecent,
+      orders30,
+      ordersPrev30,
+      productsCount,
+      combosCount,
+      customersCount,
+      lowStock,
+    ] = await Promise.all([
+      supabaseAdmin
+        .from("orders")
+        .select("id, order_number, customer_json, total, order_status, payment_status, created_at")
+        .order("created_at", { ascending: false })
+        .limit(8),
+      supabaseAdmin
+        .from("orders")
+        .select("id, total, order_status, payment_status, created_at")
+        .gte("created_at", start30),
+      supabaseAdmin
+        .from("orders")
+        .select("id, total")
+        .gte("created_at", start60)
+        .lt("created_at", start30),
+      supabaseAdmin.from("products").select("id", { count: "exact", head: true }),
+      supabaseAdmin.from("combos").select("id", { count: "exact", head: true }),
+      supabaseAdmin.from("customers").select("id", { count: "exact", head: true }),
+      supabaseAdmin
+        .from("products")
+        .select("id, name, stock_quantity, image_url")
+        .eq("is_active", true)
+        .lte("stock_quantity", 5)
+        .order("stock_quantity", { ascending: true })
+        .limit(5),
+    ]);
+
+    const rows30 = orders30.data ?? [];
+    const rowsPrev = ordersPrev30.data ?? [];
+
+    const revenue30 = rows30
+      .filter((o) => o.order_status !== "Cancelled" && o.order_status !== "Returned")
+      .reduce((s, o) => s + Number(o.total ?? 0), 0);
+    const revenuePrev = rowsPrev.reduce((s, o) => s + Number(o.total ?? 0), 0);
+
+    const todayOrders = rows30.filter((o) => o.created_at >= startOfToday);
+    const revenueToday = todayOrders.reduce((s, o) => s + Number(o.total ?? 0), 0);
+
+    const pendingOrders = rows30.filter((o) => o.order_status === "Pending").length;
+    const processingOrders = rows30.filter((o) => o.order_status === "Processing").length;
+    const paidCount = rows30.filter((o) => o.payment_status === "Paid").length;
+
+    // Revenue by day (last 14 days)
+    const days: { date: string; revenue: number; orders: number }[] = [];
+    for (let i = 13; i >= 0; i--) {
+      const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+      const key = d.toISOString().slice(0, 10);
+      days.push({ date: key, revenue: 0, orders: 0 });
+    }
+    for (const o of rows30) {
+      const key = String(o.created_at).slice(0, 10);
+      const d = days.find((x) => x.date === key);
+      if (d && o.order_status !== "Cancelled" && o.order_status !== "Returned") {
+        d.revenue += Number(o.total ?? 0);
+        d.orders += 1;
+      }
+    }
+
+    const statusBreakdown = ["Pending", "Processing", "Shipped", "Completed", "Cancelled", "Returned"].map((s) => ({
+      status: s,
+      count: rows30.filter((o) => o.order_status === s).length,
+    }));
+
+    return {
+      revenue30,
+      revenuePrev,
+      revenueToday,
+      orders30: rows30.length,
+      ordersToday: todayOrders.length,
+      pendingOrders,
+      processingOrders,
+      paidCount,
+      productsCount: productsCount.count ?? 0,
+      combosCount: combosCount.count ?? 0,
+      customersCount: customersCount.count ?? 0,
+      lowStock: lowStock.data ?? [],
+      recentOrders: ordersRecent.data ?? [],
+      days,
+      statusBreakdown,
+    };
+  });
+
