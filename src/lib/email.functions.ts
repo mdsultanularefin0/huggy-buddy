@@ -272,18 +272,35 @@ export const broadcastNewsletter = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (!subs?.length) throw new Error("No active subscribers");
 
-    // Send sequentially with a small pause to be nice to cPanel SMTP limits.
+    // Batch to avoid timeouts + overwhelming SMTP. Each chunk sends in parallel
+    // via Promise.allSettled so one failure doesn't crash the whole broadcast.
+    const CHUNK_SIZE = 50;
+    const DELAY_MS = 1000;
     let sent = 0, failed = 0;
-    for (const s of subs) {
-      const unsubUrl = `${process.env.SITE_URL ?? ""}/unsubscribe?token=${s.unsubscribe_token}`;
-      const footer = `<hr /><p style="font-size:12px;color:#888">
-        You received this because you subscribed at Veloura Essence.
-        <a href="${unsubUrl}">Unsubscribe</a></p>`;
-      const r = await sendMail({
-        to: s.email, subject: data.subject,
-        html: data.html + footer, kind: "newsletter",
-      });
-      if (r.ok) sent++; else failed++;
+
+    for (let i = 0; i < subs.length; i += CHUNK_SIZE) {
+      const chunk = subs.slice(i, i + CHUNK_SIZE);
+      const results = await Promise.allSettled(
+        chunk.map((s) => {
+          const unsubUrl = `${process.env.SITE_URL ?? ""}/unsubscribe?token=${s.unsubscribe_token}`;
+          const footer = `<hr /><p style="font-size:12px;color:#888">
+            You received this because you subscribed at Veloura Essence.
+            <a href="${unsubUrl}">Unsubscribe</a></p>`;
+          return sendMail({
+            to: s.email,
+            subject: data.subject,
+            html: data.html + footer,
+            kind: "newsletter",
+          });
+        }),
+      );
+      for (const r of results) {
+        if (r.status === "fulfilled" && r.value.ok) sent++;
+        else failed++;
+      }
+      if (i + CHUNK_SIZE < subs.length) {
+        await new Promise((resolve) => setTimeout(resolve, DELAY_MS));
+      }
     }
     return { ok: true, sent, failed, total: subs.length };
   });
