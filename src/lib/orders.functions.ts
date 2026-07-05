@@ -71,59 +71,48 @@ function normalizePhone(v: string) {
 export const lookupOrder = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) =>
     z.object({
-      query: z.string().trim().min(3).max(255),
+      orderNumber: z.string().trim().min(3).max(64),
+      contact: z.string().trim().min(3).max(255),
     }).parse(data),
   )
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const q = data.query.trim();
-    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(q);
-    const digits = normalizePhone(q);
+    const orderNumber = data.orderNumber.trim();
+    const contact = data.contact.trim();
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact);
+    const digits = normalizePhone(contact);
     const isPhone = !isEmail && digits.length >= 6;
+
+    if (!isEmail && !isPhone) {
+      return { ok: false as const, error: "Enter a valid email or phone number." };
+    }
 
     const select =
       "id,order_number,customer_json,order_status,payment_status,courier_status,tracking_code,consignment_id,total,amount_paid,payment_method,created_at,updated_at";
 
-    let rows: Array<Record<string, unknown>> = [];
-
-    // Try order_number match first (exact) when not clearly email/phone.
-    if (!isEmail) {
-      const { data: byNum, error } = await supabaseAdmin
-        .from("orders")
-        .select(select)
-        .eq("order_number", q)
-        .limit(1);
-      if (error) throw new Error(error.message);
-      if (byNum && byNum.length) rows = byNum as Array<Record<string, unknown>>;
-    }
-
-    if (rows.length === 0 && isEmail) {
-      const { data: byEmail, error } = await supabaseAdmin
-        .from("orders")
-        .select(select)
-        .filter("customer_json->>email", "eq", q.toLowerCase())
-        .order("created_at", { ascending: false })
-        .limit(20);
-      if (error) throw new Error(error.message);
-      rows = (byEmail ?? []) as Array<Record<string, unknown>>;
-    }
-
-    if (rows.length === 0 && isPhone) {
-      // Match on last 9+ digits of phone to tolerate country-code differences.
-      const tail = digits.slice(-Math.min(digits.length, 10));
-      const { data: byPhone, error } = await supabaseAdmin
-        .from("orders")
-        .select(select)
-        .filter("customer_json->>phone", "ilike", `%${tail}%`)
-        .order("created_at", { ascending: false })
-        .limit(20);
-      if (error) throw new Error(error.message);
-      rows = (byPhone ?? []) as Array<Record<string, unknown>>;
-    }
+    const { data: byNum, error } = await supabaseAdmin
+      .from("orders")
+      .select(select)
+      .eq("order_number", orderNumber)
+      .limit(1);
+    if (error) throw new Error(error.message);
+    const rows = (byNum ?? []) as Array<Record<string, unknown>>;
 
     if (rows.length === 0) {
-      return { ok: false as const, error: "No orders found for that order number, email, or phone." };
+      return { ok: false as const, error: "No order found with that order number." };
     }
+
+    // Verify contact matches the order's customer info.
+    const row = rows[0];
+    const c = (row.customer_json ?? {}) as { email?: string; phone?: string };
+    const emailMatch = isEmail && (c.email ?? "").toLowerCase().trim() === contact.toLowerCase();
+    const phoneMatch =
+      isPhone && normalizePhone(c.phone ?? "").endsWith(digits.slice(-Math.min(digits.length, 10)));
+    if (!emailMatch && !phoneMatch) {
+      return { ok: false as const, error: "Email or phone does not match this order." };
+    }
+
+
 
     const orders: TrackedOrder[] = rows.map((o) => {
       const c = (o.customer_json ?? {}) as {
