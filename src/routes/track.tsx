@@ -1,9 +1,20 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Search } from "lucide-react";
+import {
+  Search,
+  Package,
+  CreditCard,
+  Truck,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  MapPin,
+  ExternalLink,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { lookupOrder } from "@/lib/orders.functions";
@@ -24,22 +35,151 @@ export const Route = createFileRoute("/track")({
   component: TrackPage,
 });
 
+type OrderInfo = {
+  id: string;
+  order_number: string;
+  order_status: string | null;
+  payment_status: string | null;
+  courier_status: string | null;
+  tracking_code: string | null;
+  consignment_id: number | null;
+  total: number;
+  amount_paid: number;
+  payment_method: string | null;
+  created_at: string;
+  updated_at: string;
+  customer: {
+    name: string | null;
+    email: string | null;
+    phone: string | null;
+    address: string | null;
+    city: string | null;
+  };
+};
+
+const CARRIER = "Pathao / Steadfast";
+
+function fmtDate(iso: string) {
+  try {
+    return new Date(iso).toLocaleString(undefined, {
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
+  } catch {
+    return iso;
+  }
+}
+
+function statusTone(s: string | null | undefined) {
+  const v = (s ?? "").toLowerCase();
+  if (["delivered", "paid", "completed"].includes(v)) return "text-emerald-600";
+  if (["cancelled", "canceled", "failed", "refunded", "returned"].includes(v)) return "text-rose-600";
+  if (["shipped", "in_transit", "processing", "confirmed", "partial"].includes(v)) return "text-amber-600";
+  return "text-muted-foreground";
+}
+
+type Step = {
+  key: string;
+  label: string;
+  at: string | null;
+  Icon: React.ComponentType<{ className?: string }>;
+  done: boolean;
+  active?: boolean;
+  detail?: string;
+};
+
+function buildTimeline(o: OrderInfo): Step[] {
+  const orderStatus = (o.order_status ?? "").toLowerCase();
+  const payStatus = (o.payment_status ?? "").toLowerCase();
+  const courier = (o.courier_status ?? "").toLowerCase();
+
+  const isCancelled = ["cancelled", "canceled"].includes(orderStatus);
+  const isDelivered = orderStatus === "delivered" || courier === "delivered";
+  const isShipped =
+    ["shipped", "in_transit", "on_the_way", "picked_up"].some((s) => courier.includes(s)) ||
+    !!o.consignment_id ||
+    !!o.tracking_code;
+  const isProcessing = ["processing", "confirmed"].includes(orderStatus) || isShipped || isDelivered;
+  const isPaid = ["paid", "completed"].includes(payStatus);
+  const isPartial = payStatus === "partial";
+
+  const steps: Step[] = [
+    {
+      key: "placed",
+      label: "Order placed",
+      at: o.created_at,
+      Icon: Package,
+      done: true,
+      detail: `Order ${o.order_number}`,
+    },
+    {
+      key: "payment",
+      label: isPartial ? "Partial payment received" : "Payment confirmed",
+      at: isPaid || isPartial ? o.updated_at : null,
+      Icon: CreditCard,
+      done: isPaid || isPartial,
+      detail: o.payment_method ? `Method: ${o.payment_method}` : undefined,
+    },
+    {
+      key: "processing",
+      label: "Processing",
+      at: isProcessing ? o.updated_at : null,
+      Icon: Clock,
+      done: isProcessing,
+    },
+    {
+      key: "shipped",
+      label: "Shipped",
+      at: isShipped ? o.updated_at : null,
+      Icon: Truck,
+      done: isShipped,
+      detail: o.tracking_code
+        ? `${CARRIER} • Tracking ${o.tracking_code}`
+        : o.consignment_id
+          ? `${CARRIER} • Consignment #${o.consignment_id}`
+          : undefined,
+    },
+    {
+      key: "delivered",
+      label: isCancelled ? "Cancelled" : "Delivered",
+      at: isDelivered || isCancelled ? o.updated_at : null,
+      Icon: isCancelled ? XCircle : CheckCircle2,
+      done: isDelivered || isCancelled,
+    },
+  ];
+
+  // mark the last completed step as "current"
+  const lastDone = [...steps].reverse().find((s) => s.done);
+  if (lastDone) lastDone.active = true;
+  return steps;
+}
+
+function currentStatusLabel(o: OrderInfo) {
+  const parts = [
+    o.order_status ? `Order: ${o.order_status}` : null,
+    o.payment_status ? `Payment: ${o.payment_status}` : null,
+    o.courier_status ? `Courier: ${o.courier_status}` : null,
+  ].filter(Boolean);
+  return parts.join(" • ") || "Pending";
+}
+
 function TrackPage() {
-  const navigate = useNavigate();
   const [orderNumber, setOrderNumber] = useState("");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [order, setOrder] = useState<OrderInfo | null>(null);
 
   async function handleLookup(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+    setOrder(null);
     try {
       const res = await lookupOrder({ data: { orderNumber, email } });
       if (!res.ok) {
         toast.error(res.error);
         return;
       }
-      navigate({ to: "/order/$id", params: { id: res.id } });
+      setOrder(res.order);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Lookup failed");
     } finally {
@@ -50,7 +190,7 @@ function TrackPage() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <div className="max-w-xl mx-auto px-6 py-16">
+      <div className="max-w-2xl mx-auto px-6 py-16">
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 mb-3">
             <Search className="w-6 h-6 text-primary" />
@@ -87,6 +227,76 @@ function TrackPage() {
             {loading ? "Looking up…" : "Track order"}
           </Button>
         </form>
+
+        {order && (
+          <div className="mt-8 rounded-2xl border bg-card p-6">
+            <div className="flex flex-wrap items-start justify-between gap-3 mb-6">
+              <div>
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">Order</p>
+                <p className="text-lg font-semibold">{order.order_number}</p>
+                <p className={`text-sm mt-1 ${statusTone(order.order_status)}`}>
+                  {currentStatusLabel(order)}
+                </p>
+              </div>
+              <div className="flex flex-col items-end gap-2">
+                <Badge variant="outline" className="gap-1">
+                  <Truck className="w-3.5 h-3.5" /> {CARRIER}
+                </Badge>
+                <Link
+                  to="/order/$id"
+                  params={{ id: order.id }}
+                  className="text-xs text-primary inline-flex items-center gap-1 hover:underline"
+                >
+                  View full order <ExternalLink className="w-3 h-3" />
+                </Link>
+              </div>
+            </div>
+
+            {(order.tracking_code || order.consignment_id) && (
+              <div className="mb-6 rounded-lg bg-muted/40 p-3 text-sm flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-primary shrink-0" />
+                <span>
+                  {order.tracking_code ? (
+                    <>Tracking code: <span className="font-mono font-medium">{order.tracking_code}</span></>
+                  ) : (
+                    <>Consignment: <span className="font-mono font-medium">#{order.consignment_id}</span></>
+                  )}
+                </span>
+              </div>
+            )}
+
+            <ol className="relative border-l border-border pl-6 space-y-6">
+              {buildTimeline(order).map((step) => {
+                const Icon = step.Icon;
+                const doneCls = step.done
+                  ? step.active
+                    ? "bg-primary text-primary-foreground ring-4 ring-primary/15"
+                    : "bg-primary/90 text-primary-foreground"
+                  : "bg-muted text-muted-foreground";
+                return (
+                  <li key={step.key} className="relative">
+                    <span
+                      className={`absolute -left-[34px] flex h-7 w-7 items-center justify-center rounded-full ${doneCls}`}
+                    >
+                      <Icon className="w-3.5 h-3.5" />
+                    </span>
+                    <div className="flex flex-wrap items-baseline justify-between gap-2">
+                      <p className={`text-sm font-medium ${step.done ? "" : "text-muted-foreground"}`}>
+                        {step.label}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {step.at ? fmtDate(step.at) : "Pending"}
+                      </p>
+                    </div>
+                    {step.detail && (
+                      <p className="text-xs text-muted-foreground mt-0.5">{step.detail}</p>
+                    )}
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
+        )}
       </div>
       <SiteFooter />
     </div>
