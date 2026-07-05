@@ -53,7 +53,7 @@ export const lookupOrder = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: order, error } = await supabaseAdmin
       .from("orders")
-      .select("id,customer_json")
+      .select("id,order_number,customer_json,order_status,payment_status,courier_status,tracking_code,consignment_id,total,amount_paid,payment_method,created_at,updated_at")
       .eq("order_number", data.orderNumber.trim())
       .maybeSingle();
     if (error) throw new Error(error.message);
@@ -62,6 +62,26 @@ export const lookupOrder = createServerFn({ method: "POST" })
     if (!email || email !== data.email.toLowerCase().trim()) {
       return { ok: false as const, error: "Order number and email do not match." };
     }
-    return { ok: true as const, id: order.id as string };
+    const c = (order.customer_json ?? {}) as { name?: string; email?: string; phone?: string; address?: string; city?: string };
+    return {
+      ok: true as const,
+      id: order.id as string,
+      order: {
+        id: order.id as string,
+        order_number: order.order_number as string,
+        order_status: order.order_status as string | null,
+        payment_status: order.payment_status as string | null,
+        courier_status: order.courier_status as string | null,
+        tracking_code: order.tracking_code as string | null,
+        consignment_id: order.consignment_id as number | null,
+        total: order.total as number,
+        amount_paid: (order.amount_paid as number | null) ?? 0,
+        payment_method: order.payment_method as string | null,
+        created_at: order.created_at as string,
+        updated_at: order.updated_at as string,
+        customer: { name: c.name ?? null, email: c.email ?? null, phone: c.phone ?? null, address: c.address ?? null, city: c.city ?? null },
+      },
+    };
   });
+
 
