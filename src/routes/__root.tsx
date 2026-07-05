@@ -21,30 +21,34 @@ import { SiteFooter } from "@/components/site-footer";
 
 
 function NotFoundComponent() {
+  const { queryClient } = Route.useRouteContext();
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <SiteHeader />
-      <main className="flex-1 flex items-center justify-center bg-gradient-soft px-4 py-16">
-        <div className="max-w-md text-center">
-          <h1 className="text-7xl font-bold text-gradient-luxe">404</h1>
-          <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            The fragrance you're looking for seems to have evaporated.
-          </p>
-          <div className="mt-6">
-            <Link
-              to="/"
-              className="inline-flex h-11 items-center justify-center rounded-xl bg-gradient-luxe px-6 text-sm font-medium text-primary-foreground shadow-luxe transition-opacity hover:opacity-95"
-            >
-              Return home
-            </Link>
+    <QueryClientProvider client={queryClient}>
+      <div className="min-h-screen flex flex-col bg-background">
+        <SiteHeader />
+        <main className="flex-1 flex items-center justify-center bg-gradient-soft px-4 py-16">
+          <div className="max-w-md text-center">
+            <h1 className="text-7xl font-bold text-gradient-luxe">404</h1>
+            <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              The fragrance you're looking for seems to have evaporated.
+            </p>
+            <div className="mt-6">
+              <Link
+                to="/"
+                className="inline-flex h-11 items-center justify-center rounded-xl bg-gradient-luxe px-6 text-sm font-medium text-primary-foreground shadow-luxe transition-opacity hover:opacity-95"
+              >
+                Return home
+              </Link>
+            </div>
           </div>
-        </div>
-      </main>
-      <SiteFooter />
-    </div>
+        </main>
+        <SiteFooter />
+      </div>
+    </QueryClientProvider>
   );
 }
+
 
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
