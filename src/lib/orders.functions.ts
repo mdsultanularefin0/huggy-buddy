@@ -49,7 +49,10 @@ export const getOrderById = createServerFn({ method: "GET" })
     // Public/sanitized view: strip PII and only expose non-sensitive fields.
     const items = Array.isArray(order.items_json)
       ? (order.items_json as Array<Record<string, unknown>>).map((i) => ({
-          name: i.name, quantity: i.quantity, unitPrice: i.unitPrice, size: i.size,
+          name: String(i.name ?? ""),
+          quantity: Number(i.quantity ?? 0),
+          unitPrice: Number(i.unitPrice ?? 0),
+          size: (i.size as string | null | undefined) ?? null,
         }))
       : [];
     return {
