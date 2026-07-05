@@ -23,22 +23,3 @@ export function useSession() {
   return { session, user, loading };
 }
 
-export function useIsAdmin(userId: string | undefined) {
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-  useEffect(() => {
-    if (userId === undefined) return; // wait for session to resolve
-    if (!userId) {
-      setIsAdmin(false);
-      return;
-    }
-    setIsAdmin(null); // reset while refetching for a new user
-    supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId)
-      .eq("role", "admin")
-      .maybeSingle()
-      .then(({ data }) => setIsAdmin(!!data));
-  }, [userId]);
-  return isAdmin;
-}

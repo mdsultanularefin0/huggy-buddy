@@ -9,6 +9,13 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/account/")({
+  head: () => ({
+    meta: [
+      { title: "Profile — My Account | Veloura Essence" },
+      { name: "description", content: "Manage your Veloura Essence profile details." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   component: ProfilePage,
 });
 

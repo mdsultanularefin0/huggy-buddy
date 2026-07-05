@@ -67,5 +67,17 @@ export const saveFaqs = createServerFn({ method: "POST" })
     const cleanFaqs = data.faqs
       .map((f) => ({ q: sanitizePlainText(f.q), a: sanitizePlainText(f.a) }))
       .filter((f) => f.q && f.a);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: existing, error: selErr } = await supabaseAdmin
+      .from("site_settings")
+      .select("id")
+      .maybeSingle();
+    if (selErr) throw new Error(selErr.message);
+    if (!existing?.id) throw new Error("Site settings row missing");
+    const { error } = await supabaseAdmin
+      .from("site_settings")
+      .update({ faqs_title: cleanTitle, faqs_json: cleanFaqs })
+      .eq("id", existing.id);
+    if (error) throw new Error(error.message);
     return { faqs_title: cleanTitle, faqs_json: cleanFaqs };
   });

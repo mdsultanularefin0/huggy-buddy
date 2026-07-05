@@ -44,6 +44,7 @@ export const Route = createFileRoute("/admin")({
     }
   },
   component: AdminLayout,
+  pendingComponent: AdminLoading,
 });
 
 type NavItem = { to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean };
@@ -231,42 +232,18 @@ function AdminSidebar({ email }: { email: string }) {
   );
 }
 
-function NotAnAdmin({ email }: { email: string }) {
-  return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-soft">
-      <div className="max-w-md text-center bg-card p-8 rounded-2xl shadow-luxe border">
-        <h1 className="text-xl font-semibold">Admin access required</h1>
-        <p className="text-sm text-muted-foreground mt-2">
-          You're signed in as <span className="font-medium text-foreground">{email}</span>, but this account doesn't have admin access.
-        </p>
-        <p className="text-xs text-muted-foreground mt-4">
-          To grant admin: run this SQL once in the Cloud SQL editor, replacing the email.
-        </p>
-        <pre className="text-xs bg-muted p-3 rounded-lg mt-2 text-left overflow-x-auto">
-{`INSERT INTO public.user_roles (user_id, role)
-SELECT id, 'admin' FROM auth.users
-WHERE email = '${email}'
-ON CONFLICT DO NOTHING;`}
-        </pre>
-        <div className="mt-6 flex gap-2 justify-center">
-          <Button variant="outline" asChild><Link to="/">Back to store</Link></Button>
-          <Button variant="luxe" onClick={async () => { await supabase.auth.signOut(); window.location.href = "/auth"; }}>
-            Sign out
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function AdminLoading() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-soft">
-      <div className="flex flex-col items-center gap-3 text-muted-foreground">
-        <div className="w-12 h-12 rounded-2xl bg-gradient-luxe flex items-center justify-center shadow-luxe">
-          <Loader2 className="w-6 h-6 text-primary-foreground animate-spin" />
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="flex flex-col items-center gap-3">
+        <div
+          className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg"
+          style={{ backgroundColor: "#52277a" }}
+        >
+          <Loader2 className="w-7 h-7 text-white animate-spin" />
         </div>
-        <p className="text-sm">Verifying admin access…</p>
+        <p className="text-sm text-muted-foreground">Verifying admin access…</p>
       </div>
     </div>
   );

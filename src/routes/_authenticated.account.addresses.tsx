@@ -13,6 +13,13 @@ import { BD_DISTRICTS } from "@/lib/bd-districts";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/account/addresses")({
+  head: () => ({
+    meta: [
+      { title: "Addresses — My Account | Veloura Essence" },
+      { name: "description", content: "Manage your saved delivery addresses." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   component: AddressesPage,
 });
 

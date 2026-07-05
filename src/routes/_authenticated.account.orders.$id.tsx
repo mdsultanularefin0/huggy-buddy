@@ -7,6 +7,13 @@ import { ArrowLeft, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/account/orders/$id")({
+  head: () => ({
+    meta: [
+      { title: "Order Details — My Account | Veloura Essence" },
+      { name: "description", content: "View details for your Veloura Essence order." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   component: OrderDetail,
 });
 

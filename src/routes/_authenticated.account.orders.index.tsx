@@ -16,6 +16,13 @@ import {
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/account/orders/")({
+  head: () => ({
+    meta: [
+      { title: "Orders — My Account | Veloura Essence" },
+      { name: "description", content: "View your Veloura Essence order history." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   component: OrdersList,
 });
 
