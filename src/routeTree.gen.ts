@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
+import { Route as TrackRouteImport } from './routes/track'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ShippingRouteImport } from './routes/shipping'
@@ -63,6 +64,11 @@ import { Route as AuthenticatedAccountOrdersIdRouteImport } from './routes/_auth
 const UnsubscribeRoute = UnsubscribeRouteImport.update({
   id: '/unsubscribe',
   path: '/unsubscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TrackRoute = TrackRouteImport.update({
+  id: '/track',
+  path: '/track',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TermsRoute = TermsRouteImport.update({
@@ -331,6 +337,7 @@ export interface FileRoutesByFullPath {
   '/shipping': typeof ShippingRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/track': typeof TrackRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/account': typeof AuthenticatedAccountRouteWithChildren
   '/admin/audit-logs': typeof AdminAuditLogsRoute
@@ -381,6 +388,7 @@ export interface FileRoutesByTo {
   '/shipping': typeof ShippingRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/track': typeof TrackRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/admin/audit-logs': typeof AdminAuditLogsRoute
   '/admin/categories': typeof AdminCategoriesRoute
@@ -433,6 +441,7 @@ export interface FileRoutesById {
   '/shipping': typeof ShippingRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/track': typeof TrackRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/_authenticated/account': typeof AuthenticatedAccountRouteWithChildren
   '/admin/audit-logs': typeof AdminAuditLogsRoute
@@ -486,6 +495,7 @@ export interface FileRouteTypes {
     | '/shipping'
     | '/sitemap.xml'
     | '/terms'
+    | '/track'
     | '/unsubscribe'
     | '/account'
     | '/admin/audit-logs'
@@ -536,6 +546,7 @@ export interface FileRouteTypes {
     | '/shipping'
     | '/sitemap.xml'
     | '/terms'
+    | '/track'
     | '/unsubscribe'
     | '/admin/audit-logs'
     | '/admin/categories'
@@ -587,6 +598,7 @@ export interface FileRouteTypes {
     | '/shipping'
     | '/sitemap.xml'
     | '/terms'
+    | '/track'
     | '/unsubscribe'
     | '/_authenticated/account'
     | '/admin/audit-logs'
@@ -640,6 +652,7 @@ export interface RootRouteChildren {
   ShippingRoute: typeof ShippingRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
+  TrackRoute: typeof TrackRoute
   UnsubscribeRoute: typeof UnsubscribeRoute
   CategorySlugRoute: typeof CategorySlugRoute
   ComboIdRoute: typeof ComboIdRoute
@@ -655,6 +668,13 @@ declare module '@tanstack/react-router' {
       path: '/unsubscribe'
       fullPath: '/unsubscribe'
       preLoaderRoute: typeof UnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/track': {
+      id: '/track'
+      path: '/track'
+      fullPath: '/track'
+      preLoaderRoute: typeof TrackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/terms': {
@@ -1103,6 +1123,7 @@ const rootRouteChildren: RootRouteChildren = {
   ShippingRoute: ShippingRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
+  TrackRoute: TrackRoute,
   UnsubscribeRoute: UnsubscribeRoute,
   CategorySlugRoute: CategorySlugRoute,
   ComboIdRoute: ComboIdRoute,
