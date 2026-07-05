@@ -8,6 +8,13 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/account/wishlist")({
+  head: () => ({
+    meta: [
+      { title: "Wishlist — My Account | Veloura Essence" },
+      { name: "description", content: "Products you've saved to your wishlist." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   component: WishlistPage,
 });
 
