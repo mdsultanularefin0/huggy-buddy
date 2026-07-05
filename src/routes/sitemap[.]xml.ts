@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 
-// TODO: replace once a project URL / custom domain is set.
-const BASE_URL = "";
+// Absolute URL base for sitemap entries. Configure via SITE_URL env var.
+const BASE_URL = process.env.SITE_URL || "http://localhost:3000";
 
 interface Entry {
   path: string;
