@@ -44,6 +44,7 @@ export const Route = createFileRoute("/admin")({
     }
   },
   component: AdminLayout,
+  pendingComponent: AdminLoading,
 });
 
 type NavItem = { to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean };
