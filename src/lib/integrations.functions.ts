@@ -11,24 +11,8 @@ type SteadfastCreds = {
 };
 
 async function assertAdmin(userId: string, supabase: unknown) {
-  const client = supabase as {
-    from: (t: string) => {
-      select: (c: string) => {
-        eq: (c: string, v: string) => {
-          eq: (c: string, v: string) => {
-            maybeSingle: () => Promise<{ data: unknown; error: { message: string } | null }>;
-          };
-        };
-      };
-    };
-  };
-  const { data, error } = await client
-    .from("user_roles")
-    .select("id")
-    .eq("user_id", userId)
-    .eq("role", "admin")
-    .maybeSingle();
-  if (error || !data) throw new Error(error?.message ?? "Forbidden");
+  const { assertAdmin: check } = await import("@/lib/admin-guard.server");
+  return check(userId, supabase);
 }
 
 // -------- Get status (masked) --------
