@@ -141,23 +141,20 @@ function OrderPage() {
 
 function TrackOrderSection() {
   const navigate = useNavigate();
-  const [query, setQuery] = useState("");
+  const [orderNumber, setOrderNumber] = useState("");
+  const [contact, setContact] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleLookup(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await lookupOrder({ data: { query } });
+      const res = await lookupOrder({ data: { orderNumber, contact } });
       if (!res.ok) {
         toast.error(res.error);
         return;
       }
-      if (res.orders.length > 1) {
-        toast.info(`Found ${res.orders.length} orders — showing the most recent.`);
-      }
       navigate({ to: "/order/$id", params: { id: res.id } });
-
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Lookup failed");
     } finally {
@@ -172,28 +169,37 @@ function TrackOrderSection() {
         <h2 className="font-semibold">Track your order</h2>
       </div>
       <p className="text-sm text-muted-foreground mb-4">
-        Enter your order number, email, or phone to view a different order.
+        Enter your order number and the email or phone used at checkout.
       </p>
-      <form onSubmit={handleLookup} className="grid gap-3 sm:grid-cols-[1fr_auto]">
+      <form onSubmit={handleLookup} className="grid gap-3">
         <div className="space-y-1.5">
-          <Label htmlFor="track-query">Order number, email or phone</Label>
+          <Label htmlFor="track-order">Order number</Label>
           <Input
-            id="track-query"
-            placeholder="VE-XXXXXX-XXXXXX, you@example.com, or 01XXXXXXXXX"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            id="track-order"
+            placeholder="VE-XXXXXX-XXXXXX"
+            value={orderNumber}
+            onChange={(e) => setOrderNumber(e.target.value)}
             required
           />
         </div>
-        <div className="flex items-end">
-          <Button type="submit" variant="luxe" className="w-full sm:w-auto" disabled={loading}>
-            {loading ? "Looking up…" : "Track order"}
-          </Button>
+        <div className="space-y-1.5">
+          <Label htmlFor="track-contact">Email or phone</Label>
+          <Input
+            id="track-contact"
+            placeholder="you@example.com or 01XXXXXXXXX"
+            value={contact}
+            onChange={(e) => setContact(e.target.value)}
+            required
+          />
         </div>
+        <Button type="submit" variant="luxe" disabled={loading}>
+          {loading ? "Looking up…" : "Track order"}
+        </Button>
       </form>
     </div>
   );
 }
+
 
 
 function ClaimAccountSection({ order }: { order: OrderRow }) {
