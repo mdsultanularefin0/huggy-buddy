@@ -235,12 +235,15 @@ function AdminSidebar({ email }: { email: string }) {
 
 function AdminLoading() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-soft">
-      <div className="flex flex-col items-center gap-3 text-muted-foreground">
-        <div className="w-12 h-12 rounded-2xl bg-gradient-luxe flex items-center justify-center shadow-luxe">
-          <Loader2 className="w-6 h-6 text-primary-foreground animate-spin" />
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="flex flex-col items-center gap-3">
+        <div
+          className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg"
+          style={{ backgroundColor: "#52277a" }}
+        >
+          <Loader2 className="w-7 h-7 text-white animate-spin" />
         </div>
-        <p className="text-sm">Verifying admin access…</p>
+        <p className="text-sm text-muted-foreground">Verifying admin access…</p>
       </div>
     </div>
   );
