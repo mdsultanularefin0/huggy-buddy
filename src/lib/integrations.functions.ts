@@ -369,6 +369,22 @@ async function loadMediaServerCreds(): Promise<MediaServerCreds> {
   return decryptJson<MediaServerCreds>(data);
 }
 
+// -------- Media server proxies (API key never leaves the server) --------
+
+/** Tells the admin UI whether the media server is configured. Never returns the API key. */
+export const getMediaServerStatus = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.userId, context.supabase);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data } = await supabaseAdmin
+      .from("integration_credentials")
+      .select("provider")
+      .eq("provider", MEDIA_PROVIDER)
+      .maybeSingle();
+    return { configured: !!data };
+  });
+
 export const testMediaServerConnection = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -377,6 +393,67 @@ export const testMediaServerConnection = createServerFn({ method: "POST" })
     const url = `${creds.base_url.replace(/\/$/, "")}/health`;
     const res = await fetch(url, { headers: { "x-api-key": creds.api_key } });
     if (!res.ok) throw new Error(`Media server responded ${res.status}`);
+    const body = await res.json().catch(() => ({}));
+    return { ok: true, health: body };
+  });
+
+/** Server-proxied list of files on the external media server. */
+export const listMediaServerFiles = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.userId, context.supabase);
+    const creds = await loadMediaServerCreds();
+    const base = creds.base_url.replace(/\/$/, "");
+    const res = await fetch(`${base}/list`, { headers: { "x-api-key": creds.api_key } });
+    if (!res.ok) return { files: [] as Array<{ name: string; url: string; size: number; created: string }> };
+    const body = (await res.json().catch(() => ({}))) as {
+      files?: Array<{ name: string; url: string; size: number; created: string }>;
+    };
+    return { files: body.files ?? [] };
+  });
+
+/** Server-proxied upload — client sends FormData, server attaches the API key. */
+export const uploadToMediaServer = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => {
+    if (!(data instanceof FormData)) throw new Error("Expected FormData");
+    const file = data.get("file");
+    if (!(file instanceof File)) throw new Error("Missing file");
+    return { file };
+  })
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId, context.supabase);
+    const creds = await loadMediaServerCreds();
+    const base = creds.base_url.replace(/\/$/, "");
+    const fd = new FormData();
+    fd.append("file", data.file, data.file.name);
+    const res = await fetch(`${base}/upload`, {
+      method: "POST",
+      headers: { "x-api-key": creds.api_key },
+      body: fd,
+    });
+    if (!res.ok) throw new Error(`Media server responded ${res.status}`);
+    return await res.json().catch(() => ({ ok: true }));
+  });
+
+/** Server-proxied delete. */
+export const deleteMediaServerFile = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => {
+    const z = (data as { name?: unknown })?.name;
+    if (typeof z !== "string" || !z) throw new Error("Missing name");
+    return { name: z };
+  })
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId, context.supabase);
+    const creds = await loadMediaServerCreds();
+    const base = creds.base_url.replace(/\/$/, "");
+    const res = await fetch(`${base}/files/${encodeURIComponent(data.name)}`, {
+      method: "DELETE",
+      headers: { "x-api-key": creds.api_key },
+    });
+    return { ok: res.ok };
+  });
     const body = await res.json().catch(() => ({}));
     return { ok: true, health: body };
   });
