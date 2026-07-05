@@ -93,9 +93,9 @@ export function InvoiceDocument({
             {new Date(order.created_at).toLocaleDateString()}
           </div>
           <div className="text-xs mt-2">
-            <span className="inline-block px-2 py-0.5 rounded bg-gray-100 border">{order.order_status}</span>{" "}
-            <span className="inline-block px-2 py-0.5 rounded bg-gray-100 border">{order.payment_status}</span>
+            <span className="inline-block px-2 py-0.5 rounded bg-gray-100 border">Payment: {order.payment_status}</span>
           </div>
+
         </div>
       </div>
 
