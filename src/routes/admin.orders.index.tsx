@@ -66,16 +66,23 @@ function OrdersPage() {
   const [search, setSearch] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const [page, setPage] = useState(1);
+  const limit = 50;
   const [fraud, setFraud] = useState<{ phone: string; loading: boolean; result: FraudResult | null; error?: string } | null>(null);
   const [fraudByPhone, setFraudByPhone] = useState<Record<string, { loading?: boolean; result?: FraudResult; error?: string }>>({});
 
   const invoiceTokenFn = useServerFn(getInvoiceToken);
   const navigate = useNavigate();
 
-  const { data: orders = [], isLoading, isError, error } = useQuery({
-    queryKey: ["admin", "orders", statusFilter],
-    queryFn: () => fetchOrders({ data: { statusFilter } }),
+  useEffect(() => { setPage(1); }, [statusFilter]);
+
+  const { data: pageData, isLoading, isError, error } = useQuery({
+    queryKey: ["admin", "orders", statusFilter, page, limit],
+    queryFn: () => fetchOrders({ data: { statusFilter, page, limit } }),
   });
+  const orders: Order[] = pageData?.orders ?? [];
+  const total = pageData?.total ?? 0;
+  const totalPages = pageData?.totalPages ?? 1;
 
   useEffect(() => {
     const ch = supabase
