@@ -328,6 +328,9 @@ export const createOrder = createServerFn({ method: "POST" })
       }
     } catch { /* SMTP missing or send failed — order still succeeds */ }
 
+    const { signInvoiceId } = await import("@/lib/invoice-sign.server");
+    const invoiceToken = signInvoiceId(order.id);
+
     return {
       id: order.id,
       orderNumber: order.order_number,
@@ -335,5 +338,7 @@ export const createOrder = createServerFn({ method: "POST" })
       subtotal,
       shippingFee,
       discount,
+      invoiceToken,
     };
   });
+
