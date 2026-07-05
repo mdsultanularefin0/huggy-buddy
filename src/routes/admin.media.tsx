@@ -231,8 +231,8 @@ function MediaLibraryPage() {
               {BUCKETS.map((b) => <option key={b} value={b}>{b}</option>)}
             </optgroup>
             <optgroup label="External">
-              <option value={MEDIA_SERVER} disabled={!mediaServerCfg}>
-                media-server {mediaServerCfg ? "" : "(not configured)"}
+              <option value={MEDIA_SERVER} disabled={!mediaServerAvailable}>
+                media-server {mediaServerAvailable ? "" : "(not configured)"}
               </option>
             </optgroup>
           </select>
@@ -255,7 +255,7 @@ function MediaLibraryPage() {
         </div>
       </div>
 
-      {!mediaServerCfg && (
+      {!mediaServerAvailable && (
         <p className="text-xs text-muted-foreground">
           External media server not connected.{" "}
           <Link to="/admin/integrations" className="underline">Configure it in Integrations</Link>{" "}
