@@ -1,28 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { createHmac, timingSafeEqual } from "node:crypto";
-
-const SECRET_ENV = () =>
-  process.env.INTEGRATION_ENCRYPTION_KEY ||
-  process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  "invoice-fallback-secret";
-
-export function signInvoiceId(orderId: string): string {
-  return createHmac("sha256", SECRET_ENV()).update(orderId).digest("hex").slice(0, 32);
-}
-
-function verifyToken(orderId: string, token: string | undefined | null): boolean {
-  if (!token) return false;
-  try {
-    const expected = signInvoiceId(orderId);
-    const a = Buffer.from(expected);
-    const b = Buffer.from(token);
-    if (a.length !== b.length) return false;
-    return timingSafeEqual(a, b);
-  } catch {
-    return false;
-  }
-}
 
 const inputSchema = z.object({
   id: z.string().uuid(),
@@ -33,6 +10,7 @@ export const getInvoiceOrder = createServerFn({ method: "GET" })
   .inputValidator((d: unknown) => inputSchema.parse(d))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { verifyInvoiceToken } = await import("@/lib/invoice-sign.server");
 
     const { data: order, error } = await supabaseAdmin
       .from("orders")
@@ -48,7 +26,7 @@ export const getInvoiceOrder = createServerFn({ method: "GET" })
     let allowed = false;
 
     // 1) HMAC token (works for guest links from emails and thank-you page).
-    if (verifyToken(order.id, data.token ?? null)) {
+    if (verifyInvoiceToken(order.id, data.token ?? null)) {
       allowed = true;
     }
 
@@ -99,6 +77,6 @@ export const getInvoiceOrder = createServerFn({ method: "GET" })
 export const getInvoiceToken = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data }) => {
-    // Public helper so guest thank-you page can build a share/print link.
+    const { signInvoiceId } = await import("@/lib/invoice-sign.server");
     return { token: signInvoiceId(data.id) };
   });
