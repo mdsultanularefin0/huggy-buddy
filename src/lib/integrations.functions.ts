@@ -11,24 +11,8 @@ type SteadfastCreds = {
 };
 
 async function assertAdmin(userId: string, supabase: unknown) {
-  const client = supabase as {
-    from: (t: string) => {
-      select: (c: string) => {
-        eq: (c: string, v: string) => {
-          eq: (c: string, v: string) => {
-            maybeSingle: () => Promise<{ data: unknown; error: { message: string } | null }>;
-          };
-        };
-      };
-    };
-  };
-  const { data, error } = await client
-    .from("user_roles")
-    .select("id")
-    .eq("user_id", userId)
-    .eq("role", "admin")
-    .maybeSingle();
-  if (error || !data) throw new Error(error?.message ?? "Forbidden");
+  const { assertAdmin: check } = await import("@/lib/admin-guard.server");
+  return check(userId, supabase);
 }
 
 // -------- Get status (masked) --------
@@ -385,6 +369,9 @@ async function loadMediaServerCreds(): Promise<MediaServerCreds> {
   return decryptJson<MediaServerCreds>(data);
 }
 
+// -------- Media server proxies (API key never leaves the server) --------
+
+
 export const testMediaServerConnection = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -397,11 +384,60 @@ export const testMediaServerConnection = createServerFn({ method: "POST" })
     return { ok: true, health: body };
   });
 
-// Return decrypted creds for admin browser use (uploads to media server).
-export const getMediaServerConfig = createServerFn({ method: "GET" })
+/** Server-proxied list of files on the external media server. */
+export const listMediaServerFiles = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context.userId, context.supabase);
     const creds = await loadMediaServerCreds();
-    return { base_url: creds.base_url.replace(/\/$/, ""), api_key: creds.api_key };
+    const base = creds.base_url.replace(/\/$/, "");
+    const res = await fetch(`${base}/list`, { headers: { "x-api-key": creds.api_key } });
+    if (!res.ok) return { files: [] as Array<{ name: string; url: string; size: number; created: string }> };
+    const body = (await res.json().catch(() => ({}))) as {
+      files?: Array<{ name: string; url: string; size: number; created: string }>;
+    };
+    return { files: body.files ?? [] };
+  });
+
+/** Server-proxied upload — client sends FormData, server attaches the API key. */
+export const uploadToMediaServer = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => {
+    if (!(data instanceof FormData)) throw new Error("Expected FormData");
+    const file = data.get("file");
+    if (!(file instanceof File)) throw new Error("Missing file");
+    return { file };
+  })
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId, context.supabase);
+    const creds = await loadMediaServerCreds();
+    const base = creds.base_url.replace(/\/$/, "");
+    const fd = new FormData();
+    fd.append("file", data.file, data.file.name);
+    const res = await fetch(`${base}/upload`, {
+      method: "POST",
+      headers: { "x-api-key": creds.api_key },
+      body: fd,
+    });
+    if (!res.ok) throw new Error(`Media server responded ${res.status}`);
+    return await res.json().catch(() => ({ ok: true }));
+  });
+
+/** Server-proxied delete. */
+export const deleteMediaServerFile = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => {
+    const z = (data as { name?: unknown })?.name;
+    if (typeof z !== "string" || !z) throw new Error("Missing name");
+    return { name: z };
+  })
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId, context.supabase);
+    const creds = await loadMediaServerCreds();
+    const base = creds.base_url.replace(/\/$/, "");
+    const res = await fetch(`${base}/files/${encodeURIComponent(data.name)}`, {
+      method: "DELETE",
+      headers: { "x-api-key": creds.api_key },
+    });
+    return { ok: res.ok };
   });

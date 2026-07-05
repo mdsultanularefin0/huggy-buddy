@@ -4,27 +4,9 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const orderStatusSchema = z.enum(["Pending", "Processing", "Shipped", "Completed", "Cancelled", "Returned"]);
 
-type RoleReader = {
-  from: (table: "user_roles") => {
-    select: (columns: "id") => {
-      eq: (column: "user_id", value: string) => {
-        eq: (column: "role", value: "admin") => {
-          maybeSingle: () => Promise<{ data: { id: string } | null; error: { message: string } | null }>;
-        };
-      };
-    };
-  };
-};
-
 async function assertAdmin(userId: string, supabase: unknown) {
-  const roleReader = supabase as RoleReader;
-  const { data, error } = await roleReader
-    .from("user_roles")
-    .select("id")
-    .eq("user_id", userId)
-    .eq("role", "admin")
-    .maybeSingle();
-  if (error || !data) throw new Error(error?.message ?? "Forbidden");
+  const { assertAdmin: check } = await import("@/lib/admin-guard.server");
+  return check(userId, supabase);
 }
 
 type AuditEntry = {

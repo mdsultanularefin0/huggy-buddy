@@ -1,8 +1,8 @@
-import { createFileRoute, Outlet, useNavigate, Link, useRouterState } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { createFileRoute, Outlet, useNavigate, Link, useRouterState, redirect } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { checkAdminAccess } from "@/lib/admin-access.functions";
 import { supabase } from "@/integrations/supabase/client";
-import { useSession, useIsAdmin } from "@/hooks/use-session";
+import { useSession } from "@/hooks/use-session";
 import { brandingQueryOptions } from "@/lib/branding-query";
 import {
   SidebarProvider, Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent,
@@ -20,7 +20,29 @@ import {
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin")({
+  ssr: false,
   head: () => ({ meta: [{ title: "Admin — Veloura Essence" }, { name: "robots", content: "noindex" }] }),
+  beforeLoad: async ({ location }) => {
+    // Server-side admin check — prevents the UI from flashing before non-admins are kicked out.
+    try {
+      const res = await checkAdminAccess();
+      if (!res.isAdmin) {
+        // Signed in but not an admin — send home.
+        throw redirect({ to: "/" });
+      }
+      return { adminUserId: res.userId };
+    } catch (err) {
+      // requireSupabaseAuth throws a 401 Response when unauthenticated.
+      const isUnauth =
+        err instanceof Response
+          ? err.status === 401
+          : /unauthorized|no authorization/i.test(String((err as Error)?.message ?? ""));
+      if (isUnauth) {
+        throw redirect({ to: "/auth", search: { redirect: location.href } });
+      }
+      throw err;
+    }
+  },
   component: AdminLayout,
 });
 
@@ -79,20 +101,14 @@ const NAV_GROUPS: NavGroup[] = [
 ];
 
 function AdminLayout() {
-  const navigate = useNavigate();
   const { user, loading } = useSession();
-  const isAdmin = useIsAdmin(user?.id);
 
-  useEffect(() => {
-    if (!loading && !user) navigate({ to: "/auth", search: { redirect: "/admin" } });
-  }, [loading, user, navigate]);
-
-  // Block rendering until session AND role check have both resolved.
-  // Without this, isAdmin briefly reads as false and flashes the NotAnAdmin screen.
-  const checkingRole = !!user && isAdmin === null;
-  if (loading || checkingRole) return <AdminLoading />;
+  // The route's beforeLoad has already verified admin access before this
+  // component renders — no client-side role check needed.
+  if (loading) return <AdminLoading />;
   if (!user) return null;
-  if (isAdmin === false) return <NotAnAdmin email={user.email ?? ""} />;
+
+
 
   return (
     <SidebarProvider>
