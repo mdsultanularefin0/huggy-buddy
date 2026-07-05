@@ -8,11 +8,64 @@ export const getOrderById = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: order, error } = await supabaseAdmin
       .from("orders")
-      .select("id,order_number,total,subtotal,shipping_fee,discount,payment_method,customer_json,items_json,user_id")
+      .select("id,order_number,total,subtotal,shipping_fee,discount,payment_method,payment_status,order_status,customer_json,items_json,user_id")
       .eq("id", data.id)
       .maybeSingle();
     if (error) throw new Error(error.message);
-    return order;
+    if (!order) return null;
+
+    // Determine viewer: owner or admin sees full PII; everyone else gets a
+    // sanitized view safe for the public thank-you page.
+    let isPrivileged = false;
+    try {
+      const { getRequest } = await import("@tanstack/react-start/server");
+      const req = getRequest();
+      const authHeader = req?.headers.get("authorization") ?? req?.headers.get("Authorization");
+      const bearer = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+      if (bearer && bearer.split(".").length === 3) {
+        const { createClient } = await import("@supabase/supabase-js");
+        const authClient = createClient(
+          process.env.SUPABASE_URL!,
+          process.env.SUPABASE_PUBLISHABLE_KEY!,
+          { auth: { storage: undefined, persistSession: false, autoRefreshToken: false } },
+        );
+        const { data: claimsRes } = await authClient.auth.getClaims(bearer);
+        const uid = claimsRes?.claims?.sub as string | undefined;
+        if (uid) {
+          if (order.user_id && uid === order.user_id) {
+            isPrivileged = true;
+          } else {
+            const { data: role } = await supabaseAdmin
+              .from("user_roles").select("id")
+              .eq("user_id", uid).eq("role", "admin").maybeSingle();
+            if (role) isPrivileged = true;
+          }
+        }
+      }
+    } catch { /* fall through as non-privileged */ }
+
+    if (isPrivileged) return order;
+
+    // Public/sanitized view: strip PII and only expose non-sensitive fields.
+    const items = Array.isArray(order.items_json)
+      ? (order.items_json as Array<Record<string, unknown>>).map((i) => ({
+          name: i.name, quantity: i.quantity, unitPrice: i.unitPrice, size: i.size,
+        }))
+      : [];
+    return {
+      id: order.id,
+      order_number: order.order_number,
+      total: order.total,
+      subtotal: order.subtotal,
+      shipping_fee: order.shipping_fee,
+      discount: order.discount,
+      payment_method: order.payment_method,
+      payment_status: order.payment_status,
+      order_status: order.order_status,
+      items_json: items,
+      customer_json: null,
+      user_id: null,
+    };
   });
 
 export const claimGuestOrder = createServerFn({ method: "POST" })
