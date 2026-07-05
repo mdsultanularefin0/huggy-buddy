@@ -33,15 +33,6 @@ const NAV_GROUPS: NavGroup[] = [
     items: [{ to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true }],
   },
   {
-    label: "Storefront",
-    items: [
-      { to: "/admin/homepage", label: "Homepage", icon: Home },
-      { to: "/admin/pages", label: "Pages", icon: FileText },
-      { to: "/admin/media", label: "Media Library", icon: Images },
-      { to: "/admin/color-presets", label: "Color Presets", icon: Palette },
-    ],
-  },
-  {
     label: "Catalog",
     items: [
       { to: "/admin/products", label: "Products", icon: Package },
@@ -66,6 +57,15 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { to: "/admin/zones", label: "Delivery Zones", icon: Truck },
       { to: "/admin/payments", label: "Payment Methods", icon: CreditCard },
+    ],
+  },
+  {
+    label: "Storefront",
+    items: [
+      { to: "/admin/homepage", label: "Homepage", icon: Home },
+      { to: "/admin/pages", label: "Pages", icon: FileText },
+      { to: "/admin/media", label: "Media Library", icon: Images },
+      { to: "/admin/color-presets", label: "Color Presets", icon: Palette },
     ],
   },
   {
