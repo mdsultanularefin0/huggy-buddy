@@ -194,9 +194,15 @@ function CheckoutPage() {
     },
     onSuccess: (res) => {
       clear();
+      if (res.invoiceToken && typeof window !== "undefined") {
+        try {
+          sessionStorage.setItem(`invoice_token_${res.id}`, res.invoiceToken);
+        } catch { /* storage disabled — invoice button will fall back to auth */ }
+      }
       toast.success(`Order ${res.orderNumber} placed!`);
       navigate({ to: "/order/$id", params: { id: res.id } });
     },
+
     onError: (err: Error) => toast.error(err.message || "Failed to place order"),
   });
 
