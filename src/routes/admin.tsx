@@ -142,10 +142,6 @@ function AdminSidebar({ email }: { email: string }) {
               <Store className="w-4 h-4 text-primary-foreground" />
             </div>
           )}
-          <div className="flex flex-col leading-none group-data-[collapsible=icon]:hidden">
-            <span className="font-serif text-[15px] font-semibold tracking-wide text-sidebar-foreground">Veloura</span>
-            <span className="text-[10px] uppercase tracking-[0.22em] text-[color:var(--gold)]/80 mt-0.5">Essence · Admin</span>
-          </div>
         </Link>
       </SidebarHeader>
       <SidebarContent className="px-1.5 py-3 gap-1">
