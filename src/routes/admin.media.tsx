@@ -10,7 +10,12 @@ import { Loader2, Upload, Copy, Trash2, Eye, Check, Images } from "lucide-react"
 import { toast } from "sonner";
 import { uploadImage } from "@/lib/upload";
 import { Lightbox } from "@/components/lightbox";
-import { getMediaServerConfig } from "@/lib/integrations.functions";
+import {
+  getMediaServerStatus,
+  listMediaServerFiles,
+  uploadToMediaServer,
+  deleteMediaServerFile,
+} from "@/lib/integrations.functions";
 
 export const Route = createFileRoute("/admin/media")({
   head: () => ({ meta: [{ title: "Media Library — Admin" }, { name: "robots", content: "noindex" }] }),
@@ -55,13 +60,11 @@ async function loadBucket(bucket: typeof BUCKETS[number]): Promise<MediaItem[]> 
     .filter((m) => m.url);
 }
 
-async function loadMediaServer(cfg: { base_url: string; api_key: string } | null): Promise<MediaItem[]> {
-  if (!cfg) return [];
+async function loadMediaServer(available: boolean): Promise<MediaItem[]> {
+  if (!available) return [];
   try {
-    const res = await fetch(`${cfg.base_url}/list`, { headers: { "x-api-key": cfg.api_key } });
-    if (!res.ok) return [];
-    const body = (await res.json()) as { files?: { name: string; url: string; size: number; created: string }[] };
-    return (body.files ?? []).map((f) => ({
+    const { files } = await listMediaServerFiles();
+    return (files ?? []).map((f) => ({
       name: f.name,
       url: f.url,
       source: MEDIA_SERVER,
@@ -84,21 +87,23 @@ function MediaLibraryPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const fileRef = useRef<HTMLInputElement>(null);
   const qc = useQueryClient();
-  const getCfg = useServerFn(getMediaServerConfig);
+  const getStatus = useServerFn(getMediaServerStatus);
+  const uploadFn = useServerFn(uploadToMediaServer);
+  const deleteFn = useServerFn(deleteMediaServerFile);
 
   const cfgQ = useQuery({
-    queryKey: ["media-server", "config"],
-    queryFn: () => getCfg().catch(() => null),
+    queryKey: ["media-server", "status"],
+    queryFn: () => getStatus().catch(() => ({ configured: false })),
     retry: false,
   });
-  const mediaServerCfg = cfgQ.data ?? null;
+  const mediaServerAvailable = !!cfgQ.data?.configured;
 
   const { data, isLoading, refetch, isFetching } = useQuery({
-    queryKey: ["media", "unified", !!mediaServerCfg],
+    queryKey: ["media", "unified", mediaServerAvailable],
     queryFn: async (): Promise<MediaItem[]> => {
       const results = await Promise.all([
         ...BUCKETS.map((b) => loadBucket(b)),
-        loadMediaServer(mediaServerCfg),
+        loadMediaServer(mediaServerAvailable),
       ]);
       return results.flat();
     },
@@ -121,7 +126,7 @@ function MediaLibraryPage() {
 
   async function handleUpload(files: FileList | null) {
     if (!files || files.length === 0) return;
-    if (uploadTo === MEDIA_SERVER && !mediaServerCfg) {
+    if (uploadTo === MEDIA_SERVER && !mediaServerAvailable) {
       return toast.error("Media server not configured. Set it up in Integrations.");
     }
     const arr = Array.from(files);
@@ -132,12 +137,8 @@ function MediaLibraryPage() {
         if (uploadTo === MEDIA_SERVER) {
           const fd = new FormData();
           fd.append("file", arr[i]);
-          const res = await fetch(`${mediaServerCfg!.base_url}/upload`, {
-            method: "POST",
-            headers: { "x-api-key": mediaServerCfg!.api_key },
-            body: fd,
-          });
-          if (!res.ok) throw new Error(`${arr[i].name}: ${res.status}`);
+          // Server function proxies to the media server with the API key attached server-side.
+          await uploadFn({ data: fd });
         } else {
           await uploadImage(uploadTo, arr[i]);
         }
@@ -154,12 +155,13 @@ function MediaLibraryPage() {
 
   async function deleteOne(item: MediaItem): Promise<boolean> {
     if (item.source === MEDIA_SERVER) {
-      if (!mediaServerCfg) return false;
-      const res = await fetch(`${mediaServerCfg.base_url}/files/${encodeURIComponent(item.name)}`, {
-        method: "DELETE",
-        headers: { "x-api-key": mediaServerCfg.api_key },
-      });
-      return res.ok;
+      if (!mediaServerAvailable) return false;
+      try {
+        const res = await deleteFn({ data: { name: item.name } });
+        return !!res?.ok;
+      } catch {
+        return false;
+      }
     }
     const { error } = await supabase.storage.from(item.source).remove([item.name]);
     if (error) toast.error(error.message);
