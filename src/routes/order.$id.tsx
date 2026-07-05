@@ -383,7 +383,19 @@ function InvoiceButton({ orderId }: { orderId: string }) {
   async function open() {
     setLoading(true);
     try {
-      const { token } = await getInvoiceToken({ data: { id: orderId } });
+      // Guest-friendly: use the token stashed by /checkout on success.
+      let token: string | null = null;
+      try {
+        token = typeof window !== "undefined"
+          ? sessionStorage.getItem(`invoice_token_${orderId}`)
+          : null;
+      } catch { /* ignore */ }
+
+      if (!token) {
+        // Signed-in owner / admin path: mint a token server-side.
+        const res = await getInvoiceToken({ data: { id: orderId } });
+        token = res.token;
+      }
       window.open(`/invoice/${orderId}?token=${token}`, "_blank");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Could not open invoice");
@@ -398,6 +410,7 @@ function InvoiceButton({ orderId }: { orderId: string }) {
     </Button>
   );
 }
+
 
 
 
