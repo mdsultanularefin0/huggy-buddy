@@ -136,10 +136,6 @@ export const createOrder = createServerFn({ method: "POST" })
       if (decErr || ok !== true) {
         // Roll back any prior decrements before failing.
         for (const d of decremented) {
-          await supabaseAdmin.rpc("decrement_product_stock", { p_id: d.id, p_qty: -d.qty }).then(() => {});
-          // The RPC rejects non-positive qty, so restore via a direct update instead.
-        }
-        for (const d of decremented) {
           const { data: cur } = await supabaseAdmin
             .from("products").select("stock_quantity").eq("id", d.id).maybeSingle();
           if (cur) {
