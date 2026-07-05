@@ -154,10 +154,10 @@ function TrackOrderSection() {
         return;
       }
       if (res.orders.length > 1) {
-        navigate({ to: "/track", search: { q: query } });
-        return;
+        toast.info(`Found ${res.orders.length} orders — showing the most recent.`);
       }
       navigate({ to: "/order/$id", params: { id: res.id } });
+
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Lookup failed");
     } finally {
