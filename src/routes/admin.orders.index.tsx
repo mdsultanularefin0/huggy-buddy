@@ -455,6 +455,30 @@ function OrdersPage() {
         )}
       </Card>
 
+      <div className="flex items-center justify-between gap-3">
+        <div className="text-xs text-muted-foreground">
+          Page {page} of {totalPages} · {total} total
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={page <= 1 || isLoading}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+          >
+            Previous
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={page >= totalPages || isLoading}
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+          >
+            Next
+          </Button>
+        </div>
+      </div>
+
       <FraudDialog data={fraud} onClose={() => setFraud(null)} />
 
       <BulkActionBar count={selection.count} onClear={selection.clear}>
