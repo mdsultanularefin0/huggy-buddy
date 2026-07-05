@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 
 // Absolute URL base for sitemap entries. Configure via SITE_URL env var.
-const BASE_URL = process.env.SITE_URL || "http://localhost:3000";
+const BASE_URL = process.env.SITE_URL || "https://velouraessencebd.com";
 
 interface Entry {
   path: string;
