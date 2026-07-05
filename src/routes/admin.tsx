@@ -101,6 +101,8 @@ function AdminLayout() {
         <div className="flex-1 flex flex-col min-w-0">
           <header className="h-14 border-b border-border/60 bg-background/70 backdrop-blur-xl flex items-center px-4 gap-3 sticky top-0 z-30">
             <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
+            <div className="h-5 w-px bg-border/70" />
+            <span className="text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">Veloura Essence · Admin</span>
           </header>
           <main className="flex-1 p-6 lg:p-8">
             <Outlet />
@@ -142,10 +144,6 @@ function AdminSidebar({ email }: { email: string }) {
               <Store className="w-4 h-4 text-primary-foreground" />
             </div>
           )}
-          <div className="flex flex-col leading-none group-data-[collapsible=icon]:hidden">
-            <span className="font-serif text-[15px] font-semibold tracking-wide text-sidebar-foreground">Veloura</span>
-            <span className="text-[10px] uppercase tracking-[0.22em] text-[color:var(--gold)]/80 mt-0.5">Essence · Admin</span>
-          </div>
         </Link>
       </SidebarHeader>
       <SidebarContent className="px-1.5 py-3 gap-1">
