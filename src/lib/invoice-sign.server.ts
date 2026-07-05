@@ -1,12 +1,17 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 
-const SECRET_ENV = () =>
-  process.env.INTEGRATION_ENCRYPTION_KEY ||
-  process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  "invoice-fallback-secret";
+function getSecret(): string {
+  const s = process.env.INTEGRATION_ENCRYPTION_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!s) {
+    throw new Error(
+      "Invoice signing secret is not configured (INTEGRATION_ENCRYPTION_KEY missing)",
+    );
+  }
+  return s;
+}
 
 export function signInvoiceId(orderId: string): string {
-  return createHmac("sha256", SECRET_ENV()).update(orderId).digest("hex").slice(0, 32);
+  return createHmac("sha256", getSecret()).update(orderId).digest("hex").slice(0, 32);
 }
 
 export function verifyInvoiceToken(orderId: string, token: string | undefined | null): boolean {
