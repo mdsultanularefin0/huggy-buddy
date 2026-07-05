@@ -1077,6 +1077,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      decrement_product_stock: {
+        Args: { p_id: string; p_qty: number }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1084,6 +1088,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_coupon_usage: { Args: { p_code: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "customer"
