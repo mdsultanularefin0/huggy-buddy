@@ -51,6 +51,7 @@ const NAV_GROUPS: NavGroup[] = [
       { to: "/admin/coupons", label: "Coupons", icon: Tags },
       { to: "/admin/newsletter", label: "Newsletter", icon: Mail },
     ],
+    ],
   },
   {
     label: "Fulfilment",
