@@ -40,6 +40,31 @@ export const Route = createFileRoute("/combo/$id")({
   loader: async ({ context, params }) => {
     const c = await context.queryClient.ensureQueryData(comboOptions(params.id));
     if (!c) throw notFound();
+    return c;
+  },
+  head: ({ loaderData, params }) => {
+    if (!loaderData) {
+      return { meta: [{ title: "Combo not found" }, { name: "robots", content: "noindex" }] };
+    }
+    const { combo } = loaderData;
+    const title = `${combo.title} — Veloura Essence`;
+    const description = combo.description?.slice(0, 160) ?? `Shop the ${combo.title} combo at Veloura Essence.`;
+    const meta = [
+      { title },
+      { name: "description", content: description },
+      { property: "og:title", content: title },
+      { property: "og:description", content: description },
+      { property: "og:type", content: "product" },
+      { property: "og:url", content: `/combo/${params.id}` },
+    ];
+    if (combo.image_url) {
+      meta.push(
+        { property: "og:image", content: combo.image_url },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:image", content: combo.image_url },
+      );
+    }
+    return { meta };
   },
   component: ComboPage,
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
