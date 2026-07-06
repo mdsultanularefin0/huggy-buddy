@@ -280,17 +280,18 @@ function CheckoutPage() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <div className="max-w-6xl mx-auto px-6 py-10">
-        <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+        <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4 sm:mb-6">
           <ArrowLeft className="w-4 h-4" /> Back to shop
         </Link>
-        <h1 className="text-3xl font-semibold tracking-tight mb-2">Checkout</h1>
-        <p className="text-sm text-muted-foreground mb-8">
+        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight mb-2">Checkout</h1>
+        <p className="text-sm text-muted-foreground mb-6 sm:mb-8">
           Checking out as a guest — no account needed. Have one?{" "}
           <Link to="/auth" className="text-primary underline">Sign in</Link> to save this order to your history.
         </p>
 
-        <form onSubmit={onSubmit} className="grid lg:grid-cols-[1fr_400px] gap-10">
+        <form onSubmit={onSubmit} className="grid lg:grid-cols-[1fr_400px] gap-6 lg:gap-10">
+
           <div className="space-y-8">
             <section className="space-y-4">
               <h2 className="font-semibold">Contact & Delivery</h2>
