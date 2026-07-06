@@ -11,6 +11,8 @@ import { SiteFooter } from "@/components/site-footer";
 import { ProductCard } from "@/components/product-card";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { pageMeta } from "@/lib/seo-meta";
+
 
 type ProductRow = {
   id: string;
