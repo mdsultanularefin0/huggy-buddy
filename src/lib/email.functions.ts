@@ -420,7 +420,7 @@ export const replyToContactMessage = createServerFn({ method: "POST" })
     const html = `<div style="font-family:sans-serif;line-height:1.6;white-space:pre-wrap">${safe(data.message)}</div>`;
     const r = await sendMail({
       to: data.to, subject: data.subject, html, kind: "contact_reply",
-      sentBy: { id: context.userId, email: context.claims?.email ?? null },
+      sentBy: { id: context.userId, email: (context.claims as any)?.email ?? null },
     });
     if (!r.ok) throw new Error(r.error ?? "Failed to send reply");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -443,7 +443,7 @@ export const sendAdminEmail = createServerFn({ method: "POST" })
     const html = `<div style="font-family:sans-serif;line-height:1.6;white-space:pre-wrap">${safe(data.message)}</div>`;
     const r = await sendMail({
       to: data.to, subject: data.subject, html, kind: "admin_compose",
-      sentBy: { id: context.userId, email: context.claims?.email ?? null },
+      sentBy: { id: context.userId, email: (context.claims as any)?.email ?? null },
     });
     if (!r.ok) throw new Error(r.error ?? "Failed to send");
     return { ok: true };
