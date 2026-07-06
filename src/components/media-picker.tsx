@@ -253,7 +253,9 @@ export function MediaPicker({ onPick, label = "Library" }: { onPick: (url: strin
                   </button>
                 </div>
               </div>
-            ))}
+              );
+            })}
+
           </div>
         )}
 
