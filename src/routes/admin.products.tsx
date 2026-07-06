@@ -197,8 +197,9 @@ function ProductsPage() {
           (form.note_ids.length > 0 && notes.find((n) => n.id === form.note_ids[0])?.scent_profile) ||
           form.scent_profile ||
           null,
-
+        badge: form.badge.trim() || null,
       };
+
       let productId: string;
       if (editing) {
         const { error } = await supabase.from("products").update(payload).eq("id", editing.id);
