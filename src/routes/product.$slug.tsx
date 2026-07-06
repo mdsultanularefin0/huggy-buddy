@@ -22,6 +22,7 @@ type Variant = {
   price: number;
   sale_price: number | null;
   stock_quantity: number;
+  in_stock: boolean;
 };
 type Product = {
   id: string;
