@@ -155,16 +155,39 @@ function CombosPage() {
 
   function addItem() {
     if (!products[0]) return;
-    setForm((f) => ({ ...f, products_json: [...f.products_json, { product_id: products[0].id, size_label: null }] }));
+    const pid = products[0].id;
+    const firstSize = variantsByProduct.get(pid)?.[0] ?? null;
+    setForm((f) => ({ ...f, products_json: [...f.products_json, { product_id: pid, size_label: firstSize }] }));
   }
   function updateItem(i: number, patch: Partial<ComboItem>) {
     setForm((f) => ({
       ...f,
-      products_json: f.products_json.map((it, idx) => (idx === i ? { ...it, ...patch } : it)),
+      products_json: f.products_json.map((it, idx) => {
+        if (idx !== i) return it;
+        const next = { ...it, ...patch };
+        // When product changes, reset size to first available variant.
+        if (patch.product_id && patch.product_id !== it.product_id) {
+          next.size_label = variantsByProduct.get(patch.product_id)?.[0] ?? null;
+        }
+        return next;
+      }),
     }));
   }
   function removeItem(i: number) {
     setForm((f) => ({ ...f, products_json: f.products_json.filter((_, idx) => idx !== i) }));
+  }
+
+  function addAllVariants() {
+    const items: ComboItem[] = [];
+    for (const p of products) {
+      const sizes = variantsByProduct.get(p.id) ?? [];
+      if (sizes.length === 0) {
+        items.push({ product_id: p.id, size_label: null });
+      } else {
+        for (const s of sizes) items.push({ product_id: p.id, size_label: s });
+      }
+    }
+    setForm((f) => ({ ...f, products_json: items }));
   }
 
   return (
