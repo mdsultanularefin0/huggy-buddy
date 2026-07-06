@@ -23,7 +23,13 @@ import { BulkActionBar } from "@/components/bulk-action-bar";
 import { MediaPicker } from "@/components/media-picker";
 
 type Product = Database["public"]["Tables"]["products"]["Row"];
-type Size = { label: string; price: number; sale_price?: number | null; in_stock?: boolean };
+type Variant = {
+  id?: string;
+  size_label: string;
+  price: number;
+  sale_price: number | null;
+  stock_quantity: number;
+};
 type ActiveFilter = "all" | "active" | "inactive";
 type StockFilter = "all" | "in" | "out";
 
@@ -39,7 +45,7 @@ const empty = {
   is_active: true,
   in_stock: true,
   stock_quantity: 0,
-  sizes_json: [] as Size[],
+  variants: [] as Variant[],
   category_id: null as string | null,
   scent_profile: "" as string,
 };
