@@ -50,8 +50,9 @@ export function MetaPixelLoader() {
   // Fire PageView on subsequent route changes.
   useEffect(() => {
     if (!pixelId || typeof window === "undefined" || !window.fbq) return;
-    window.fbq("track", "PageView");
+    (window.fbq as any)("track", "PageView");
   }, [pathname, pixelId]);
+
 
   return null;
 }
