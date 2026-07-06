@@ -164,6 +164,34 @@ const contactSchema = z.object({
 export const sendContactMessage = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => contactSchema.parse(d))
   .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // 1) Persist first so no inquiry is ever lost, even if SMTP fails.
+    const { error: insertErr } = await supabaseAdmin.from("contact_messages").insert({
+      name: data.name,
+      email: data.email,
+      phone: data.phone || null,
+      subject: data.subject,
+      message: data.message,
+      status: "unread",
+    });
+    if (insertErr) throw new Error("Could not save your message. Please try again.");
+
+    // 2) Fire-and-forget webhook for external automations (Zapier/Make/etc.).
+    const webhookUrl = process.env.ADMIN_WEBHOOK_URL;
+    if (webhookUrl) {
+      try {
+        await fetch(webhookUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type: "contact_message", ...data, received_at: new Date().toISOString() }),
+        });
+      } catch {
+        // Non-fatal: the message is already stored in the DB.
+      }
+    }
+
+    // 3) Notify the admin over SMTP.
     const creds = await loadSmtpCreds();
     const to = creds.admin_email || creds.from_email;
     const safe = (s: string) =>
@@ -181,9 +209,10 @@ export const sendContactMessage = createServerFn({ method: "POST" })
       subject: `[Contact] ${data.subject}`,
       html, kind: "contact",
     });
-    if (!r.ok) throw new Error("Could not send message. Please try again later.");
-    return { ok: true };
+    // Even if SMTP fails, the row is saved — surface a soft warning but don't hard-fail.
+    return { ok: true, emailed: r.ok };
   });
+
 
 // ---------------- Public: newsletter subscribe ----------------
 const subscribeSchema = z.object({
