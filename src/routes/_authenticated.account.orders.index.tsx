@@ -110,12 +110,18 @@ function OrdersList() {
                     </div>
                     <div className="text-right">
                       <p className="font-semibold">{formatBDT(o.total)}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {o.order_status} · {o.payment_status}
-                      </p>
+                      <div className="mt-1 flex flex-wrap justify-end gap-1">
+                        <Badge variant="outline" className={statusVariant(o.order_status).className}>
+                          {o.order_status}
+                        </Badge>
+                        <Badge variant="outline" className={statusVariant(o.payment_status).className}>
+                          {o.payment_status}
+                        </Badge>
+                      </div>
                     </div>
                   </div>
                 </Link>
+
                 <div className="absolute top-3 right-3">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
