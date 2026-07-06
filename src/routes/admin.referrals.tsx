@@ -51,6 +51,7 @@ function ReferralsPage() {
       const payload = {
         code: form.code.trim().toUpperCase(),
         discount_amount: Number(form.discount_amount),
+        discount_type: form.discount_type,
         is_active: form.is_active,
       };
       const { error } = editing
