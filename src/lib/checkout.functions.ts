@@ -410,6 +410,34 @@ export const createOrder = createServerFn({ method: "POST" })
       }
     } catch { /* SMTP missing or send failed — order still succeeds */ }
 
+    // Meta CAPI Purchase (best-effort). event_id = order.id lets the browser
+    // pixel dedupe when it fires the same event with { eventID: order.id }.
+    try {
+      const { sendMetaCapiEvent } = await import("@/lib/meta-pixel.functions");
+      const [firstName, ...rest] = (data.customer.name ?? "").trim().split(/\s+/);
+      void sendMetaCapiEvent({
+        event_name: "Purchase",
+        event_id: order.id,
+        action_source: "website",
+        user_data: {
+          email: data.customer.email || undefined,
+          phone: normalizedPhone,
+          first_name: firstName || undefined,
+          last_name: rest.join(" ") || undefined,
+          country: "bd",
+        },
+        custom_data: {
+          currency: "BDT",
+          value: total,
+          content_type: "product",
+          content_ids: data.items.map((i) => i.refId),
+          contents: data.items.map((i) => ({ id: i.refId, quantity: i.quantity, item_price: i.unitPrice })),
+          num_items: data.items.reduce((n, i) => n + i.quantity, 0),
+          order_id: order.order_number,
+        },
+      });
+    } catch { /* CAPI not configured — ignore */ }
+
     const { signInvoiceId } = await import("@/lib/invoice-sign.server");
     const invoiceToken = signInvoiceId(order.id);
 
@@ -421,6 +449,7 @@ export const createOrder = createServerFn({ method: "POST" })
       shippingFee,
       discount,
       invoiceToken,
+      metaEventId: order.id as string,
     };
   });
 
