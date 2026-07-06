@@ -73,6 +73,7 @@ const NAV_GROUPS: NavGroup[] = [
       { to: "/admin/referrals", label: "Referrals", icon: Megaphone },
       { to: "/admin/coupons", label: "Coupons", icon: Tags },
       { to: "/admin/newsletter", label: "Newsletter", icon: Mail },
+      { to: "/admin/inbox", label: "Support Inbox", icon: Mail },
     ],
   },
   {
