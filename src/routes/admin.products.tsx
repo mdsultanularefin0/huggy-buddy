@@ -371,6 +371,8 @@ function ProductsPage() {
       scent_profile: (p as Product & { scent_profile?: string | null }).scent_profile ?? "",
       category_ids: categoryIdsByProduct.get(p.id) ?? [],
       note_ids: noteIdsByProduct.get(p.id) ?? [],
+      badge: (p as Product & { badge?: string | null }).badge ?? "",
+
     });
 
     setOpen(true);
