@@ -35,7 +35,10 @@ const empty = {
   is_active: true,
   max_items_allowed: null as number | null,
   products_json: [] as ComboItem[],
+  category_ids: [] as string[],
+  note_ids: [] as string[],
 };
+
 
 function CombosPage() {
   const qc = useQueryClient();
