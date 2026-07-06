@@ -91,7 +91,7 @@ export const Route = createFileRoute("/products")({
 
 function ProductsPage() {
   const { data } = useSuspenseQuery(productsPageOptions);
-  return <ListingShell title="All Fragrances" subtitle="Every Veloura scent, one place." products={data.products} categories={data.categories} />;
+  return <ListingShell title="All Fragrances" subtitle="Every Veloura scent, one place." products={data.products} categories={data.categories} combos={data.combos} />;
 }
 
 export function normalizeScents(scent: string[] | string | undefined): string[] {
