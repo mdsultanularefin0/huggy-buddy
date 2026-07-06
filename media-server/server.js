@@ -21,6 +21,8 @@ const crypto = require("crypto");
 const ffmpeg = require("fluent-ffmpeg");
 const ffmpegPath = require("ffmpeg-static");
 const ffprobe = require("ffprobe-static");
+const { ImapFlow } = require("imapflow");
+const { simpleParser } = require("mailparser");
 require("dotenv").config();
 
 ffmpeg.setFfmpegPath(ffmpegPath);
