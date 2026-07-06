@@ -113,16 +113,21 @@ function ProductsPage() {
       const baseSlug = slugify(form.name) || `product-${Date.now()}`;
       const slug = editing ? baseSlug : `${baseSlug}-${Math.random().toString(36).slice(2, 8)}`;
       const cleanVariants = form.variants
-        .map((v) => ({
-          ...v,
-          size_label: v.size_label.trim(),
-          price: Math.max(0, Number(v.price) || 0),
-          sale_price:
-            v.sale_price === null || v.sale_price === undefined || Number(v.sale_price) === 0
-              ? null
-              : Math.max(0, Number(v.sale_price)),
-          stock_quantity: Math.max(0, Number(v.stock_quantity) || 0),
-        }))
+        .map((v) => {
+          const qty = Math.max(0, Number(v.stock_quantity) || 0);
+          const inStock = qty > 0 ? false : !!v.in_stock;
+          return {
+            ...v,
+            size_label: v.size_label.trim(),
+            price: Math.max(0, Number(v.price) || 0),
+            sale_price:
+              v.sale_price === null || v.sale_price === undefined || Number(v.sale_price) === 0
+                ? null
+                : Math.max(0, Number(v.sale_price)),
+            stock_quantity: inStock ? 0 : qty,
+            in_stock: inStock,
+          };
+        })
         .filter((v) => v.size_label.length > 0);
       const payload = {
         name: form.name,
