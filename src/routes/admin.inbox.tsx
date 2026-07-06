@@ -10,9 +10,9 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Mail, CheckCircle2, Inbox as InboxIcon, RefreshCw, Trash2, ArrowLeft, Reply, Send } from "lucide-react";
+import { Loader2, Mail, CheckCircle2, Inbox as InboxIcon, RefreshCw, Trash2, ArrowLeft, Reply, Send, PenSquare } from "lucide-react";
 import { toast } from "sonner";
-import { listContactMessages, updateContactStatus, syncImapInbox, deleteContactMessage, replyToContactMessage } from "@/lib/email.functions";
+import { listContactMessages, updateContactStatus, syncImapInbox, deleteContactMessage, replyToContactMessage, sendAdminEmail } from "@/lib/email.functions";
 
 export const Route = createFileRoute("/admin/inbox")({
   head: () => ({ meta: [{ title: "Support Inbox — Admin" }, { name: "robots", content: "noindex" }] }),
@@ -116,6 +116,21 @@ function AdminInbox() {
 
   const unreadCount = messages.filter((m) => m.status === "unread").length;
 
+  const compose = useServerFn(sendAdminEmail);
+  const [composeOpen, setComposeOpen] = useState(false);
+  const [composeTo, setComposeTo] = useState("");
+  const [composeSubject, setComposeSubject] = useState("");
+  const [composeBody, setComposeBody] = useState("");
+  const composeMut = useMutation({
+    mutationFn: (input: { to: string; subject: string; message: string }) => compose({ data: input }),
+    onSuccess: () => {
+      toast.success("Email sent");
+      setComposeOpen(false);
+      setComposeTo(""); setComposeSubject(""); setComposeBody("");
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Send failed"),
+  });
+
   return (
     <div className="space-y-5 max-w-6xl">
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 sm:flex sm:flex-wrap sm:justify-between">
@@ -125,10 +140,16 @@ function AdminInbox() {
             Contact form submissions and IMAP replies. {unreadCount > 0 && <span className="text-foreground font-medium">{unreadCount} unread</span>}
           </p>
         </div>
-        <Button variant="outline" size="sm" className="shrink-0" onClick={() => syncMut.mutate()} disabled={syncMut.isPending}>
-          {syncMut.isPending ? <Loader2 className="w-4 h-4 sm:mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 sm:mr-2" />}
-          <span className="hidden sm:inline">Sync IMAP</span>
-        </Button>
+        <div className="flex gap-2 shrink-0">
+          <Button size="sm" onClick={() => setComposeOpen(true)}>
+            <PenSquare className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">Compose</span>
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => syncMut.mutate()} disabled={syncMut.isPending}>
+            {syncMut.isPending ? <Loader2 className="w-4 h-4 sm:mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 sm:mr-2" />}
+            <span className="hidden sm:inline">Sync IMAP</span>
+          </Button>
+        </div>
       </div>
 
       <Card className="grid grid-cols-1 md:grid-cols-[300px_1fr] lg:grid-cols-[340px_1fr] overflow-hidden h-[calc(100vh-200px)] min-h-[500px]">
@@ -283,6 +304,38 @@ function AdminInbox() {
               disabled={replyMut.isPending || !replySubject.trim() || !replyBody.trim()}
             >
               {replyMut.isPending ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Send className="w-4 h-4 mr-1.5" />}
+              Send
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={composeOpen} onOpenChange={setComposeOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>New email</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="compose-to">To</Label>
+              <Input id="compose-to" type="email" placeholder="recipient@example.com" value={composeTo} onChange={(e) => setComposeTo(e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="compose-subject">Subject</Label>
+              <Input id="compose-subject" value={composeSubject} onChange={(e) => setComposeSubject(e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="compose-body">Message</Label>
+              <Textarea id="compose-body" rows={12} value={composeBody} onChange={(e) => setComposeBody(e.target.value)} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setComposeOpen(false)} disabled={composeMut.isPending}>Cancel</Button>
+            <Button
+              onClick={() => composeMut.mutate({ to: composeTo.trim(), subject: composeSubject.trim(), message: composeBody.trim() })}
+              disabled={composeMut.isPending || !composeTo.trim() || !composeSubject.trim() || !composeBody.trim()}
+            >
+              {composeMut.isPending ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Send className="w-4 h-4 mr-1.5" />}
               Send
             </Button>
           </DialogFooter>

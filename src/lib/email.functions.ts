@@ -421,6 +421,24 @@ export const replyToContactMessage = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+const composeSchema = z.object({
+  to: z.string().trim().email(),
+  subject: z.string().trim().min(1).max(200),
+  message: z.string().trim().min(1).max(20000),
+});
+export const sendAdminEmail = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => composeSchema.parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId, context.supabase);
+    const safe = (s: string) =>
+      s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
+    const html = `<div style="font-family:sans-serif;line-height:1.6;white-space:pre-wrap">${safe(data.message)}</div>`;
+    const r = await sendMail({ to: data.to, subject: data.subject, html, kind: "admin_compose" });
+    if (!r.ok) throw new Error(r.error ?? "Failed to send");
+    return { ok: true };
+  });
+
 // ==================== IMAP (incoming mail) ====================
 const IMAP_PROVIDER = "imap";
 
