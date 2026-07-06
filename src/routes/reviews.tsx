@@ -19,13 +19,13 @@ type ReviewRow = {
 };
 
 export const Route = createFileRoute("/reviews")({
-  head: () => ({
-    meta: [
-      { title: "Customer Reviews — Veloura Essence" },
-      { name: "description", content: "Read what customers say about Veloura Essence fragrances." },
-    ],
+  head: () => pageMeta({
+    path: "/reviews",
+    title: "Customer Reviews — Veloura Essence",
+    description: "Real reviews from Veloura Essence customers across Bangladesh.",
   }),
   component: ReviewsPage,
+
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
   notFoundComponent: () => <div className="p-8">Not found.</div>,
 });
