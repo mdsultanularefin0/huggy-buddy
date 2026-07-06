@@ -384,8 +384,8 @@ function CategoryCarousel({ categories }: { categories: Array<{ id: string; slug
         })}
       </CarouselContent>
       <div className="pointer-events-none absolute inset-y-0 left-0 right-0 z-10">
-        <CarouselPrevious className="pointer-events-auto absolute! -left-3 sm:-left-4 top-1/2 -translate-y-1/2 h-7 w-7 sm:h-8 sm:w-8 rounded-full border border-white/60 bg-white/95 text-[#52277a] shadow-md backdrop-blur-sm hover:bg-white hover:text-[#52277a] [&_svg]:size-3.5 sm:[&_svg]:size-4" />
-        <CarouselNext className="pointer-events-auto absolute! -right-3 sm:-right-4 top-1/2 -translate-y-1/2 h-7 w-7 sm:h-8 sm:w-8 rounded-full border border-white/60 bg-white/95 text-[#52277a] shadow-md backdrop-blur-sm hover:bg-white hover:text-[#52277a] [&_svg]:size-3.5 sm:[&_svg]:size-4" />
+        <CarouselPrevious className="pointer-events-auto absolute! -left-3 sm:-left-4 top-1/2 -translate-y-1/2 h-7 w-7 sm:h-8 sm:w-8 rounded-full border border-white/60 bg-transparent text-white shadow-none backdrop-blur-sm hover:bg-white hover:text-[#52277a] [&_svg]:size-3.5 sm:[&_svg]:size-4" />
+        <CarouselNext className="pointer-events-auto absolute! -right-3 sm:-right-4 top-1/2 -translate-y-1/2 h-7 w-7 sm:h-8 sm:w-8 rounded-full border border-white/60 bg-transparent text-white shadow-none backdrop-blur-sm hover:bg-white hover:text-[#52277a] [&_svg]:size-3.5 sm:[&_svg]:size-4" />
       </div>
     </Carousel>
   );
