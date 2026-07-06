@@ -104,12 +104,14 @@ export function ListingShell({
   subtitle,
   products,
   categories,
+  combos = [],
   activeCategorySlug,
 }: {
   title: string;
   subtitle?: string;
   products: ProductRow[];
   categories: Cat[];
+  combos?: ComboRow[];
   activeCategorySlug?: string;
 }) {
   // Both /products and /category/$slug use listingSearchSchema, so strict:false is safe.
