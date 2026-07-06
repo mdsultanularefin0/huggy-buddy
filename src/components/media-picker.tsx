@@ -105,11 +105,20 @@ export function MediaPicker({ onPick, label = "Library" }: { onPick: (url: strin
 
   async function handleDelete(item: MediaItem) {
     if (!confirm(`Delete ${item.name}?`)) return;
-    const { error } = await supabase.storage.from(item.bucket).remove([item.name]);
-    if (error) return toast.error(error.message);
+    if (item.bucket === MEDIA_SERVER) {
+      try {
+        await deleteServerFn({ data: { name: item.name } });
+      } catch (e) {
+        return toast.error(e instanceof Error ? e.message : "Delete failed");
+      }
+    } else {
+      const { error } = await supabase.storage.from(item.bucket).remove([item.name]);
+      if (error) return toast.error(error.message);
+    }
     toast.success("Deleted");
     qc.invalidateQueries({ queryKey: ["media", "all-buckets"] });
   }
+
 
   async function copyUrl(url: string) {
     try {
