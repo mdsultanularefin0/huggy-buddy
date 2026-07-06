@@ -214,15 +214,34 @@ export function ListingShell({
             </Sheet>
           </div>
 
-          {filtered.length === 0 ? (
+          {filtered.length === 0 && filteredCombos.length === 0 ? (
             <div className="rounded-2xl border-2 border-dashed border-gray-200 py-20 text-center text-gray-500">
               No products match your filters.
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filtered.map((p) => (
-                <ProductCard key={p.id} product={p} />
-              ))}
+            <div className="space-y-10">
+              {filteredCombos.length > 0 && (
+                <div>
+                  <h2 className="text-lg font-semibold tracking-tight text-[#52277a] mb-4">Combo Packs</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredCombos.map((c) => (
+                      <ComboCard key={c.id} combo={c} />
+                    ))}
+                  </div>
+                </div>
+              )}
+              {filtered.length > 0 && (
+                <div>
+                  {filteredCombos.length > 0 && (
+                    <h2 className="text-lg font-semibold tracking-tight text-[#52277a] mb-4">Fragrances</h2>
+                  )}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filtered.map((p) => (
+                      <ProductCard key={p.id} product={p} />
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
