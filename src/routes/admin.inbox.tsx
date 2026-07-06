@@ -30,6 +30,7 @@ function AdminInbox() {
   const list = useServerFn(listContactMessages);
   const update = useServerFn(updateContactStatus);
   const sync = useServerFn(syncImapInbox);
+  const del = useServerFn(deleteContactMessage);
   const qc = useQueryClient();
 
   const syncMut = useMutation({
