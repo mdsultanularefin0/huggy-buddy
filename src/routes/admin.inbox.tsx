@@ -243,10 +243,8 @@ function AdminInbox() {
                 <div className="p-4 sm:p-6">
                   <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">{selected.message}</p>
                   <div className="mt-6">
-                    <Button asChild variant="outline" size="sm">
-                      <a href={`mailto:${selected.email}?subject=Re: ${encodeURIComponent(selected.subject)}`}>
-                        Reply via email
-                      </a>
+                    <Button variant="outline" size="sm" onClick={openReply}>
+                      <Reply className="w-4 h-4 mr-1.5" /> Reply
                     </Button>
                   </div>
                 </div>
@@ -255,6 +253,41 @@ function AdminInbox() {
           )}
         </div>
       </Card>
+
+      <Dialog open={replyOpen} onOpenChange={setReplyOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Reply to {selected?.name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label>To</Label>
+              <Input value={selected?.email ?? ""} disabled />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="reply-subject">Subject</Label>
+              <Input id="reply-subject" value={replySubject} onChange={(e) => setReplySubject(e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="reply-body">Message</Label>
+              <Textarea id="reply-body" rows={12} value={replyBody} onChange={(e) => setReplyBody(e.target.value)} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setReplyOpen(false)} disabled={replyMut.isPending}>Cancel</Button>
+            <Button
+              onClick={() => {
+                if (!selected) return;
+                replyMut.mutate({ id: selected.id, to: selected.email, subject: replySubject.trim(), message: replyBody.trim() });
+              }}
+              disabled={replyMut.isPending || !replySubject.trim() || !replyBody.trim()}
+            >
+              {replyMut.isPending ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Send className="w-4 h-4 mr-1.5" />}
+              Send
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
