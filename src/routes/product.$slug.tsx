@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBDT, effectivePrice, hasSale } from "@/lib/currency";
