@@ -60,6 +60,25 @@ function CombosPage() {
     },
   });
 
+  const { data: variants = [] } = useQuery({
+    queryKey: ["admin", "variants", "options"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("product_variants")
+        .select("product_id,size_label")
+        .order("sort_order");
+      if (error) throw error;
+      return data as { product_id: string; size_label: string }[];
+    },
+  });
+
+  const variantsByProduct = new Map<string, string[]>();
+  for (const v of variants) {
+    const arr = variantsByProduct.get(v.product_id) ?? [];
+    arr.push(v.size_label);
+    variantsByProduct.set(v.product_id, arr);
+  }
+
   const save = useMutation({
     mutationFn: async () => {
       const payload = {
@@ -136,16 +155,39 @@ function CombosPage() {
 
   function addItem() {
     if (!products[0]) return;
-    setForm((f) => ({ ...f, products_json: [...f.products_json, { product_id: products[0].id, size_label: null }] }));
+    const pid = products[0].id;
+    const firstSize = variantsByProduct.get(pid)?.[0] ?? null;
+    setForm((f) => ({ ...f, products_json: [...f.products_json, { product_id: pid, size_label: firstSize }] }));
   }
   function updateItem(i: number, patch: Partial<ComboItem>) {
     setForm((f) => ({
       ...f,
-      products_json: f.products_json.map((it, idx) => (idx === i ? { ...it, ...patch } : it)),
+      products_json: f.products_json.map((it, idx) => {
+        if (idx !== i) return it;
+        const next = { ...it, ...patch };
+        // When product changes, reset size to first available variant.
+        if (patch.product_id && patch.product_id !== it.product_id) {
+          next.size_label = variantsByProduct.get(patch.product_id)?.[0] ?? null;
+        }
+        return next;
+      }),
     }));
   }
   function removeItem(i: number) {
     setForm((f) => ({ ...f, products_json: f.products_json.filter((_, idx) => idx !== i) }));
+  }
+
+  function addAllVariants() {
+    const items: ComboItem[] = [];
+    for (const p of products) {
+      const sizes = variantsByProduct.get(p.id) ?? [];
+      if (sizes.length === 0) {
+        items.push({ product_id: p.id, size_label: null });
+      } else {
+        for (const s of sizes) items.push({ product_id: p.id, size_label: s });
+      }
+    }
+    setForm((f) => ({ ...f, products_json: items }));
   }
 
   return (
@@ -291,32 +333,59 @@ function CombosPage() {
             <div>
               <div className="flex items-center justify-between mb-2">
                 <Label>{form.combo_type === "byob" ? "Selectable products (pool)" : "Included products"}</Label>
-                <Button type="button" variant="outline" size="sm" onClick={addItem} disabled={!products.length}>
-                  <Plus className="w-3 h-3 mr-1" /> Add
-                </Button>
+                <div className="flex gap-2">
+                  <Button type="button" variant="outline" size="sm" onClick={addAllVariants} disabled={!products.length}>
+                    Add all
+                  </Button>
+                  <Button type="button" variant="outline" size="sm" onClick={addItem} disabled={!products.length}>
+                    <Plus className="w-3 h-3 mr-1" /> Add
+                  </Button>
+                </div>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
                 {form.products_json.length === 0 && (
                   <p className="text-sm text-muted-foreground">No products added.</p>
                 )}
-                {form.products_json.map((it, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <Select value={it.product_id} onValueChange={(v) => updateItem(i, { product_id: v })}>
-                      <SelectTrigger className="flex-1"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        {products.map((p) => (
-                          <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Input placeholder="Size (optional)" value={it.size_label ?? ""} onChange={(e) => updateItem(i, { size_label: e.target.value || null })} className="w-32" />
-                    <Button type="button" variant="ghost" size="sm" onClick={() => removeItem(i)}>
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
-                ))}
+                {form.products_json.map((it, i) => {
+                  const sizes = variantsByProduct.get(it.product_id) ?? [];
+                  return (
+                    <div key={i} className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground w-6 text-right">{i + 1}.</span>
+                      <Select value={it.product_id} onValueChange={(v) => updateItem(i, { product_id: v })}>
+                        <SelectTrigger className="flex-1"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {products.map((p) => (
+                            <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {sizes.length > 0 ? (
+                        <Select
+                          value={it.size_label ?? sizes[0]}
+                          onValueChange={(v) => updateItem(i, { size_label: v })}
+                        >
+                          <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {sizes.map((s) => (
+                              <SelectItem key={s} value={s}>{s}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <span className="w-32 text-xs text-muted-foreground italic px-2">No variants</span>
+                      )}
+                      <Button type="button" variant="ghost" size="sm" onClick={() => removeItem(i)}>
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  );
+                })}
               </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                {form.products_json.length} item{form.products_json.length === 1 ? "" : "s"} in {form.combo_type === "byob" ? "pool" : "bundle"}.
+              </p>
             </div>
+
 
             <label className="flex items-center gap-2 cursor-pointer">
               <Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
