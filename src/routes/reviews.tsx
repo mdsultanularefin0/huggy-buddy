@@ -4,6 +4,8 @@ import { Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { pageMeta } from "@/lib/seo-meta";
+
 
 type ReviewRow = {
   id: string;
