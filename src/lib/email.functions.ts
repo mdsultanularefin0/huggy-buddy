@@ -47,7 +47,8 @@ export async function sendMail(opts: {
   // Always route replies to the admin inbox (falls back to the from address).
   const replyTo = opts.replyTo ?? creds.admin_email ?? creds.from_email;
   try {
-    const nodemailer = (await import("nodemailer")).default;
+    const nodemailerMod: any = await import("nodemailer");
+    const nodemailer = nodemailerMod.default ?? nodemailerMod;
     const transporter = nodemailer.createTransport({
       host: creds.host,
       port: creds.port,
