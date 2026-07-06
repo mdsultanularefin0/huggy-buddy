@@ -53,6 +53,8 @@ const empty = {
   scent_profile: "" as string,
   category_ids: [] as string[],
   note_ids: [] as string[],
+  badge: "" as string,
+
 };
 
 
