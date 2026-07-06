@@ -42,11 +42,13 @@ function AdminIntegrations() {
       </div>
       <Tabs defaultValue="smtp" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="smtp"><Mail className="w-4 h-4 mr-2" />SMTP Email</TabsTrigger>
+          <TabsTrigger value="smtp"><Mail className="w-4 h-4 mr-2" />SMTP (Outgoing)</TabsTrigger>
+          <TabsTrigger value="imap"><Inbox className="w-4 h-4 mr-2" />IMAP (Incoming)</TabsTrigger>
           <TabsTrigger value="steadfast"><Truck className="w-4 h-4 mr-2" />Steadfast</TabsTrigger>
           <TabsTrigger value="media"><Film className="w-4 h-4 mr-2" />Media Server</TabsTrigger>
         </TabsList>
         <TabsContent value="smtp"><SmtpCard /></TabsContent>
+        <TabsContent value="imap"><ImapCard /></TabsContent>
         <TabsContent value="steadfast"><SteadfastCard /></TabsContent>
         <TabsContent value="media"><MediaServerCard /></TabsContent>
       </Tabs>
