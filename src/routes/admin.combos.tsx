@@ -469,6 +469,66 @@ function CombosPage() {
               </p>
             </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label>Categories</Label>
+                <p className="text-xs text-muted-foreground">Assign to one or more categories.</p>
+                <div className="mt-2 max-h-40 overflow-y-auto rounded-md border p-2 space-y-1">
+                  {categories.length === 0 && <p className="text-xs text-muted-foreground">No categories yet.</p>}
+                  {categories.map((c) => {
+                    const checked = form.category_ids.includes(c.id);
+                    return (
+                      <label key={c.id} className="flex items-center gap-2 text-sm cursor-pointer">
+                        <Checkbox
+                          checked={checked}
+                          onCheckedChange={(v) =>
+                            setForm((f) => ({
+                              ...f,
+                              category_ids: v
+                                ? Array.from(new Set([...f.category_ids, c.id]))
+                                : f.category_ids.filter((x) => x !== c.id),
+                            }))
+                          }
+                        />
+                        <span>{c.name}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+              <div>
+                <Label>Scent notes</Label>
+                <p className="text-xs text-muted-foreground">Optional. Lets this combo show up under scent filters.</p>
+                <div className="mt-2 max-h-40 overflow-y-auto rounded-md border p-2 space-y-1">
+                  {notes.length === 0 && <p className="text-xs text-muted-foreground">No active notes yet.</p>}
+                  {notes.map((n) => {
+                    const checked = form.note_ids.includes(n.id);
+                    return (
+                      <label key={n.id} className="flex items-center gap-2 text-sm cursor-pointer">
+                        <Checkbox
+                          checked={checked}
+                          onCheckedChange={(v) =>
+                            setForm((f) => ({
+                              ...f,
+                              note_ids: v
+                                ? Array.from(new Set([...f.note_ids, n.id]))
+                                : f.note_ids.filter((x) => x !== n.id),
+                            }))
+                          }
+                        />
+                        <span>
+                          {n.title}
+                          {n.scent_profile && <span className="text-xs text-muted-foreground"> · {n.scent_profile}</span>}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+
+
 
             <label className="flex items-center gap-2 cursor-pointer">
               <Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
