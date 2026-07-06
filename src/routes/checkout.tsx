@@ -466,8 +466,8 @@ function CheckoutPage() {
               )}
               <div className="flex justify-between font-semibold text-base pt-2"><span>Total</span><span>{formatBDT(total)}</span></div>
             </div>
-            <Button type="submit" variant="hero" size="lg" className="w-full" disabled={mutation.isPending}>
-              {mutation.isPending ? "Placing order…" : `Place order — ${formatBDT(total)}`}
+            <Button type="submit" variant="hero" size="lg" className="w-full" isLoading={mutation.isPending} loadingText="Placing order…">
+              {`Place order — ${formatBDT(total)}`}
             </Button>
           </aside>
         </form>

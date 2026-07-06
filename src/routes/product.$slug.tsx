@@ -9,6 +9,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { useCart } from "@/lib/cart-store";
 import { toast } from "sonner";
 import { fbqTrack } from "@/lib/meta-track";
+import { Button } from "@/components/ui/button";
 import {
   Accordion,
   AccordionContent,
@@ -167,6 +168,7 @@ function ProductPage() {
   const [variantIdx, setVariantIdx] = useState<number | null>(null);
   const [qty, setQty] = useState(1);
   const add = useCart((s) => s.add);
+  const [isAdding, setIsAdding] = useState(false);
   const viewFired = useRef(false);
   useEffect(() => {
     if (viewFired.current || !product) return;
@@ -217,6 +219,8 @@ function ProductPage() {
       quantity: qty,
       size: sizeLabel,
     });
+    setIsAdding(true);
+    window.setTimeout(() => setIsAdding(false), 550);
     toast.success(`${product.name}${sizeLabel ? ` (${sizeLabel})` : ""} × ${qty} added to cart`);
   };
 
@@ -340,13 +344,14 @@ function ProductPage() {
             </div>
           </div>
 
-          <button
+          <Button
             onClick={handleAdd}
             disabled={!canAdd}
-            className="mt-4 w-full bg-[#52277a] hover:bg-[#3f1d5e] disabled:opacity-50 text-white rounded-2xl py-4 font-semibold transition-colors"
+            isLoading={isAdding}
+            className="mt-4 w-full bg-[#52277a] hover:bg-[#3f1d5e] disabled:opacity-50 text-white rounded-2xl py-4 font-semibold h-auto"
           >
             {!product.in_stock ? "Out of stock" : needsVariant && variantIdx === null ? "Select a size" : chosenOut ? "Variant out of stock" : "Add to Cart"}
-          </button>
+          </Button>
 
           <Accordion type="single" collapsible className="mt-8">
             <AccordionItem value="notes">

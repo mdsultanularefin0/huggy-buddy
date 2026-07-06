@@ -118,8 +118,8 @@ function AuthPage() {
                   <Label htmlFor="signin-password">Password</Label>
                   <Input id="signin-password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
                 </div>
-                <Button type="submit" variant="hero" size="lg" className="w-full" disabled={loading}>
-                  {loading ? "Signing in..." : "Sign in"}
+                <Button type="submit" variant="hero" size="lg" className="w-full" isLoading={loading}>
+                  Sign in
                 </Button>
                 <button type="button" onClick={handleForgot} className="text-xs text-muted-foreground hover:text-primary underline block mx-auto">
                   Forgot password?
@@ -137,8 +137,8 @@ function AuthPage() {
                   <Label htmlFor="signup-password">Password</Label>
                   <Input id="signup-password" type="password" minLength={6} required value={password} onChange={(e) => setPassword(e.target.value)} />
                 </div>
-                <Button type="submit" variant="hero" size="lg" className="w-full" disabled={loading}>
-                  {loading ? "Creating..." : "Create account"}
+                <Button type="submit" variant="hero" size="lg" className="w-full" isLoading={loading}>
+                  Create account
                 </Button>
               </form>
             </TabsContent>
