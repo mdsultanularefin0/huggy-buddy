@@ -200,8 +200,8 @@ function ProductsPage() {
           form.scent_profile ||
           null,
         badge: form.badge.trim() || null,
-        is_new_arrival: form.is_new_arrival,
       };
+
 
 
       let productId: string;
