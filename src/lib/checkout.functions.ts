@@ -113,6 +113,51 @@ export const createOrder = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
+    // -------- Idempotency guard (ad-hoc throttle) --------
+    // Prevent duplicate orders when a client bypasses the UI guard (double
+    // submit, retry, network glitch). If the same phone submitted an order
+    // with the exact same items + client subtotal in the last 30 seconds,
+    // return that order instead of creating a new one.
+    const dedupePhone = normalizePhone(data.customer.phone);
+    const dedupeSig = data.items
+      .map((i) => `${i.kind}:${i.refId}:${i.variantId ?? ""}:${i.unitPrice}:${i.quantity}`)
+      .sort()
+      .join("|");
+    const dedupeSubtotal = data.items.reduce((s, i) => s + i.unitPrice * i.quantity, 0);
+    const windowStart = new Date(Date.now() - 30_000).toISOString();
+    const { data: recent } = await supabaseAdmin
+      .from("orders")
+      .select("id, order_number, total, subtotal, shipping_fee, discount, items_json, created_at, customer_json")
+      .gte("created_at", windowStart)
+      .eq("subtotal", dedupeSubtotal)
+      .order("created_at", { ascending: false })
+      .limit(10);
+    const dup = (recent ?? []).find((r) => {
+      const items = Array.isArray(r.items_json) ? (r.items_json as typeof data.items) : [];
+      const sig = items
+        .map((i) => `${i.kind}:${i.refId}:${i.variantId ?? ""}:${i.unitPrice}:${i.quantity}`)
+        .sort()
+        .join("|");
+      const phone = normalizePhone(((r.customer_json as { phone?: string } | null)?.phone) ?? "");
+      return sig === dedupeSig && phone === dedupePhone;
+    });
+    if (dup) {
+      const { signInvoiceId } = await import("@/lib/invoice-sign.server");
+      return {
+        id: dup.id,
+        orderNumber: dup.order_number,
+        total: dup.total,
+        subtotal: dup.subtotal,
+        shippingFee: dup.shipping_fee,
+        discount: dup.discount,
+        invoiceToken: signInvoiceId(dup.id),
+        metaEventId: dup.id as string,
+        deduped: true as const,
+      };
+    }
+
+
+
     // Load zone for fee + free shipping
     const { data: zone, error: zoneErr } = await supabaseAdmin
       .from("delivery_zones")
