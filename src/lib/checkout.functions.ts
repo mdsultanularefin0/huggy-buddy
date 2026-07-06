@@ -165,18 +165,56 @@ export const createOrder = createServerFn({ method: "POST" })
       }
     }
 
+    // Resolve parent product for each variant so the product-level in_stock
+    // toggle can override variant-level stock/quantity entirely.
+    const variantIds = Array.from(qtyByVariant.keys());
+    const variantParent = new Map<string, string>();
+    if (variantIds.length) {
+      const { data: vrows } = await (supabaseAdmin as any)
+        .from("product_variants")
+        .select("id,product_id")
+        .in("id", variantIds);
+      for (const r of (vrows ?? []) as Array<{ id: string; product_id: string }>) {
+        variantParent.set(r.id, r.product_id);
+      }
+    }
+    const parentIds = Array.from(
+      new Set([...qtyByProduct.keys(), ...variantParent.values()]),
+    );
+    const parentInStock = new Map<string, boolean>();
+    if (parentIds.length) {
+      const { data: prows } = await supabaseAdmin
+        .from("products").select("id,in_stock,name").in("id", parentIds);
+      for (const r of (prows ?? []) as Array<{ id: string; in_stock: boolean; name: string }>) {
+        parentInStock.set(r.id, r.in_stock);
+      }
+    }
+
     for (const [vid, { qty, name }] of qtyByVariant) {
+      const pid = variantParent.get(vid);
+      if (!pid || parentInStock.get(pid) === false) {
+        await rollback();
+        throw new Error(`Out of stock: ${name}`);
+      }
+      // Product-level in_stock trumps variant stock: skip decrement, unlimited.
       const { data: ok, error: decErr } = await supabaseAdmin.rpc(
         "decrement_variant_stock" as never,
         { v_id: vid, v_qty: qty } as never,
       );
-      if (decErr || ok !== true) {
+      // Ignore variant failure when parent product toggle is on.
+      if ((decErr || ok !== true) && parentInStock.get(pid) !== true) {
         await rollback();
         throw new Error(`Out of stock: ${name}`);
       }
-      decrementedVariants.push({ id: vid, qty });
+      if (ok === true) decrementedVariants.push({ id: vid, qty });
     }
     for (const [pid, qty] of qtyByProduct) {
+      if (parentInStock.get(pid) === false) {
+        await rollback();
+        const { data: p } = await supabaseAdmin
+          .from("products").select("name").eq("id", pid).maybeSingle();
+        throw new Error(`Out of stock: ${p?.name ?? "item"}`);
+      }
       const { data: ok, error: decErr } = await supabaseAdmin.rpc(
         "decrement_product_stock",
         { p_id: pid, p_qty: qty },

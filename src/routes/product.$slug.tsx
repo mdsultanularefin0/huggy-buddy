@@ -152,7 +152,7 @@ function ProductPage() {
   const regular = chosen?.price ?? product.regular_price;
   const sale = chosen?.sale_price ?? product.sale_price;
   const price = effectivePrice(regular, sale);
-  const chosenOut = chosen ? (!chosen.in_stock && chosen.stock_quantity <= 0) : false;
+  const chosenOut = product.in_stock ? false : true;
   const canAdd = product.in_stock && !chosenOut && (!needsVariant || variantIdx !== null);
 
   const handleAdd = () => {
@@ -273,7 +273,7 @@ function ProductPage() {
               <p className="text-sm font-medium mb-3">Size</p>
               <div className="flex flex-wrap gap-2">
                 {variants.map((v, i) => {
-                  const out = !v.in_stock && v.stock_quantity <= 0;
+                  const out = !product.in_stock || (!v.in_stock && v.stock_quantity <= 0);
                   return (
                     <button
                       key={v.id}
