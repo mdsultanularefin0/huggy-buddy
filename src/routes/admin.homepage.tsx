@@ -307,7 +307,7 @@ function HomepagePage() {
         </Button>
       </div>
 
-      {(() => null)()}
+      
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabValue)} className="w-full">
         <div
           className="w-full overflow-x-auto -mx-1 px-1 pb-1"
