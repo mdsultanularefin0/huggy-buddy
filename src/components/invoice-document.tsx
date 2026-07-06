@@ -9,6 +9,7 @@ type Item = {
   size?: string | null;
   image?: string | null;
   imageUrl?: string | null;
+  selections?: { productId?: string; name?: string }[] | null;
 };
 
 type Customer = {
