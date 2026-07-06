@@ -17,4 +17,11 @@ export default defineConfig({
     // Output: .output/server/index.mjs
     preset: "node-server",
   },
+  vite: {
+    ssr: {
+      // Keep IMAP/mail parsing deps external — bundling them mangles Node's
+      // stream/util inheritance and breaks with "superCtor.prototype ... undefined".
+      external: ["imapflow", "mailparser", "nodemailer", "libmime", "iconv-lite"],
+    },
+  },
 });
