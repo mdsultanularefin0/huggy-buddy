@@ -485,7 +485,7 @@ function ProductsPage() {
               <TabsTrigger value="inventory">Inventory</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="basics" className="space-y-4 mt-4">
+            <TabsContent forceMount value="basics" className="space-y-4 mt-4 data-[state=inactive]:hidden">
               <div>
                 <Label htmlFor="name">Name</Label>
                 <Input id="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="mt-1" />
@@ -537,7 +537,7 @@ function ProductsPage() {
               </div>
             </TabsContent>
 
-            <TabsContent value="media" className="space-y-4 mt-4">
+            <TabsContent forceMount value="media" className="space-y-4 mt-4 data-[state=inactive]:hidden">
               <div>
                 <Label>Images {form.images.length > 0 && <span className="text-xs text-muted-foreground font-normal">— drag thumbnails to reorder. First image is the main.</span>}</Label>
                 <div
@@ -598,7 +598,7 @@ function ProductsPage() {
               </div>
             </TabsContent>
 
-            <TabsContent value="pricing" className="space-y-4 mt-4">
+            <TabsContent forceMount value="pricing" className="space-y-4 mt-4 data-[state=inactive]:hidden">
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label htmlFor="reg">Regular price (BDT)</Label>
@@ -612,7 +612,7 @@ function ProductsPage() {
               <p className="text-xs text-muted-foreground">Base pricing is used when a product has no variants. Add variants below to sell per-size with their own pricing.</p>
             </TabsContent>
 
-            <TabsContent value="inventory" className="space-y-4 mt-4">
+            <TabsContent forceMount value="inventory" className="space-y-4 mt-4 data-[state=inactive]:hidden">
               <div>
                 <div className="flex items-center justify-between">
                   <Label>Variants (size / price / stock)</Label>
