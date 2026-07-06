@@ -6,9 +6,9 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Loader2, Mail, CheckCircle2, Inbox as InboxIcon, RefreshCw } from "lucide-react";
+import { Loader2, Mail, CheckCircle2, Inbox as InboxIcon, RefreshCw, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { listContactMessages, updateContactStatus, syncImapInbox } from "@/lib/email.functions";
+import { listContactMessages, updateContactStatus, syncImapInbox, deleteContactMessage } from "@/lib/email.functions";
 
 export const Route = createFileRoute("/admin/inbox")({
   head: () => ({ meta: [{ title: "Support Inbox — Admin" }, { name: "robots", content: "noindex" }] }),
@@ -30,6 +30,7 @@ function AdminInbox() {
   const list = useServerFn(listContactMessages);
   const update = useServerFn(updateContactStatus);
   const sync = useServerFn(syncImapInbox);
+  const del = useServerFn(deleteContactMessage);
   const qc = useQueryClient();
 
   const syncMut = useMutation({
@@ -65,6 +66,16 @@ function AdminInbox() {
       toast.success("Status updated");
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Update failed"),
+  });
+
+  const delMut = useMutation({
+    mutationFn: (id: string) => del({ data: { id } }),
+    onSuccess: (_r, id) => {
+      qc.invalidateQueries({ queryKey: ["contact-messages"] });
+      if (selectedId === id) setSelectedId(null);
+      toast.success("Message deleted");
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Delete failed"),
   });
 
   const setStatus = (status: Msg["status"]) => {
@@ -177,6 +188,17 @@ function AdminInbox() {
                   >
                     <CheckCircle2 className="w-4 h-4 mr-1.5" />
                     {selected.status === "resolved" ? "Reopen" : "Resolve"}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => {
+                      if (confirm("Delete this message permanently?")) delMut.mutate(selected.id);
+                    }}
+                    disabled={delMut.isPending}
+                  >
+                    <Trash2 className="w-4 h-4 mr-1.5" />
+                    Delete
                   </Button>
                 </div>
               </div>
