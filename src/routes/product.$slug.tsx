@@ -9,6 +9,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { useCart } from "@/lib/cart-store";
 import { toast } from "sonner";
 import { fbqTrack } from "@/lib/meta-track";
+import { Button } from "@/components/ui/button";
 import {
   Accordion,
   AccordionContent,
