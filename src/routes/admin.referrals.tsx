@@ -147,8 +147,23 @@ function ReferralsPage() {
               <Input value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })} className="mt-1 font-mono" placeholder="e.g. SARAH10" />
             </div>
             <div>
-              <Label>Discount amount (BDT)</Label>
-              <Input type="number" value={form.discount_amount} onChange={(e) => setForm({ ...form, discount_amount: Number(e.target.value) })} className="mt-1" />
+              <Label>Discount type</Label>
+              <div className="mt-1 inline-flex rounded-md border p-1 gap-1">
+                <button type="button" onClick={() => setForm({ ...form, discount_type: "fixed" })}
+                  className={`px-3 py-1 text-sm rounded ${form.discount_type === "fixed" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>
+                  Fixed (BDT)
+                </button>
+                <button type="button" onClick={() => setForm({ ...form, discount_type: "percent" })}
+                  className={`px-3 py-1 text-sm rounded ${form.discount_type === "percent" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>
+                  Percentage (%)
+                </button>
+              </div>
+            </div>
+            <div>
+              <Label>{form.discount_type === "percent" ? "Discount percent (0–100)" : "Discount amount (BDT)"}</Label>
+              <Input type="number" min={0} max={form.discount_type === "percent" ? 100 : undefined}
+                value={form.discount_amount}
+                onChange={(e) => setForm({ ...form, discount_amount: Number(e.target.value) })} className="mt-1" />
             </div>
             <label className="flex items-center gap-2 cursor-pointer">
               <Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
