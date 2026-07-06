@@ -2,9 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listMyWishlist, toggleMyWishlist } from "@/lib/account.functions";
-import { formatBDT } from "@/lib/currency";
+import { ProductCard } from "@/components/product-card";
 import { Heart, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/account/wishlist")({
@@ -21,7 +20,14 @@ export const Route = createFileRoute("/_authenticated/account/wishlist")({
 type Row = {
   id: string;
   product_id: string;
-  products: { id: string; name: string; slug: string; regular_price: number; sale_price: number | null; image_url: string | null } | null;
+  products: {
+    id: string;
+    name: string;
+    slug: string;
+    regular_price: number;
+    sale_price: number | null;
+    image_url: string | null;
+  } | null;
 };
 
 function WishlistPage() {
@@ -36,9 +42,10 @@ function WishlistPage() {
   const removeMut = useMutation({
     mutationFn: (productId: string) => toggle({ data: { productId } }),
     onSuccess: () => {
-      toast.success("Removed");
+      toast.success("Removed from wishlist");
       qc.invalidateQueries({ queryKey: ["my-wishlist"] });
     },
+    onError: (e: Error) => toast.error(e.message),
   });
 
   return (
@@ -56,29 +63,21 @@ function WishlistPage() {
           <Link to="/products" className="text-primary underline text-sm">Browse fragrances</Link>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {data.map((r) => {
             if (!r.products) return null;
             const p = r.products;
-            const price = p.sale_price ?? p.regular_price;
             return (
-              <div key={r.id} className="rounded-xl border overflow-hidden bg-card relative group">
+              <div key={r.id} className="relative">
                 <button
                   onClick={() => removeMut.mutate(p.id)}
-                  aria-label="Remove"
-                  className="absolute top-2 right-2 z-10 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center hover:bg-white shadow"
+                  disabled={removeMut.isPending}
+                  aria-label="Remove from wishlist"
+                  className="absolute top-2 right-2 z-20 w-9 h-9 rounded-full bg-white/95 flex items-center justify-center shadow-md hover:bg-white hover:text-destructive transition"
                 >
                   <X className="w-4 h-4" />
                 </button>
-                <Link to="/product/$slug" params={{ slug: p.slug }}>
-                  <div className="aspect-square bg-muted overflow-hidden">
-                    {p.image_url && <img src={p.image_url} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition" />}
-                  </div>
-                  <div className="p-3">
-                    <p className="font-medium text-sm truncate">{p.name}</p>
-                    <p className="text-sm text-primary font-semibold mt-1">{formatBDT(price)}</p>
-                  </div>
-                </Link>
+                <ProductCard product={p} />
               </div>
             );
           })}
