@@ -12,6 +12,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Pencil, Trash2, Loader2, Upload, X } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+
 import { toast } from "sonner";
 import { formatBDT } from "@/lib/currency";
 import { uploadImage } from "@/lib/upload";
