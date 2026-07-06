@@ -464,17 +464,19 @@ function OrdersPage() {
           <Button
             variant="outline"
             size="sm"
-            disabled={page <= 1 || isLoading}
+            disabled={page <= 1 || isFetching}
             onClick={() => setPage((p) => Math.max(1, p - 1))}
           >
+            {isFetching ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : null}
             Previous
           </Button>
           <Button
             variant="outline"
             size="sm"
-            disabled={page >= totalPages || isLoading}
+            disabled={page >= totalPages || isFetching}
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
           >
+            {isFetching ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : null}
             Next
           </Button>
         </div>
