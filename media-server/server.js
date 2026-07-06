@@ -21,6 +21,8 @@ const crypto = require("crypto");
 const ffmpeg = require("fluent-ffmpeg");
 const ffmpegPath = require("ffmpeg-static");
 const ffprobe = require("ffprobe-static");
+const { ImapFlow } = require("imapflow");
+const { simpleParser } = require("mailparser");
 require("dotenv").config();
 
 ffmpeg.setFfmpegPath(ffmpegPath);
@@ -141,6 +143,97 @@ async function maybeTranscodeVideo(file) {
 
 // --- routes ---
 app.get("/health", (_req, res) => res.json({ ok: true }));
+
+// --- IMAP proxy endpoints ---
+const MAX_PER_RUN = 50;
+
+function resolveMailboxes(c) {
+  const list = (c.mailboxes && c.mailboxes.length ? c.mailboxes : [c.mailbox || "INBOX"])
+    .map((m) => String(m).trim()).filter(Boolean);
+  return list.length ? list : ["INBOX"];
+}
+
+function buildClient(c) {
+  return new ImapFlow({
+    host: c.host,
+    port: Number(c.port),
+    secure: !!c.secure,
+    auth: { user: c.username, pass: c.password },
+    logger: false,
+  });
+}
+
+app.post("/imap/test", requireKey, async (req, res) => {
+  const creds = req.body || {};
+  const client = buildClient(creds);
+  try {
+    await client.connect();
+    const mailboxes = resolveMailboxes(creds);
+    let exists = 0, unseen = 0;
+    for (const mbox of mailboxes) {
+      try {
+        const info = await client.mailboxOpen(mbox);
+        exists += info.exists || 0;
+        unseen += info.unseen || 0;
+      } catch { /* ignore missing folder */ }
+    }
+    await client.logout().catch(() => {});
+    res.json({ ok: true, exists, unseen, mailboxes });
+  } catch (err) {
+    await client.logout().catch(() => {});
+    res.status(400).json({ ok: false, error: err.message });
+  }
+});
+
+app.post("/imap/sync", requireKey, async (req, res) => {
+  const creds = req.body || {};
+  const importAll = !!creds.import_all;
+  const markSeen = !!creds.mark_seen;
+  const mailboxes = resolveMailboxes(creds);
+  const client = buildClient(creds);
+  const messages = [];
+  let fetched = 0;
+
+  try {
+    await client.connect();
+    for (const mbox of mailboxes) {
+      if (fetched >= MAX_PER_RUN) break;
+      let lock;
+      try { lock = await client.getMailboxLock(mbox); }
+      catch { continue; }
+      try {
+        const criteria = importAll ? { all: true } : { seen: false };
+        const uids = (await client.search(criteria, { uid: true })) || [];
+        const slice = uids.slice(0, MAX_PER_RUN - fetched);
+        for (const uid of slice) {
+          fetched++;
+          try {
+            const msg = await client.fetchOne(String(uid), { source: true, envelope: true }, { uid: true });
+            if (!msg || !msg.source) continue;
+            const parsed = await simpleParser(msg.source);
+            const fromAddr = parsed.from?.value?.[0];
+            const email = fromAddr?.address || "unknown@unknown";
+            const name = fromAddr?.name || email.split("@")[0];
+            const subject = parsed.subject || "(no subject)";
+            const htmlBody = typeof parsed.html === "string" ? parsed.html : "";
+            const body = parsed.text || htmlBody.replace(/<[^>]+>/g, " ") || "";
+            const messageId = parsed.messageId || `${creds.host}:${mbox}:${uid}`;
+            messages.push({ mailbox: mbox, uid: String(uid), name, email, subject, body, messageId });
+            if (markSeen && !importAll) {
+              await client.messageFlagsAdd(String(uid), ["\\Seen"], { uid: true }).catch(() => {});
+            }
+          } catch { /* skip bad message */ }
+        }
+      } finally { lock.release(); }
+    }
+    await client.logout().catch(() => {});
+    res.json({ ok: true, fetched, messages });
+  } catch (err) {
+    await client.logout().catch(() => {});
+    res.status(400).json({ ok: false, error: err.message });
+  }
+});
+
 
 app.post("/upload", requireKey, upload.single("file"), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: "No file provided (field name: 'file')" });
