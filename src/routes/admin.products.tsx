@@ -54,7 +54,7 @@ const empty = {
   category_ids: [] as string[],
   note_ids: [] as string[],
   badge: "" as string,
-  is_new_arrival: false,
+
 
 
 };
