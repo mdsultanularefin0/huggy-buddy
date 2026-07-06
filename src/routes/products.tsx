@@ -5,7 +5,7 @@ import { SlidersHorizontal } from "lucide-react";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
-import { formatBDT, effectivePrice } from "@/lib/currency";
+import { formatBDT, effectivePrice, hasSale } from "@/lib/currency";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ProductCard } from "@/components/product-card";
