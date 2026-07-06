@@ -82,11 +82,17 @@ function AdminInbox() {
 
   return (
     <div className="space-y-5 max-w-6xl">
-      <div>
-        <h1 className="text-2xl font-semibold">Support Inbox</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Customer inquiries from the contact form. {unreadCount > 0 && <span className="text-foreground font-medium">{unreadCount} unread</span>}
-        </p>
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-semibold">Support Inbox</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Contact form submissions and IMAP replies. {unreadCount > 0 && <span className="text-foreground font-medium">{unreadCount} unread</span>}
+          </p>
+        </div>
+        <Button variant="outline" size="sm" onClick={() => syncMut.mutate()} disabled={syncMut.isPending}>
+          {syncMut.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
+          Sync IMAP
+        </Button>
       </div>
 
       <Card className="grid grid-cols-1 md:grid-cols-[320px_1fr] overflow-hidden h-[calc(100vh-220px)] min-h-[500px]">
