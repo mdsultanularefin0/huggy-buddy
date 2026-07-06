@@ -50,7 +50,10 @@ const empty = {
   variants: [] as Variant[],
   category_id: null as string | null,
   scent_profile: "" as string,
+  category_ids: [] as string[],
+  note_ids: [] as string[],
 };
+
 
 function ProductsPage() {
   const qc = useQueryClient();
