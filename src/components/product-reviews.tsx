@@ -178,7 +178,7 @@ export function ProductReviews({ productId }: { productId: string }) {
               <div className="flex flex-wrap gap-2 mb-2">
                 {images.map((url) => (
                   <div key={url} className="relative w-16 h-16 rounded-lg overflow-hidden border">
-                    <img src={url} alt="" className="w-full h-full object-cover" />
+                    <img src={url} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
                     <button
                       type="button"
                       onClick={() => setImages((p) => p.filter((u) => u !== url))}
