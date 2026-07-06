@@ -11,6 +11,7 @@ const CartItemSchema = z.object({
   regularPrice: z.number().int().nonnegative(),
   quantity: z.number().int().positive(),
   size: z.string().nullable().optional(),
+  variantId: z.string().uuid().nullable().optional(),
   selections: z
     .array(z.object({ productId: z.string().uuid(), name: z.string() }))
     .optional(),
