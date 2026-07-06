@@ -190,8 +190,12 @@ function ProductsPage() {
         is_active: form.is_active,
         in_stock: form.in_stock,
         stock_quantity: Math.max(0, Number(form.stock_quantity) || 0),
-        category_id: form.category_id,
-        scent_profile: form.scent_profile || null,
+        category_id: form.category_ids[0] ?? form.category_id ?? null,
+        scent_profile:
+          (form.note_ids.length > 0 && notes.find((n) => n.id === form.note_ids[0])?.scent_profile) ||
+          form.scent_profile ||
+          null,
+
       };
       let productId: string;
       if (editing) {
