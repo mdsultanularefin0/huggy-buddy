@@ -717,6 +717,25 @@ function Landing() {
         </>
         ) : null}
 
+        {/* New Arrivals */}
+        {newArrivals.length > 0 ? (
+          <section className="w-full py-16 bg-[#faf7ff]">
+            <div className="max-w-7xl mx-auto px-4">
+              <div className="text-center max-w-2xl mx-auto mb-10">
+                <h2 className="text-3xl font-bold text-gray-900">New Arrivals</h2>
+                <p className="text-gray-600 mt-3">Fresh drops just landed — be the first to try them.</p>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+                {newArrivals.map((p, i) => (
+                  <Reveal key={p.id} delay={i * 60}>
+                    <ProductCard product={p} />
+                  </Reveal>
+                ))}
+              </div>
+            </div>
+          </section>
+        ) : null}
+
         {/* Shop by Category */}
         {shopcatEnabled && allCategories.length > 0 ? (
           <section className="w-full py-16 bg-white">
