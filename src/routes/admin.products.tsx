@@ -375,6 +375,8 @@ function ProductsPage() {
       category_ids: categoryIdsByProduct.get(p.id) ?? [],
       note_ids: noteIdsByProduct.get(p.id) ?? [],
       badge: (p as Product & { badge?: string | null }).badge ?? "",
+      is_new_arrival: (p as Product & { is_new_arrival?: boolean | null }).is_new_arrival ?? false,
+
 
     });
 
