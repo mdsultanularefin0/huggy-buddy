@@ -22,6 +22,7 @@ type Variant = {
   price: number;
   sale_price: number | null;
   stock_quantity: number;
+  in_stock: boolean;
 };
 type Product = {
   id: string;
@@ -42,7 +43,7 @@ const productOptions = (slug: string) =>
     queryFn: async () => {
       const { data, error } = await (supabase as any)
         .from("products")
-        .select("id,slug,name,short_description,description,regular_price,sale_price,image_url,in_stock,category:categories(name,slug),product_variants(id,size_label,price,sale_price,stock_quantity)")
+        .select("id,slug,name,short_description,description,regular_price,sale_price,image_url,in_stock,category:categories(name,slug),product_variants(id,size_label,price,sale_price,stock_quantity,in_stock)")
         .eq("slug", slug)
         .eq("is_active", true)
         .maybeSingle();
@@ -151,7 +152,7 @@ function ProductPage() {
   const regular = chosen?.price ?? product.regular_price;
   const sale = chosen?.sale_price ?? product.sale_price;
   const price = effectivePrice(regular, sale);
-  const chosenOut = chosen ? chosen.stock_quantity <= 0 : false;
+  const chosenOut = chosen ? (!chosen.in_stock && chosen.stock_quantity <= 0) : false;
   const canAdd = product.in_stock && !chosenOut && (!needsVariant || variantIdx !== null);
 
   const handleAdd = () => {
@@ -272,7 +273,7 @@ function ProductPage() {
               <p className="text-sm font-medium mb-3">Size</p>
               <div className="flex flex-wrap gap-2">
                 {variants.map((v, i) => {
-                  const out = v.stock_quantity <= 0;
+                  const out = !v.in_stock && v.stock_quantity <= 0;
                   return (
                     <button
                       key={v.id}

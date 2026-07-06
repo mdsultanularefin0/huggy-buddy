@@ -30,6 +30,7 @@ type Variant = {
   price: number;
   sale_price: number | null;
   stock_quantity: number;
+  in_stock: boolean;
 };
 type ActiveFilter = "all" | "active" | "inactive";
 type StockFilter = "all" | "in" | "out";
@@ -112,16 +113,21 @@ function ProductsPage() {
       const baseSlug = slugify(form.name) || `product-${Date.now()}`;
       const slug = editing ? baseSlug : `${baseSlug}-${Math.random().toString(36).slice(2, 8)}`;
       const cleanVariants = form.variants
-        .map((v) => ({
-          ...v,
-          size_label: v.size_label.trim(),
-          price: Math.max(0, Number(v.price) || 0),
-          sale_price:
-            v.sale_price === null || v.sale_price === undefined || Number(v.sale_price) === 0
-              ? null
-              : Math.max(0, Number(v.sale_price)),
-          stock_quantity: Math.max(0, Number(v.stock_quantity) || 0),
-        }))
+        .map((v) => {
+          const qty = Math.max(0, Number(v.stock_quantity) || 0);
+          const inStock = qty > 0 ? false : !!v.in_stock;
+          return {
+            ...v,
+            size_label: v.size_label.trim(),
+            price: Math.max(0, Number(v.price) || 0),
+            sale_price:
+              v.sale_price === null || v.sale_price === undefined || Number(v.sale_price) === 0
+                ? null
+                : Math.max(0, Number(v.sale_price)),
+            stock_quantity: inStock ? 0 : qty,
+            in_stock: inStock,
+          };
+        })
         .filter((v) => v.size_label.length > 0);
       const payload = {
         name: form.name,
@@ -169,6 +175,7 @@ function ProductsPage() {
           price: v.price,
           sale_price: v.sale_price,
           stock_quantity: v.stock_quantity,
+          in_stock: v.in_stock,
           sort_order: idx,
         }));
         const { error } = await (supabase as any)
@@ -259,7 +266,7 @@ function ProductsPage() {
     const imgs = Array.isArray(pAny.images_json) ? (pAny.images_json as string[]).filter(Boolean) : [];
     const { data: vRows } = await (supabase as any)
       .from("product_variants")
-      .select("id,size_label,price,sale_price,stock_quantity,sort_order")
+      .select("id,size_label,price,sale_price,stock_quantity,in_stock,sort_order")
       .eq("product_id", p.id)
       .order("sort_order");
     const variants: Variant[] = (vRows ?? []).map((v: Variant) => ({
@@ -268,6 +275,7 @@ function ProductsPage() {
       price: v.price,
       sale_price: v.sale_price ?? null,
       stock_quantity: v.stock_quantity ?? 0,
+      in_stock: v.in_stock ?? ((v.stock_quantity ?? 0) === 0),
     }));
     setForm({
       name: p.name,
@@ -616,28 +624,46 @@ function ProductsPage() {
               <div>
                 <div className="flex items-center justify-between">
                   <Label>Variants (size / price / stock)</Label>
-                  <Button type="button" variant="outline" size="sm" onClick={() => setForm((f) => ({ ...f, variants: [...f.variants, { size_label: "", price: 0, sale_price: null, stock_quantity: 0 }] }))}>
+                  <Button type="button" variant="outline" size="sm" onClick={() => setForm((f) => ({ ...f, variants: [...f.variants, { size_label: "", price: 0, sale_price: null, stock_quantity: 0, in_stock: true }] }))}>
                     <Plus className="w-3 h-3 mr-1" /> Add variant
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">Each row is a stock-tracked size (e.g. 50ml). Leave empty to sell only the base product.</p>
+                <p className="text-xs text-muted-foreground mt-1">Each row is a size (e.g. 50ml). Toggle <strong>In stock</strong> to keep it always available without tracking quantity; otherwise, set a stock quantity to track inventory.</p>
                 {form.variants.length > 0 && (
-                  <div className="grid grid-cols-[1fr_100px_100px_100px_auto] gap-2 items-center mt-2 px-1 text-xs text-muted-foreground">
-                    <span>Size</span><span>Price</span><span>Sale</span><span>Stock qty</span><span></span>
+                  <div className="grid grid-cols-[1fr_90px_90px_90px_90px_auto] gap-2 items-center mt-2 px-1 text-xs text-muted-foreground">
+                    <span>Size</span><span>Price</span><span>Sale</span><span>Stock qty</span><span>In stock</span><span></span>
                   </div>
                 )}
                 <div className="mt-1 space-y-2">
-                  {form.variants.map((v, i) => (
-                    <div key={v.id ?? `new-${i}`} className="grid grid-cols-[1fr_100px_100px_100px_auto] gap-2 items-center">
-                      <Input placeholder="e.g. 50ml" value={v.size_label} onChange={(e) => updateVariant(i, { size_label: e.target.value })} />
-                      <Input type="number" min={0} placeholder="Price" value={v.price} onChange={(e) => updateVariant(i, { price: Number(e.target.value) })} />
-                      <Input type="number" min={0} placeholder="Sale" value={v.sale_price ?? ""} onChange={(e) => updateVariant(i, { sale_price: e.target.value === "" ? null : Number(e.target.value) })} />
-                      <Input type="number" min={0} placeholder="Stock" value={v.stock_quantity} onChange={(e) => updateVariant(i, { stock_quantity: Math.max(0, Number(e.target.value) || 0) })} />
-                      <Button type="button" variant="ghost" size="sm" onClick={() => setForm((f) => ({ ...f, variants: f.variants.filter((_, idx) => idx !== i) }))}>
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  ))}
+                  {form.variants.map((v, i) => {
+                    const qtyLocked = v.in_stock; // toggle on -> qty disabled and forced 0
+                    const toggleLocked = v.stock_quantity > 0; // qty > 0 -> toggle disabled (off)
+                    return (
+                      <div key={v.id ?? `new-${i}`} className="grid grid-cols-[1fr_90px_90px_90px_90px_auto] gap-2 items-center">
+                        <Input placeholder="e.g. 50ml" value={v.size_label} onChange={(e) => updateVariant(i, { size_label: e.target.value })} />
+                        <Input type="number" min={0} placeholder="Price" value={v.price} onChange={(e) => updateVariant(i, { price: Number(e.target.value) })} />
+                        <Input type="number" min={0} placeholder="Sale" value={v.sale_price ?? ""} onChange={(e) => updateVariant(i, { sale_price: e.target.value === "" ? null : Number(e.target.value) })} />
+                        <Input
+                          type="number"
+                          min={0}
+                          placeholder="Stock"
+                          disabled={qtyLocked}
+                          value={qtyLocked ? 0 : v.stock_quantity}
+                          onChange={(e) => updateVariant(i, { stock_quantity: Math.max(0, Number(e.target.value) || 0) })}
+                        />
+                        <div className="flex justify-center">
+                          <Switch
+                            checked={v.in_stock}
+                            disabled={toggleLocked}
+                            onCheckedChange={(val) => updateVariant(i, { in_stock: val, ...(val ? { stock_quantity: 0 } : {}) })}
+                          />
+                        </div>
+                        <Button type="button" variant="ghost" size="sm" onClick={() => setForm((f) => ({ ...f, variants: f.variants.filter((_, idx) => idx !== i) }))}>
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
