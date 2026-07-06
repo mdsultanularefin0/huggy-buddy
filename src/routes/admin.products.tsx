@@ -236,14 +236,33 @@ function ProductsPage() {
           .upsert(rows, { onConflict: "id" });
         if (error) throw error;
       }
+
+      // Sync category & note assignments (many-to-many)
+      await supabase.from("product_categories").delete().eq("product_id", productId);
+      if (form.category_ids.length) {
+        const rows = form.category_ids.map((cid) => ({ product_id: productId, category_id: cid }));
+        const { error } = await supabase.from("product_categories").insert(rows);
+        if (error) throw error;
+      }
+      await supabase.from("product_notes").delete().eq("product_id", productId);
+      if (form.note_ids.length) {
+        const rows = form.note_ids.map((nid) => ({ product_id: productId, note_id: nid }));
+        const { error } = await supabase.from("product_notes").insert(rows);
+        if (error) throw error;
+      }
     },
     onSuccess: () => {
       toast.success(editing ? "Product updated" : "Product created");
       qc.invalidateQueries({ queryKey: ["admin", "products"] });
+      qc.invalidateQueries({ queryKey: ["admin", "product_categories"] });
+      qc.invalidateQueries({ queryKey: ["admin", "product_notes"] });
+      qc.invalidateQueries({ queryKey: ["public", "products-page"] });
+      qc.invalidateQueries({ queryKey: ["category-page"] });
       setOpen(false);
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
 
   const del = useMutation({
     mutationFn: async (id: string) => {
