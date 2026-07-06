@@ -245,12 +245,15 @@ export const createOrder = createServerFn({ method: "POST" })
     if (refCode) {
       const { data: ref, error: refErr } = await supabaseAdmin
         .from("referral_codes")
-        .select("code,discount_amount,is_active")
+        .select("code,discount_amount,discount_type,is_active")
         .ilike("code", refCode)
         .maybeSingle();
       if (refErr) throw new Error("Could not validate referral code");
       if (!ref || !ref.is_active) throw new Error("Invalid referral code");
-      const refDiscount = Math.max(0, ref.discount_amount ?? 0);
+      const raw = Math.max(0, ref.discount_amount ?? 0);
+      const refDiscount = ref.discount_type === "percent"
+        ? Math.floor((subtotal * Math.min(raw, 100)) / 100)
+        : raw;
       if (refDiscount <= 0) throw new Error("Referral code has no discount");
       discount += Math.min(refDiscount, subtotal);
       referralApplied = ref.code;
