@@ -200,20 +200,20 @@ function ComboPage() {
 
   // BYOB: hero + selectable card grid + sticky action bar
   return (
-    <div className="min-h-screen bg-background pb-32">
+    <div className="min-h-screen bg-background pb-40 sm:pb-32">
       <SiteHeader />
-      <div className="max-w-6xl mx-auto px-6 py-10">
-        <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+        <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4 sm:mb-6">
           <ArrowLeft className="w-4 h-4" /> Back to shop
         </Link>
 
-        <div className="text-center max-w-2xl mx-auto mb-10">
+        <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-10">
           <span className="text-[10px] font-semibold uppercase tracking-widest text-accent">Build your own</span>
-          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight mt-2">{combo.title}</h1>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight mt-2">{combo.title}</h1>
           <div className="flex items-baseline justify-center gap-3 mt-3">
-            <span className="text-2xl font-semibold">{formatBDT(price)}</span>
+            <span className="text-xl sm:text-2xl font-semibold">{formatBDT(price)}</span>
             {hasSale(combo.regular_price, combo.sale_price) && (
-              <span className="text-base text-muted-foreground line-through">{formatBDT(combo.regular_price)}</span>
+              <span className="text-sm sm:text-base text-muted-foreground line-through">{formatBDT(combo.regular_price)}</span>
             )}
           </div>
           {combo.description && (
@@ -224,7 +224,7 @@ function ComboPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
           {products.map((p) => {
             const checked = selected.includes(p.id);
             const outOfStock = !p.in_stock;
@@ -238,16 +238,16 @@ function ComboPage() {
                 aria-pressed={checked}
                 aria-disabled={disabled}
                 title={outOfStock ? "Out of stock" : undefined}
-                className={`group relative text-left bg-[#f5edff] rounded-3xl transition-all duration-300 ${
+                className={`group relative text-left bg-[#f5edff] rounded-2xl sm:rounded-3xl transition-all duration-300 ${
                   checked ? "ring-2 ring-[#52277a] shadow-[0_20px_40px_-15px_rgba(82,39,122,0.35)]" : "hover:shadow-[0_20px_40px_-15px_rgba(82,39,122,0.2)]"
                 } ${disabled && !outOfStock ? "opacity-40 cursor-not-allowed" : ""} ${outOfStock ? "cursor-not-allowed" : "cursor-pointer"}`}
               >
                 {checked && (
-                  <span className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-[#52277a] text-white flex items-center justify-center shadow-lg">
-                    <Check className="w-4 h-4" />
+                  <span className="absolute top-2 right-2 sm:top-3 sm:right-3 z-10 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#52277a] text-white flex items-center justify-center shadow-lg">
+                    <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </span>
                 )}
-                <div className={`relative aspect-[4/5] overflow-hidden rounded-3xl bg-[#ece2f7] ${outOfStock ? "opacity-70" : ""}`}>
+                <div className={`relative aspect-[4/5] overflow-hidden rounded-2xl sm:rounded-3xl bg-[#ece2f7] ${outOfStock ? "opacity-70" : ""}`}>
                   {p.image_url ? (
                     <img src={p.image_url} alt={p.name} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                   ) : (
@@ -256,15 +256,15 @@ function ComboPage() {
                     </div>
                   )}
                   {outOfStock && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="bg-red-600 text-white px-6 py-2.5 text-[10px] font-bold tracking-[0.2em] uppercase rounded-full shadow-lg">
+                    <div className="absolute inset-0 flex items-center justify-center px-2">
+                      <span className="bg-red-600 text-white px-3 py-1.5 sm:px-6 sm:py-2.5 text-[9px] sm:text-[10px] font-bold tracking-[0.15em] sm:tracking-[0.2em] uppercase rounded-full shadow-lg text-center">
                         Out of stock
                       </span>
                     </div>
                   )}
                 </div>
-                <div className="px-3 py-4 text-center">
-                  <h3 className="text-sm font-serif text-[#1a1a1a] truncate">{p.name}</h3>
+                <div className="px-2 py-3 sm:px-3 sm:py-4 text-center">
+                  <h3 className="text-xs sm:text-sm font-serif text-[#1a1a1a] truncate">{p.name}</h3>
                 </div>
               </button>
             );
@@ -273,20 +273,39 @@ function ComboPage() {
       </div>
 
       {/* Sticky action bar */}
-      <div className="fixed bottom-0 inset-x-0 z-40 border-t bg-background/95 backdrop-blur">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center gap-4">
-          <div className="flex-1 min-w-0">
-            <p className="text-xs text-muted-foreground">{combo.title}</p>
-            <p className="text-sm font-semibold">
-              {selected.length}/{limit} picked · {formatBDT(price)}
-            </p>
+      <div className="fixed bottom-0 inset-x-0 z-40 border-t bg-background/95 backdrop-blur pb-[env(safe-area-inset-bottom)]">
+        <div className="max-w-6xl mx-auto px-3 sm:px-6 py-3 sm:py-4">
+          {/* Mobile: two rows (info on top, buttons below). Desktop: single row. */}
+          <div className="grid gap-2 sm:flex sm:items-center sm:gap-4">
+            <div className="min-w-0 sm:flex-1 flex items-center justify-between sm:block gap-3">
+              <div className="min-w-0">
+                <p className="text-[11px] sm:text-xs text-muted-foreground truncate">{combo.title}</p>
+                <p className="text-sm font-semibold">
+                  {selected.length}/{limit} picked · {formatBDT(price)}
+                </p>
+              </div>
+              {/* Mobile-only progress dots for a quick glance */}
+              <div className="flex sm:hidden gap-1 shrink-0" aria-hidden="true">
+                {Array.from({ length: limit }).map((_, i) => (
+                  <span
+                    key={i}
+                    className={`w-1.5 h-1.5 rounded-full ${i < selected.length ? "bg-[#52277a]" : "bg-muted-foreground/30"}`}
+                  />
+                ))}
+              </div>
+            </div>
+            <div className="grid grid-cols-[auto_1fr] gap-2 sm:flex sm:items-center sm:gap-3 sm:shrink-0">
+              <Button variant="outline" size="lg" onClick={handleAdd} disabled={!isComplete} className="px-3 sm:px-6">
+                Add
+                <span className="hidden sm:inline">&nbsp;to cart</span>
+              </Button>
+              <Button variant="hero" size="lg" onClick={handleCheckout} disabled={!isComplete} className="min-w-0">
+                <span className="truncate">
+                  {isComplete ? "Checkout" : `Pick ${limit - selected.length} more`}
+                </span>
+              </Button>
+            </div>
           </div>
-          <Button variant="outline" size="lg" onClick={handleAdd} disabled={!isComplete}>
-            Add to cart
-          </Button>
-          <Button variant="hero" size="lg" onClick={handleCheckout} disabled={!isComplete}>
-            {isComplete ? "Checkout" : `Pick ${limit - selected.length} more`}
-          </Button>
         </div>
       </div>
 
@@ -294,3 +313,4 @@ function ComboPage() {
     </div>
   );
 }
+
