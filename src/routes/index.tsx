@@ -732,7 +732,7 @@ function Landing() {
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                 {newArrivals.map((p, i) => (
                   <Reveal key={String(p.id)} delay={i * 60}>
-                    <ProductCard product={p as never} />
+                    <ProductCard product={p as never} newArrival />
                   </Reveal>
                 ))}
               </div>
