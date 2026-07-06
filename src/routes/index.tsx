@@ -404,7 +404,8 @@ function Landing() {
         .map((id) => allCategories.find((c) => c.id === id))
         .filter((c): c is (typeof allCategories)[number] => Boolean(c))
     : allCategories;
-  const { data: newArrivals = [] } = useQuery(newArrivalsQuery);
+  const newArrivalIds = (((hero ?? {}) as Record<string, unknown>).homepage_new_arrival_ids as string[] | undefined) ?? [];
+  const { data: newArrivals = [] } = useQuery(newArrivalsQueryFor(newArrivalIds));
 
 
 
