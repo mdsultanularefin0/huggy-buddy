@@ -46,6 +46,7 @@ import { Route as AdminNotesRouteImport } from './routes/admin.notes'
 import { Route as AdminNewsletterRouteImport } from './routes/admin.newsletter'
 import { Route as AdminMediaRouteImport } from './routes/admin.media'
 import { Route as AdminIntegrationsRouteImport } from './routes/admin.integrations'
+import { Route as AdminInboxRouteImport } from './routes/admin.inbox'
 import { Route as AdminHomepageRouteImport } from './routes/admin.homepage'
 import { Route as AdminCustomersRouteImport } from './routes/admin.customers'
 import { Route as AdminCouponsRouteImport } from './routes/admin.coupons'
@@ -247,6 +248,11 @@ const AdminIntegrationsRoute = AdminIntegrationsRouteImport.update({
   path: '/integrations',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminInboxRoute = AdminInboxRouteImport.update({
+  id: '/inbox',
+  path: '/inbox',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminHomepageRoute = AdminHomepageRouteImport.update({
   id: '/homepage',
   path: '/homepage',
@@ -354,6 +360,7 @@ export interface FileRoutesByFullPath {
   '/admin/coupons': typeof AdminCouponsRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/homepage': typeof AdminHomepageRoute
+  '/admin/inbox': typeof AdminInboxRoute
   '/admin/integrations': typeof AdminIntegrationsRoute
   '/admin/media': typeof AdminMediaRoute
   '/admin/newsletter': typeof AdminNewsletterRoute
@@ -405,6 +412,7 @@ export interface FileRoutesByTo {
   '/admin/coupons': typeof AdminCouponsRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/homepage': typeof AdminHomepageRoute
+  '/admin/inbox': typeof AdminInboxRoute
   '/admin/integrations': typeof AdminIntegrationsRoute
   '/admin/media': typeof AdminMediaRoute
   '/admin/newsletter': typeof AdminNewsletterRoute
@@ -460,6 +468,7 @@ export interface FileRoutesById {
   '/admin/coupons': typeof AdminCouponsRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/homepage': typeof AdminHomepageRoute
+  '/admin/inbox': typeof AdminInboxRoute
   '/admin/integrations': typeof AdminIntegrationsRoute
   '/admin/media': typeof AdminMediaRoute
   '/admin/newsletter': typeof AdminNewsletterRoute
@@ -515,6 +524,7 @@ export interface FileRouteTypes {
     | '/admin/coupons'
     | '/admin/customers'
     | '/admin/homepage'
+    | '/admin/inbox'
     | '/admin/integrations'
     | '/admin/media'
     | '/admin/newsletter'
@@ -566,6 +576,7 @@ export interface FileRouteTypes {
     | '/admin/coupons'
     | '/admin/customers'
     | '/admin/homepage'
+    | '/admin/inbox'
     | '/admin/integrations'
     | '/admin/media'
     | '/admin/newsletter'
@@ -620,6 +631,7 @@ export interface FileRouteTypes {
     | '/admin/coupons'
     | '/admin/customers'
     | '/admin/homepage'
+    | '/admin/inbox'
     | '/admin/integrations'
     | '/admin/media'
     | '/admin/newsletter'
@@ -936,6 +948,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIntegrationsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/inbox': {
+      id: '/admin/inbox'
+      path: '/inbox'
+      fullPath: '/admin/inbox'
+      preLoaderRoute: typeof AdminInboxRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/homepage': {
       id: '/admin/homepage'
       path: '/homepage'
@@ -1083,6 +1102,7 @@ interface AdminRouteChildren {
   AdminCouponsRoute: typeof AdminCouponsRoute
   AdminCustomersRoute: typeof AdminCustomersRoute
   AdminHomepageRoute: typeof AdminHomepageRoute
+  AdminInboxRoute: typeof AdminInboxRoute
   AdminIntegrationsRoute: typeof AdminIntegrationsRoute
   AdminMediaRoute: typeof AdminMediaRoute
   AdminNewsletterRoute: typeof AdminNewsletterRoute
@@ -1108,6 +1128,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCouponsRoute: AdminCouponsRoute,
   AdminCustomersRoute: AdminCustomersRoute,
   AdminHomepageRoute: AdminHomepageRoute,
+  AdminInboxRoute: AdminInboxRoute,
   AdminIntegrationsRoute: AdminIntegrationsRoute,
   AdminMediaRoute: AdminMediaRoute,
   AdminNewsletterRoute: AdminNewsletterRoute,
