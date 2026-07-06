@@ -399,6 +399,27 @@ export const deleteContactMessage = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+const replySchema = z.object({
+  id: z.string().uuid(),
+  to: z.string().trim().email(),
+  subject: z.string().trim().min(1).max(200),
+  message: z.string().trim().min(1).max(20000),
+});
+export const replyToContactMessage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => replySchema.parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId, context.supabase);
+    const safe = (s: string) =>
+      s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
+    const html = `<div style="font-family:sans-serif;line-height:1.6;white-space:pre-wrap">${safe(data.message)}</div>`;
+    const r = await sendMail({ to: data.to, subject: data.subject, html, kind: "contact_reply" });
+    if (!r.ok) throw new Error(r.error ?? "Failed to send reply");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.from("contact_messages").update({ status: "resolved" }).eq("id", data.id);
+    return { ok: true };
+  });
+
 // ==================== IMAP (incoming mail) ====================
 const IMAP_PROVIDER = "imap";
 

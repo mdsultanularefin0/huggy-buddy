@@ -6,9 +6,13 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Loader2, Mail, CheckCircle2, Inbox as InboxIcon, RefreshCw, Trash2, ArrowLeft } from "lucide-react";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Loader2, Mail, CheckCircle2, Inbox as InboxIcon, RefreshCw, Trash2, ArrowLeft, Reply, Send } from "lucide-react";
 import { toast } from "sonner";
-import { listContactMessages, updateContactStatus, syncImapInbox, deleteContactMessage } from "@/lib/email.functions";
+import { listContactMessages, updateContactStatus, syncImapInbox, deleteContactMessage, replyToContactMessage } from "@/lib/email.functions";
 
 export const Route = createFileRoute("/admin/inbox")({
   head: () => ({ meta: [{ title: "Support Inbox — Admin" }, { name: "robots", content: "noindex" }] }),
@@ -77,6 +81,27 @@ function AdminInbox() {
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Delete failed"),
   });
+
+  const reply = useServerFn(replyToContactMessage);
+  const [replyOpen, setReplyOpen] = useState(false);
+  const [replySubject, setReplySubject] = useState("");
+  const [replyBody, setReplyBody] = useState("");
+  const replyMut = useMutation({
+    mutationFn: (input: { id: string; to: string; subject: string; message: string }) => reply({ data: input }),
+    onSuccess: () => {
+      toast.success("Reply sent");
+      setReplyOpen(false);
+      qc.invalidateQueries({ queryKey: ["contact-messages"] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Send failed"),
+  });
+
+  const openReply = () => {
+    if (!selected) return;
+    setReplySubject(selected.subject.startsWith("Re:") ? selected.subject : `Re: ${selected.subject}`);
+    setReplyBody(`\n\n---\nOn ${new Date(selected.created_at).toLocaleString()}, ${selected.name} wrote:\n> ${selected.message.replace(/\n/g, "\n> ")}`);
+    setReplyOpen(true);
+  };
 
   const setStatus = (status: Msg["status"]) => {
     if (!selected) return;
@@ -218,10 +243,8 @@ function AdminInbox() {
                 <div className="p-4 sm:p-6">
                   <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">{selected.message}</p>
                   <div className="mt-6">
-                    <Button asChild variant="outline" size="sm">
-                      <a href={`mailto:${selected.email}?subject=Re: ${encodeURIComponent(selected.subject)}`}>
-                        Reply via email
-                      </a>
+                    <Button variant="outline" size="sm" onClick={openReply}>
+                      <Reply className="w-4 h-4 mr-1.5" /> Reply
                     </Button>
                   </div>
                 </div>
@@ -230,6 +253,41 @@ function AdminInbox() {
           )}
         </div>
       </Card>
+
+      <Dialog open={replyOpen} onOpenChange={setReplyOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Reply to {selected?.name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label>To</Label>
+              <Input value={selected?.email ?? ""} disabled />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="reply-subject">Subject</Label>
+              <Input id="reply-subject" value={replySubject} onChange={(e) => setReplySubject(e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="reply-body">Message</Label>
+              <Textarea id="reply-body" rows={12} value={replyBody} onChange={(e) => setReplyBody(e.target.value)} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setReplyOpen(false)} disabled={replyMut.isPending}>Cancel</Button>
+            <Button
+              onClick={() => {
+                if (!selected) return;
+                replyMut.mutate({ id: selected.id, to: selected.email, subject: replySubject.trim(), message: replyBody.trim() });
+              }}
+              disabled={replyMut.isPending || !replySubject.trim() || !replyBody.trim()}
+            >
+              {replyMut.isPending ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Send className="w-4 h-4 mr-1.5" />}
+              Send
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
