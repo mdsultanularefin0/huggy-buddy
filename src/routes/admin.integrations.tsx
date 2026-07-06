@@ -50,15 +50,18 @@ function AdminIntegrations() {
           <TabsTrigger value="imap"><Inbox className="w-4 h-4 mr-2" />IMAP (Incoming)</TabsTrigger>
           <TabsTrigger value="steadfast"><Truck className="w-4 h-4 mr-2" />Steadfast</TabsTrigger>
           <TabsTrigger value="media"><Film className="w-4 h-4 mr-2" />Media Server</TabsTrigger>
+          <TabsTrigger value="meta"><Target className="w-4 h-4 mr-2" />Meta Pixel & CAPI</TabsTrigger>
         </TabsList>
         <TabsContent value="smtp"><SmtpCard /></TabsContent>
         <TabsContent value="imap"><ImapCard /></TabsContent>
         <TabsContent value="steadfast"><SteadfastCard /></TabsContent>
         <TabsContent value="media"><MediaServerCard /></TabsContent>
+        <TabsContent value="meta"><MetaPixelCard /></TabsContent>
       </Tabs>
     </div>
   );
 }
+
 
 function SmtpCard() {
   const qc = useQueryClient();
