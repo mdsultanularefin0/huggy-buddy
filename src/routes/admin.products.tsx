@@ -30,6 +30,7 @@ type Variant = {
   price: number;
   sale_price: number | null;
   stock_quantity: number;
+  in_stock: boolean;
 };
 type ActiveFilter = "all" | "active" | "inactive";
 type StockFilter = "all" | "in" | "out";
