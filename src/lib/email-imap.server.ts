@@ -73,18 +73,18 @@ export async function runImapSync(): Promise<{
           try {
             const msg = await client.fetchOne(
               String(uid),
-              { source: true, envelope: true },
+              { envelope: true, bodyParts: ["text"] },
               { uid: true },
             );
-            if (!msg || !msg.source) { stats.errors++; continue; }
-            const parsed = await simpleParser(msg.source as Buffer);
-            const fromAddr = parsed.from?.value?.[0];
+            if (!msg || !msg.envelope) { stats.errors++; continue; }
+            const env = msg.envelope;
+            const fromAddr = env.from?.[0];
             const email = fromAddr?.address ?? "unknown@unknown";
             const name = fromAddr?.name || email.split("@")[0];
-            const subject = parsed.subject || "(no subject)";
-            const htmlBody = typeof parsed.html === "string" ? parsed.html : "";
-            const body = parsed.text || htmlBody.replace(/<[^>]+>/g, " ") || "";
-            const messageId = parsed.messageId || `${creds.host}:${mbox}:${uid}`;
+            const subject = env.subject || "(no subject)";
+            const textBuf = msg.bodyParts?.get("text");
+            const body = textBuf ? Buffer.from(textBuf).toString("utf8") : "";
+            const messageId = env.messageId || `${creds.host}:${mbox}:${uid}`;
 
             const { error: insertErr } = await supabaseAdmin
               .from("contact_messages").insert({
