@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Reveal } from "@/components/reveal";
+import { pageMeta } from "@/lib/seo-meta";
+
 
 const allCategoriesQuery = queryOptions({
   queryKey: ["public", "categories", "all-page"],
