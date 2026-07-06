@@ -197,6 +197,13 @@ function AdminOrderDetail() {
                   <div className="min-w-0">
                     <div className="font-medium truncate">{it.name}</div>
                     {it.size && <div className="text-xs text-muted-foreground">{it.size}</div>}
+                    {it.selections && it.selections.length > 0 && (
+                      <ul className="mt-1 text-xs text-muted-foreground list-disc list-inside">
+                        {it.selections.map((s, si) => (
+                          <li key={si}>{s.name}</li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
                 </div>
                 <div className="text-right shrink-0">
