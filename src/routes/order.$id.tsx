@@ -18,7 +18,7 @@ type OrderRow = {
   shipping_fee: number; discount: number; payment_method: string;
   user_id: string | null;
   customer_json: { name?: string; phone?: string; address?: string; email?: string } | null;
-  items_json: { name: string; size?: string | null; quantity: number; unitPrice: number }[] | null;
+  items_json: { name: string; size?: string | null; quantity: number; unitPrice: number; selections?: { productId: string; name: string }[] | null; kind?: string | null }[] | null;
 };
 
 
