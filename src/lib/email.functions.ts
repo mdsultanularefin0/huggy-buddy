@@ -386,6 +386,19 @@ export const updateContactStatus = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+const deleteContactSchema = z.object({ id: z.string().uuid() });
+export const deleteContactMessage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => deleteContactSchema.parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId, context.supabase);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("contact_messages").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
 // ==================== IMAP (incoming mail) ====================
 const IMAP_PROVIDER = "imap";
 
