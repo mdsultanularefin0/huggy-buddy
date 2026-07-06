@@ -791,6 +791,7 @@ export type Database = {
           images_json: Json
           in_stock: boolean
           is_active: boolean
+          is_new_arrival: boolean
           name: string
           regular_price: number
           sale_price: number | null
@@ -811,6 +812,7 @@ export type Database = {
           images_json?: Json
           in_stock?: boolean
           is_active?: boolean
+          is_new_arrival?: boolean
           name: string
           regular_price?: number
           sale_price?: number | null
@@ -831,6 +833,7 @@ export type Database = {
           images_json?: Json
           in_stock?: boolean
           is_active?: boolean
+          is_new_arrival?: boolean
           name?: string
           regular_price?: number
           sale_price?: number | null

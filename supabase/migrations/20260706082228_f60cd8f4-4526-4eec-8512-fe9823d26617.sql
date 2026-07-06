@@ -1,0 +1,1 @@
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS is_new_arrival boolean NOT NULL DEFAULT false;
