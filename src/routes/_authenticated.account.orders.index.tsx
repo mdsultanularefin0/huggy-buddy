@@ -13,7 +13,24 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+
+function statusVariant(status: string): { className: string } {
+  const s = status.toLowerCase();
+  if (["delivered", "completed", "paid"].includes(s))
+    return { className: "bg-emerald-100 text-emerald-800 border-emerald-200 hover:bg-emerald-100" };
+  if (["shipped", "out_for_delivery", "in_transit"].includes(s))
+    return { className: "bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-100" };
+  if (["processing", "confirmed"].includes(s))
+    return { className: "bg-indigo-100 text-indigo-800 border-indigo-200 hover:bg-indigo-100" };
+  if (["pending", "unpaid", "on_hold"].includes(s))
+    return { className: "bg-amber-100 text-amber-800 border-amber-200 hover:bg-amber-100" };
+  if (["cancelled", "canceled", "refunded", "failed"].includes(s))
+    return { className: "bg-rose-100 text-rose-800 border-rose-200 hover:bg-rose-100" };
+  return { className: "bg-muted text-foreground/70 border-border hover:bg-muted" };
+}
+
 
 export const Route = createFileRoute("/_authenticated/account/orders/")({
   head: () => ({
