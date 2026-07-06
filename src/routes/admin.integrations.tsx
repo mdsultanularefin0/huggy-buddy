@@ -506,13 +506,21 @@ function ImapCard() {
   const [secure, setSecure] = useState(true);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [mailbox, setMailbox] = useState("INBOX");
+  const [mailboxes, setMailboxes] = useState("INBOX");
   const [markSeen, setMarkSeen] = useState(true);
+  const [importAll, setImportAll] = useState(false);
 
   const save = useMutation({
-    mutationFn: () => saveFn({ data: {
-      host, port, secure, username, password, mailbox, mark_seen: markSeen,
-    } }),
+    mutationFn: () => {
+      const list = mailboxes.split(",").map((s) => s.trim()).filter(Boolean);
+      return saveFn({ data: {
+        host, port, secure, username, password,
+        mailbox: list[0] || "INBOX",
+        mailboxes: list,
+        mark_seen: markSeen,
+        import_all: importAll,
+      } });
+    },
     onSuccess: () => {
       toast.success("IMAP credentials saved");
       setPassword("");
