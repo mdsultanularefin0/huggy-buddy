@@ -401,6 +401,8 @@ export type Database = {
           error: string | null
           id: string
           kind: string
+          sent_by: string | null
+          sent_by_email: string | null
           status: string
           subject: string
           to_email: string
@@ -410,6 +412,8 @@ export type Database = {
           error?: string | null
           id?: string
           kind: string
+          sent_by?: string | null
+          sent_by_email?: string | null
           status: string
           subject: string
           to_email: string
@@ -419,6 +423,8 @@ export type Database = {
           error?: string | null
           id?: string
           kind?: string
+          sent_by?: string | null
+          sent_by_email?: string | null
           status?: string
           subject?: string
           to_email?: string
