@@ -195,6 +195,21 @@ function CheckoutPage() {
       });
     },
     onSuccess: (res) => {
+      // Meta Pixel Purchase (client) — deduped with server CAPI via eventID.
+      const contentIds = items.map((i) => i.refId);
+      fbqTrack(
+        "Purchase",
+        {
+          currency: "BDT",
+          value: res.total,
+          content_type: "product",
+          content_ids: contentIds,
+          contents: items.map((i) => ({ id: i.refId, quantity: i.quantity, item_price: i.unitPrice })),
+          num_items: items.reduce((n, i) => n + i.quantity, 0),
+          order_id: res.orderNumber,
+        },
+        res.metaEventId,
+      );
       clear();
       if (res.invoiceToken && typeof window !== "undefined") {
         try {
