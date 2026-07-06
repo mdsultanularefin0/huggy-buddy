@@ -53,6 +53,13 @@ export const getOrderById = createServerFn({ method: "GET" })
           quantity: Number(i.quantity ?? 0),
           unitPrice: Number(i.unitPrice ?? 0),
           size: (i.size as string | null | undefined) ?? null,
+          kind: (i.kind as string | null | undefined) ?? null,
+          selections: Array.isArray(i.selections)
+            ? (i.selections as Array<Record<string, unknown>>).map((s) => ({
+                productId: String(s.productId ?? ""),
+                name: String(s.name ?? ""),
+              }))
+            : null,
         }))
       : [];
     return {
