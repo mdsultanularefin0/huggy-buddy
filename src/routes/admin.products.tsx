@@ -54,7 +54,7 @@ const empty = {
   category_ids: [] as string[],
   note_ids: [] as string[],
   badge: "" as string,
-  is_new_arrival: false,
+
 
 
 };
@@ -200,8 +200,8 @@ function ProductsPage() {
           form.scent_profile ||
           null,
         badge: form.badge.trim() || null,
-        is_new_arrival: form.is_new_arrival,
       };
+
 
 
       let productId: string;
@@ -377,7 +377,7 @@ function ProductsPage() {
       category_ids: categoryIdsByProduct.get(p.id) ?? [],
       note_ids: noteIdsByProduct.get(p.id) ?? [],
       badge: (p as Product & { badge?: string | null }).badge ?? "",
-      is_new_arrival: (p as Product & { is_new_arrival?: boolean | null }).is_new_arrival ?? false,
+
 
 
     });
@@ -789,17 +789,8 @@ function ProductsPage() {
                 />
                 <p className="text-xs text-muted-foreground mt-1">Shown as the red circle on the product card. Leave empty to auto-show "Sale" when discounted.</p>
               </div>
-              <div className="flex items-center justify-between rounded-lg border p-3">
-                <div>
-                  <Label htmlFor="new_arrival" className="cursor-pointer">Mark as New Arrival</Label>
-                  <p className="text-xs text-muted-foreground mt-0.5">Shows a green "New" badge — overrides the Sale/custom badge.</p>
-                </div>
-                <Switch
-                  id="new_arrival"
-                  checked={form.is_new_arrival}
-                  onCheckedChange={(v) => setForm({ ...form, is_new_arrival: v })}
-                />
-              </div>
+
+
 
               <p className="text-xs text-muted-foreground">Base pricing is used when a product has no variants. Add variants below to sell per-size with their own pricing.</p>
 

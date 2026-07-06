@@ -193,7 +193,7 @@ const featuredProductsQuery = queryOptions({
   queryFn: async () => {
     const { data, error } = await supabase
       .from("products")
-      .select("id, slug, name, regular_price, sale_price, sizes_json, image_url, in_stock, badge, is_new_arrival")
+      .select("id, slug, name, regular_price, sale_price, sizes_json, image_url, in_stock, badge")
       .eq("is_active", true)
       .order("created_at", { ascending: false })
       .limit(4);
@@ -202,20 +202,23 @@ const featuredProductsQuery = queryOptions({
   },
 });
 
-const newArrivalsQuery = queryOptions({
-  queryKey: ["public", "products", "new-arrivals"],
-  queryFn: async () => {
-    const { data, error } = await supabase
-      .from("products")
-      .select("id, slug, name, regular_price, sale_price, sizes_json, image_url, in_stock, badge, is_new_arrival")
-      .eq("is_active", true)
-      .eq("is_new_arrival", true)
-      .order("created_at", { ascending: false })
-      .limit(8);
-    if (error) throw error;
-    return data ?? [];
-  },
-});
+function newArrivalsQueryFor(ids: string[]) {
+  return queryOptions({
+    queryKey: ["public", "products", "new-arrivals", ids],
+    queryFn: async () => {
+      if (!ids.length) return [] as Array<Record<string, unknown>>;
+      const { data, error } = await supabase
+        .from("products")
+        .select("id, slug, name, regular_price, sale_price, sizes_json, image_url, in_stock, badge")
+        .eq("is_active", true)
+        .in("id", ids);
+      if (error) throw error;
+      const order = new Map(ids.map((id, i) => [id, i]));
+      return (data ?? []).slice().sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
+    },
+  });
+}
+
 
 const heroSettingsQuery = queryOptions({
   queryKey: ["public", "site_settings", "hero"],
@@ -401,7 +404,8 @@ function Landing() {
         .map((id) => allCategories.find((c) => c.id === id))
         .filter((c): c is (typeof allCategories)[number] => Boolean(c))
     : allCategories;
-  const { data: newArrivals = [] } = useQuery(newArrivalsQuery);
+  const newArrivalIds = (((hero ?? {}) as Record<string, unknown>).homepage_new_arrival_ids as string[] | undefined) ?? [];
+  const { data: newArrivals = [] } = useQuery(newArrivalsQueryFor(newArrivalIds));
 
 
 
@@ -727,8 +731,8 @@ function Landing() {
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                 {newArrivals.map((p, i) => (
-                  <Reveal key={p.id} delay={i * 60}>
-                    <ProductCard product={p as never} />
+                  <Reveal key={String(p.id)} delay={i * 60}>
+                    <ProductCard product={p as never} newArrival />
                   </Reveal>
                 ))}
               </div>
