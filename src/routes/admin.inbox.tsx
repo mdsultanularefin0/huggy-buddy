@@ -82,6 +82,27 @@ function AdminInbox() {
     onError: (e) => toast.error(e instanceof Error ? e.message : "Delete failed"),
   });
 
+  const reply = useServerFn(replyToContactMessage);
+  const [replyOpen, setReplyOpen] = useState(false);
+  const [replySubject, setReplySubject] = useState("");
+  const [replyBody, setReplyBody] = useState("");
+  const replyMut = useMutation({
+    mutationFn: (input: { id: string; to: string; subject: string; message: string }) => reply({ data: input }),
+    onSuccess: () => {
+      toast.success("Reply sent");
+      setReplyOpen(false);
+      qc.invalidateQueries({ queryKey: ["contact-messages"] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Send failed"),
+  });
+
+  const openReply = () => {
+    if (!selected) return;
+    setReplySubject(selected.subject.startsWith("Re:") ? selected.subject : `Re: ${selected.subject}`);
+    setReplyBody(`\n\n---\nOn ${new Date(selected.created_at).toLocaleString()}, ${selected.name} wrote:\n> ${selected.message.replace(/\n/g, "\n> ")}`);
+    setReplyOpen(true);
+  };
+
   const setStatus = (status: Msg["status"]) => {
     if (!selected) return;
     mut.mutate({ id: selected.id, status });
