@@ -92,6 +92,7 @@ function CategoryPage() {
       subtitle={`Discover our ${data.category.name} collection`}
       products={data.products}
       categories={data.categories}
+      combos={data.combos}
       activeCategorySlug={data.category.slug}
     />
   );
