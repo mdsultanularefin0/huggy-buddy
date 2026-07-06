@@ -220,5 +220,6 @@ export const trackMetaEvent = createServerFn({ method: "POST" })
       action_source: "website",
       custom_data: data.custom_data,
     });
-    return r;
+    return { ok: r.ok, error: r.error ?? null };
   });
+
