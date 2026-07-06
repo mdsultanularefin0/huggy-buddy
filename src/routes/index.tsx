@@ -193,7 +193,7 @@ const featuredProductsQuery = queryOptions({
   queryFn: async () => {
     const { data, error } = await supabase
       .from("products")
-      .select("id, slug, name, regular_price, sale_price, sizes_json, image_url, in_stock, badge, is_new_arrival")
+      .select("id, slug, name, regular_price, sale_price, sizes_json, image_url, in_stock, badge")
       .eq("is_active", true)
       .order("created_at", { ascending: false })
       .limit(4);
@@ -202,20 +202,23 @@ const featuredProductsQuery = queryOptions({
   },
 });
 
-const newArrivalsQuery = queryOptions({
-  queryKey: ["public", "products", "new-arrivals"],
-  queryFn: async () => {
-    const { data, error } = await supabase
-      .from("products")
-      .select("id, slug, name, regular_price, sale_price, sizes_json, image_url, in_stock, badge, is_new_arrival")
-      .eq("is_active", true)
-      .eq("is_new_arrival", true)
-      .order("created_at", { ascending: false })
-      .limit(8);
-    if (error) throw error;
-    return data ?? [];
-  },
-});
+function newArrivalsQueryFor(ids: string[]) {
+  return queryOptions({
+    queryKey: ["public", "products", "new-arrivals", ids],
+    queryFn: async () => {
+      if (!ids.length) return [] as Array<Record<string, unknown>>;
+      const { data, error } = await supabase
+        .from("products")
+        .select("id, slug, name, regular_price, sale_price, sizes_json, image_url, in_stock, badge")
+        .eq("is_active", true)
+        .in("id", ids);
+      if (error) throw error;
+      const order = new Map(ids.map((id, i) => [id, i]));
+      return (data ?? []).slice().sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
+    },
+  });
+}
+
 
 const heroSettingsQuery = queryOptions({
   queryKey: ["public", "site_settings", "hero"],
