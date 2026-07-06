@@ -18,7 +18,7 @@ type Combo = {
   products_json: ComboItem[];
   image_url: string | null; max_items_allowed: number | null;
 };
-type ProductMini = { id: string; name: string; image_url: string | null };
+type ProductMini = { id: string; name: string; image_url: string | null; in_stock: boolean };
 
 const comboOptions = (id: string) =>
   queryOptions({
@@ -30,7 +30,7 @@ const comboOptions = (id: string) =>
       if (!combo) return null;
       const productIds = ((combo.products_json as ComboItem[]) ?? []).map((p) => p.product_id);
       const { data: products } = productIds.length
-        ? await supabase.from("products").select("id,name,image_url").in("id", productIds)
+        ? await supabase.from("products").select("id,name,image_url,in_stock").in("id", productIds)
         : { data: [] };
       return { combo: combo as unknown as Combo, products: (products ?? []) as ProductMini[] };
     },
@@ -227,14 +227,17 @@ function ComboPage() {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-6">
           {products.map((p) => {
             const checked = selected.includes(p.id);
-            const disabled = !checked && selected.length >= limit;
+            const outOfStock = !p.in_stock;
+            const disabled = outOfStock || (!checked && selected.length >= limit);
             return (
               <button
                 key={p.id}
                 type="button"
-                onClick={() => toggle(p.id)}
+                onClick={() => { if (outOfStock) { toast.error(`${p.name} is out of stock`); return; } toggle(p.id); }}
                 disabled={disabled}
                 aria-pressed={checked}
+                aria-disabled={disabled}
+                title={outOfStock ? "Out of stock" : undefined}
                 className={`group relative text-left bg-[#f5edff] rounded-3xl transition-all duration-300 ${
                   checked ? "ring-2 ring-[#52277a] shadow-[0_20px_40px_-15px_rgba(82,39,122,0.35)]" : "hover:shadow-[0_20px_40px_-15px_rgba(82,39,122,0.2)]"
                 } ${disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}`}
@@ -244,9 +247,14 @@ function ComboPage() {
                     <Check className="w-4 h-4" />
                   </span>
                 )}
+                {outOfStock && (
+                  <span className="absolute top-3 left-3 z-10 text-[10px] font-semibold uppercase tracking-wider bg-black/70 text-white px-2 py-1 rounded-full">
+                    Out of stock
+                  </span>
+                )}
                 <div className="relative aspect-[4/5] overflow-hidden rounded-3xl bg-[#ece2f7]">
                   {p.image_url ? (
-                    <img src={p.image_url} alt={p.name} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    <img src={p.image_url} alt={p.name} loading="lazy" className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 ${outOfStock ? "grayscale" : ""}`} />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-gray-400">
                       <Gift className="w-8 h-8" />
