@@ -27,16 +27,12 @@ export function ProductCard({ product }: { product: ProductCardData }) {
       params={{ slug: product.slug }}
       className="group relative block bg-[#f5edff] rounded-3xl transition-shadow duration-500 hover:shadow-[0_30px_60px_-15px_rgba(82,39,122,0.25)]"
     >
-      {product.badge && !outOfStock && (
+      {(product.badge || onSale) && !outOfStock && (
         <span className="absolute -top-2 -left-2 sm:-top-3 sm:-left-3 md:-top-4 md:-left-4 z-10 w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 rounded-full bg-red-600 text-white flex items-center justify-center text-[7px] sm:text-[8px] md:text-[10px] font-bold tracking-widest uppercase shadow-lg ring-2 sm:ring-4 ring-white">
-          {product.badge}
+          {product.badge || "Sale"}
         </span>
       )}
-      {onSale && !outOfStock && (
-        <span className="absolute top-3 right-3 z-10 px-2.5 py-1 rounded-full bg-[#a555f0] text-white text-[10px] font-bold tracking-widest uppercase shadow-md">
-          Sale
-        </span>
-      )}
+
 
       <div className={`relative aspect-[4/5] overflow-hidden rounded-3xl bg-[#ece2f7] ${outOfStock ? "opacity-70" : ""}`}>
         {product.image_url ? (
