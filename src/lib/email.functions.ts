@@ -385,3 +385,86 @@ export const updateContactStatus = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+// ==================== IMAP (incoming mail) ====================
+const IMAP_PROVIDER = "imap";
+
+export const getImapStatus = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.userId, context.supabase);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("integration_credentials")
+      .select("updated_at").eq("provider", IMAP_PROVIDER).maybeSingle();
+    if (error) throw new Error(error.message);
+    let meta: { host?: string; username?: string; mailbox?: string } = {};
+    if (data) {
+      try {
+        const { loadImapCreds } = await import("@/lib/email-imap.server");
+        const c = await loadImapCreds();
+        meta = { host: c.host, username: c.username, mailbox: c.mailbox };
+      } catch { /* ignore */ }
+    }
+    return { configured: !!data, updated_at: data?.updated_at ?? null, ...meta };
+  });
+
+const saveImapSchema = z.object({
+  host: z.string().min(1).max(200),
+  port: z.number().int().min(1).max(65535),
+  secure: z.boolean(),
+  username: z.string().min(1).max(200),
+  password: z.string().min(1).max(500),
+  mailbox: z.string().min(1).max(100).default("INBOX"),
+  mark_seen: z.boolean().default(true),
+});
+
+export const saveImapCredentials = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => saveImapSchema.parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId, context.supabase);
+    const { encryptJson } = await import("@/lib/integration-crypto.server");
+    const enc = encryptJson(data);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("integration_credentials").upsert({
+        provider: IMAP_PROVIDER,
+        encrypted_data: enc.encrypted_data, iv: enc.iv, auth_tag: enc.auth_tag,
+        updated_by: context.userId, updated_at: new Date().toISOString(),
+      });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const deleteImapCredentials = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.userId, context.supabase);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("integration_credentials").delete().eq("provider", IMAP_PROVIDER);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const testImapConnection = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.userId, context.supabase);
+    const { testImapCreds } = await import("@/lib/email-imap.server");
+    try {
+      return await testImapCreds();
+    } catch (e) {
+      throw new Error(`IMAP connection failed: ${e instanceof Error ? e.message : String(e)}`);
+    }
+  });
+
+export const syncImapInbox = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.userId, context.supabase);
+    const { runImapSync } = await import("@/lib/email-imap.server");
+    return await runImapSync();
+  });
+

@@ -6,9 +6,9 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Loader2, Mail, CheckCircle2, Inbox as InboxIcon } from "lucide-react";
+import { Loader2, Mail, CheckCircle2, Inbox as InboxIcon, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
-import { listContactMessages, updateContactStatus } from "@/lib/email.functions";
+import { listContactMessages, updateContactStatus, syncImapInbox } from "@/lib/email.functions";
 
 export const Route = createFileRoute("/admin/inbox")({
   head: () => ({ meta: [{ title: "Support Inbox — Admin" }, { name: "robots", content: "noindex" }] }),
@@ -29,7 +29,17 @@ type Msg = {
 function AdminInbox() {
   const list = useServerFn(listContactMessages);
   const update = useServerFn(updateContactStatus);
+  const sync = useServerFn(syncImapInbox);
   const qc = useQueryClient();
+
+  const syncMut = useMutation({
+    mutationFn: () => sync(),
+    onSuccess: (r: { fetched: number; imported: number; skipped: number; errors: number }) => {
+      toast.success(`Synced: ${r.imported} new, ${r.skipped} dup, ${r.errors} err`);
+      qc.invalidateQueries({ queryKey: ["contact-messages"] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Sync failed"),
+  });
 
   const { data, isLoading } = useQuery({
     queryKey: ["contact-messages"],
@@ -72,11 +82,17 @@ function AdminInbox() {
 
   return (
     <div className="space-y-5 max-w-6xl">
-      <div>
-        <h1 className="text-2xl font-semibold">Support Inbox</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Customer inquiries from the contact form. {unreadCount > 0 && <span className="text-foreground font-medium">{unreadCount} unread</span>}
-        </p>
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-semibold">Support Inbox</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Contact form submissions and IMAP replies. {unreadCount > 0 && <span className="text-foreground font-medium">{unreadCount} unread</span>}
+          </p>
+        </div>
+        <Button variant="outline" size="sm" onClick={() => syncMut.mutate()} disabled={syncMut.isPending}>
+          {syncMut.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
+          Sync IMAP
+        </Button>
       </div>
 
       <Card className="grid grid-cols-1 md:grid-cols-[320px_1fr] overflow-hidden h-[calc(100vh-220px)] min-h-[500px]">

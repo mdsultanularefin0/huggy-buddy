@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Truck, Loader2, CheckCircle2, Trash2, Film, Mail } from "lucide-react";
+import { Truck, Loader2, CheckCircle2, Trash2, Film, Mail, Inbox, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import {
   getSteadfastStatus,
@@ -23,6 +23,7 @@ import {
 } from "@/lib/integrations.functions";
 import {
   getSmtpStatus, saveSmtpCredentials, deleteSmtpCredentials, testSmtpConnection,
+  getImapStatus, saveImapCredentials, deleteImapCredentials, testImapConnection, syncImapInbox,
 } from "@/lib/email.functions";
 
 export const Route = createFileRoute("/admin/integrations")({
@@ -41,11 +42,13 @@ function AdminIntegrations() {
       </div>
       <Tabs defaultValue="smtp" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="smtp"><Mail className="w-4 h-4 mr-2" />SMTP Email</TabsTrigger>
+          <TabsTrigger value="smtp"><Mail className="w-4 h-4 mr-2" />SMTP (Outgoing)</TabsTrigger>
+          <TabsTrigger value="imap"><Inbox className="w-4 h-4 mr-2" />IMAP (Incoming)</TabsTrigger>
           <TabsTrigger value="steadfast"><Truck className="w-4 h-4 mr-2" />Steadfast</TabsTrigger>
           <TabsTrigger value="media"><Film className="w-4 h-4 mr-2" />Media Server</TabsTrigger>
         </TabsList>
         <TabsContent value="smtp"><SmtpCard /></TabsContent>
+        <TabsContent value="imap"><ImapCard /></TabsContent>
         <TabsContent value="steadfast"><SteadfastCard /></TabsContent>
         <TabsContent value="media"><MediaServerCard /></TabsContent>
       </Tabs>
@@ -479,6 +482,164 @@ function SteadfastCard() {
 
         <p className="text-xs text-muted-foreground pt-2">
           Credentials are encrypted with AES-256-GCM before being written to the database and are only decrypted server-side when calling the Steadfast API.
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
+
+function ImapCard() {
+  const qc = useQueryClient();
+  const getStatus = useServerFn(getImapStatus);
+  const saveFn = useServerFn(saveImapCredentials);
+  const deleteFn = useServerFn(deleteImapCredentials);
+  const testFn = useServerFn(testImapConnection);
+  const syncFn = useServerFn(syncImapInbox);
+
+  const { data: status, isLoading } = useQuery({
+    queryKey: ["integration-status", "imap"],
+    queryFn: () => getStatus(),
+  });
+
+  const [host, setHost] = useState("");
+  const [port, setPort] = useState(993);
+  const [secure, setSecure] = useState(true);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [mailbox, setMailbox] = useState("INBOX");
+  const [markSeen, setMarkSeen] = useState(true);
+
+  const save = useMutation({
+    mutationFn: () => saveFn({ data: {
+      host, port, secure, username, password, mailbox, mark_seen: markSeen,
+    } }),
+    onSuccess: () => {
+      toast.success("IMAP credentials saved");
+      setPassword("");
+      qc.invalidateQueries({ queryKey: ["integration-status", "imap"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const remove = useMutation({
+    mutationFn: () => deleteFn(),
+    onSuccess: () => {
+      toast.success("IMAP credentials removed");
+      qc.invalidateQueries({ queryKey: ["integration-status", "imap"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const test = useMutation({
+    mutationFn: () => testFn(),
+    onSuccess: (r: { unseen: number; exists: number }) =>
+      toast.success(`Connected. ${r.unseen} unread of ${r.exists} in mailbox.`),
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const sync = useMutation({
+    mutationFn: () => syncFn(),
+    onSuccess: (r: { fetched: number; imported: number; skipped: number; errors: number }) => {
+      toast.success(`Synced: ${r.imported} imported, ${r.skipped} skipped, ${r.errors} errors (of ${r.fetched}).`);
+      qc.invalidateQueries({ queryKey: ["contact-messages"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-start justify-between gap-4">
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+            <Inbox className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <CardTitle className="text-lg">IMAP (Incoming Mail)</CardTitle>
+            <CardDescription className="mt-1">
+              Pull customer replies from your cPanel mailbox into the Support Inbox. Unread messages are imported, deduped by Message-ID, and (optionally) marked as read on the server.
+            </CardDescription>
+          </div>
+        </div>
+        {isLoading ? (
+          <Badge variant="secondary"><Loader2 className="w-3 h-3 mr-1 animate-spin" /> Checking</Badge>
+        ) : status?.configured ? (
+          <Badge className="bg-green-600 hover:bg-green-600"><CheckCircle2 className="w-3 h-3 mr-1" /> Connected</Badge>
+        ) : (
+          <Badge variant="secondary">Not configured</Badge>
+        )}
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {status?.configured && (
+          <div className="text-xs text-muted-foreground">
+            Host: <code>{status.host}</code> · User: <code>{status.username}</code> · Mailbox: <code>{status.mailbox}</code>
+          </div>
+        )}
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="sm:col-span-2">
+            <Label htmlFor="imap-host">IMAP host</Label>
+            <Input id="imap-host" value={host} onChange={(e) => setHost(e.target.value)}
+              placeholder="mail.yourdomain.com" />
+          </div>
+          <div>
+            <Label htmlFor="imap-port">Port</Label>
+            <Input id="imap-port" type="number" value={port}
+              onChange={(e) => setPort(Number(e.target.value) || 0)} />
+          </div>
+          <div className="flex items-end gap-2">
+            <div className="flex items-center gap-2">
+              <Switch id="imap-secure" checked={secure} onCheckedChange={setSecure} />
+              <Label htmlFor="imap-secure" className="text-sm">TLS/SSL (secure)</Label>
+            </div>
+            <p className="text-xs text-muted-foreground ml-auto">993 + on (typical)</p>
+          </div>
+          <div>
+            <Label htmlFor="imap-user">Username</Label>
+            <Input id="imap-user" value={username} onChange={(e) => setUsername(e.target.value)}
+              placeholder="support@yourdomain.com" autoComplete="off" />
+          </div>
+          <div>
+            <Label htmlFor="imap-pass">Password</Label>
+            <Input id="imap-pass" type="password" value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder={status?.configured ? "•••••••• (enter to replace)" : "Mailbox password"}
+              autoComplete="off" />
+          </div>
+          <div>
+            <Label htmlFor="imap-mailbox">Mailbox / folder</Label>
+            <Input id="imap-mailbox" value={mailbox} onChange={(e) => setMailbox(e.target.value)}
+              placeholder="INBOX" />
+          </div>
+          <div className="flex items-center gap-2 sm:col-span-2">
+            <Switch id="imap-mark" checked={markSeen} onCheckedChange={setMarkSeen} />
+            <Label htmlFor="imap-mark" className="text-sm">Mark messages as read on the server after import</Label>
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-2 pt-2">
+          <Button onClick={() => save.mutate()}
+            disabled={!host || !port || !username || (!password && !status?.configured) || !mailbox || save.isPending}>
+            {save.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+            Save credentials
+          </Button>
+          {status?.configured && (
+            <>
+              <Button variant="outline" onClick={() => test.mutate()} disabled={test.isPending}>
+                {test.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                Test connection
+              </Button>
+              <Button variant="outline" onClick={() => sync.mutate()} disabled={sync.isPending}>
+                {sync.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
+                Sync now
+              </Button>
+              <Button variant="ghost" className="text-destructive hover:text-destructive"
+                onClick={() => { if (confirm("Remove IMAP credentials?")) remove.mutate(); }}
+                disabled={remove.isPending}>
+                <Trash2 className="w-4 h-4 mr-2" /> Remove
+              </Button>
+            </>
+          )}
+        </div>
+        <p className="text-xs text-muted-foreground pt-2">
+          Sync fetches up to 50 unread messages per run. Wire a cron (every 5 min) to <code>POST /api/public/mail/sync</code> with your project's <code>apikey</code> header for hands-off polling.
         </p>
       </CardContent>
     </Card>

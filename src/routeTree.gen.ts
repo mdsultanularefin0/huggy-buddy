@@ -61,6 +61,7 @@ import { Route as AdminOrdersIdRouteImport } from './routes/admin.orders.$id'
 import { Route as AuthenticatedAccountWishlistRouteImport } from './routes/_authenticated.account.wishlist'
 import { Route as AuthenticatedAccountAddressesRouteImport } from './routes/_authenticated.account.addresses'
 import { Route as AuthenticatedAccountOrdersIndexRouteImport } from './routes/_authenticated.account.orders.index'
+import { Route as ApiPublicMailSyncRouteImport } from './routes/api/public/mail.sync'
 import { Route as AuthenticatedAccountOrdersIdRouteImport } from './routes/_authenticated.account.orders.$id'
 
 const UnsubscribeRoute = UnsubscribeRouteImport.update({
@@ -327,6 +328,11 @@ const AuthenticatedAccountOrdersIndexRoute =
     path: '/orders/',
     getParentRoute: () => AuthenticatedAccountRoute,
   } as any)
+const ApiPublicMailSyncRoute = ApiPublicMailSyncRouteImport.update({
+  id: '/api/public/mail/sync',
+  path: '/api/public/mail/sync',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAccountOrdersIdRoute =
   AuthenticatedAccountOrdersIdRouteImport.update({
     id: '/orders/$id',
@@ -386,6 +392,7 @@ export interface FileRoutesByFullPath {
   '/account/': typeof AuthenticatedAccountIndexRoute
   '/admin/orders/': typeof AdminOrdersIndexRoute
   '/account/orders/$id': typeof AuthenticatedAccountOrdersIdRoute
+  '/api/public/mail/sync': typeof ApiPublicMailSyncRoute
   '/account/orders/': typeof AuthenticatedAccountOrdersIndexRoute
 }
 export interface FileRoutesByTo {
@@ -438,6 +445,7 @@ export interface FileRoutesByTo {
   '/account': typeof AuthenticatedAccountIndexRoute
   '/admin/orders': typeof AdminOrdersIndexRoute
   '/account/orders/$id': typeof AuthenticatedAccountOrdersIdRoute
+  '/api/public/mail/sync': typeof ApiPublicMailSyncRoute
   '/account/orders': typeof AuthenticatedAccountOrdersIndexRoute
 }
 export interface FileRoutesById {
@@ -494,6 +502,7 @@ export interface FileRoutesById {
   '/_authenticated/account/': typeof AuthenticatedAccountIndexRoute
   '/admin/orders/': typeof AdminOrdersIndexRoute
   '/_authenticated/account/orders/$id': typeof AuthenticatedAccountOrdersIdRoute
+  '/api/public/mail/sync': typeof ApiPublicMailSyncRoute
   '/_authenticated/account/orders/': typeof AuthenticatedAccountOrdersIndexRoute
 }
 export interface FileRouteTypes {
@@ -550,6 +559,7 @@ export interface FileRouteTypes {
     | '/account/'
     | '/admin/orders/'
     | '/account/orders/$id'
+    | '/api/public/mail/sync'
     | '/account/orders/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -602,6 +612,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/admin/orders'
     | '/account/orders/$id'
+    | '/api/public/mail/sync'
     | '/account/orders'
   id:
     | '__root__'
@@ -657,6 +668,7 @@ export interface FileRouteTypes {
     | '/_authenticated/account/'
     | '/admin/orders/'
     | '/_authenticated/account/orders/$id'
+    | '/api/public/mail/sync'
     | '/_authenticated/account/orders/'
   fileRoutesById: FileRoutesById
 }
@@ -685,6 +697,7 @@ export interface RootRouteChildren {
   InvoiceIdRoute: typeof InvoiceIdRoute
   OrderIdRoute: typeof OrderIdRoute
   ProductSlugRoute: typeof ProductSlugRoute
+  ApiPublicMailSyncRoute: typeof ApiPublicMailSyncRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1053,6 +1066,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAccountOrdersIndexRouteImport
       parentRoute: typeof AuthenticatedAccountRoute
     }
+    '/api/public/mail/sync': {
+      id: '/api/public/mail/sync'
+      path: '/api/public/mail/sync'
+      fullPath: '/api/public/mail/sync'
+      preLoaderRoute: typeof ApiPublicMailSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/account/orders/$id': {
       id: '/_authenticated/account/orders/$id'
       path: '/orders/$id'
@@ -1173,6 +1193,7 @@ const rootRouteChildren: RootRouteChildren = {
   InvoiceIdRoute: InvoiceIdRoute,
   OrderIdRoute: OrderIdRoute,
   ProductSlugRoute: ProductSlugRoute,
+  ApiPublicMailSyncRoute: ApiPublicMailSyncRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
