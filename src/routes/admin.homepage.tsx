@@ -121,6 +121,18 @@ function HomepagePage() {
     },
   });
 
+  const { data: allProducts = [] } = useQuery({
+    queryKey: ["admin", "products", "all-min"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("id, name, is_active")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
   useEffect(() => {
     if (!settings) return;
     const s = settings as Record<string, unknown>;
