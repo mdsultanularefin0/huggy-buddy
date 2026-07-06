@@ -254,7 +254,7 @@ function CheckoutPage() {
     return (
       <div className="min-h-screen bg-background">
         <SiteHeader />
-        <div className="max-w-md mx-auto px-6 py-20 text-center">
+        <div className="max-w-md mx-auto px-4 sm:px-6 py-12 sm:py-20 text-center">
           <p className="text-muted-foreground">Your cart is empty.</p>
           <Link to="/" className="text-primary underline mt-4 inline-block">Continue shopping</Link>
         </div>

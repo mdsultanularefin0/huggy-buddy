@@ -42,7 +42,7 @@ function ContactPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <SiteHeader />
-      <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-12 sm:py-16">
+      <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-12 sm:py-10 sm:py-16">
         <header className="text-center mb-10">
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">Contact {shopName}</h1>
           <p className="text-muted-foreground mt-3 max-w-xl mx-auto">

@@ -36,7 +36,7 @@ function UnsubscribePage() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <SiteHeader />
-      <main className="flex-1 max-w-md mx-auto w-full px-4 py-16">
+      <main className="flex-1 max-w-md mx-auto w-full px-4 py-10 sm:py-16">
         <Card className="p-8 text-center">
           {state === "loading" && <Loader2 className="w-8 h-8 mx-auto animate-spin text-muted-foreground" />}
           {state === "ok" && (

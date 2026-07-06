@@ -46,7 +46,7 @@ function CategoriesPage() {
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <main className="w-full">
-        <section className="w-full py-16 bg-white">
+        <section className="w-full py-10 sm:py-16 bg-white">
           <div className="max-w-7xl mx-auto px-4">
             <div className="text-center max-w-2xl mx-auto">
               <p className="uppercase tracking-widest text-[#a555f0] text-sm font-semibold">Collections</p>

@@ -42,7 +42,7 @@ function FaqPage() {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <SiteHeader />
-      <main className="flex-1 w-full py-16 bg-gray-50">
+      <main className="flex-1 w-full py-10 sm:py-16 bg-gray-50">
         <div className="max-w-3xl mx-auto px-4">
           <div className="text-center mb-10">
             <h1 className="text-3xl font-bold text-gray-900 inline-block pb-2 border-b-2 border-[#a555f0]">

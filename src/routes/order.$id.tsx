@@ -81,7 +81,7 @@ function OrderPage() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <div className="max-w-2xl mx-auto px-6 py-16">
+      <div className="max-w-2xl mx-auto px-6 py-10 sm:py-16">
         <div className="text-center mb-10">
           <CheckCircle2 className="w-14 h-14 text-accent mx-auto" />
           <h1 className="text-3xl font-semibold tracking-tight mt-4">Thank you!</h1>
