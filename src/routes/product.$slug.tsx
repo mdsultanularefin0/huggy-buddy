@@ -267,27 +267,27 @@ function ProductPage() {
 
 
 
-          {sizes.length > 0 && (
+          {variants.length > 0 && (
             <div className="mt-8">
-              <p className="text-sm font-medium mb-3">Variant</p>
+              <p className="text-sm font-medium mb-3">Size</p>
               <div className="flex flex-wrap gap-2">
-                {sizes.map((s, i) => {
-                  const out = s.in_stock === false;
+                {variants.map((v, i) => {
+                  const out = v.stock_quantity <= 0;
                   return (
                     <button
-                      key={s.size_label}
-                      onClick={() => !out && setSizeIdx(i)}
+                      key={v.id}
+                      onClick={() => !out && setVariantIdx(i)}
                       disabled={out}
                       className={`px-4 py-2 rounded-xl border text-sm transition-colors ${
                         out
                           ? "border-gray-200 text-gray-400 line-through cursor-not-allowed"
-                          : i === sizeIdx
+                          : i === variantIdx
                           ? "border-[#52277a] bg-[#52277a]/5 text-[#52277a] font-medium"
                           : "border-gray-200 hover:border-[#a555f0]/60"
                       }`}
                     >
-                      {s.size_label} — {formatBDT(effectivePrice(s.price, s.sale_price))}
-                      {out && <span className="ml-1 text-xs">(out)</span>}
+                      {v.size_label} — {formatBDT(effectivePrice(v.price, v.sale_price))}
+                      {out && <span className="ml-1 text-xs">(Out of Stock)</span>}
                     </button>
                   );
                 })}
@@ -308,7 +308,7 @@ function ProductPage() {
             disabled={!canAdd}
             className="mt-4 w-full bg-[#52277a] hover:bg-[#3f1d5e] disabled:opacity-50 text-white rounded-2xl py-4 font-semibold transition-colors"
           >
-            {!product.in_stock ? "Out of stock" : needsSize && sizeIdx === null ? "Select a variant" : chosenOut ? "Variant out of stock" : "Add to Cart"}
+            {!product.in_stock ? "Out of stock" : needsVariant && variantIdx === null ? "Select a size" : chosenOut ? "Variant out of stock" : "Add to Cart"}
           </button>
 
           <Accordion type="single" collapsible className="mt-8">
