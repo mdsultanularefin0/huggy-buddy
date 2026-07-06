@@ -100,25 +100,59 @@ function ProductsPage() {
     },
   });
 
-  const { data: noteOptions = [] } = useQuery({
-    queryKey: ["admin", "note-options"],
+  const { data: notes = [] } = useQuery({
+    queryKey: ["admin", "notes-full"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("notes")
-        .select("scent_profile")
+        .select("id,title,scent_profile,is_active")
         .eq("is_active", true)
-        .not("scent_profile", "is", null)
         .order("sort_order");
       if (error) throw error;
-      return Array.from(
-        new Set(
-          (data ?? [])
-            .map((n) => n.scent_profile)
-            .filter((t): t is string => !!t),
-        ),
-      );
+      return (data ?? []) as { id: string; title: string; scent_profile: string | null; is_active: boolean }[];
     },
   });
+  const noteOptions = useMemo(
+    () => Array.from(new Set(notes.map((n) => n.scent_profile).filter((s): s is string => !!s))),
+    [notes],
+  );
+
+  const { data: productCategoryLinks = [] } = useQuery({
+    queryKey: ["admin", "product_categories"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("product_categories").select("product_id,category_id");
+      if (error) throw error;
+      return data as { product_id: string; category_id: string }[];
+    },
+  });
+  const { data: productNoteLinks = [] } = useQuery({
+    queryKey: ["admin", "product_notes"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("product_notes").select("product_id,note_id");
+      if (error) throw error;
+      return data as { product_id: string; note_id: string }[];
+    },
+  });
+  const categoryIdsByProduct = useMemo(() => {
+    const m = new Map<string, string[]>();
+    for (const l of productCategoryLinks) {
+      const a = m.get(l.product_id) ?? [];
+      a.push(l.category_id);
+      m.set(l.product_id, a);
+    }
+    return m;
+  }, [productCategoryLinks]);
+  const noteIdsByProduct = useMemo(() => {
+    const m = new Map<string, string[]>();
+    for (const l of productNoteLinks) {
+      const a = m.get(l.product_id) ?? [];
+      a.push(l.note_id);
+      m.set(l.product_id, a);
+    }
+    return m;
+  }, [productNoteLinks]);
+
+
 
 
   const save = useMutation({
