@@ -23,6 +23,7 @@ import {
 } from "@/lib/integrations.functions";
 import {
   getSmtpStatus, saveSmtpCredentials, deleteSmtpCredentials, testSmtpConnection,
+  getImapStatus, saveImapCredentials, deleteImapCredentials, testImapConnection, syncImapInbox,
 } from "@/lib/email.functions";
 
 export const Route = createFileRoute("/admin/integrations")({
