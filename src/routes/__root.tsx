@@ -18,6 +18,8 @@ import { CartDrawer } from "@/components/cart-drawer";
 import { brandingQueryOptions } from "@/lib/branding-query";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { MetaPixelLoader } from "@/components/meta-pixel-loader";
+
 
 
 function NotFoundComponent() {
@@ -169,7 +171,9 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <Outlet />
       <CartDrawer />
+      <MetaPixelLoader />
       <Toaster position="top-center" richColors />
     </QueryClientProvider>
+
   );
 }

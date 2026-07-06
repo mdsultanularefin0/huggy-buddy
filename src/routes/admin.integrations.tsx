@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Truck, Loader2, CheckCircle2, Trash2, Film, Mail, Inbox, RefreshCw } from "lucide-react";
+import { Truck, Loader2, CheckCircle2, Trash2, Film, Mail, Inbox, RefreshCw, Target } from "lucide-react";
 import { toast } from "sonner";
 import {
   getSteadfastStatus,
@@ -25,6 +25,10 @@ import {
   getSmtpStatus, saveSmtpCredentials, deleteSmtpCredentials, testSmtpConnection,
   getImapStatus, saveImapCredentials, deleteImapCredentials, testImapConnection, syncImapInbox,
 } from "@/lib/email.functions";
+import {
+  getMetaPixelStatus, saveMetaPixelCredentials, deleteMetaPixelCredentials, testMetaPixelConnection,
+} from "@/lib/meta-pixel.functions";
+
 
 export const Route = createFileRoute("/admin/integrations")({
   head: () => ({ meta: [{ title: "Integrations — Admin" }, { name: "robots", content: "noindex" }] }),
@@ -46,15 +50,18 @@ function AdminIntegrations() {
           <TabsTrigger value="imap"><Inbox className="w-4 h-4 mr-2" />IMAP (Incoming)</TabsTrigger>
           <TabsTrigger value="steadfast"><Truck className="w-4 h-4 mr-2" />Steadfast</TabsTrigger>
           <TabsTrigger value="media"><Film className="w-4 h-4 mr-2" />Media Server</TabsTrigger>
+          <TabsTrigger value="meta"><Target className="w-4 h-4 mr-2" />Meta Pixel & CAPI</TabsTrigger>
         </TabsList>
         <TabsContent value="smtp"><SmtpCard /></TabsContent>
         <TabsContent value="imap"><ImapCard /></TabsContent>
         <TabsContent value="steadfast"><SteadfastCard /></TabsContent>
         <TabsContent value="media"><MediaServerCard /></TabsContent>
+        <TabsContent value="meta"><MetaPixelCard /></TabsContent>
       </Tabs>
     </div>
   );
 }
+
 
 function SmtpCard() {
   const qc = useQueryClient();
@@ -656,6 +663,136 @@ function ImapCard() {
         <p className="text-xs text-muted-foreground pt-2">
           Sync fetches up to 50 unread messages per run. Wire a cron (every 5 min) to <code>POST /api/public/mail/sync</code> with your project's <code>apikey</code> header for hands-off polling.
         </p>
+      </CardContent>
+    </Card>
+  );
+}
+
+function MetaPixelCard() {
+  const qc = useQueryClient();
+  const getStatus = useServerFn(getMetaPixelStatus);
+  const saveFn = useServerFn(saveMetaPixelCredentials);
+  const deleteFn = useServerFn(deleteMetaPixelCredentials);
+  const testFn = useServerFn(testMetaPixelConnection);
+
+  const { data: status, isLoading } = useQuery({
+    queryKey: ["integration-status", "meta_pixel"],
+    queryFn: () => getStatus(),
+  });
+
+  const [pixelId, setPixelId] = useState("");
+  const [accessToken, setAccessToken] = useState("");
+  const [testCode, setTestCode] = useState("");
+
+  const saveMut = useMutation({
+    mutationFn: (input: { pixel_id: string; access_token: string; test_event_code?: string }) =>
+      saveFn({ data: input }),
+    onSuccess: () => {
+      toast.success("Meta Pixel credentials saved");
+      setAccessToken("");
+      qc.invalidateQueries({ queryKey: ["integration-status", "meta_pixel"] });
+      qc.invalidateQueries({ queryKey: ["public-meta-pixel-id"] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Save failed"),
+  });
+
+  const deleteMut = useMutation({
+    mutationFn: () => deleteFn(),
+    onSuccess: () => {
+      toast.success("Meta Pixel disconnected");
+      setPixelId(""); setAccessToken(""); setTestCode("");
+      qc.invalidateQueries({ queryKey: ["integration-status", "meta_pixel"] });
+      qc.invalidateQueries({ queryKey: ["public-meta-pixel-id"] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Delete failed"),
+  });
+
+  const testMut = useMutation({
+    mutationFn: () => testFn(),
+    onSuccess: () => toast.success("Test event sent — check Events Manager → Test Events"),
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Test failed"),
+  });
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <Target className="w-5 h-5" /> Meta Pixel & Conversions API
+            </CardTitle>
+            <CardDescription>
+              Track website events (PageView, Purchase) via the browser pixel and server-side CAPI for iOS/ad-blocker resilience.
+            </CardDescription>
+          </div>
+          {status?.configured ? (
+            <Badge className="bg-emerald-500/15 text-emerald-600 border-emerald-500/30" variant="outline">
+              <CheckCircle2 className="w-3 h-3 mr-1" /> Connected
+            </Badge>
+          ) : (
+            <Badge variant="outline">Not connected</Badge>
+          )}
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {isLoading ? (
+          <div className="py-6 flex justify-center"><Loader2 className="w-4 h-4 animate-spin" /></div>
+        ) : (
+          <>
+            {status?.configured && (
+              <div className="text-xs text-muted-foreground space-y-1">
+                <div>Pixel ID: <code className="font-mono">{status.pixel_id}</code></div>
+                {status.test_event_code && <div>Test code: <code className="font-mono">{status.test_event_code}</code></div>}
+                <div>Updated: {status.updated_at ? new Date(status.updated_at).toLocaleString() : "—"}</div>
+              </div>
+            )}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="meta-pixel-id">Pixel ID</Label>
+                <Input id="meta-pixel-id" placeholder="1234567890123456" value={pixelId} onChange={(e) => setPixelId(e.target.value)} />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="meta-test-code">Test event code (optional)</Label>
+                <Input id="meta-test-code" placeholder="TEST12345" value={testCode} onChange={(e) => setTestCode(e.target.value)} />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="meta-token">Conversions API access token</Label>
+              <Input
+                id="meta-token"
+                type="password"
+                placeholder={status?.configured ? "•••••••• (enter new to replace)" : "EAAG..."}
+                value={accessToken}
+                onChange={(e) => setAccessToken(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                Events Manager → your pixel → Settings → Conversions API → Generate access token.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2 pt-2">
+              <Button
+                onClick={() => saveMut.mutate({
+                  pixel_id: pixelId.trim(),
+                  access_token: accessToken.trim(),
+                  test_event_code: testCode.trim() || undefined,
+                })}
+                disabled={saveMut.isPending || !pixelId.trim() || !accessToken.trim()}
+              >
+                {saveMut.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                Save
+              </Button>
+              <Button variant="outline" onClick={() => testMut.mutate()} disabled={testMut.isPending || !status?.configured}>
+                {testMut.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                Send test event
+              </Button>
+              {status?.configured && (
+                <Button variant="destructive" onClick={() => { if (confirm("Disconnect Meta Pixel?")) deleteMut.mutate(); }} disabled={deleteMut.isPending}>
+                  <Trash2 className="w-4 h-4 mr-2" /> Disconnect
+                </Button>
+              )}
+            </div>
+          </>
+        )}
       </CardContent>
     </Card>
   );
