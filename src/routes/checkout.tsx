@@ -265,6 +265,9 @@ function CheckoutPage() {
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Guard against double-submits: Enter-key spam, form resubmits, or a
+    // click that races the button's disabled state.
+    if (mutation.isPending) return;
     if (!zoneId || !paymentMethod) return toast.error("Pick delivery zone & payment");
     if (name.trim().length < 2) return toast.error("Enter your full name");
     if (phone.trim().length < 6) return toast.error("Enter a valid phone number");
