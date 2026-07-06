@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,9 @@ export const Route = createFileRoute("/admin/homepage")({ component: HomepagePag
 
 const NONE = "__none__";
 
+const TAB_VALUES = ["visibility","hero","banner","signature","art","shopcat","newarrivals","notes","whispers","reels","faq"] as const;
+type TabValue = typeof TAB_VALUES[number];
+
 type Note = { title: string; gradient: string; link?: string; image?: string; bg?: string };
 type Faq = { q: string; a: string };
 type Reel = { url: string; caption?: string; link?: string };
@@ -53,6 +56,9 @@ function HomepagePage() {
   // Timer
   const [flashTitle, setFlashTitle] = useState("");
   const [flashEnabled, setFlashEnabled] = useState(true);
+  const [activeTab, setActiveTab] = useState<TabValue>("hero");
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
   const [autoReset, setAutoReset] = useState(false);
   const [durationDays, setDurationDays] = useState(7);
   const [timerEndLocal, setTimerEndLocal] = useState("");
@@ -301,8 +307,22 @@ function HomepagePage() {
         </Button>
       </div>
 
-      <Tabs defaultValue="hero" className="w-full">
-        <div className="w-full overflow-x-auto -mx-1 px-1 pb-1">
+      
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabValue)} className="w-full">
+        <div
+          className="w-full overflow-x-auto -mx-1 px-1 pb-1"
+          onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; touchStartY.current = e.touches[0].clientY; }}
+          onTouchEnd={(e) => {
+            if (touchStartX.current == null || touchStartY.current == null) return;
+            const dx = e.changedTouches[0].clientX - touchStartX.current;
+            const dy = e.changedTouches[0].clientY - touchStartY.current;
+            touchStartX.current = null; touchStartY.current = null;
+            if (Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx)) return;
+            const i = TAB_VALUES.indexOf(activeTab);
+            const next = dx < 0 ? Math.min(TAB_VALUES.length - 1, i + 1) : Math.max(0, i - 1);
+            if (next !== i) setActiveTab(TAB_VALUES[next]);
+          }}
+        >
           <TabsList className="inline-flex w-max h-auto gap-1 flex-nowrap">
             <TabsTrigger value="visibility" className="shrink-0">Visibility</TabsTrigger>
             <TabsTrigger value="hero" className="shrink-0">Hero</TabsTrigger>
@@ -317,6 +337,7 @@ function HomepagePage() {
             <TabsTrigger value="faq" className="shrink-0">FAQ</TabsTrigger>
           </TabsList>
         </div>
+
 
         {/* VISIBILITY */}
         <TabsContent value="visibility" className="mt-4 space-y-4">
