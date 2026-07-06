@@ -137,8 +137,8 @@ function AuthPage() {
                   <Label htmlFor="signup-password">Password</Label>
                   <Input id="signup-password" type="password" minLength={6} required value={password} onChange={(e) => setPassword(e.target.value)} />
                 </div>
-                <Button type="submit" variant="hero" size="lg" className="w-full" disabled={loading}>
-                  {loading ? "Creating..." : "Create account"}
+                <Button type="submit" variant="hero" size="lg" className="w-full" isLoading={loading}>
+                  Create account
                 </Button>
               </form>
             </TabsContent>
