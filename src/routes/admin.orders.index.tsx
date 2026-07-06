@@ -263,9 +263,15 @@ function OrdersPage() {
             <Button variant="ghost" size="icon" onClick={clearDates} className="h-8 w-8"><X className="w-4 h-4" /></Button>
           )}
         </div>
-        <span className="text-sm text-muted-foreground ml-auto">
-          {filtered.length} of {total} order{total === 1 ? "" : "s"}
-        </span>
+        <div className="ml-auto flex items-center gap-3">
+          <span className="text-sm text-muted-foreground">
+            {filtered.length} of {total} order{total === 1 ? "" : "s"}
+          </span>
+          <Button variant="outline" size="sm" onClick={handleExport} disabled={exporting}>
+            {exporting ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Download className="w-4 h-4 mr-1" />}
+            Export CSV
+          </Button>
+        </div>
       </div>
 
       <Card className="shadow-card overflow-hidden">
