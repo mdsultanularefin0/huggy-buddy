@@ -17,7 +17,6 @@ type ProductRow = {
   scent_profile?: string | null;
 };
 
-
 type Cat = { id: string; name: string; slug: string };
 
 const categoryPageOptions = (slug: string) =>
@@ -32,7 +31,32 @@ const categoryPageOptions = (slug: string) =>
       if (ce) throw ce;
       if (!cat || !cat.is_active) throw notFound();
 
-      const [{ data: products, error: pe }, { data: cats }, { data: combos, error: coe }] = await Promise.all([
+      // Product IDs assigned to this category via the join table
+      const { data: linkRows, error: lie } = await supabase
+        .from("product_categories")
+        .select("product_id")
+        .eq("category_id", cat.id);
+      if (lie) throw lie;
+      const linkedIds = Array.from(new Set((linkRows ?? []).map((r) => r.product_id)));
+
+      const [
+        { data: linkedProducts, error: lpe },
+        { data: legacyProducts, error: pe },
+        { data: cats },
+        { data: combos, error: coe },
+        { data: pCats, error: pce },
+        { data: pNotes, error: pne },
+        { data: cCats, error: cce },
+        { data: cNotes, error: cne },
+      ] = await Promise.all([
+        linkedIds.length
+          ? supabase
+              .from("products")
+              .select("id,slug,name,regular_price,sale_price,sizes_json,image_url,category_id,in_stock,scent_profile")
+              .in("id", linkedIds)
+              .eq("is_active", true)
+              .order("created_at", { ascending: false })
+          : Promise.resolve({ data: [] as ProductRow[], error: null }),
         supabase
           .from("products")
           .select("id,slug,name,regular_price,sale_price,sizes_json,image_url,category_id,in_stock,scent_profile")
@@ -49,17 +73,36 @@ const categoryPageOptions = (slug: string) =>
           .select("id,title,regular_price,sale_price,image_url,combo_type,max_items_allowed")
           .eq("is_active", true)
           .order("created_at", { ascending: false }),
+        supabase.from("product_categories").select("product_id,category_id"),
+        supabase.from("product_notes").select("product_id,note:notes(scent_profile)"),
+        supabase.from("combo_categories").select("combo_id,category_id"),
+        supabase.from("combo_notes").select("combo_id,note:notes(scent_profile)"),
       ]);
+      if (lpe) throw lpe;
       if (pe) throw pe;
       if (coe) throw coe;
+      if (pce) throw pce;
+      if (pne) throw pne;
+      if (cce) throw cce;
+      if (cne) throw cne;
+
+      // Merge (unique by id) — a product can appear via link or legacy column.
+      const map = new Map<string, ProductRow>();
+      for (const p of (linkedProducts ?? []) as unknown as ProductRow[]) map.set(p.id, p);
+      for (const p of (legacyProducts ?? []) as unknown as ProductRow[]) map.set(p.id, p);
+
       return {
         category: cat,
-        products: (products ?? []) as unknown as ProductRow[],
+        products: Array.from(map.values()),
         categories: (cats ?? []) as Cat[],
         combos: (combos ?? []) as unknown as {
           id: string; title: string; regular_price: number; sale_price: number | null;
           image_url: string | null; combo_type: "prebuilt" | "byob"; max_items_allowed: number | null;
         }[],
+        productCategoryLinks: (pCats ?? []) as { product_id: string; category_id: string }[],
+        productNoteLinks: (pNotes ?? []) as { product_id: string; note: { scent_profile: string | null } | null }[],
+        comboCategoryLinks: (cCats ?? []) as { combo_id: string; category_id: string }[],
+        comboNoteLinks: (cNotes ?? []) as { combo_id: string; note: { scent_profile: string | null } | null }[],
       };
     },
   });
@@ -94,6 +137,10 @@ function CategoryPage() {
       categories={data.categories}
       combos={data.combos}
       activeCategorySlug={data.category.slug}
+      productCategoryLinks={data.productCategoryLinks}
+      productNoteLinks={data.productNoteLinks}
+      comboCategoryLinks={data.comboCategoryLinks}
+      comboNoteLinks={data.comboNoteLinks}
     />
   );
 }

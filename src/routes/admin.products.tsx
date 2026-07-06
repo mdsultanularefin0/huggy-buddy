@@ -50,7 +50,10 @@ const empty = {
   variants: [] as Variant[],
   category_id: null as string | null,
   scent_profile: "" as string,
+  category_ids: [] as string[],
+  note_ids: [] as string[],
 };
+
 
 function ProductsPage() {
   const qc = useQueryClient();
@@ -97,25 +100,57 @@ function ProductsPage() {
     },
   });
 
-  const { data: noteOptions = [] } = useQuery({
-    queryKey: ["admin", "note-options"],
+  const { data: notes = [] } = useQuery({
+    queryKey: ["admin", "notes-full"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("notes")
-        .select("scent_profile")
+        .select("id,title,scent_profile,is_active")
         .eq("is_active", true)
-        .not("scent_profile", "is", null)
         .order("sort_order");
       if (error) throw error;
-      return Array.from(
-        new Set(
-          (data ?? [])
-            .map((n) => n.scent_profile)
-            .filter((t): t is string => !!t),
-        ),
-      );
+      return (data ?? []) as { id: string; title: string; scent_profile: string | null; is_active: boolean }[];
     },
   });
+
+
+
+  const { data: productCategoryLinks = [] } = useQuery({
+    queryKey: ["admin", "product_categories"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("product_categories").select("product_id,category_id");
+      if (error) throw error;
+      return data as { product_id: string; category_id: string }[];
+    },
+  });
+  const { data: productNoteLinks = [] } = useQuery({
+    queryKey: ["admin", "product_notes"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("product_notes").select("product_id,note_id");
+      if (error) throw error;
+      return data as { product_id: string; note_id: string }[];
+    },
+  });
+  const categoryIdsByProduct = useMemo(() => {
+    const m = new Map<string, string[]>();
+    for (const l of productCategoryLinks) {
+      const a = m.get(l.product_id) ?? [];
+      a.push(l.category_id);
+      m.set(l.product_id, a);
+    }
+    return m;
+  }, [productCategoryLinks]);
+  const noteIdsByProduct = useMemo(() => {
+    const m = new Map<string, string[]>();
+    for (const l of productNoteLinks) {
+      const a = m.get(l.product_id) ?? [];
+      a.push(l.note_id);
+      m.set(l.product_id, a);
+    }
+    return m;
+  }, [productNoteLinks]);
+
+
 
 
   const save = useMutation({
@@ -153,8 +188,12 @@ function ProductsPage() {
         is_active: form.is_active,
         in_stock: form.in_stock,
         stock_quantity: Math.max(0, Number(form.stock_quantity) || 0),
-        category_id: form.category_id,
-        scent_profile: form.scent_profile || null,
+        category_id: form.category_ids[0] ?? form.category_id ?? null,
+        scent_profile:
+          (form.note_ids.length > 0 && notes.find((n) => n.id === form.note_ids[0])?.scent_profile) ||
+          form.scent_profile ||
+          null,
+
       };
       let productId: string;
       if (editing) {
@@ -195,14 +234,33 @@ function ProductsPage() {
           .upsert(rows, { onConflict: "id" });
         if (error) throw error;
       }
+
+      // Sync category & note assignments (many-to-many)
+      await supabase.from("product_categories").delete().eq("product_id", productId);
+      if (form.category_ids.length) {
+        const rows = form.category_ids.map((cid) => ({ product_id: productId, category_id: cid }));
+        const { error } = await supabase.from("product_categories").insert(rows);
+        if (error) throw error;
+      }
+      await supabase.from("product_notes").delete().eq("product_id", productId);
+      if (form.note_ids.length) {
+        const rows = form.note_ids.map((nid) => ({ product_id: productId, note_id: nid }));
+        const { error } = await supabase.from("product_notes").insert(rows);
+        if (error) throw error;
+      }
     },
     onSuccess: () => {
       toast.success(editing ? "Product updated" : "Product created");
       qc.invalidateQueries({ queryKey: ["admin", "products"] });
+      qc.invalidateQueries({ queryKey: ["admin", "product_categories"] });
+      qc.invalidateQueries({ queryKey: ["admin", "product_notes"] });
+      qc.invalidateQueries({ queryKey: ["public", "products-page"] });
+      qc.invalidateQueries({ queryKey: ["category-page"] });
       setOpen(false);
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
 
   const del = useMutation({
     mutationFn: async (id: string) => {
@@ -232,11 +290,16 @@ function ProductsPage() {
       if (activeFilter === "inactive" && p.is_active) return false;
       if (stockFilter === "in" && p.in_stock === false) return false;
       if (stockFilter === "out" && p.in_stock !== false) return false;
-      if (categoryFilter !== "all" && (p.category_id ?? "") !== categoryFilter) return false;
+      if (categoryFilter !== "all") {
+        const cids = categoryIdsByProduct.get(p.id) ?? [];
+        const legacy = p.category_id ?? "";
+        if (!cids.includes(categoryFilter) && legacy !== categoryFilter) return false;
+      }
       if (s && !p.name.toLowerCase().includes(s)) return false;
       return true;
     });
-  }, [products, search, activeFilter, stockFilter, categoryFilter]);
+  }, [products, search, activeFilter, stockFilter, categoryFilter, categoryIdsByProduct]);
+
 
   const selection = useSelection(filtered);
 
@@ -302,7 +365,10 @@ function ProductsPage() {
       variants,
       category_id: (p as Product & { category_id: string | null }).category_id ?? null,
       scent_profile: (p as Product & { scent_profile?: string | null }).scent_profile ?? "",
+      category_ids: categoryIdsByProduct.get(p.id) ?? [],
+      note_ids: noteIdsByProduct.get(p.id) ?? [],
     });
+
     setOpen(true);
   }
 
@@ -560,40 +626,63 @@ function ProductsPage() {
                 </div>
               </div>
               <div>
-                <Label htmlFor="cat">Category</Label>
-                <select
-                  id="cat"
-                  value={form.category_id ?? ""}
-                  onChange={(e) => setForm({ ...form, category_id: e.target.value || null })}
-                  className="mt-1 w-full h-10 rounded-md border bg-background px-3 text-sm"
-                >
-                  <option value="">— None —</option>
-                  {categories.map((c) => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
-                  ))}
-                </select>
+                <Label>Categories</Label>
+                <p className="text-xs text-muted-foreground">Assign to one or more categories.</p>
+                <div className="mt-2 max-h-40 overflow-y-auto rounded-md border p-2 grid grid-cols-2 gap-1">
+                  {categories.length === 0 && <p className="text-xs text-muted-foreground">No categories yet.</p>}
+                  {categories.map((c) => {
+                    const checked = form.category_ids.includes(c.id);
+                    return (
+                      <label key={c.id} className="flex items-center gap-2 text-sm cursor-pointer">
+                        <Checkbox
+                          checked={checked}
+                          onCheckedChange={(v) =>
+                            setForm((f) => ({
+                              ...f,
+                              category_ids: v
+                                ? Array.from(new Set([...f.category_ids, c.id]))
+                                : f.category_ids.filter((x) => x !== c.id),
+                            }))
+                          }
+                        />
+                        <span>{c.name}</span>
+                      </label>
+                    );
+                  })}
+                </div>
               </div>
               <div>
-                <Label htmlFor="scent_profile">
-                  Scent profile <span className="text-destructive">*</span>
+                <Label>
+                  Scent notes <span className="text-destructive">*</span>
                 </Label>
-                <select
-                  id="scent_profile"
-                  required
-                  value={form.scent_profile}
-                  onChange={(e) => setForm({ ...form, scent_profile: e.target.value })}
-                  className="mt-1 w-full h-10 rounded-md border bg-background px-3 text-sm"
-                >
-                  <option value="">— Select a scent profile —</option>
-                  {noteOptions.map((n) => (
-                    <option key={n} value={n}>{n}</option>
-                  ))}
-                  {form.scent_profile && !noteOptions.includes(form.scent_profile) && (
-                    <option value={form.scent_profile}>{form.scent_profile} (custom)</option>
-                  )}
-                </select>
-                <p className="text-xs text-muted-foreground mt-1">Required. Scent profiles come from the admin Notes section and drive the storefront filter.</p>
+                <p className="text-xs text-muted-foreground">Pick one or more notes. Drives the storefront scent filter.</p>
+                <div className="mt-2 max-h-40 overflow-y-auto rounded-md border p-2 grid grid-cols-2 gap-1">
+                  {notes.length === 0 && <p className="text-xs text-muted-foreground">No active notes yet.</p>}
+                  {notes.map((n) => {
+                    const checked = form.note_ids.includes(n.id);
+                    return (
+                      <label key={n.id} className="flex items-center gap-2 text-sm cursor-pointer">
+                        <Checkbox
+                          checked={checked}
+                          onCheckedChange={(v) =>
+                            setForm((f) => ({
+                              ...f,
+                              note_ids: v
+                                ? Array.from(new Set([...f.note_ids, n.id]))
+                                : f.note_ids.filter((x) => x !== n.id),
+                            }))
+                          }
+                        />
+                        <span>
+                          {n.title}
+                          {n.scent_profile && <span className="text-xs text-muted-foreground"> · {n.scent_profile}</span>}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
               </div>
+
             </TabsContent>
 
             <TabsContent forceMount value="media" className="space-y-4 mt-4 data-[state=inactive]:hidden">
@@ -745,7 +834,7 @@ function ProductsPage() {
           </Tabs>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button variant="luxe" onClick={() => save.mutate()} disabled={save.isPending || !form.name || !form.scent_profile}>
+            <Button variant="luxe" onClick={() => save.mutate()} disabled={save.isPending || !form.name || form.note_ids.length === 0}>
               {save.isPending && <Loader2 className="w-4 h-4 animate-spin mr-1" />}
               Save
             </Button>

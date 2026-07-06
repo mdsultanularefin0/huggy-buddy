@@ -40,7 +40,15 @@ export type ComboRow = {
 const productsPageOptions = queryOptions({
   queryKey: ["public", "products-page"],
   queryFn: async () => {
-    const [{ data: products, error: pe }, { data: cats, error: ce }, { data: combos, error: coe }] = await Promise.all([
+    const [
+      { data: products, error: pe },
+      { data: cats, error: ce },
+      { data: combos, error: coe },
+      { data: pCats, error: pce },
+      { data: pNotes, error: pne },
+      { data: cCats, error: cce },
+      { data: cNotes, error: cne },
+    ] = await Promise.all([
       supabase
         .from("products")
         .select("id,slug,name,regular_price,sale_price,sizes_json,image_url,category_id,in_stock,scent_profile")
@@ -56,17 +64,30 @@ const productsPageOptions = queryOptions({
         .select("id,title,regular_price,sale_price,image_url,combo_type,max_items_allowed")
         .eq("is_active", true)
         .order("created_at", { ascending: false }),
+      supabase.from("product_categories").select("product_id,category_id"),
+      supabase.from("product_notes").select("product_id,note:notes(scent_profile)"),
+      supabase.from("combo_categories").select("combo_id,category_id"),
+      supabase.from("combo_notes").select("combo_id,note:notes(scent_profile)"),
     ]);
     if (pe) throw pe;
     if (ce) throw ce;
     if (coe) throw coe;
+    if (pce) throw pce;
+    if (pne) throw pne;
+    if (cce) throw cce;
+    if (cne) throw cne;
     return {
       products: (products ?? []) as unknown as ProductRow[],
       categories: (cats ?? []) as Cat[],
       combos: (combos ?? []) as unknown as ComboRow[],
+      productCategoryLinks: (pCats ?? []) as { product_id: string; category_id: string }[],
+      productNoteLinks: (pNotes ?? []) as { product_id: string; note: { scent_profile: string | null } | null }[],
+      comboCategoryLinks: (cCats ?? []) as { combo_id: string; category_id: string }[],
+      comboNoteLinks: (cNotes ?? []) as { combo_id: string; note: { scent_profile: string | null } | null }[],
     };
   },
 });
+
 
 export const MAX_PRICE_DEFAULT = 10000;
 
@@ -91,13 +112,32 @@ export const Route = createFileRoute("/products")({
 
 function ProductsPage() {
   const { data } = useSuspenseQuery(productsPageOptions);
-  return <ListingShell title="All Fragrances" subtitle="Every Veloura scent, one place." products={data.products} categories={data.categories} combos={data.combos} />;
+  return (
+    <ListingShell
+      title="All Fragrances"
+      subtitle="Every Veloura scent, one place."
+      products={data.products}
+      categories={data.categories}
+      combos={data.combos}
+      productCategoryLinks={data.productCategoryLinks}
+      productNoteLinks={data.productNoteLinks}
+      comboCategoryLinks={data.comboCategoryLinks}
+      comboNoteLinks={data.comboNoteLinks}
+    />
+  );
 }
 
 export function normalizeScents(scent: string[] | string | undefined): string[] {
   if (!scent) return [];
   return Array.isArray(scent) ? scent : [scent];
 }
+
+export type ListingLinks = {
+  productCategoryLinks?: { product_id: string; category_id: string }[];
+  productNoteLinks?: { product_id: string; note: { scent_profile: string | null } | null }[];
+  comboCategoryLinks?: { combo_id: string; category_id: string }[];
+  comboNoteLinks?: { combo_id: string; note: { scent_profile: string | null } | null }[];
+};
 
 export function ListingShell({
   title,
@@ -106,6 +146,10 @@ export function ListingShell({
   categories,
   combos = [],
   activeCategorySlug,
+  productCategoryLinks = [],
+  productNoteLinks = [],
+  comboCategoryLinks = [],
+  comboNoteLinks = [],
 }: {
   title: string;
   subtitle?: string;
@@ -113,7 +157,7 @@ export function ListingShell({
   categories: Cat[];
   combos?: ComboRow[];
   activeCategorySlug?: string;
-}) {
+} & ListingLinks) {
   // Both /products and /category/$slug use listingSearchSchema, so strict:false is safe.
   const search = useSearch({ strict: false }) as Partial<ListingSearch>;
   const navigate = useNavigate();
@@ -143,6 +187,55 @@ export function ListingShell({
     });
   };
 
+  const activeCategoryId = useMemo(
+    () => categories.find((c) => c.slug === activeCategorySlug)?.id ?? null,
+    [categories, activeCategorySlug],
+  );
+
+  const productScents = useMemo(() => {
+    const m = new Map<string, Set<string>>();
+    for (const l of productNoteLinks) {
+      const s = l.note?.scent_profile;
+      if (!s) continue;
+      const set = m.get(l.product_id) ?? new Set<string>();
+      set.add(s);
+      m.set(l.product_id, set);
+    }
+    return m;
+  }, [productNoteLinks]);
+
+  const productCategoryIds = useMemo(() => {
+    const m = new Map<string, Set<string>>();
+    for (const l of productCategoryLinks) {
+      const set = m.get(l.product_id) ?? new Set<string>();
+      set.add(l.category_id);
+      m.set(l.product_id, set);
+    }
+    return m;
+  }, [productCategoryLinks]);
+
+  const comboScents = useMemo(() => {
+    const m = new Map<string, Set<string>>();
+    for (const l of comboNoteLinks) {
+      const s = l.note?.scent_profile;
+      if (!s) continue;
+      const set = m.get(l.combo_id) ?? new Set<string>();
+      set.add(s);
+      m.set(l.combo_id, set);
+    }
+    return m;
+  }, [comboNoteLinks]);
+
+  const comboCategoryIds = useMemo(() => {
+    const m = new Map<string, Set<string>>();
+    for (const l of comboCategoryLinks) {
+      const set = m.get(l.combo_id) ?? new Set<string>();
+      set.add(l.category_id);
+      m.set(l.combo_id, set);
+    }
+    return m;
+  }, [comboCategoryLinks]);
+
   const filtered = useMemo(() => {
     return products.filter((p) => {
       const min = p.sizes_json?.[0];
@@ -150,24 +243,43 @@ export function ListingShell({
       const sale = min?.sale_price ?? p.sale_price;
       const price = effectivePrice(reg, sale);
       if (price > maxPrice) return false;
-      if (scents.length > 0 && (!p.scent_profile || !scents.includes(p.scent_profile))) return false;
+      if (activeCategoryId) {
+        const cids = productCategoryIds.get(p.id);
+        const legacy = p.category_id;
+        if (!(cids?.has(activeCategoryId)) && legacy !== activeCategoryId) return false;
+      }
+      if (scents.length > 0) {
+        const set = productScents.get(p.id) ?? new Set<string>();
+        if (p.scent_profile) set.add(p.scent_profile);
+        if (!scents.some((s) => set.has(s))) return false;
+      }
       return true;
     });
-  }, [products, maxPrice, scents]);
+  }, [products, maxPrice, scents, activeCategoryId, productCategoryIds, productScents]);
 
-  // "combo-packs" shows prebuilt bundles; "custom-combo" shows BYOB.
-  // On "All" (no category) show everything. Hidden on other categories and
-  // when scent filters are active (combos aren't scent-scoped).
+  // Combos show when: no scent filter (or a matching scent link exists);
+  // and category matches by link, legacy slug rule, or no filter.
   const filteredCombos = useMemo(() => {
-    if (scents.length > 0) return [];
-    let pool = combos;
-    if (activeCategorySlug) {
-      if (activeCategorySlug === "combo-packs") pool = combos.filter((c) => c.combo_type === "prebuilt");
-      else if (activeCategorySlug === "custom-combo") pool = combos.filter((c) => c.combo_type === "byob");
-      else return [];
-    }
-    return pool.filter((c) => effectivePrice(c.regular_price, c.sale_price) <= maxPrice);
-  }, [combos, maxPrice, scents, activeCategorySlug]);
+    return combos.filter((c) => {
+      if (effectivePrice(c.regular_price, c.sale_price) > maxPrice) return false;
+      if (activeCategorySlug) {
+        const linkedCats = comboCategoryIds.get(c.id) ?? new Set<string>();
+        const linkMatch = activeCategoryId ? linkedCats.has(activeCategoryId) : false;
+        const legacyMatch =
+          (activeCategorySlug === "combo-packs" && c.combo_type === "prebuilt") ||
+          (activeCategorySlug === "custom-combo" && c.combo_type === "byob");
+        if (!linkMatch && !legacyMatch) return false;
+      }
+      if (scents.length > 0) {
+        const set = comboScents.get(c.id) ?? new Set<string>();
+        if (!scents.some((s) => set.has(s))) return false;
+      }
+      return true;
+    });
+  }, [combos, maxPrice, scents, activeCategorySlug, activeCategoryId, comboCategoryIds, comboScents]);
+
+
+
 
 
   return (

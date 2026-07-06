@@ -12,6 +12,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Pencil, Trash2, Loader2, Upload, X } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+
 import { toast } from "sonner";
 import { formatBDT } from "@/lib/currency";
 import { uploadImage } from "@/lib/upload";
@@ -33,7 +35,10 @@ const empty = {
   is_active: true,
   max_items_allowed: null as number | null,
   products_json: [] as ComboItem[],
+  category_ids: [] as string[],
+  note_ids: [] as string[],
 };
+
 
 function CombosPage() {
   const qc = useQueryClient();
@@ -79,6 +84,56 @@ function CombosPage() {
     variantsByProduct.set(v.product_id, arr);
   }
 
+  const { data: categories = [] } = useQuery({
+    queryKey: ["admin", "combos", "categories"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("categories").select("id,name").order("sort_order");
+      if (error) throw error;
+      return data as { id: string; name: string }[];
+    },
+  });
+  const { data: notes = [] } = useQuery({
+    queryKey: ["admin", "combos", "notes"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("notes")
+        .select("id,title,scent_profile,is_active")
+        .eq("is_active", true)
+        .order("sort_order");
+      if (error) throw error;
+      return data as { id: string; title: string; scent_profile: string | null; is_active: boolean }[];
+    },
+  });
+  const { data: comboCategoryLinks = [] } = useQuery({
+    queryKey: ["admin", "combo_categories"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("combo_categories").select("combo_id,category_id");
+      if (error) throw error;
+      return data as { combo_id: string; category_id: string }[];
+    },
+  });
+  const { data: comboNoteLinks = [] } = useQuery({
+    queryKey: ["admin", "combo_notes"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("combo_notes").select("combo_id,note_id");
+      if (error) throw error;
+      return data as { combo_id: string; note_id: string }[];
+    },
+  });
+  const catIdsByCombo = new Map<string, string[]>();
+  for (const l of comboCategoryLinks) {
+    const a = catIdsByCombo.get(l.combo_id) ?? [];
+    a.push(l.category_id);
+    catIdsByCombo.set(l.combo_id, a);
+  }
+  const noteIdsByCombo = new Map<string, string[]>();
+  for (const l of comboNoteLinks) {
+    const a = noteIdsByCombo.get(l.combo_id) ?? [];
+    a.push(l.note_id);
+    noteIdsByCombo.set(l.combo_id, a);
+  }
+
+
   const save = useMutation({
     mutationFn: async () => {
       const payload = {
@@ -95,18 +150,43 @@ function CombosPage() {
             : null,
         products_json: form.products_json as never,
       };
-      const { error } = editing
-        ? await supabase.from("combos").update(payload).eq("id", editing.id)
-        : await supabase.from("combos").insert(payload);
-      if (error) throw error;
+      let comboId: string;
+      if (editing) {
+        const { error } = await supabase.from("combos").update(payload).eq("id", editing.id);
+        if (error) throw error;
+        comboId = editing.id;
+      } else {
+        const { data: created, error } = await supabase.from("combos").insert(payload).select("id").single();
+        if (error) throw error;
+        comboId = created.id;
+      }
+      await supabase.from("combo_categories").delete().eq("combo_id", comboId);
+      if (form.category_ids.length) {
+        const { error } = await supabase
+          .from("combo_categories")
+          .insert(form.category_ids.map((cid) => ({ combo_id: comboId, category_id: cid })));
+        if (error) throw error;
+      }
+      await supabase.from("combo_notes").delete().eq("combo_id", comboId);
+      if (form.note_ids.length) {
+        const { error } = await supabase
+          .from("combo_notes")
+          .insert(form.note_ids.map((nid) => ({ combo_id: comboId, note_id: nid })));
+        if (error) throw error;
+      }
     },
     onSuccess: () => {
       toast.success(editing ? "Combo updated" : "Combo created");
       qc.invalidateQueries({ queryKey: ["admin", "combos"] });
+      qc.invalidateQueries({ queryKey: ["admin", "combo_categories"] });
+      qc.invalidateQueries({ queryKey: ["admin", "combo_notes"] });
+      qc.invalidateQueries({ queryKey: ["public", "products-page"] });
+      qc.invalidateQueries({ queryKey: ["category-page"] });
       setOpen(false);
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
 
   const del = useMutation({
     mutationFn: async (id: string) => {
@@ -137,7 +217,10 @@ function CombosPage() {
       is_active: c.is_active,
       max_items_allowed: c.max_items_allowed,
       products_json: Array.isArray(c.products_json) ? (c.products_json as unknown as ComboItem[]) : [],
+      category_ids: catIdsByCombo.get(c.id) ?? [],
+      note_ids: noteIdsByCombo.get(c.id) ?? [],
     });
+
     setOpen(true);
   }
 
@@ -385,6 +468,66 @@ function CombosPage() {
                 {form.products_json.length} item{form.products_json.length === 1 ? "" : "s"} in {form.combo_type === "byob" ? "pool" : "bundle"}.
               </p>
             </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label>Categories</Label>
+                <p className="text-xs text-muted-foreground">Assign to one or more categories.</p>
+                <div className="mt-2 max-h-40 overflow-y-auto rounded-md border p-2 space-y-1">
+                  {categories.length === 0 && <p className="text-xs text-muted-foreground">No categories yet.</p>}
+                  {categories.map((c) => {
+                    const checked = form.category_ids.includes(c.id);
+                    return (
+                      <label key={c.id} className="flex items-center gap-2 text-sm cursor-pointer">
+                        <Checkbox
+                          checked={checked}
+                          onCheckedChange={(v) =>
+                            setForm((f) => ({
+                              ...f,
+                              category_ids: v
+                                ? Array.from(new Set([...f.category_ids, c.id]))
+                                : f.category_ids.filter((x) => x !== c.id),
+                            }))
+                          }
+                        />
+                        <span>{c.name}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+              <div>
+                <Label>Scent notes</Label>
+                <p className="text-xs text-muted-foreground">Optional. Lets this combo show up under scent filters.</p>
+                <div className="mt-2 max-h-40 overflow-y-auto rounded-md border p-2 space-y-1">
+                  {notes.length === 0 && <p className="text-xs text-muted-foreground">No active notes yet.</p>}
+                  {notes.map((n) => {
+                    const checked = form.note_ids.includes(n.id);
+                    return (
+                      <label key={n.id} className="flex items-center gap-2 text-sm cursor-pointer">
+                        <Checkbox
+                          checked={checked}
+                          onCheckedChange={(v) =>
+                            setForm((f) => ({
+                              ...f,
+                              note_ids: v
+                                ? Array.from(new Set([...f.note_ids, n.id]))
+                                : f.note_ids.filter((x) => x !== n.id),
+                            }))
+                          }
+                        />
+                        <span>
+                          {n.title}
+                          {n.scent_profile && <span className="text-xs text-muted-foreground"> · {n.scent_profile}</span>}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+
 
 
             <label className="flex items-center gap-2 cursor-pointer">
