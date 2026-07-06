@@ -55,7 +55,7 @@ export async function runImapSync(): Promise<{
             { source: true, envelope: true },
             { uid: true },
           );
-          if (!msg || msg === false || !msg.source) { stats.errors++; continue; }
+          if (!msg || !msg.source) { stats.errors++; continue; }
           const parsed = await simpleParser(msg.source as Buffer);
           const fromAddr = parsed.from?.value?.[0];
           const email = fromAddr?.address ?? "unknown@unknown";
