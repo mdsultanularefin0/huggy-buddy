@@ -110,6 +110,7 @@ export async function testImapCreds() {
   });
   await client.connect();
   const info = await client.mailboxOpen(creds.mailbox || "INBOX");
+  const unseen = (info as unknown as { unseen?: number }).unseen ?? 0;
   await client.logout();
-  return { ok: true, exists: info.exists, unseen: info.unseen ?? 0 };
+  return { ok: true, exists: info.exists, unseen };
 }
