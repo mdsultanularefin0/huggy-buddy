@@ -217,7 +217,10 @@ function CombosPage() {
       is_active: c.is_active,
       max_items_allowed: c.max_items_allowed,
       products_json: Array.isArray(c.products_json) ? (c.products_json as unknown as ComboItem[]) : [],
+      category_ids: catIdsByCombo.get(c.id) ?? [],
+      note_ids: noteIdsByCombo.get(c.id) ?? [],
     });
+
     setOpen(true);
   }
 
