@@ -1,5 +1,6 @@
 import { useState, useMemo, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -8,11 +9,14 @@ import { Loader2, Images, Upload, Copy, Trash2, Eye, Check } from "lucide-react"
 import { toast } from "sonner";
 import { uploadImage } from "@/lib/upload";
 import { Lightbox } from "@/components/lightbox";
+import { listMediaServerFiles, deleteMediaServerFile } from "@/lib/integrations.functions";
 
 const BUCKETS = ["hero-images", "product-images", "combo-images", "review-images"] as const;
+const MEDIA_SERVER = "media-server" as const;
 const SIGN_TTL = 60 * 60 * 24 * 365 * 10;
 
 type MediaItem = { name: string; url: string; bucket: string; created_at?: string | null };
+
 
 async function loadBucket(bucket: string): Promise<MediaItem[]> {
   const { data: files, error } = await supabase.storage
@@ -52,14 +56,30 @@ export function MediaPicker({ onPick, label = "Library" }: { onPick: (url: strin
   const fileRef = useRef<HTMLInputElement>(null);
   const qc = useQueryClient();
 
+  const listServerFn = useServerFn(listMediaServerFiles);
+  const deleteServerFn = useServerFn(deleteMediaServerFile);
+
   const { data, isLoading, refetch, isFetching } = useQuery({
     queryKey: ["media", "all-buckets"],
     enabled: open,
     queryFn: async (): Promise<MediaItem[]> => {
-      const results = await Promise.all(BUCKETS.map(loadBucket));
-      return results.flat();
+      const bucketResults = await Promise.all(BUCKETS.map(loadBucket));
+      let serverFiles: MediaItem[] = [];
+      try {
+        const res = await listServerFn();
+        serverFiles = (res?.files ?? []).map((f: { name: string; url: string; created?: string | null }) => ({
+          name: f.name,
+          url: f.url,
+          bucket: MEDIA_SERVER,
+          created_at: f.created ?? null,
+        }));
+      } catch {
+        // media server may not be configured; ignore
+      }
+      return [...bucketResults.flat(), ...serverFiles];
     },
   });
+
 
   const filtered = useMemo(
     () =>
@@ -85,11 +105,20 @@ export function MediaPicker({ onPick, label = "Library" }: { onPick: (url: strin
 
   async function handleDelete(item: MediaItem) {
     if (!confirm(`Delete ${item.name}?`)) return;
-    const { error } = await supabase.storage.from(item.bucket).remove([item.name]);
-    if (error) return toast.error(error.message);
+    if (item.bucket === MEDIA_SERVER) {
+      try {
+        await deleteServerFn({ data: { name: item.name } });
+      } catch (e) {
+        return toast.error(e instanceof Error ? e.message : "Delete failed");
+      }
+    } else {
+      const { error } = await supabase.storage.from(item.bucket).remove([item.name]);
+      if (error) return toast.error(error.message);
+    }
     toast.success("Deleted");
     qc.invalidateQueries({ queryKey: ["media", "all-buckets"] });
   }
+
 
   async function copyUrl(url: string) {
     try {
@@ -128,7 +157,7 @@ export function MediaPicker({ onPick, label = "Library" }: { onPick: (url: strin
             className="w-48 h-9"
           />
           <div className="flex flex-wrap gap-1">
-            {(["all", ...BUCKETS] as const).map((b) => (
+            {(["all", ...BUCKETS, MEDIA_SERVER] as const).map((b) => (
               <Button
                 key={b}
                 type="button"
@@ -136,8 +165,9 @@ export function MediaPicker({ onPick, label = "Library" }: { onPick: (url: strin
                 variant={filter === b ? "default" : "outline"}
                 onClick={() => setFilter(b)}
               >
-                {b === "all" ? "All" : b.replace("-images", "")}
+                {b === "all" ? "All" : b === MEDIA_SERVER ? "server" : b.replace("-images", "")}
               </Button>
+
             ))}
           </div>
           <div className="ml-auto flex items-center gap-1">
@@ -187,7 +217,7 @@ export function MediaPicker({ onPick, label = "Library" }: { onPick: (url: strin
                   <img src={m.url} alt={m.name} className="w-full h-full object-cover" loading="lazy" />
                 </button>
                 <span className="absolute top-1 left-1 text-[10px] px-1.5 py-0.5 rounded bg-black/60 text-white">
-                  {m.bucket.replace("-images", "")}
+                  {m.bucket === MEDIA_SERVER ? "server" : m.bucket.replace("-images", "")}
                 </span>
                 <div className="absolute bottom-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition">
                   <button
