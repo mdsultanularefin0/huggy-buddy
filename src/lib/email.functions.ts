@@ -44,6 +44,8 @@ export async function sendMail(opts: {
   const creds = await loadSmtpCreds();
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const toStr = Array.isArray(opts.to) ? opts.to.join(", ") : opts.to;
+  // Always route replies to the admin inbox (falls back to the from address).
+  const replyTo = opts.replyTo ?? creds.admin_email ?? creds.from_email;
   try {
     const nodemailer = (await import("nodemailer")).default;
     const transporter = nodemailer.createTransport({
@@ -55,7 +57,7 @@ export async function sendMail(opts: {
     await transporter.sendMail({
       from: `"${creds.from_name}" <${creds.from_email}>`,
       to: opts.to,
-      replyTo: opts.replyTo,
+      replyTo,
       subject: opts.subject,
       html: opts.html,
       text: opts.text ?? opts.html.replace(/<[^>]+>/g, ""),
@@ -72,6 +74,7 @@ export async function sendMail(opts: {
     return { ok: false, error: msg };
   }
 }
+
 
 // ---------------- Admin: status / save / delete / test ----------------
 export const getSmtpStatus = createServerFn({ method: "GET" })
