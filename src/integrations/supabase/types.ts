@@ -245,8 +245,10 @@ export type Database = {
           email: string
           id: string
           message: string
+          message_id: string | null
           name: string
           phone: string | null
+          source: string
           status: Database["public"]["Enums"]["contact_status"]
           subject: string
           updated_at: string
@@ -256,8 +258,10 @@ export type Database = {
           email: string
           id?: string
           message: string
+          message_id?: string | null
           name: string
           phone?: string | null
+          source?: string
           status?: Database["public"]["Enums"]["contact_status"]
           subject: string
           updated_at?: string
@@ -267,8 +271,10 @@ export type Database = {
           email?: string
           id?: string
           message?: string
+          message_id?: string | null
           name?: string
           phone?: string | null
+          source?: string
           status?: Database["public"]["Enums"]["contact_status"]
           subject?: string
           updated_at?: string
