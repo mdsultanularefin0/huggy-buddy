@@ -85,6 +85,18 @@ function ProductsPage() {
     },
   });
 
+  const { data: combos = [] } = useQuery({
+    queryKey: ["admin", "products", "combos-inline"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("combos")
+        .select("id,title,combo_type,regular_price,sale_price,is_active,image_url")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const { data: noteOptions = [] } = useQuery({
     queryKey: ["admin", "note-options"],
     queryFn: async () => {
