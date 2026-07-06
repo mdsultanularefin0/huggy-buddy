@@ -16,7 +16,13 @@ import {
 } from "@/components/ui/accordion";
 import { ProductReviews } from "@/components/product-reviews";
 
-type Size = { size_label: string; price: number; sale_price?: number | null; in_stock?: boolean };
+type Variant = {
+  id: string;
+  size_label: string;
+  price: number;
+  sale_price: number | null;
+  stock_quantity: number;
+};
 type Product = {
   id: string;
   slug: string;
@@ -25,22 +31,25 @@ type Product = {
   description: string | null;
   regular_price: number;
   sale_price: number | null;
-  sizes_json: Size[] | null;
   image_url: string | null;
   in_stock: boolean;
+  product_variants: Variant[];
 };
 
 const productOptions = (slug: string) =>
   queryOptions({
     queryKey: ["product", "slug", slug],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("products")
-        .select("id,slug,name,short_description,description,regular_price,sale_price,sizes_json,image_url,in_stock,category:categories(name,slug)")
+        .select("id,slug,name,short_description,description,regular_price,sale_price,image_url,in_stock,category:categories(name,slug),product_variants(id,size_label,price,sale_price,stock_quantity)")
         .eq("slug", slug)
         .eq("is_active", true)
         .maybeSingle();
       if (error) throw error;
+      if (data?.product_variants) {
+        data.product_variants.sort((a: Variant, b: Variant) => a.size_label.localeCompare(b.size_label));
+      }
       return data as (Product & { category: { name: string; slug: string } | null }) | null;
     },
   });
@@ -131,26 +140,26 @@ export const Route = createFileRoute("/product/$slug")({
 function ProductPage() {
   const { slug } = Route.useParams();
   const { data: product } = useSuspenseQuery(productOptions(slug));
-  const sizes = product?.sizes_json ?? [];
-  const [sizeIdx, setSizeIdx] = useState<number | null>(null);
+  const variants = product?.product_variants ?? [];
+  const [variantIdx, setVariantIdx] = useState<number | null>(null);
   const [qty, setQty] = useState(1);
   const add = useCart((s) => s.add);
 
   if (!product) return null;
-  const needsSize = sizes.length > 0;
-  const chosen = sizeIdx !== null ? sizes[sizeIdx] : undefined;
+  const needsVariant = variants.length > 0;
+  const chosen = variantIdx !== null ? variants[variantIdx] : undefined;
   const regular = chosen?.price ?? product.regular_price;
   const sale = chosen?.sale_price ?? product.sale_price;
   const price = effectivePrice(regular, sale);
-  const chosenOut = chosen ? chosen.in_stock === false : false;
-  const canAdd = product.in_stock && !chosenOut && (!needsSize || sizeIdx !== null);
+  const chosenOut = chosen ? chosen.stock_quantity <= 0 : false;
+  const canAdd = product.in_stock && !chosenOut && (!needsVariant || variantIdx !== null);
 
   const handleAdd = () => {
     if (!product.in_stock) {
       toast.error("This product is currently out of stock");
       return;
     }
-    if (needsSize && sizeIdx === null) {
+    if (needsVariant && variantIdx === null) {
       toast.error("Please select a size before adding to cart");
       return;
     }
@@ -163,6 +172,7 @@ function ProductPage() {
       lineId: `product:${product.slug}:${sizeLabel ?? "default"}`,
       kind: "product",
       refId: product.id,
+      variantId: chosen?.id ?? null,
       name: product.name,
       imageUrl: product.image_url,
       unitPrice: price,
@@ -257,27 +267,27 @@ function ProductPage() {
 
 
 
-          {sizes.length > 0 && (
+          {variants.length > 0 && (
             <div className="mt-8">
-              <p className="text-sm font-medium mb-3">Variant</p>
+              <p className="text-sm font-medium mb-3">Size</p>
               <div className="flex flex-wrap gap-2">
-                {sizes.map((s, i) => {
-                  const out = s.in_stock === false;
+                {variants.map((v, i) => {
+                  const out = v.stock_quantity <= 0;
                   return (
                     <button
-                      key={s.size_label}
-                      onClick={() => !out && setSizeIdx(i)}
+                      key={v.id}
+                      onClick={() => !out && setVariantIdx(i)}
                       disabled={out}
                       className={`px-4 py-2 rounded-xl border text-sm transition-colors ${
                         out
                           ? "border-gray-200 text-gray-400 line-through cursor-not-allowed"
-                          : i === sizeIdx
+                          : i === variantIdx
                           ? "border-[#52277a] bg-[#52277a]/5 text-[#52277a] font-medium"
                           : "border-gray-200 hover:border-[#a555f0]/60"
                       }`}
                     >
-                      {s.size_label} — {formatBDT(effectivePrice(s.price, s.sale_price))}
-                      {out && <span className="ml-1 text-xs">(out)</span>}
+                      {v.size_label} — {formatBDT(effectivePrice(v.price, v.sale_price))}
+                      {out && <span className="ml-1 text-xs">(Out of Stock)</span>}
                     </button>
                   );
                 })}
@@ -298,7 +308,7 @@ function ProductPage() {
             disabled={!canAdd}
             className="mt-4 w-full bg-[#52277a] hover:bg-[#3f1d5e] disabled:opacity-50 text-white rounded-2xl py-4 font-semibold transition-colors"
           >
-            {!product.in_stock ? "Out of stock" : needsSize && sizeIdx === null ? "Select a variant" : chosenOut ? "Variant out of stock" : "Add to Cart"}
+            {!product.in_stock ? "Out of stock" : needsVariant && variantIdx === null ? "Select a size" : chosenOut ? "Variant out of stock" : "Add to Cart"}
           </button>
 
           <Accordion type="single" collapsible className="mt-8">

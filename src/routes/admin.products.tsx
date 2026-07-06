@@ -23,7 +23,13 @@ import { BulkActionBar } from "@/components/bulk-action-bar";
 import { MediaPicker } from "@/components/media-picker";
 
 type Product = Database["public"]["Tables"]["products"]["Row"];
-type Size = { label: string; price: number; sale_price?: number | null; in_stock?: boolean };
+type Variant = {
+  id?: string;
+  size_label: string;
+  price: number;
+  sale_price: number | null;
+  stock_quantity: number;
+};
 type ActiveFilter = "all" | "active" | "inactive";
 type StockFilter = "all" | "in" | "out";
 
@@ -39,7 +45,7 @@ const empty = {
   is_active: true,
   in_stock: true,
   stock_quantity: 0,
-  sizes_json: [] as Size[],
+  variants: [] as Variant[],
   category_id: null as string | null,
   scent_profile: "" as string,
 };
@@ -104,6 +110,18 @@ function ProductsPage() {
         s.toLowerCase().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
       const baseSlug = slugify(form.name) || `product-${Date.now()}`;
       const slug = editing ? baseSlug : `${baseSlug}-${Math.random().toString(36).slice(2, 8)}`;
+      const cleanVariants = form.variants
+        .map((v) => ({
+          ...v,
+          size_label: v.size_label.trim(),
+          price: Math.max(0, Number(v.price) || 0),
+          sale_price:
+            v.sale_price === null || v.sale_price === undefined || Number(v.sale_price) === 0
+              ? null
+              : Math.max(0, Number(v.sale_price)),
+          stock_quantity: Math.max(0, Number(v.stock_quantity) || 0),
+        }))
+        .filter((v) => v.size_label.length > 0);
       const payload = {
         name: form.name,
         slug,
@@ -116,15 +134,45 @@ function ProductsPage() {
         is_active: form.is_active,
         in_stock: form.in_stock,
         stock_quantity: Math.max(0, Number(form.stock_quantity) || 0),
-        sizes_json: form.sizes_json as never,
         category_id: form.category_id,
         scent_profile: form.scent_profile || null,
       };
+      let productId: string;
       if (editing) {
         const { error } = await supabase.from("products").update(payload).eq("id", editing.id);
         if (error) throw error;
+        productId = editing.id;
       } else {
-        const { error } = await supabase.from("products").insert(payload);
+        const { data: created, error } = await supabase.from("products").insert(payload).select("id").single();
+        if (error) throw error;
+        productId = created.id;
+      }
+
+      // Diff-sync variants: delete removed, upsert kept/new
+      const { data: existingVariants } = await (supabase as any)
+        .from("product_variants")
+        .select("id")
+        .eq("product_id", productId);
+      const existingIds: string[] = (existingVariants ?? []).map((v: { id: string }) => v.id);
+      const keptIds = new Set(cleanVariants.map((v) => v.id).filter(Boolean) as string[]);
+      const toDelete = existingIds.filter((id) => !keptIds.has(id));
+      if (toDelete.length) {
+        const { error } = await (supabase as any).from("product_variants").delete().in("id", toDelete);
+        if (error) throw error;
+      }
+      if (cleanVariants.length) {
+        const rows = cleanVariants.map((v, idx) => ({
+          ...(v.id ? { id: v.id } : {}),
+          product_id: productId,
+          size_label: v.size_label,
+          price: v.price,
+          sale_price: v.sale_price,
+          stock_quantity: v.stock_quantity,
+          sort_order: idx,
+        }));
+        const { error } = await (supabase as any)
+          .from("product_variants")
+          .upsert(rows, { onConflict: "id" });
         if (error) throw error;
       }
     },
@@ -204,10 +252,22 @@ function ProductsPage() {
     setOpen(true);
   }
 
-  function startEdit(p: Product) {
+  async function startEdit(p: Product) {
     setEditing(p);
     const pAny = p as Product & { images_json?: unknown; stock_quantity?: number };
     const imgs = Array.isArray(pAny.images_json) ? (pAny.images_json as string[]).filter(Boolean) : [];
+    const { data: vRows } = await (supabase as any)
+      .from("product_variants")
+      .select("id,size_label,price,sale_price,stock_quantity,sort_order")
+      .eq("product_id", p.id)
+      .order("sort_order");
+    const variants: Variant[] = (vRows ?? []).map((v: Variant) => ({
+      id: v.id,
+      size_label: v.size_label,
+      price: v.price,
+      sale_price: v.sale_price ?? null,
+      stock_quantity: v.stock_quantity ?? 0,
+    }));
     setForm({
       name: p.name,
       short_description: (p as Product & { short_description?: string | null }).short_description ?? "",
@@ -218,7 +278,7 @@ function ProductsPage() {
       is_active: p.is_active,
       in_stock: p.in_stock,
       stock_quantity: pAny.stock_quantity ?? 0,
-      sizes_json: (Array.isArray(p.sizes_json) ? p.sizes_json : []) as Size[],
+      variants,
       category_id: (p as Product & { category_id: string | null }).category_id ?? null,
       scent_profile: (p as Product & { scent_profile?: string | null }).scent_profile ?? "",
     });
@@ -257,8 +317,8 @@ function ProductsPage() {
     setForm((f) => ({ ...f, images: f.images.filter((_, idx) => idx !== i) }));
   }
 
-  function updateSize(i: number, patch: Partial<Size>) {
-    setForm((f) => ({ ...f, sizes_json: f.sizes_json.map((s, idx) => (idx === i ? { ...s, ...patch } : s)) }));
+  function updateVariant(i: number, patch: Partial<Variant>) {
+    setForm((f) => ({ ...f, variants: f.variants.map((s, idx) => (idx === i ? { ...s, ...patch } : s)) }));
   }
 
   return (
@@ -539,22 +599,25 @@ function ProductsPage() {
 
             <div>
               <div className="flex items-center justify-between">
-                <Label>Size variants (optional)</Label>
-                <Button type="button" variant="outline" size="sm" onClick={() => setForm((f) => ({ ...f, sizes_json: [...f.sizes_json, { label: "", price: 0, in_stock: true }] }))}>
-                  <Plus className="w-3 h-3 mr-1" /> Add size
+                <Label>Variants (size / price / stock)</Label>
+                <Button type="button" variant="outline" size="sm" onClick={() => setForm((f) => ({ ...f, variants: [...f.variants, { size_label: "", price: 0, sale_price: null, stock_quantity: 0 }] }))}>
+                  <Plus className="w-3 h-3 mr-1" /> Add variant
                 </Button>
               </div>
-              <div className="mt-2 space-y-2">
-                {form.sizes_json.map((s, i) => (
-                  <div key={i} className="grid grid-cols-[1fr_110px_110px_auto_auto] gap-2 items-center">
-                    <Input placeholder="e.g. 50ml" value={s.label} onChange={(e) => updateSize(i, { label: e.target.value })} />
-                    <Input type="number" placeholder="Price" value={s.price} onChange={(e) => updateSize(i, { price: Number(e.target.value) })} />
-                    <Input type="number" placeholder="Sale" value={s.sale_price ?? ""} onChange={(e) => updateSize(i, { sale_price: e.target.value === "" ? null : Number(e.target.value) })} />
-                    <label className="flex items-center gap-2 cursor-pointer px-1" title="In stock">
-                      <Switch checked={s.in_stock !== false} onCheckedChange={(v) => updateSize(i, { in_stock: v })} />
-                      <span className="text-xs text-muted-foreground">Stock</span>
-                    </label>
-                    <Button type="button" variant="ghost" size="sm" onClick={() => setForm((f) => ({ ...f, sizes_json: f.sizes_json.filter((_, idx) => idx !== i) }))}>
+              <p className="text-xs text-muted-foreground mt-1">Each row is a stock-tracked size (e.g. 50ml). Leave empty to sell only the base product.</p>
+              {form.variants.length > 0 && (
+                <div className="grid grid-cols-[1fr_100px_100px_100px_auto] gap-2 items-center mt-2 px-1 text-xs text-muted-foreground">
+                  <span>Size</span><span>Price</span><span>Sale</span><span>Stock qty</span><span></span>
+                </div>
+              )}
+              <div className="mt-1 space-y-2">
+                {form.variants.map((v, i) => (
+                  <div key={v.id ?? `new-${i}`} className="grid grid-cols-[1fr_100px_100px_100px_auto] gap-2 items-center">
+                    <Input placeholder="e.g. 50ml" value={v.size_label} onChange={(e) => updateVariant(i, { size_label: e.target.value })} />
+                    <Input type="number" min={0} placeholder="Price" value={v.price} onChange={(e) => updateVariant(i, { price: Number(e.target.value) })} />
+                    <Input type="number" min={0} placeholder="Sale" value={v.sale_price ?? ""} onChange={(e) => updateVariant(i, { sale_price: e.target.value === "" ? null : Number(e.target.value) })} />
+                    <Input type="number" min={0} placeholder="Stock" value={v.stock_quantity} onChange={(e) => updateVariant(i, { stock_quantity: Math.max(0, Number(e.target.value) || 0) })} />
+                    <Button type="button" variant="ghost" size="sm" onClick={() => setForm((f) => ({ ...f, variants: f.variants.filter((_, idx) => idx !== i) }))}>
                       <X className="w-4 h-4" />
                     </Button>
                   </div>
