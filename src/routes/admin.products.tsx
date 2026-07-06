@@ -477,179 +477,195 @@ function ProductsPage() {
           <DialogHeader>
             <DialogTitle>{editing ? "Edit product" : "New product"}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div>
-              <Label>Images {form.images.length > 0 && <span className="text-xs text-muted-foreground font-normal">— drag thumbnails to reorder. First image is the main.</span>}</Label>
-              <div
-                className="mt-2 border-2 border-dashed rounded-lg p-3"
-                onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; }}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  if (e.dataTransfer.files?.length) uploadFiles(e.dataTransfer.files);
-                }}
-              >
-                <div className="flex flex-wrap gap-3">
-                  {form.images.map((url, i) => (
-                    <div
-                      key={url + i}
-                      draggable
-                      onDragStart={(e) => { e.dataTransfer.setData("text/img-idx", String(i)); e.dataTransfer.effectAllowed = "move"; }}
-                      onDragOver={(e) => { if (e.dataTransfer.types.includes("text/img-idx")) { e.preventDefault(); e.dataTransfer.dropEffect = "move"; } }}
-                      onDrop={(e) => {
-                        const raw = e.dataTransfer.getData("text/img-idx");
-                        if (!raw) return;
-                        e.preventDefault();
-                        e.stopPropagation();
-                        const from = Number(raw);
-                        if (!Number.isNaN(from) && from !== i) reorderImage(from, i);
-                      }}
-                      className="relative group w-24 h-24"
-                    >
-                      <img src={url} alt="" className="w-24 h-24 rounded-lg object-cover border cursor-move" />
-                      {i === 0 && <span className="absolute bottom-1 left-1 text-[10px] px-1.5 py-0.5 rounded bg-primary text-primary-foreground">Main</span>}
-                      <div className="absolute top-1 left-1 w-5 h-5 rounded bg-background/80 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                        <GripVertical className="w-3 h-3 text-muted-foreground" />
+          <Tabs defaultValue="basics" className="py-2">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="basics">Basics</TabsTrigger>
+              <TabsTrigger value="media">Media</TabsTrigger>
+              <TabsTrigger value="pricing">Pricing</TabsTrigger>
+              <TabsTrigger value="inventory">Inventory</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="basics" className="space-y-4 mt-4">
+              <div>
+                <Label htmlFor="name">Name</Label>
+                <Input id="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="mt-1" />
+              </div>
+              <div>
+                <Label htmlFor="short_desc">Short description</Label>
+                <Textarea id="short_desc" value={form.short_description} onChange={(e) => setForm({ ...form, short_description: e.target.value })} rows={2} placeholder="One-line tagline shown near the title" className="mt-1" />
+              </div>
+              <div>
+                <Label>Description</Label>
+                <div className="mt-1">
+                  <HtmlEditor value={form.description} onChange={(html) => setForm({ ...form, description: html })} />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="cat">Category</Label>
+                <select
+                  id="cat"
+                  value={form.category_id ?? ""}
+                  onChange={(e) => setForm({ ...form, category_id: e.target.value || null })}
+                  className="mt-1 w-full h-10 rounded-md border bg-background px-3 text-sm"
+                >
+                  <option value="">— None —</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <Label htmlFor="scent_profile">
+                  Scent profile <span className="text-destructive">*</span>
+                </Label>
+                <select
+                  id="scent_profile"
+                  required
+                  value={form.scent_profile}
+                  onChange={(e) => setForm({ ...form, scent_profile: e.target.value })}
+                  className="mt-1 w-full h-10 rounded-md border bg-background px-3 text-sm"
+                >
+                  <option value="">— Select a scent profile —</option>
+                  {noteOptions.map((n) => (
+                    <option key={n} value={n}>{n}</option>
+                  ))}
+                  {form.scent_profile && !noteOptions.includes(form.scent_profile) && (
+                    <option value={form.scent_profile}>{form.scent_profile} (custom)</option>
+                  )}
+                </select>
+                <p className="text-xs text-muted-foreground mt-1">Required. Scent profiles come from the admin Notes section and drive the storefront filter.</p>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="media" className="space-y-4 mt-4">
+              <div>
+                <Label>Images {form.images.length > 0 && <span className="text-xs text-muted-foreground font-normal">— drag thumbnails to reorder. First image is the main.</span>}</Label>
+                <div
+                  className="mt-2 border-2 border-dashed rounded-lg p-3"
+                  onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    if (e.dataTransfer.files?.length) uploadFiles(e.dataTransfer.files);
+                  }}
+                >
+                  <div className="flex flex-wrap gap-3">
+                    {form.images.map((url, i) => (
+                      <div
+                        key={url + i}
+                        draggable
+                        onDragStart={(e) => { e.dataTransfer.setData("text/img-idx", String(i)); e.dataTransfer.effectAllowed = "move"; }}
+                        onDragOver={(e) => { if (e.dataTransfer.types.includes("text/img-idx")) { e.preventDefault(); e.dataTransfer.dropEffect = "move"; } }}
+                        onDrop={(e) => {
+                          const raw = e.dataTransfer.getData("text/img-idx");
+                          if (!raw) return;
+                          e.preventDefault();
+                          e.stopPropagation();
+                          const from = Number(raw);
+                          if (!Number.isNaN(from) && from !== i) reorderImage(from, i);
+                        }}
+                        className="relative group w-24 h-24"
+                      >
+                        <img src={url} alt="" className="w-24 h-24 rounded-lg object-cover border cursor-move" />
+                        {i === 0 && <span className="absolute bottom-1 left-1 text-[10px] px-1.5 py-0.5 rounded bg-primary text-primary-foreground">Main</span>}
+                        <div className="absolute top-1 left-1 w-5 h-5 rounded bg-background/80 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                          <GripVertical className="w-3 h-3 text-muted-foreground" />
+                        </div>
+                        <button type="button" onClick={() => removeImage(i)} className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center">
+                          <X className="w-3 h-3" />
+                        </button>
                       </div>
-                      <button type="button" onClick={() => removeImage(i)} className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center">
-                        <X className="w-3 h-3" />
-                      </button>
+                    ))}
+                    <label className="w-24 h-24 rounded-lg border-2 border-dashed flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 text-center px-1">
+                      {uploading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
+                        <>
+                          <Upload className="w-5 h-5 text-muted-foreground" />
+                          <span className="text-[10px] text-muted-foreground mt-1">Click or drop</span>
+                        </>
+                      )}
+                      <input type="file" accept="image/*" multiple className="hidden" onChange={handleUpload} disabled={uploading} />
+                    </label>
+                    <div className="w-24 h-24">
+                      <MediaPicker
+                        label="Library"
+                        onPick={(url: string) => setForm((f) => f.images.includes(url) ? f : { ...f, images: [...f.images, url] })}
+                      />
+                    </div>
+                  </div>
+                  {form.images.length === 0 && (
+                    <p className="text-xs text-muted-foreground mt-2 text-center">Drop images, upload, or pick from the media library.</p>
+                  )}
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="pricing" className="space-y-4 mt-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label htmlFor="reg">Regular price (BDT)</Label>
+                  <Input id="reg" type="number" value={form.regular_price} onChange={(e) => setForm({ ...form, regular_price: Number(e.target.value) })} className="mt-1" />
+                </div>
+                <div>
+                  <Label htmlFor="sale">Sale price (optional)</Label>
+                  <Input id="sale" type="number" value={form.sale_price ?? ""} onChange={(e) => setForm({ ...form, sale_price: e.target.value === "" ? null : Number(e.target.value) })} className="mt-1" />
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">Base pricing is used when a product has no variants. Add variants below to sell per-size with their own pricing.</p>
+            </TabsContent>
+
+            <TabsContent value="inventory" className="space-y-4 mt-4">
+              <div>
+                <div className="flex items-center justify-between">
+                  <Label>Variants (size / price / stock)</Label>
+                  <Button type="button" variant="outline" size="sm" onClick={() => setForm((f) => ({ ...f, variants: [...f.variants, { size_label: "", price: 0, sale_price: null, stock_quantity: 0 }] }))}>
+                    <Plus className="w-3 h-3 mr-1" /> Add variant
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">Each row is a stock-tracked size (e.g. 50ml). Leave empty to sell only the base product.</p>
+                {form.variants.length > 0 && (
+                  <div className="grid grid-cols-[1fr_100px_100px_100px_auto] gap-2 items-center mt-2 px-1 text-xs text-muted-foreground">
+                    <span>Size</span><span>Price</span><span>Sale</span><span>Stock qty</span><span></span>
+                  </div>
+                )}
+                <div className="mt-1 space-y-2">
+                  {form.variants.map((v, i) => (
+                    <div key={v.id ?? `new-${i}`} className="grid grid-cols-[1fr_100px_100px_100px_auto] gap-2 items-center">
+                      <Input placeholder="e.g. 50ml" value={v.size_label} onChange={(e) => updateVariant(i, { size_label: e.target.value })} />
+                      <Input type="number" min={0} placeholder="Price" value={v.price} onChange={(e) => updateVariant(i, { price: Number(e.target.value) })} />
+                      <Input type="number" min={0} placeholder="Sale" value={v.sale_price ?? ""} onChange={(e) => updateVariant(i, { sale_price: e.target.value === "" ? null : Number(e.target.value) })} />
+                      <Input type="number" min={0} placeholder="Stock" value={v.stock_quantity} onChange={(e) => updateVariant(i, { stock_quantity: Math.max(0, Number(e.target.value) || 0) })} />
+                      <Button type="button" variant="ghost" size="sm" onClick={() => setForm((f) => ({ ...f, variants: f.variants.filter((_, idx) => idx !== i) }))}>
+                        <X className="w-4 h-4" />
+                      </Button>
                     </div>
                   ))}
-                  <label className="w-24 h-24 rounded-lg border-2 border-dashed flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 text-center px-1">
-                    {uploading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
-                      <>
-                        <Upload className="w-5 h-5 text-muted-foreground" />
-                        <span className="text-[10px] text-muted-foreground mt-1">Click or drop</span>
-                      </>
-                    )}
-                    <input type="file" accept="image/*" multiple className="hidden" onChange={handleUpload} disabled={uploading} />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 items-end pt-2 border-t">
+                <div>
+                  <Label htmlFor="qty">Base stock quantity</Label>
+                  <Input
+                    id="qty"
+                    type="number"
+                    min={0}
+                    value={form.stock_quantity}
+                    onChange={(e) => setForm({ ...form, stock_quantity: Math.max(0, Number(e.target.value) || 0) })}
+                    className="mt-1"
+                  />
+                </div>
+                <div className="flex gap-6 h-10 items-center">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
+                    <span className="text-sm">Active</span>
                   </label>
-                  <div className="w-24 h-24">
-                    <MediaPicker
-                      label="Library"
-                      onPick={(url: string) => setForm((f) => f.images.includes(url) ? f : { ...f, images: [...f.images, url] })}
-                    />
-                  </div>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <Switch checked={form.in_stock} onCheckedChange={(v) => setForm({ ...form, in_stock: v })} />
+                    <span className="text-sm">In stock</span>
+                  </label>
                 </div>
-                {form.images.length === 0 && (
-                  <p className="text-xs text-muted-foreground mt-2 text-center">Drop images, upload, or pick from the media library.</p>
-                )}
-
               </div>
-            </div>
-            <div>
-              <Label htmlFor="name">Name</Label>
-              <Input id="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="mt-1" />
-            </div>
-            <div>
-              <Label htmlFor="short_desc">Short description</Label>
-              <Textarea id="short_desc" value={form.short_description} onChange={(e) => setForm({ ...form, short_description: e.target.value })} rows={2} placeholder="One-line tagline shown near the title" className="mt-1" />
-            </div>
-            <div>
-              <Label>Description</Label>
-              <div className="mt-1">
-                <HtmlEditor value={form.description} onChange={(html) => setForm({ ...form, description: html })} />
-              </div>
-            </div>
-            <div>
-              <Label htmlFor="cat">Category</Label>
-              <select
-                id="cat"
-                value={form.category_id ?? ""}
-                onChange={(e) => setForm({ ...form, category_id: e.target.value || null })}
-                className="mt-1 w-full h-10 rounded-md border bg-background px-3 text-sm"
-              >
-                <option value="">— None —</option>
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <Label htmlFor="scent_profile">
-                Scent profile <span className="text-destructive">*</span>
-              </Label>
-              <select
-                id="scent_profile"
-                required
-                value={form.scent_profile}
-                onChange={(e) => setForm({ ...form, scent_profile: e.target.value })}
-                className="mt-1 w-full h-10 rounded-md border bg-background px-3 text-sm"
-              >
-                <option value="">— Select a scent profile —</option>
-                {noteOptions.map((n) => (
-                  <option key={n} value={n}>{n}</option>
-                ))}
-                {form.scent_profile && !noteOptions.includes(form.scent_profile) && (
-                  <option value={form.scent_profile}>{form.scent_profile} (custom)</option>
-                )}
-              </select>
-              <p className="text-xs text-muted-foreground mt-1">Required. Scent profiles come from the admin Notes section and drive the storefront filter.</p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label htmlFor="reg">Regular price (BDT)</Label>
-                <Input id="reg" type="number" value={form.regular_price} onChange={(e) => setForm({ ...form, regular_price: Number(e.target.value) })} className="mt-1" />
-              </div>
-              <div>
-                <Label htmlFor="sale">Sale price (optional)</Label>
-                <Input id="sale" type="number" value={form.sale_price ?? ""} onChange={(e) => setForm({ ...form, sale_price: e.target.value === "" ? null : Number(e.target.value) })} className="mt-1" />
-              </div>
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between">
-                <Label>Variants (size / price / stock)</Label>
-                <Button type="button" variant="outline" size="sm" onClick={() => setForm((f) => ({ ...f, variants: [...f.variants, { size_label: "", price: 0, sale_price: null, stock_quantity: 0 }] }))}>
-                  <Plus className="w-3 h-3 mr-1" /> Add variant
-                </Button>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">Each row is a stock-tracked size (e.g. 50ml). Leave empty to sell only the base product.</p>
-              {form.variants.length > 0 && (
-                <div className="grid grid-cols-[1fr_100px_100px_100px_auto] gap-2 items-center mt-2 px-1 text-xs text-muted-foreground">
-                  <span>Size</span><span>Price</span><span>Sale</span><span>Stock qty</span><span></span>
-                </div>
-              )}
-              <div className="mt-1 space-y-2">
-                {form.variants.map((v, i) => (
-                  <div key={v.id ?? `new-${i}`} className="grid grid-cols-[1fr_100px_100px_100px_auto] gap-2 items-center">
-                    <Input placeholder="e.g. 50ml" value={v.size_label} onChange={(e) => updateVariant(i, { size_label: e.target.value })} />
-                    <Input type="number" min={0} placeholder="Price" value={v.price} onChange={(e) => updateVariant(i, { price: Number(e.target.value) })} />
-                    <Input type="number" min={0} placeholder="Sale" value={v.sale_price ?? ""} onChange={(e) => updateVariant(i, { sale_price: e.target.value === "" ? null : Number(e.target.value) })} />
-                    <Input type="number" min={0} placeholder="Stock" value={v.stock_quantity} onChange={(e) => updateVariant(i, { stock_quantity: Math.max(0, Number(e.target.value) || 0) })} />
-                    <Button type="button" variant="ghost" size="sm" onClick={() => setForm((f) => ({ ...f, variants: f.variants.filter((_, idx) => idx !== i) }))}>
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 items-end">
-              <div>
-                <Label htmlFor="qty">Stock quantity</Label>
-                <Input
-                  id="qty"
-                  type="number"
-                  min={0}
-                  value={form.stock_quantity}
-                  onChange={(e) => setForm({ ...form, stock_quantity: Math.max(0, Number(e.target.value) || 0) })}
-                  className="mt-1"
-                />
-              </div>
-              <div className="flex gap-6 h-10 items-center">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
-                  <span className="text-sm">Active</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <Switch checked={form.in_stock} onCheckedChange={(v) => setForm({ ...form, in_stock: v })} />
-                  <span className="text-sm">In stock</span>
-                </label>
-              </div>
-            </div>
-          </div>
+            </TabsContent>
+          </Tabs>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
             <Button variant="luxe" onClick={() => save.mutate()} disabled={save.isPending || !form.name || !form.scent_profile}>
