@@ -599,22 +599,25 @@ function ProductsPage() {
 
             <div>
               <div className="flex items-center justify-between">
-                <Label>Size variants (optional)</Label>
-                <Button type="button" variant="outline" size="sm" onClick={() => setForm((f) => ({ ...f, sizes_json: [...f.sizes_json, { label: "", price: 0, in_stock: true }] }))}>
-                  <Plus className="w-3 h-3 mr-1" /> Add size
+                <Label>Variants (size / price / stock)</Label>
+                <Button type="button" variant="outline" size="sm" onClick={() => setForm((f) => ({ ...f, variants: [...f.variants, { size_label: "", price: 0, sale_price: null, stock_quantity: 0 }] }))}>
+                  <Plus className="w-3 h-3 mr-1" /> Add variant
                 </Button>
               </div>
-              <div className="mt-2 space-y-2">
-                {form.sizes_json.map((s, i) => (
-                  <div key={i} className="grid grid-cols-[1fr_110px_110px_auto_auto] gap-2 items-center">
-                    <Input placeholder="e.g. 50ml" value={s.label} onChange={(e) => updateSize(i, { label: e.target.value })} />
-                    <Input type="number" placeholder="Price" value={s.price} onChange={(e) => updateSize(i, { price: Number(e.target.value) })} />
-                    <Input type="number" placeholder="Sale" value={s.sale_price ?? ""} onChange={(e) => updateSize(i, { sale_price: e.target.value === "" ? null : Number(e.target.value) })} />
-                    <label className="flex items-center gap-2 cursor-pointer px-1" title="In stock">
-                      <Switch checked={s.in_stock !== false} onCheckedChange={(v) => updateSize(i, { in_stock: v })} />
-                      <span className="text-xs text-muted-foreground">Stock</span>
-                    </label>
-                    <Button type="button" variant="ghost" size="sm" onClick={() => setForm((f) => ({ ...f, sizes_json: f.sizes_json.filter((_, idx) => idx !== i) }))}>
+              <p className="text-xs text-muted-foreground mt-1">Each row is a stock-tracked size (e.g. 50ml). Leave empty to sell only the base product.</p>
+              {form.variants.length > 0 && (
+                <div className="grid grid-cols-[1fr_100px_100px_100px_auto] gap-2 items-center mt-2 px-1 text-xs text-muted-foreground">
+                  <span>Size</span><span>Price</span><span>Sale</span><span>Stock qty</span><span></span>
+                </div>
+              )}
+              <div className="mt-1 space-y-2">
+                {form.variants.map((v, i) => (
+                  <div key={v.id ?? `new-${i}`} className="grid grid-cols-[1fr_100px_100px_100px_auto] gap-2 items-center">
+                    <Input placeholder="e.g. 50ml" value={v.size_label} onChange={(e) => updateVariant(i, { size_label: e.target.value })} />
+                    <Input type="number" min={0} placeholder="Price" value={v.price} onChange={(e) => updateVariant(i, { price: Number(e.target.value) })} />
+                    <Input type="number" min={0} placeholder="Sale" value={v.sale_price ?? ""} onChange={(e) => updateVariant(i, { sale_price: e.target.value === "" ? null : Number(e.target.value) })} />
+                    <Input type="number" min={0} placeholder="Stock" value={v.stock_quantity} onChange={(e) => updateVariant(i, { stock_quantity: Math.max(0, Number(e.target.value) || 0) })} />
+                    <Button type="button" variant="ghost" size="sm" onClick={() => setForm((f) => ({ ...f, variants: f.variants.filter((_, idx) => idx !== i) }))}>
                       <X className="w-4 h-4" />
                     </Button>
                   </div>
