@@ -23,6 +23,7 @@ type Item = {
   unitPrice: number;
   size?: string | null;
   imageUrl?: string | null;
+  selections?: { productId: string; name: string }[] | null;
 };
 
 type Customer = { name?: string; phone?: string; email?: string; address?: string };
