@@ -73,12 +73,15 @@ export const validateReferral = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: ref, error } = await supabaseAdmin
       .from("referral_codes")
-      .select("code,discount_amount,is_active")
+      .select("code,discount_amount,discount_type,is_active")
       .ilike("code", data.code)
       .maybeSingle();
     if (error) throw new Error("Could not validate referral code");
     if (!ref || !ref.is_active) throw new Error("Invalid referral code");
-    const refDiscount = Math.max(0, ref.discount_amount ?? 0);
+    const raw = Math.max(0, ref.discount_amount ?? 0);
+    const refDiscount = ref.discount_type === "percent"
+      ? Math.floor((data.subtotal * Math.min(raw, 100)) / 100)
+      : raw;
     if (refDiscount <= 0) throw new Error("Referral code has no discount");
     return { code: ref.code, discount: Math.min(refDiscount, data.subtotal) };
   });
