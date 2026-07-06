@@ -12,6 +12,8 @@ export type CartItem = {
   regularPrice: number;
   quantity: number;
   size?: string | null;
+  /** For products with size variants: the chosen product_variants.id */
+  variantId?: string | null;
   /** For BYOB combos: the chosen product ids the customer picked. */
   selections?: { productId: string; name: string }[];
 };
