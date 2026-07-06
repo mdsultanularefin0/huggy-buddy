@@ -55,14 +55,14 @@ export async function runImapSync(): Promise<{
             { source: true, envelope: true },
             { uid: true },
           );
-          if (!msg?.source) { stats.errors++; continue; }
+          if (!msg || msg === false || !msg.source) { stats.errors++; continue; }
           const parsed = await simpleParser(msg.source as Buffer);
           const fromAddr = parsed.from?.value?.[0];
           const email = fromAddr?.address ?? "unknown@unknown";
           const name = fromAddr?.name || email.split("@")[0];
           const subject = parsed.subject || "(no subject)";
-          const body =
-            parsed.text || parsed.html?.replace(/<[^>]+>/g, " ") || "";
+          const htmlBody = typeof parsed.html === "string" ? parsed.html : "";
+          const body = parsed.text || htmlBody.replace(/<[^>]+>/g, " ") || "";
           const messageId = parsed.messageId || `${creds.host}:${uid}`;
 
           const { error: insertErr } = await supabaseAdmin
