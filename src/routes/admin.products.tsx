@@ -176,7 +176,6 @@ function ProductsPage() {
         if (error) throw error;
       }
     },
-    },
     onSuccess: () => {
       toast.success(editing ? "Product updated" : "Product created");
       qc.invalidateQueries({ queryKey: ["admin", "products"] });
