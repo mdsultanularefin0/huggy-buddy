@@ -68,6 +68,33 @@ function CheckoutPage() {
   const createOrderFn = useServerFn(createOrder);
   const validateCouponFn = useServerFn(validateCoupon);
   const validateReferralFn = useServerFn(validateReferral);
+  const trackMetaEventFn = useServerFn(trackMetaEvent);
+
+  // InitiateCheckout — fire once per mount when cart has items.
+  const initFired = useRef(false);
+  useEffect(() => {
+    if (initFired.current || items.length === 0) return;
+    initFired.current = true;
+    const eventId = `ic-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const value = items.reduce((s, i) => s + i.unitPrice * i.quantity, 0);
+    const payload = {
+      currency: "BDT",
+      value,
+      content_type: "product",
+      content_ids: items.map((i) => i.refId),
+      num_items: items.reduce((n, i) => n + i.quantity, 0),
+    };
+    fbqTrack("InitiateCheckout", payload, eventId);
+    void trackMetaEventFn({
+      data: {
+        event_name: "InitiateCheckout",
+        event_id: eventId,
+        event_source_url: typeof window !== "undefined" ? window.location.href : undefined,
+        custom_data: payload,
+      },
+    }).catch(() => { /* CAPI optional */ });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
