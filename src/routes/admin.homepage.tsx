@@ -299,7 +299,7 @@ function HomepagePage() {
       </div>
 
       <Tabs defaultValue="hero" className="w-full">
-        <TabsList className="grid grid-cols-3 sm:grid-cols-9 w-full h-auto">
+        <TabsList className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-11 w-full h-auto gap-1">
           <TabsTrigger value="visibility">Visibility</TabsTrigger>
           <TabsTrigger value="hero">Hero</TabsTrigger>
           <TabsTrigger value="banner">Banner</TabsTrigger>
