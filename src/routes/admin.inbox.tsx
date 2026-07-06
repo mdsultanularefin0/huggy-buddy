@@ -116,6 +116,21 @@ function AdminInbox() {
 
   const unreadCount = messages.filter((m) => m.status === "unread").length;
 
+  const compose = useServerFn(sendAdminEmail);
+  const [composeOpen, setComposeOpen] = useState(false);
+  const [composeTo, setComposeTo] = useState("");
+  const [composeSubject, setComposeSubject] = useState("");
+  const [composeBody, setComposeBody] = useState("");
+  const composeMut = useMutation({
+    mutationFn: (input: { to: string; subject: string; message: string }) => compose({ data: input }),
+    onSuccess: () => {
+      toast.success("Email sent");
+      setComposeOpen(false);
+      setComposeTo(""); setComposeSubject(""); setComposeBody("");
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Send failed"),
+  });
+
   return (
     <div className="space-y-5 max-w-6xl">
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 sm:flex sm:flex-wrap sm:justify-between">
@@ -125,10 +140,16 @@ function AdminInbox() {
             Contact form submissions and IMAP replies. {unreadCount > 0 && <span className="text-foreground font-medium">{unreadCount} unread</span>}
           </p>
         </div>
-        <Button variant="outline" size="sm" className="shrink-0" onClick={() => syncMut.mutate()} disabled={syncMut.isPending}>
-          {syncMut.isPending ? <Loader2 className="w-4 h-4 sm:mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 sm:mr-2" />}
-          <span className="hidden sm:inline">Sync IMAP</span>
-        </Button>
+        <div className="flex gap-2 shrink-0">
+          <Button size="sm" onClick={() => setComposeOpen(true)}>
+            <PenSquare className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">Compose</span>
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => syncMut.mutate()} disabled={syncMut.isPending}>
+            {syncMut.isPending ? <Loader2 className="w-4 h-4 sm:mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 sm:mr-2" />}
+            <span className="hidden sm:inline">Sync IMAP</span>
+          </Button>
+        </div>
       </div>
 
       <Card className="grid grid-cols-1 md:grid-cols-[300px_1fr] lg:grid-cols-[340px_1fr] overflow-hidden h-[calc(100vh-200px)] min-h-[500px]">
