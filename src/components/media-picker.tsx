@@ -217,7 +217,7 @@ export function MediaPicker({ onPick, label = "Library" }: { onPick: (url: strin
                   <img src={m.url} alt={m.name} className="w-full h-full object-cover" loading="lazy" />
                 </button>
                 <span className="absolute top-1 left-1 text-[10px] px-1.5 py-0.5 rounded bg-black/60 text-white">
-                  {m.bucket.replace("-images", "")}
+                  {m.bucket === MEDIA_SERVER ? "server" : m.bucket.replace("-images", "")}
                 </span>
                 <div className="absolute bottom-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition">
                   <button
