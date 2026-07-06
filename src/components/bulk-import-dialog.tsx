@@ -136,13 +136,15 @@ export function BulkImportDialog({ open, onOpenChange }: Props) {
         res.data.forEach((raw, i) => {
           const row: Partial<ParsedRow> = {};
           for (const [csvHeader, key] of Object.entries(HEADER_MAP)) {
-            if (raw[csvHeader] !== undefined) {
-              const val = raw[csvHeader].trim();
-              if (key === "variant_price" || key === "variant_stock") {
-                (row as Record<string, unknown>)[key] = Number(val || 0);
-              } else {
-                (row as Record<string, unknown>)[key] = val;
-              }
+            const cell = raw[csvHeader];
+            if (cell === undefined) continue;
+            const val = cell.trim();
+            if (NUMBER_KEYS.has(key)) {
+              (row as Record<string, unknown>)[key] = val === "" ? null : Number(val);
+            } else if (BOOL_KEYS.has(key)) {
+              (row as Record<string, unknown>)[key] = parseBool(val);
+            } else {
+              (row as Record<string, unknown>)[key] = val;
             }
           }
           if (!row.product_handle || !row.product_name || !row.variant_size_label) {
@@ -153,11 +155,18 @@ export function BulkImportDialog({ open, onOpenChange }: Props) {
             product_handle: row.product_handle,
             product_name: row.product_name,
             description: row.description ?? "",
+            short_description: row.short_description ?? "",
             category_slug: row.category_slug ?? "",
             scent_profile: row.scent_profile ?? "",
+            badge: row.badge ?? "",
+            image_url: row.image_url ?? "",
+            sale_price: row.sale_price ?? null,
+            is_active: row.is_active,
             variant_size_label: row.variant_size_label,
             variant_price: Number(row.variant_price ?? 0),
+            variant_sale_price: row.variant_sale_price ?? null,
             variant_stock: Number(row.variant_stock ?? 0),
+            variant_sort_order: row.variant_sort_order ?? undefined,
           });
         });
         setRows(parsed);
