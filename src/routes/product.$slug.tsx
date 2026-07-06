@@ -140,26 +140,26 @@ export const Route = createFileRoute("/product/$slug")({
 function ProductPage() {
   const { slug } = Route.useParams();
   const { data: product } = useSuspenseQuery(productOptions(slug));
-  const sizes = product?.sizes_json ?? [];
-  const [sizeIdx, setSizeIdx] = useState<number | null>(null);
+  const variants = product?.product_variants ?? [];
+  const [variantIdx, setVariantIdx] = useState<number | null>(null);
   const [qty, setQty] = useState(1);
   const add = useCart((s) => s.add);
 
   if (!product) return null;
-  const needsSize = sizes.length > 0;
-  const chosen = sizeIdx !== null ? sizes[sizeIdx] : undefined;
+  const needsVariant = variants.length > 0;
+  const chosen = variantIdx !== null ? variants[variantIdx] : undefined;
   const regular = chosen?.price ?? product.regular_price;
   const sale = chosen?.sale_price ?? product.sale_price;
   const price = effectivePrice(regular, sale);
-  const chosenOut = chosen ? chosen.in_stock === false : false;
-  const canAdd = product.in_stock && !chosenOut && (!needsSize || sizeIdx !== null);
+  const chosenOut = chosen ? chosen.stock_quantity <= 0 : false;
+  const canAdd = product.in_stock && !chosenOut && (!needsVariant || variantIdx !== null);
 
   const handleAdd = () => {
     if (!product.in_stock) {
       toast.error("This product is currently out of stock");
       return;
     }
-    if (needsSize && sizeIdx === null) {
+    if (needsVariant && variantIdx === null) {
       toast.error("Please select a size before adding to cart");
       return;
     }
@@ -172,6 +172,7 @@ function ProductPage() {
       lineId: `product:${product.slug}:${sizeLabel ?? "default"}`,
       kind: "product",
       refId: product.id,
+      variantId: chosen?.id ?? null,
       name: product.name,
       imageUrl: product.image_url,
       unitPrice: price,
