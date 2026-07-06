@@ -79,6 +79,13 @@ function OrderDetail() {
                 <p className="font-medium text-sm">{it.name}</p>
                 {it.size && <p className="text-xs text-muted-foreground">{it.size}</p>}
                 <p className="text-xs text-muted-foreground">Qty {it.quantity}</p>
+                {it.selections && it.selections.length > 0 && (
+                  <ul className="mt-1 text-xs text-muted-foreground list-disc list-inside">
+                    {it.selections.map((s, si) => (
+                      <li key={si}>{s.name}</li>
+                    ))}
+                  </ul>
+                )}
               </div>
               <p className="text-sm font-semibold">{formatBDT(it.unitPrice * it.quantity)}</p>
             </div>
