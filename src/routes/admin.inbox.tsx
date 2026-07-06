@@ -132,6 +132,17 @@ function AdminInbox() {
     onError: (e) => toast.error(e instanceof Error ? e.message : "Send failed"),
   });
 
+  const listSent = useServerFn(listSentEmails);
+  const [auditOpen, setAuditOpen] = useState(false);
+  const { data: sentRows, isLoading: sentLoading, refetch: refetchSent, isFetching: sentFetching } = useQuery({
+    queryKey: ["email-audit-log"],
+    queryFn: () => listSent() as Promise<Array<{
+      id: string; to_email: string; subject: string; kind: string; status: string;
+      error: string | null; sent_by_email: string | null; created_at: string;
+    }>>,
+    enabled: auditOpen,
+  });
+
   return (
     <div className="space-y-5 max-w-6xl">
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 sm:flex sm:flex-wrap sm:justify-between">
@@ -146,12 +157,17 @@ function AdminInbox() {
             <PenSquare className="w-4 h-4 sm:mr-2" />
             <span className="hidden sm:inline">Compose</span>
           </Button>
+          <Button variant="outline" size="sm" onClick={() => setAuditOpen(true)}>
+            <History className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">Sent log</span>
+          </Button>
           <Button variant="outline" size="sm" onClick={() => syncMut.mutate()} disabled={syncMut.isPending}>
             {syncMut.isPending ? <Loader2 className="w-4 h-4 sm:mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 sm:mr-2" />}
             <span className="hidden sm:inline">Sync IMAP</span>
           </Button>
         </div>
       </div>
+
 
       <Card className="grid grid-cols-1 md:grid-cols-[300px_1fr] lg:grid-cols-[340px_1fr] overflow-hidden h-[calc(100vh-200px)] min-h-[500px]">
         {/* Left pane — list */}
