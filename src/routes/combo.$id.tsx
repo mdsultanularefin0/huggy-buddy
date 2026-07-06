@@ -240,7 +240,7 @@ function ComboPage() {
                 title={outOfStock ? "Out of stock" : undefined}
                 className={`group relative text-left bg-[#f5edff] rounded-3xl transition-all duration-300 ${
                   checked ? "ring-2 ring-[#52277a] shadow-[0_20px_40px_-15px_rgba(82,39,122,0.35)]" : "hover:shadow-[0_20px_40px_-15px_rgba(82,39,122,0.2)]"
-                } ${disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}`}
+                } ${disabled && !outOfStock ? "opacity-40 cursor-not-allowed" : ""} ${outOfStock ? "cursor-not-allowed" : "cursor-pointer"}`}
               >
                 {checked && (
                   <span className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-[#52277a] text-white flex items-center justify-center shadow-lg">
