@@ -266,7 +266,7 @@ function ProductsPage() {
     const imgs = Array.isArray(pAny.images_json) ? (pAny.images_json as string[]).filter(Boolean) : [];
     const { data: vRows } = await (supabase as any)
       .from("product_variants")
-      .select("id,size_label,price,sale_price,stock_quantity,sort_order")
+      .select("id,size_label,price,sale_price,stock_quantity,in_stock,sort_order")
       .eq("product_id", p.id)
       .order("sort_order");
     const variants: Variant[] = (vRows ?? []).map((v: Variant) => ({
@@ -275,6 +275,7 @@ function ProductsPage() {
       price: v.price,
       sale_price: v.sale_price ?? null,
       stock_quantity: v.stock_quantity ?? 0,
+      in_stock: v.in_stock ?? ((v.stock_quantity ?? 0) === 0),
     }));
     setForm({
       name: p.name,
