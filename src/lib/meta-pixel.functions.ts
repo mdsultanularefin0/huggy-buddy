@@ -199,8 +199,9 @@ export const testMetaPixelConnection = createServerFn({ method: "POST" })
       custom_data: { source: "admin_test" },
     });
     if (!r.ok) throw new Error(r.error ?? "CAPI test failed");
-    return { ok: true, response: r.response };
+    return { ok: true, response: JSON.stringify(r.response ?? {}) };
   });
+
 
 // -------- Public wrapper: send an event from the browser (PageView etc.) --------
 const trackSchema = z.object({
