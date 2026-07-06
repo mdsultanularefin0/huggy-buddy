@@ -194,6 +194,8 @@ function ProductPage() {
   const canAdd = product.in_stock && !chosenOut && (!needsVariant || variantIdx !== null);
 
   const handleAdd = () => {
+    // Guard against rapid repeat clicks racing React's re-render.
+    if (isAdding) return;
     if (!product.in_stock) {
       toast.error("This product is currently out of stock");
       return;
