@@ -70,7 +70,7 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
           {effectiveLogo ? (
             <img
               src={effectiveLogo}
-              alt="Site logo"
+              alt="Veloura Essence luxury fragrance logo"
               style={{ height: effectiveLogoSize }}
               className="w-auto object-contain"
               fetchPriority="high"

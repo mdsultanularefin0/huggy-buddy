@@ -5,3 +5,5 @@ Disallow: /account
 Disallow: /checkout
 Disallow: /auth
 Disallow: /reset-password
+
+Sitemap: https://heart-hug-light.lovable.app/sitemap.xml

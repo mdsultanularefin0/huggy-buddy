@@ -111,14 +111,26 @@ export const Route = createFileRoute("/category/$slug")({
   validateSearch: zodValidator(listingSearchSchema),
   loader: ({ context, params }) => context.queryClient.ensureQueryData(categoryPageOptions(params.slug)),
 
-  head: ({ params }) => ({
-    meta: [
-      { title: `${params.slug.replace(/-/g, " ")} — Veloura Essence` },
-      { name: "description", content: `Shop the ${params.slug.replace(/-/g, " ")} collection at Veloura Essence.` },
-      { property: "og:url", content: `/category/${params.slug}` },
-    ],
-    links: [{ rel: "canonical", href: `/category/${params.slug}` }],
-  }),
+  head: ({ params }) => {
+    const label = params.slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+    const title = `${label} Fragrances — Veloura Essence`;
+    const description = `Shop the ${label} collection at Veloura Essence — premium perfumes, long-lasting silage, delivered across Bangladesh.`;
+    const path = `/category/${params.slug}`;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "website" },
+        { property: "og:url", content: path },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: description },
+      ],
+      links: [{ rel: "canonical", href: path }],
+    };
+  },
   component: CategoryPage,
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
   notFoundComponent: () => (

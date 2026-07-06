@@ -31,6 +31,7 @@ import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
 import { Route as OrderIdRouteImport } from './routes/order.$id'
 import { Route as InvoiceIdRouteImport } from './routes/invoice.$id'
+import { Route as GuideHowToLayerFragrancesRouteImport } from './routes/guide.how-to-layer-fragrances'
 import { Route as ComboIdRouteImport } from './routes/combo.$id'
 import { Route as CategorySlugRouteImport } from './routes/category.$slug'
 import { Route as AdminZonesRouteImport } from './routes/admin.zones'
@@ -170,6 +171,12 @@ const InvoiceIdRoute = InvoiceIdRouteImport.update({
   path: '/invoice/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GuideHowToLayerFragrancesRoute =
+  GuideHowToLayerFragrancesRouteImport.update({
+    id: '/guide/how-to-layer-fragrances',
+    path: '/guide/how-to-layer-fragrances',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ComboIdRoute = ComboIdRouteImport.update({
   id: '/combo/$id',
   path: '/combo/$id',
@@ -361,6 +368,7 @@ export interface FileRoutesByFullPath {
   '/admin/zones': typeof AdminZonesRoute
   '/category/$slug': typeof CategorySlugRoute
   '/combo/$id': typeof ComboIdRoute
+  '/guide/how-to-layer-fragrances': typeof GuideHowToLayerFragrancesRoute
   '/invoice/$id': typeof InvoiceIdRoute
   '/order/$id': typeof OrderIdRoute
   '/product/$slug': typeof ProductSlugRoute
@@ -411,6 +419,7 @@ export interface FileRoutesByTo {
   '/admin/zones': typeof AdminZonesRoute
   '/category/$slug': typeof CategorySlugRoute
   '/combo/$id': typeof ComboIdRoute
+  '/guide/how-to-layer-fragrances': typeof GuideHowToLayerFragrancesRoute
   '/invoice/$id': typeof InvoiceIdRoute
   '/order/$id': typeof OrderIdRoute
   '/product/$slug': typeof ProductSlugRoute
@@ -465,6 +474,7 @@ export interface FileRoutesById {
   '/admin/zones': typeof AdminZonesRoute
   '/category/$slug': typeof CategorySlugRoute
   '/combo/$id': typeof ComboIdRoute
+  '/guide/how-to-layer-fragrances': typeof GuideHowToLayerFragrancesRoute
   '/invoice/$id': typeof InvoiceIdRoute
   '/order/$id': typeof OrderIdRoute
   '/product/$slug': typeof ProductSlugRoute
@@ -519,6 +529,7 @@ export interface FileRouteTypes {
     | '/admin/zones'
     | '/category/$slug'
     | '/combo/$id'
+    | '/guide/how-to-layer-fragrances'
     | '/invoice/$id'
     | '/order/$id'
     | '/product/$slug'
@@ -569,6 +580,7 @@ export interface FileRouteTypes {
     | '/admin/zones'
     | '/category/$slug'
     | '/combo/$id'
+    | '/guide/how-to-layer-fragrances'
     | '/invoice/$id'
     | '/order/$id'
     | '/product/$slug'
@@ -622,6 +634,7 @@ export interface FileRouteTypes {
     | '/admin/zones'
     | '/category/$slug'
     | '/combo/$id'
+    | '/guide/how-to-layer-fragrances'
     | '/invoice/$id'
     | '/order/$id'
     | '/product/$slug'
@@ -656,6 +669,7 @@ export interface RootRouteChildren {
   UnsubscribeRoute: typeof UnsubscribeRoute
   CategorySlugRoute: typeof CategorySlugRoute
   ComboIdRoute: typeof ComboIdRoute
+  GuideHowToLayerFragrancesRoute: typeof GuideHowToLayerFragrancesRoute
   InvoiceIdRoute: typeof InvoiceIdRoute
   OrderIdRoute: typeof OrderIdRoute
   ProductSlugRoute: typeof ProductSlugRoute
@@ -815,6 +829,13 @@ declare module '@tanstack/react-router' {
       path: '/invoice/$id'
       fullPath: '/invoice/$id'
       preLoaderRoute: typeof InvoiceIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guide/how-to-layer-fragrances': {
+      id: '/guide/how-to-layer-fragrances'
+      path: '/guide/how-to-layer-fragrances'
+      fullPath: '/guide/how-to-layer-fragrances'
+      preLoaderRoute: typeof GuideHowToLayerFragrancesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/combo/$id': {
@@ -1127,6 +1148,7 @@ const rootRouteChildren: RootRouteChildren = {
   UnsubscribeRoute: UnsubscribeRoute,
   CategorySlugRoute: CategorySlugRoute,
   ComboIdRoute: ComboIdRoute,
+  GuideHowToLayerFragrancesRoute: GuideHowToLayerFragrancesRoute,
   InvoiceIdRoute: InvoiceIdRoute,
   OrderIdRoute: OrderIdRoute,
   ProductSlugRoute: ProductSlugRoute,
