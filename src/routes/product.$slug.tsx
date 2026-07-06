@@ -152,7 +152,7 @@ function ProductPage() {
   const regular = chosen?.price ?? product.regular_price;
   const sale = chosen?.sale_price ?? product.sale_price;
   const price = effectivePrice(regular, sale);
-  const chosenOut = chosen ? (!chosen.in_stock && chosen.stock_quantity <= 0) : false;
+  const chosenOut = product.in_stock ? false : true;
   const canAdd = product.in_stock && !chosenOut && (!needsVariant || variantIdx !== null);
 
   const handleAdd = () => {
