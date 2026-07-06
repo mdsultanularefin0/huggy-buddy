@@ -2,7 +2,6 @@
 // /api/public/mail/sync route. Kept out of .functions.ts to avoid the
 // tss-serverfn-split transformer stripping / dropping it.
 import { ImapFlow } from "imapflow";
-import { simpleParser } from "mailparser";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { decryptJson } from "@/lib/integration-crypto.server";
 
