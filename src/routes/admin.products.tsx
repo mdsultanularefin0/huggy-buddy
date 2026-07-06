@@ -292,11 +292,16 @@ function ProductsPage() {
       if (activeFilter === "inactive" && p.is_active) return false;
       if (stockFilter === "in" && p.in_stock === false) return false;
       if (stockFilter === "out" && p.in_stock !== false) return false;
-      if (categoryFilter !== "all" && (p.category_id ?? "") !== categoryFilter) return false;
+      if (categoryFilter !== "all") {
+        const cids = categoryIdsByProduct.get(p.id) ?? [];
+        const legacy = p.category_id ?? "";
+        if (!cids.includes(categoryFilter) && legacy !== categoryFilter) return false;
+      }
       if (s && !p.name.toLowerCase().includes(s)) return false;
       return true;
     });
-  }, [products, search, activeFilter, stockFilter, categoryFilter]);
+  }, [products, search, activeFilter, stockFilter, categoryFilter, categoryIdsByProduct]);
+
 
   const selection = useSelection(filtered);
 
