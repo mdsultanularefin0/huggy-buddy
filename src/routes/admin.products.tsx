@@ -317,8 +317,8 @@ function ProductsPage() {
     setForm((f) => ({ ...f, images: f.images.filter((_, idx) => idx !== i) }));
   }
 
-  function updateSize(i: number, patch: Partial<Size>) {
-    setForm((f) => ({ ...f, sizes_json: f.sizes_json.map((s, idx) => (idx === i ? { ...s, ...patch } : s)) }));
+  function updateVariant(i: number, patch: Partial<Variant>) {
+    setForm((f) => ({ ...f, variants: f.variants.map((s, idx) => (idx === i ? { ...s, ...patch } : s)) }));
   }
 
   return (
