@@ -10,9 +10,9 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Mail, CheckCircle2, Inbox as InboxIcon, RefreshCw, Trash2, ArrowLeft, Reply, Send } from "lucide-react";
+import { Loader2, Mail, CheckCircle2, Inbox as InboxIcon, RefreshCw, Trash2, ArrowLeft, Reply, Send, PenSquare } from "lucide-react";
 import { toast } from "sonner";
-import { listContactMessages, updateContactStatus, syncImapInbox, deleteContactMessage, replyToContactMessage } from "@/lib/email.functions";
+import { listContactMessages, updateContactStatus, syncImapInbox, deleteContactMessage, replyToContactMessage, sendAdminEmail } from "@/lib/email.functions";
 
 export const Route = createFileRoute("/admin/inbox")({
   head: () => ({ meta: [{ title: "Support Inbox — Admin" }, { name: "robots", content: "noindex" }] }),
