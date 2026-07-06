@@ -344,13 +344,14 @@ function ProductPage() {
             </div>
           </div>
 
-          <button
+          <Button
             onClick={handleAdd}
             disabled={!canAdd}
-            className="mt-4 w-full bg-[#52277a] hover:bg-[#3f1d5e] disabled:opacity-50 text-white rounded-2xl py-4 font-semibold transition-colors"
+            isLoading={isAdding}
+            className="mt-4 w-full bg-[#52277a] hover:bg-[#3f1d5e] disabled:opacity-50 text-white rounded-2xl py-4 font-semibold h-auto"
           >
             {!product.in_stock ? "Out of stock" : needsVariant && variantIdx === null ? "Select a size" : chosenOut ? "Variant out of stock" : "Add to Cart"}
-          </button>
+          </Button>
 
           <Accordion type="single" collapsible className="mt-8">
             <AccordionItem value="notes">
