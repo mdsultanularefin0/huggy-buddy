@@ -76,9 +76,10 @@ function OrdersPage() {
 
   useEffect(() => { setPage(1); }, [statusFilter]);
 
-  const { data: pageData, isLoading, isError, error } = useQuery({
+  const { data: pageData, isLoading, isFetching, isError, error } = useQuery({
     queryKey: ["admin", "orders", statusFilter, page, limit],
     queryFn: () => fetchOrders({ data: { statusFilter, page, limit } }),
+    placeholderData: (prev) => prev,
   });
   const orders: Order[] = pageData?.orders ?? [];
   const total = pageData?.total ?? 0;
