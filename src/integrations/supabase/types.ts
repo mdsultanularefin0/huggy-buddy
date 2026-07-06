@@ -239,6 +239,42 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_messages: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          phone: string | null
+          status: Database["public"]["Enums"]["contact_status"]
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+          phone?: string | null
+          status?: Database["public"]["Enums"]["contact_status"]
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          phone?: string | null
+          status?: Database["public"]["Enums"]["contact_status"]
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       coupons: {
         Row: {
           code: string
@@ -1285,6 +1321,7 @@ export type Database = {
     Enums: {
       app_role: "admin" | "customer"
       combo_type: "prebuilt" | "byob"
+      contact_status: "unread" | "read" | "resolved"
       order_status:
         | "Pending"
         | "Processing"
@@ -1429,6 +1466,7 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "customer"],
       combo_type: ["prebuilt", "byob"],
+      contact_status: ["unread", "read", "resolved"],
       order_status: [
         "Pending",
         "Processing",

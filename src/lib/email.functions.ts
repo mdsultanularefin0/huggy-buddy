@@ -44,6 +44,8 @@ export async function sendMail(opts: {
   const creds = await loadSmtpCreds();
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const toStr = Array.isArray(opts.to) ? opts.to.join(", ") : opts.to;
+  // Always route replies to the admin inbox (falls back to the from address).
+  const replyTo = opts.replyTo ?? creds.admin_email ?? creds.from_email;
   try {
     const nodemailer = (await import("nodemailer")).default;
     const transporter = nodemailer.createTransport({
@@ -55,7 +57,7 @@ export async function sendMail(opts: {
     await transporter.sendMail({
       from: `"${creds.from_name}" <${creds.from_email}>`,
       to: opts.to,
-      replyTo: opts.replyTo,
+      replyTo,
       subject: opts.subject,
       html: opts.html,
       text: opts.text ?? opts.html.replace(/<[^>]+>/g, ""),
@@ -72,6 +74,7 @@ export async function sendMail(opts: {
     return { ok: false, error: msg };
   }
 }
+
 
 // ---------------- Admin: status / save / delete / test ----------------
 export const getSmtpStatus = createServerFn({ method: "GET" })
@@ -161,6 +164,34 @@ const contactSchema = z.object({
 export const sendContactMessage = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => contactSchema.parse(d))
   .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // 1) Persist first so no inquiry is ever lost, even if SMTP fails.
+    const { error: insertErr } = await supabaseAdmin.from("contact_messages").insert({
+      name: data.name,
+      email: data.email,
+      phone: data.phone || null,
+      subject: data.subject,
+      message: data.message,
+      status: "unread",
+    });
+    if (insertErr) throw new Error("Could not save your message. Please try again.");
+
+    // 2) Fire-and-forget webhook for external automations (Zapier/Make/etc.).
+    const webhookUrl = process.env.ADMIN_WEBHOOK_URL;
+    if (webhookUrl) {
+      try {
+        await fetch(webhookUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type: "contact_message", ...data, received_at: new Date().toISOString() }),
+        });
+      } catch {
+        // Non-fatal: the message is already stored in the DB.
+      }
+    }
+
+    // 3) Notify the admin over SMTP.
     const creds = await loadSmtpCreds();
     const to = creds.admin_email || creds.from_email;
     const safe = (s: string) =>
@@ -178,9 +209,10 @@ export const sendContactMessage = createServerFn({ method: "POST" })
       subject: `[Contact] ${data.subject}`,
       html, kind: "contact",
     });
-    if (!r.ok) throw new Error("Could not send message. Please try again later.");
-    return { ok: true };
+    // Even if SMTP fails, the row is saved — surface a soft warning but don't hard-fail.
+    return { ok: true, emailed: r.ok };
   });
+
 
 // ---------------- Public: newsletter subscribe ----------------
 const subscribeSchema = z.object({
@@ -317,4 +349,39 @@ export const listEmailLog = createServerFn({ method: "GET" })
       .order("created_at", { ascending: false }).limit(200);
     if (error) throw new Error(error.message);
     return data ?? [];
+  });
+
+// ---------------- Admin: Contact inbox ----------------
+export const listContactMessages = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.userId, context.supabase);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("contact_messages")
+      .select("id, name, email, phone, subject, message, status, created_at")
+      // Unread first, then newest first.
+      .order("status", { ascending: true })
+      .order("created_at", { ascending: false })
+      .limit(500);
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+const updateContactSchema = z.object({
+  id: z.string().uuid(),
+  status: z.enum(["unread", "read", "resolved"]),
+});
+export const updateContactStatus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => updateContactSchema.parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId, context.supabase);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("contact_messages")
+      .update({ status: data.status })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });
