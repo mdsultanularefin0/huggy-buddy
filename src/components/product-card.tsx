@@ -32,6 +32,12 @@ export function ProductCard({ product }: { product: ProductCardData }) {
           {product.badge}
         </span>
       )}
+      {onSale && !outOfStock && (
+        <span className="absolute top-3 right-3 z-10 px-2.5 py-1 rounded-full bg-[#a555f0] text-white text-[10px] font-bold tracking-widest uppercase shadow-md">
+          Sale
+        </span>
+      )}
+
       <div className={`relative aspect-[4/5] overflow-hidden rounded-3xl bg-[#ece2f7] ${outOfStock ? "opacity-70" : ""}`}>
         {product.image_url ? (
           <img
