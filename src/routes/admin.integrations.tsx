@@ -506,13 +506,21 @@ function ImapCard() {
   const [secure, setSecure] = useState(true);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [mailbox, setMailbox] = useState("INBOX");
+  const [mailboxes, setMailboxes] = useState("INBOX");
   const [markSeen, setMarkSeen] = useState(true);
+  const [importAll, setImportAll] = useState(false);
 
   const save = useMutation({
-    mutationFn: () => saveFn({ data: {
-      host, port, secure, username, password, mailbox, mark_seen: markSeen,
-    } }),
+    mutationFn: () => {
+      const list = mailboxes.split(",").map((s) => s.trim()).filter(Boolean);
+      return saveFn({ data: {
+        host, port, secure, username, password,
+        mailbox: list[0] || "INBOX",
+        mailboxes: list,
+        mark_seen: markSeen,
+        import_all: importAll,
+      } });
+    },
     onSuccess: () => {
       toast.success("IMAP credentials saved");
       setPassword("");
@@ -571,7 +579,8 @@ function ImapCard() {
       <CardContent className="space-y-4">
         {status?.configured && (
           <div className="text-xs text-muted-foreground">
-            Host: <code>{status.host}</code> · User: <code>{status.username}</code> · Mailbox: <code>{status.mailbox}</code>
+            Host: <code>{status.host}</code> · User: <code>{status.username}</code> · Folders: <code>{(status.mailboxes ?? [status.mailbox]).filter(Boolean).join(", ") || "INBOX"}</code>
+            {status.import_all ? <> · <span className="text-amber-600">Import all mode</span></> : null}
           </div>
         )}
         <div className="grid gap-3 sm:grid-cols-2">
@@ -604,19 +613,25 @@ function ImapCard() {
               placeholder={status?.configured ? "•••••••• (enter to replace)" : "Mailbox password"}
               autoComplete="off" />
           </div>
-          <div>
-            <Label htmlFor="imap-mailbox">Mailbox / folder</Label>
-            <Input id="imap-mailbox" value={mailbox} onChange={(e) => setMailbox(e.target.value)}
-              placeholder="INBOX" />
+          <div className="sm:col-span-2">
+            <Label htmlFor="imap-mailboxes">Folders (comma-separated)</Label>
+            <Input id="imap-mailboxes" value={mailboxes} onChange={(e) => setMailboxes(e.target.value)}
+              placeholder="INBOX, Sent, Spam" />
+            <p className="text-xs text-muted-foreground mt-1">Each folder is scanned in order, up to 50 messages per sync.</p>
           </div>
           <div className="flex items-center gap-2 sm:col-span-2">
             <Switch id="imap-mark" checked={markSeen} onCheckedChange={setMarkSeen} />
             <Label htmlFor="imap-mark" className="text-sm">Mark messages as read on the server after import</Label>
           </div>
+          <div className="flex items-center gap-2 sm:col-span-2">
+            <Switch id="imap-all" checked={importAll} onCheckedChange={setImportAll} />
+            <Label htmlFor="imap-all" className="text-sm">Import all messages (including already-read) — one-time backfill</Label>
+          </div>
         </div>
         <div className="flex flex-wrap items-center gap-2 pt-2">
           <Button onClick={() => save.mutate()}
-            disabled={!host || !port || !username || (!password && !status?.configured) || !mailbox || save.isPending}>
+            disabled={!host || !port || !username || (!password && !status?.configured) || !mailboxes.trim() || save.isPending}>
+
             {save.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
             Save credentials
           </Button>

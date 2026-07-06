@@ -398,12 +398,13 @@ export const getImapStatus = createServerFn({ method: "GET" })
       .from("integration_credentials")
       .select("updated_at").eq("provider", IMAP_PROVIDER).maybeSingle();
     if (error) throw new Error(error.message);
-    let meta: { host?: string; username?: string; mailbox?: string } = {};
+    let meta: { host?: string; username?: string; mailbox?: string; mailboxes?: string[]; import_all?: boolean } = {};
     if (data) {
       try {
         const { loadImapCreds } = await import("@/lib/email-imap.server");
         const c = await loadImapCreds();
-        meta = { host: c.host, username: c.username, mailbox: c.mailbox };
+        const list = (c.mailboxes && c.mailboxes.length ? c.mailboxes : [c.mailbox || "INBOX"]);
+        meta = { host: c.host, username: c.username, mailbox: c.mailbox, mailboxes: list, import_all: !!c.import_all };
       } catch { /* ignore */ }
     }
     return { configured: !!data, updated_at: data?.updated_at ?? null, ...meta };
@@ -416,7 +417,9 @@ const saveImapSchema = z.object({
   username: z.string().min(1).max(200),
   password: z.string().min(1).max(500),
   mailbox: z.string().min(1).max(100).default("INBOX"),
+  mailboxes: z.array(z.string().min(1).max(100)).max(20).optional(),
   mark_seen: z.boolean().default(true),
+  import_all: z.boolean().default(false),
 });
 
 export const saveImapCredentials = createServerFn({ method: "POST" })
