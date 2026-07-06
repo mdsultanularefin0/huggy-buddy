@@ -11,6 +11,7 @@ export type ProductCardData = {
   sizes_json?: { size_label: string; price: number; sale_price?: number | null }[] | null;
   badge?: string | null;
   in_stock?: boolean | null;
+  is_new_arrival?: boolean | null;
 };
 
 export function ProductCard({ product }: { product: ProductCardData }) {
