@@ -309,6 +309,38 @@ function AdminInbox() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={composeOpen} onOpenChange={setComposeOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>New email</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="compose-to">To</Label>
+              <Input id="compose-to" type="email" placeholder="recipient@example.com" value={composeTo} onChange={(e) => setComposeTo(e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="compose-subject">Subject</Label>
+              <Input id="compose-subject" value={composeSubject} onChange={(e) => setComposeSubject(e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="compose-body">Message</Label>
+              <Textarea id="compose-body" rows={12} value={composeBody} onChange={(e) => setComposeBody(e.target.value)} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setComposeOpen(false)} disabled={composeMut.isPending}>Cancel</Button>
+            <Button
+              onClick={() => composeMut.mutate({ to: composeTo.trim(), subject: composeSubject.trim(), message: composeBody.trim() })}
+              disabled={composeMut.isPending || !composeTo.trim() || !composeSubject.trim() || !composeBody.trim()}
+            >
+              {composeMut.isPending ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Send className="w-4 h-4 mr-1.5" />}
+              Send
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
