@@ -382,8 +382,8 @@ function CategoryCarousel({ categories }: { categories: Array<{ id: string; slug
         })}
       </CarouselContent>
       <div className="pointer-events-none absolute inset-y-0 left-0 right-0 z-10">
-        <CarouselPrevious className="pointer-events-auto absolute! left-2 top-1/2 -translate-y-1/2" />
-        <CarouselNext className="pointer-events-auto absolute! right-2 top-1/2 -translate-y-1/2" />
+        <CarouselPrevious className="pointer-events-auto absolute! left-3 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full border-0 bg-[#52277a] text-white shadow-lg hover:bg-[#52277a]/90 hover:text-white" />
+        <CarouselNext className="pointer-events-auto absolute! right-3 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full border-0 bg-[#52277a] text-white shadow-lg hover:bg-[#52277a]/90 hover:text-white" />
       </div>
     </Carousel>
   );
