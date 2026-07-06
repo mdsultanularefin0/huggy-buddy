@@ -782,6 +782,7 @@ export type Database = {
       }
       products: {
         Row: {
+          badge: string | null
           category_id: string | null
           created_at: string
           description: string | null
@@ -801,6 +802,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          badge?: string | null
           category_id?: string | null
           created_at?: string
           description?: string | null
@@ -820,6 +822,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          badge?: string | null
           category_id?: string | null
           created_at?: string
           description?: string | null
