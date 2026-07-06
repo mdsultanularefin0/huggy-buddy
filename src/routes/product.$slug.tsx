@@ -167,6 +167,18 @@ function ProductPage() {
   const [variantIdx, setVariantIdx] = useState<number | null>(null);
   const [qty, setQty] = useState(1);
   const add = useCart((s) => s.add);
+  const viewFired = useRef(false);
+  useEffect(() => {
+    if (viewFired.current || !product) return;
+    viewFired.current = true;
+    fbqTrack("ViewContent", {
+      currency: "BDT",
+      value: effectivePrice(product.regular_price, product.sale_price),
+      content_type: "product",
+      content_ids: [product.id],
+      content_name: product.name,
+    });
+  }, [product]);
 
   if (!product) return null;
   const needsVariant = variants.length > 0;
