@@ -191,7 +191,7 @@ function TrackPage() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <div className="max-w-2xl mx-auto px-6 py-16">
+      <div className="max-w-2xl mx-auto px-6 py-10 sm:py-16">
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 mb-3">
             <Search className="w-6 h-6 text-primary" />

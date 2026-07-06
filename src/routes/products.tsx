@@ -335,7 +335,7 @@ export function ListingShell({
           </div>
 
           {filtered.length === 0 && filteredCombos.length === 0 ? (
-            <div className="rounded-2xl border-2 border-dashed border-gray-200 py-20 text-center text-gray-500">
+            <div className="rounded-2xl border-2 border-dashed border-gray-200 py-12 sm:py-20 text-center text-gray-500">
               No products match your filters.
             </div>
           ) : (

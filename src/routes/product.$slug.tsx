@@ -232,7 +232,7 @@ function ProductPage() {
   return (
     <div className="min-h-screen bg-white">
       <SiteHeader />
-      <div className="max-w-7xl mx-auto py-12 px-4 grid grid-cols-1 md:grid-cols-2 gap-12">
+      <div className="max-w-7xl mx-auto py-6 sm:py-12 px-4 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
         <div>
           <nav aria-label="Breadcrumb" className="mb-4 text-sm text-muted-foreground">
             <ol className="flex flex-wrap items-center gap-1.5">
