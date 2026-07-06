@@ -301,8 +301,22 @@ function HomepagePage() {
         </Button>
       </div>
 
-      <Tabs defaultValue="hero" className="w-full">
-        <div className="w-full overflow-x-auto -mx-1 px-1 pb-1">
+      {(() => null)()}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <div
+          className="w-full overflow-x-auto -mx-1 px-1 pb-1"
+          onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; touchStartY.current = e.touches[0].clientY; }}
+          onTouchEnd={(e) => {
+            if (touchStartX.current == null || touchStartY.current == null) return;
+            const dx = e.changedTouches[0].clientX - touchStartX.current;
+            const dy = e.changedTouches[0].clientY - touchStartY.current;
+            touchStartX.current = null; touchStartY.current = null;
+            if (Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx)) return;
+            const i = TAB_VALUES.indexOf(activeTab);
+            const next = dx < 0 ? Math.min(TAB_VALUES.length - 1, i + 1) : Math.max(0, i - 1);
+            if (next !== i) setActiveTab(TAB_VALUES[next]);
+          }}
+        >
           <TabsList className="inline-flex w-max h-auto gap-1 flex-nowrap">
             <TabsTrigger value="visibility" className="shrink-0">Visibility</TabsTrigger>
             <TabsTrigger value="hero" className="shrink-0">Hero</TabsTrigger>
@@ -317,6 +331,7 @@ function HomepagePage() {
             <TabsTrigger value="faq" className="shrink-0">FAQ</TabsTrigger>
           </TabsList>
         </div>
+
 
         {/* VISIBILITY */}
         <TabsContent value="visibility" className="mt-4 space-y-4">
