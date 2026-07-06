@@ -381,8 +381,10 @@ function CategoryCarousel({ categories }: { categories: Array<{ id: string; slug
           );
         })}
       </CarouselContent>
-      <CarouselPrevious className="left-2 top-1/2 -translate-y-1/2 z-10" />
-      <CarouselNext className="right-2 top-1/2 -translate-y-1/2 z-10" />
+      <div className="pointer-events-none absolute inset-y-0 left-0 right-0 z-10">
+        <CarouselPrevious className="pointer-events-auto absolute! left-2 top-1/2 -translate-y-1/2" />
+        <CarouselNext className="pointer-events-auto absolute! right-2 top-1/2 -translate-y-1/2" />
+      </div>
     </Carousel>
   );
 }
