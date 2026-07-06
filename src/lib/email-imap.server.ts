@@ -65,8 +65,13 @@ export async function runImapSync(): Promise<{
         continue;
       }
       try {
-        const criteria = importAll ? { all: true } : { seen: false };
-        const uids = (await client.search(criteria, { uid: true })) || [];
+        const criteria = importAll ? { all: true } : { unseen: true };
+        let uids = (await client.search(criteria, { uid: true })) || [];
+        if (!uids.length && !importAll) {
+          // Fallback: some servers don't honor {unseen:true}; fetch all and filter.
+          const all = (await client.search({ all: true }, { uid: true })) || [];
+          uids = all;
+        }
         const remaining = MAX_PER_RUN - stats.fetched;
         const slice = uids.slice(0, remaining);
         for (const uid of slice) {
