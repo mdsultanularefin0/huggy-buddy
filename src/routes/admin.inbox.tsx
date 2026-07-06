@@ -189,6 +189,17 @@ function AdminInbox() {
                     <CheckCircle2 className="w-4 h-4 mr-1.5" />
                     {selected.status === "resolved" ? "Reopen" : "Resolve"}
                   </Button>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => {
+                      if (confirm("Delete this message permanently?")) delMut.mutate(selected.id);
+                    }}
+                    disabled={delMut.isPending}
+                  >
+                    <Trash2 className="w-4 h-4 mr-1.5" />
+                    Delete
+                  </Button>
                 </div>
               </div>
               <ScrollArea className="flex-1">
