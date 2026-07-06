@@ -25,11 +25,18 @@ type ParsedRow = {
   product_handle: string;
   product_name: string;
   description: string;
+  short_description: string;
   category_slug: string;
   scent_profile: string;
+  badge: string;
+  image_url: string;
+  sale_price: number | null;
+  is_active: boolean | undefined;
   variant_size_label: string;
   variant_price: number;
+  variant_sale_price: number | null;
   variant_stock: number;
+  variant_sort_order: number | undefined;
 };
 
 const HEADER_MAP: Record<string, keyof ParsedRow> = {
@@ -37,12 +44,36 @@ const HEADER_MAP: Record<string, keyof ParsedRow> = {
   "Product Handle (Slug)": "product_handle",
   "Product Name": "product_name",
   Description: "description",
+  "Short Description": "short_description",
   "Category Slug": "category_slug",
   "Scent Profile": "scent_profile",
+  Badge: "badge",
+  "Image URL": "image_url",
+  "Sale Price": "sale_price",
+  "Is Active": "is_active",
   "Variant Size Label": "variant_size_label",
   "Variant Price": "variant_price",
+  "Variant Sale Price": "variant_sale_price",
   "Variant Stock": "variant_stock",
+  "Variant Sort Order": "variant_sort_order",
 };
+
+const NUMBER_KEYS = new Set<keyof ParsedRow>([
+  "sale_price",
+  "variant_price",
+  "variant_sale_price",
+  "variant_stock",
+  "variant_sort_order",
+]);
+const BOOL_KEYS = new Set<keyof ParsedRow>(["is_active"]);
+
+function parseBool(v: string): boolean | undefined {
+  const s = v.trim().toLowerCase();
+  if (!s) return undefined;
+  if (["true", "1", "yes", "y", "active"].includes(s)) return true;
+  if (["false", "0", "no", "n", "inactive"].includes(s)) return false;
+  return undefined;
+}
 
 export function BulkImportDialog({ open, onOpenChange }: Props) {
   const qc = useQueryClient();
@@ -69,21 +100,35 @@ export function BulkImportDialog({ open, onOpenChange }: Props) {
         "Product Handle": "amber-oud",
         "Product Name": "Amber Oud",
         Description: "Warm amber with smoky oud.",
+        "Short Description": "Signature warm amber.",
         "Category Slug": "signature",
         "Scent Profile": "Oud",
+        Badge: "Bestseller",
+        "Image URL": "https://example.com/amber-oud.jpg",
+        "Sale Price": "",
+        "Is Active": "true",
         "Variant Size Label": "6ml",
         "Variant Price": 500,
+        "Variant Sale Price": 450,
         "Variant Stock": 20,
+        "Variant Sort Order": 1,
       },
       {
         "Product Handle": "amber-oud",
         "Product Name": "Amber Oud",
         Description: "Warm amber with smoky oud.",
+        "Short Description": "Signature warm amber.",
         "Category Slug": "signature",
         "Scent Profile": "Oud",
+        Badge: "Bestseller",
+        "Image URL": "https://example.com/amber-oud.jpg",
+        "Sale Price": "",
+        "Is Active": "true",
         "Variant Size Label": "12ml",
         "Variant Price": 900,
+        "Variant Sale Price": "",
         "Variant Stock": 12,
+        "Variant Sort Order": 2,
       },
     ];
     downloadCSV(
@@ -105,13 +150,15 @@ export function BulkImportDialog({ open, onOpenChange }: Props) {
         res.data.forEach((raw, i) => {
           const row: Partial<ParsedRow> = {};
           for (const [csvHeader, key] of Object.entries(HEADER_MAP)) {
-            if (raw[csvHeader] !== undefined) {
-              const val = raw[csvHeader].trim();
-              if (key === "variant_price" || key === "variant_stock") {
-                (row as Record<string, unknown>)[key] = Number(val || 0);
-              } else {
-                (row as Record<string, unknown>)[key] = val;
-              }
+            const cell = raw[csvHeader];
+            if (cell === undefined) continue;
+            const val = cell.trim();
+            if (NUMBER_KEYS.has(key)) {
+              (row as Record<string, unknown>)[key] = val === "" ? null : Number(val);
+            } else if (BOOL_KEYS.has(key)) {
+              (row as Record<string, unknown>)[key] = parseBool(val);
+            } else {
+              (row as Record<string, unknown>)[key] = val;
             }
           }
           if (!row.product_handle || !row.product_name || !row.variant_size_label) {
@@ -122,11 +169,18 @@ export function BulkImportDialog({ open, onOpenChange }: Props) {
             product_handle: row.product_handle,
             product_name: row.product_name,
             description: row.description ?? "",
+            short_description: row.short_description ?? "",
             category_slug: row.category_slug ?? "",
             scent_profile: row.scent_profile ?? "",
+            badge: row.badge ?? "",
+            image_url: row.image_url ?? "",
+            sale_price: row.sale_price ?? null,
+            is_active: row.is_active,
             variant_size_label: row.variant_size_label,
             variant_price: Number(row.variant_price ?? 0),
+            variant_sale_price: row.variant_sale_price ?? null,
             variant_stock: Number(row.variant_stock ?? 0),
+            variant_sort_order: row.variant_sort_order ?? undefined,
           });
         });
         setRows(parsed);
