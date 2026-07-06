@@ -27,10 +27,20 @@ type ProductRow = {
 
 type Cat = { id: string; name: string; slug: string };
 
+export type ComboRow = {
+  id: string;
+  title: string;
+  regular_price: number;
+  sale_price: number | null;
+  image_url: string | null;
+  combo_type: "prebuilt" | "byob";
+  max_items_allowed: number | null;
+};
+
 const productsPageOptions = queryOptions({
   queryKey: ["public", "products-page"],
   queryFn: async () => {
-    const [{ data: products, error: pe }, { data: cats, error: ce }] = await Promise.all([
+    const [{ data: products, error: pe }, { data: cats, error: ce }, { data: combos, error: coe }] = await Promise.all([
       supabase
         .from("products")
         .select("id,slug,name,regular_price,sale_price,sizes_json,image_url,category_id,in_stock,scent_profile")
@@ -41,10 +51,20 @@ const productsPageOptions = queryOptions({
         .select("id,name,slug")
         .eq("is_active", true)
         .order("sort_order", { ascending: true }),
+      supabase
+        .from("combos")
+        .select("id,title,regular_price,sale_price,image_url,combo_type,max_items_allowed")
+        .eq("is_active", true)
+        .order("created_at", { ascending: false }),
     ]);
     if (pe) throw pe;
     if (ce) throw ce;
-    return { products: (products ?? []) as unknown as ProductRow[], categories: (cats ?? []) as Cat[] };
+    if (coe) throw coe;
+    return {
+      products: (products ?? []) as unknown as ProductRow[],
+      categories: (cats ?? []) as Cat[],
+      combos: (combos ?? []) as unknown as ComboRow[],
+    };
   },
 });
 
