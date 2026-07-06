@@ -170,6 +170,7 @@ function ProductPage() {
   const add = useCart((s) => s.add);
   const [isAdding, setIsAdding] = useState(false);
   const viewFired = useRef(false);
+  const addingRef = useRef(false);
   useEffect(() => {
     if (viewFired.current || !product) return;
     viewFired.current = true;
@@ -193,7 +194,6 @@ function ProductPage() {
     (chosen ? !chosen.in_stock && chosen.stock_quantity <= 0 : false);
   const canAdd = product.in_stock && !chosenOut && (!needsVariant || variantIdx !== null);
 
-  const addingRef = useRef(false);
   const handleAdd = () => {
     // Synchronous ref guard blocks duplicate clicks that race React's
     // re-render (state-based `isAdding` only updates on the next paint).
