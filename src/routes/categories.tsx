@@ -21,15 +21,13 @@ const allCategoriesQuery = queryOptions({
 });
 
 export const Route = createFileRoute("/categories")({
-  head: () => ({
-    meta: [
-      { title: "Shop by Category — Veloura Essence" },
-      { name: "description", content: "Browse every fragrance category at Veloura Essence." },
-      { property: "og:title", content: "Shop by Category — Veloura Essence" },
-      { property: "og:description", content: "Browse every fragrance category at Veloura Essence." },
-    ],
+  head: () => pageMeta({
+    path: "/categories",
+    title: "Shop by Category — Veloura Essence",
+    description: "Browse every fragrance category at Veloura Essence — floral, oud, fresh, and more.",
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(allCategoriesQuery),
+
   component: CategoriesPage,
   errorComponent: () => (
     <div className="min-h-screen flex items-center justify-center text-gray-600">
