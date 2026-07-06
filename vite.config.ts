@@ -16,9 +16,11 @@ export default defineConfig({
     // Build a standalone Node.js server (for cPanel / Passenger / any Node host).
     // Output: .output/server/index.mjs
     preset: "node-server",
-    // Keep IMAP/mail parsing deps external — bundling them mangles Node's
-    // stream/util inheritance and breaks with "superCtor.prototype ... undefined".
-    externals: {
+  },
+  vite: {
+    ssr: {
+      // Keep IMAP/mail parsing deps external — bundling them mangles Node's
+      // stream/util inheritance and breaks with "superCtor.prototype ... undefined".
       external: ["imapflow", "mailparser", "nodemailer", "libmime", "iconv-lite"],
     },
   },
