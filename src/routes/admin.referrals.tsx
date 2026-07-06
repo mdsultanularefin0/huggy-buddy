@@ -18,7 +18,7 @@ type Code = Database["public"]["Tables"]["referral_codes"]["Row"];
 
 export const Route = createFileRoute("/admin/referrals")({ component: ReferralsPage });
 
-const empty = { code: "", discount_amount: 0, is_active: true };
+const empty = { code: "", discount_amount: 0, discount_type: "fixed" as "fixed" | "percent", is_active: true };
 
 function ReferralsPage() {
   const qc = useQueryClient();
