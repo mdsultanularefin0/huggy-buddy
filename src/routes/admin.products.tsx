@@ -836,7 +836,7 @@ function ProductsPage() {
           </Tabs>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button variant="luxe" onClick={() => save.mutate()} disabled={save.isPending || !form.name || !form.scent_profile}>
+            <Button variant="luxe" onClick={() => save.mutate()} disabled={save.isPending || !form.name || form.note_ids.length === 0}>
               {save.isPending && <Loader2 className="w-4 h-4 animate-spin mr-1" />}
               Save
             </Button>
