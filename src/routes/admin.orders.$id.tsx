@@ -126,6 +126,9 @@ function AdminOrderDetail() {
     price: (it.price as number | undefined) ?? (it.unitPrice as number | undefined) ?? 0,
     size: it.size as string | undefined,
     image: (it.image as string | undefined) ?? (it.imageUrl as string | undefined),
+    selections: Array.isArray(it.selections)
+      ? (it.selections as Array<{ productId?: string; name?: string }>)
+      : null,
   }));
 
   return (
