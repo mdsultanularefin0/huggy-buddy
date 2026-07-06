@@ -25,11 +25,18 @@ type ParsedRow = {
   product_handle: string;
   product_name: string;
   description: string;
+  short_description: string;
   category_slug: string;
   scent_profile: string;
+  badge: string;
+  image_url: string;
+  sale_price: number | null;
+  is_active: boolean | undefined;
   variant_size_label: string;
   variant_price: number;
+  variant_sale_price: number | null;
   variant_stock: number;
+  variant_sort_order: number | undefined;
 };
 
 const HEADER_MAP: Record<string, keyof ParsedRow> = {
@@ -37,12 +44,36 @@ const HEADER_MAP: Record<string, keyof ParsedRow> = {
   "Product Handle (Slug)": "product_handle",
   "Product Name": "product_name",
   Description: "description",
+  "Short Description": "short_description",
   "Category Slug": "category_slug",
   "Scent Profile": "scent_profile",
+  Badge: "badge",
+  "Image URL": "image_url",
+  "Sale Price": "sale_price",
+  "Is Active": "is_active",
   "Variant Size Label": "variant_size_label",
   "Variant Price": "variant_price",
+  "Variant Sale Price": "variant_sale_price",
   "Variant Stock": "variant_stock",
+  "Variant Sort Order": "variant_sort_order",
 };
+
+const NUMBER_KEYS = new Set<keyof ParsedRow>([
+  "sale_price",
+  "variant_price",
+  "variant_sale_price",
+  "variant_stock",
+  "variant_sort_order",
+]);
+const BOOL_KEYS = new Set<keyof ParsedRow>(["is_active"]);
+
+function parseBool(v: string): boolean | undefined {
+  const s = v.trim().toLowerCase();
+  if (!s) return undefined;
+  if (["true", "1", "yes", "y", "active"].includes(s)) return true;
+  if (["false", "0", "no", "n", "inactive"].includes(s)) return false;
+  return undefined;
+}
 
 export function BulkImportDialog({ open, onOpenChange }: Props) {
   const qc = useQueryClient();
