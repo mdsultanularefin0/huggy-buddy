@@ -197,6 +197,36 @@ function OrdersPage() {
 
   function clearDates() { setDateFrom(""); setDateTo(""); }
 
+  const exportFn = useServerFn(exportOrdersForCSV);
+  const [exporting, setExporting] = useState(false);
+  async function handleExport() {
+    setExporting(true);
+    try {
+      const rows = await exportFn({ data: { from: dateFrom || null, to: dateTo || null, statusFilter } });
+      if (rows.length === 0) { toast.info("No orders match the current filters"); return; }
+      const csv = toCSV(
+        rows.map((r) => ({
+          "Order Number": r.order_number,
+          Date: new Date(r.date).toLocaleString(),
+          "Customer Name": r.customer_name,
+          Phone: r.phone,
+          District: r.district,
+          Total: r.total,
+          "Payment Status": r.payment_status,
+          "Order Status": r.order_status,
+        })),
+        ["Order Number", "Date", "Customer Name", "Phone", "District", "Total", "Payment Status", "Order Status"],
+      );
+      const stamp = new Date().toISOString().slice(0, 10);
+      downloadCSV(`veloura-orders-${stamp}.csv`, csv);
+      toast.success(`Exported ${rows.length} order${rows.length === 1 ? "" : "s"}`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Export failed");
+    } finally {
+      setExporting(false);
+    }
+  }
+
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       <div>
