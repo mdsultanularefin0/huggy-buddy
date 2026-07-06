@@ -40,6 +40,19 @@ export const useCart = create<CartState>()(
       toggle: () => set((s) => ({ isOpen: !s.isOpen })),
       add: (item) =>
         set((s) => {
+          // Meta Pixel AddToCart (client-only; safe no-op without fbq).
+          if (typeof window !== "undefined") {
+            const fbq = (window as unknown as { fbq?: (...a: unknown[]) => void }).fbq;
+            try {
+              fbq?.("track", "AddToCart", {
+                currency: "BDT",
+                value: item.unitPrice * item.quantity,
+                content_type: "product",
+                content_ids: [item.refId],
+                contents: [{ id: item.refId, quantity: item.quantity, item_price: item.unitPrice }],
+              });
+            } catch { /* ignore */ }
+          }
           const existing = s.items.find((i) => i.lineId === item.lineId);
           if (existing) {
             return {
