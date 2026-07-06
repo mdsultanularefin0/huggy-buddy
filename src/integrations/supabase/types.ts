@@ -925,6 +925,7 @@ export type Database = {
           code: string
           created_at: string
           discount_amount: number
+          discount_type: string
           id: string
           is_active: boolean
           updated_at: string
@@ -933,6 +934,7 @@ export type Database = {
           code: string
           created_at?: string
           discount_amount?: number
+          discount_type?: string
           id?: string
           is_active?: boolean
           updated_at?: string
@@ -941,6 +943,7 @@ export type Database = {
           code?: string
           created_at?: string
           discount_amount?: number
+          discount_type?: string
           id?: string
           is_active?: boolean
           updated_at?: string
