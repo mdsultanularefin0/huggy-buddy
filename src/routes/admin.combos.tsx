@@ -431,9 +431,9 @@ function CombosPage() {
                     </div>
                   </label>
                   <MediaPicker
-                    bucket="combo-images"
                     onPick={(url: string) => setForm((f) => ({ ...f, image_url: url }))}
                   />
+
                 </div>
                 {!form.image_url && (
                   <p className="text-xs text-muted-foreground mt-2 text-center">Drop an image, upload, or pick from the media library.</p>
