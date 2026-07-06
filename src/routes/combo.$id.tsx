@@ -18,7 +18,7 @@ type Combo = {
   products_json: ComboItem[];
   image_url: string | null; max_items_allowed: number | null;
 };
-type ProductMini = { id: string; name: string; image_url: string | null };
+type ProductMini = { id: string; name: string; image_url: string | null; in_stock: boolean };
 
 const comboOptions = (id: string) =>
   queryOptions({
@@ -30,7 +30,7 @@ const comboOptions = (id: string) =>
       if (!combo) return null;
       const productIds = ((combo.products_json as ComboItem[]) ?? []).map((p) => p.product_id);
       const { data: products } = productIds.length
-        ? await supabase.from("products").select("id,name,image_url").in("id", productIds)
+        ? await supabase.from("products").select("id,name,image_url,in_stock").in("id", productIds)
         : { data: [] };
       return { combo: combo as unknown as Combo, products: (products ?? []) as ProductMini[] };
     },
