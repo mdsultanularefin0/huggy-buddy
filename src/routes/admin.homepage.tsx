@@ -299,19 +299,21 @@ function HomepagePage() {
       </div>
 
       <Tabs defaultValue="hero" className="w-full">
-        <TabsList className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-11 w-full h-auto gap-1">
-          <TabsTrigger value="visibility">Visibility</TabsTrigger>
-          <TabsTrigger value="hero">Hero</TabsTrigger>
-          <TabsTrigger value="banner">Banner</TabsTrigger>
-          <TabsTrigger value="signature">Signature</TabsTrigger>
-          <TabsTrigger value="art">Art</TabsTrigger>
-          <TabsTrigger value="shopcat">Shop by Category</TabsTrigger>
-          <TabsTrigger value="newarrivals">New Arrivals</TabsTrigger>
-          <TabsTrigger value="notes">Notes</TabsTrigger>
-          <TabsTrigger value="whispers">Whispers</TabsTrigger>
-          <TabsTrigger value="reels">Reels</TabsTrigger>
-          <TabsTrigger value="faq">FAQ</TabsTrigger>
-        </TabsList>
+        <div className="w-full overflow-x-auto -mx-1 px-1 pb-1">
+          <TabsList className="inline-flex w-max h-auto gap-1 flex-nowrap">
+            <TabsTrigger value="visibility" className="shrink-0">Visibility</TabsTrigger>
+            <TabsTrigger value="hero" className="shrink-0">Hero</TabsTrigger>
+            <TabsTrigger value="banner" className="shrink-0">Banner</TabsTrigger>
+            <TabsTrigger value="signature" className="shrink-0">Signature</TabsTrigger>
+            <TabsTrigger value="art" className="shrink-0">Art</TabsTrigger>
+            <TabsTrigger value="shopcat" className="shrink-0">Shop by Category</TabsTrigger>
+            <TabsTrigger value="newarrivals" className="shrink-0">New Arrivals</TabsTrigger>
+            <TabsTrigger value="notes" className="shrink-0">Notes</TabsTrigger>
+            <TabsTrigger value="whispers" className="shrink-0">Whispers</TabsTrigger>
+            <TabsTrigger value="reels" className="shrink-0">Reels</TabsTrigger>
+            <TabsTrigger value="faq" className="shrink-0">FAQ</TabsTrigger>
+          </TabsList>
+        </div>
 
         {/* VISIBILITY */}
         <TabsContent value="visibility" className="mt-4 space-y-4">
