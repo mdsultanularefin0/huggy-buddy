@@ -112,10 +112,8 @@ function ProductsPage() {
       return (data ?? []) as { id: string; title: string; scent_profile: string | null; is_active: boolean }[];
     },
   });
-  const noteOptions = useMemo(
-    () => Array.from(new Set(notes.map((n) => n.scent_profile).filter((s): s is string => !!s))),
-    [notes],
-  );
+
+
 
   const { data: productCategoryLinks = [] } = useQuery({
     queryKey: ["admin", "product_categories"],
