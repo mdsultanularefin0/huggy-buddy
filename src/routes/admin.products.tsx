@@ -110,6 +110,18 @@ function ProductsPage() {
         s.toLowerCase().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
       const baseSlug = slugify(form.name) || `product-${Date.now()}`;
       const slug = editing ? baseSlug : `${baseSlug}-${Math.random().toString(36).slice(2, 8)}`;
+      const cleanVariants = form.variants
+        .map((v) => ({
+          ...v,
+          size_label: v.size_label.trim(),
+          price: Math.max(0, Number(v.price) || 0),
+          sale_price:
+            v.sale_price === null || v.sale_price === undefined || Number(v.sale_price) === 0
+              ? null
+              : Math.max(0, Number(v.sale_price)),
+          stock_quantity: Math.max(0, Number(v.stock_quantity) || 0),
+        }))
+        .filter((v) => v.size_label.length > 0);
       const payload = {
         name: form.name,
         slug,
@@ -122,17 +134,48 @@ function ProductsPage() {
         is_active: form.is_active,
         in_stock: form.in_stock,
         stock_quantity: Math.max(0, Number(form.stock_quantity) || 0),
-        sizes_json: form.sizes_json as never,
         category_id: form.category_id,
         scent_profile: form.scent_profile || null,
       };
+      let productId: string;
       if (editing) {
         const { error } = await supabase.from("products").update(payload).eq("id", editing.id);
         if (error) throw error;
+        productId = editing.id;
       } else {
-        const { error } = await supabase.from("products").insert(payload);
+        const { data: created, error } = await supabase.from("products").insert(payload).select("id").single();
+        if (error) throw error;
+        productId = created.id;
+      }
+
+      // Diff-sync variants: delete removed, upsert kept/new
+      const { data: existingVariants } = await (supabase as any)
+        .from("product_variants")
+        .select("id")
+        .eq("product_id", productId);
+      const existingIds: string[] = (existingVariants ?? []).map((v: { id: string }) => v.id);
+      const keptIds = new Set(cleanVariants.map((v) => v.id).filter(Boolean) as string[]);
+      const toDelete = existingIds.filter((id) => !keptIds.has(id));
+      if (toDelete.length) {
+        const { error } = await (supabase as any).from("product_variants").delete().in("id", toDelete);
         if (error) throw error;
       }
+      if (cleanVariants.length) {
+        const rows = cleanVariants.map((v, idx) => ({
+          ...(v.id ? { id: v.id } : {}),
+          product_id: productId,
+          size_label: v.size_label,
+          price: v.price,
+          sale_price: v.sale_price,
+          stock_quantity: v.stock_quantity,
+          sort_order: idx,
+        }));
+        const { error } = await (supabase as any)
+          .from("product_variants")
+          .upsert(rows, { onConflict: "id" });
+        if (error) throw error;
+      }
+    },
     },
     onSuccess: () => {
       toast.success(editing ? "Product updated" : "Product created");
