@@ -9,18 +9,19 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { pageMeta } from "@/lib/seo-meta";
 
 type Faq = { q: string; a: string };
 
 export const Route = createFileRoute("/faq")({
-  head: () => ({
-    meta: [
-      { title: "FAQ — Veloura Essence" },
-      { name: "description", content: "Frequently asked questions about Veloura Essence." },
-    ],
+  head: () => pageMeta({
+    path: "/faq",
+    title: "FAQ — Veloura Essence",
+    description: "Answers to common questions about ordering, delivery, and Veloura Essence fragrances.",
   }),
   component: FaqPage,
 });
+
 
 function FaqPage() {
   const { data, isLoading } = useQuery({
