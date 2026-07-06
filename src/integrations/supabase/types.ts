@@ -791,7 +791,6 @@ export type Database = {
           images_json: Json
           in_stock: boolean
           is_active: boolean
-          is_new_arrival: boolean
           name: string
           regular_price: number
           sale_price: number | null
@@ -812,7 +811,6 @@ export type Database = {
           images_json?: Json
           in_stock?: boolean
           is_active?: boolean
-          is_new_arrival?: boolean
           name: string
           regular_price?: number
           sale_price?: number | null
@@ -833,7 +831,6 @@ export type Database = {
           images_json?: Json
           in_stock?: boolean
           is_active?: boolean
-          is_new_arrival?: boolean
           name?: string
           regular_price?: number
           sale_price?: number | null
@@ -1009,6 +1006,7 @@ export type Database = {
           hero_subtitle: string | null
           hero_title: string | null
           homepage_category_ids: string[]
+          homepage_new_arrival_ids: string[]
           id: string
           marquee_text: string
           notes_enabled: boolean
@@ -1089,6 +1087,7 @@ export type Database = {
           hero_subtitle?: string | null
           hero_title?: string | null
           homepage_category_ids?: string[]
+          homepage_new_arrival_ids?: string[]
           id?: string
           marquee_text?: string
           notes_enabled?: boolean
@@ -1169,6 +1168,7 @@ export type Database = {
           hero_subtitle?: string | null
           hero_title?: string | null
           homepage_category_ids?: string[]
+          homepage_new_arrival_ids?: string[]
           id?: string
           marquee_text?: string
           notes_enabled?: boolean
