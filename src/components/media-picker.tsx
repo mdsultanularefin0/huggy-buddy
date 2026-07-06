@@ -203,7 +203,9 @@ export function MediaPicker({ onPick, label = "Library" }: { onPick: (url: strin
           </p>
         ) : (
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 max-h-[60vh] overflow-y-auto p-1">
-            {filtered.map((m, i) => (
+            {filtered.map((m, i) => {
+              const isVideo = /\.(mp4|webm|mov|m4v)$/i.test(m.name);
+              return (
               <div
                 key={`${m.bucket}/${m.name}`}
                 className="group relative aspect-square rounded-md border bg-muted overflow-hidden"
@@ -212,13 +214,18 @@ export function MediaPicker({ onPick, label = "Library" }: { onPick: (url: strin
                 <button
                   type="button"
                   onClick={() => { onPick(m.url); setOpen(false); }}
-                  className="absolute inset-0 w-full h-full hover:ring-2 hover:ring-primary transition"
+                  className="absolute inset-0 w-full h-full hover:ring-2 hover:ring-primary transition z-0"
                 >
-                  <img src={m.url} alt={m.name} className="w-full h-full object-cover" loading="lazy" />
+                  {isVideo ? (
+                    <video src={m.url} className="w-full h-full object-cover" muted playsInline preload="metadata" />
+                  ) : (
+                    <img src={m.url} alt={m.name} className="w-full h-full object-cover" loading="lazy" />
+                  )}
                 </button>
-                <span className="absolute top-1 left-1 text-[10px] px-1.5 py-0.5 rounded bg-black/60 text-white">
+                <span className="absolute top-1 left-1 z-10 text-[10px] px-1.5 py-0.5 rounded bg-black/60 text-white pointer-events-none">
                   {m.bucket === MEDIA_SERVER ? "server" : m.bucket.replace("-images", "")}
                 </span>
+
                 <div className="absolute bottom-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition">
                   <button
                     type="button"
@@ -246,7 +253,9 @@ export function MediaPicker({ onPick, label = "Library" }: { onPick: (url: strin
                   </button>
                 </div>
               </div>
-            ))}
+              );
+            })}
+
           </div>
         )}
 

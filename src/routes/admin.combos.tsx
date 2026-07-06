@@ -297,6 +297,7 @@ function CombosPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-16"></TableHead>
                 <TableHead>Title</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Price</TableHead>
@@ -310,12 +311,20 @@ function CombosPage() {
                 const items = Array.isArray(c.products_json) ? (c.products_json as unknown[]).length : 0;
                 return (
                   <TableRow key={c.id}>
+                    <TableCell>
+                      {c.image_url ? (
+                        <img src={c.image_url} alt="" className="w-12 h-12 rounded-md object-cover" loading="lazy" />
+                      ) : (
+                        <div className="w-12 h-12 rounded-md bg-muted" />
+                      )}
+                    </TableCell>
                     <TableCell className="font-medium">{c.title}</TableCell>
                     <TableCell>
                       <span className="text-xs px-2 py-1 rounded-full bg-secondary/30">
                         {c.combo_type === "prebuilt" ? "Pre-built" : "Build-Your-Own"}
                       </span>
                     </TableCell>
+
                     <TableCell>
                       {c.sale_price ? (
                         <span>
