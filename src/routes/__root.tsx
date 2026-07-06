@@ -171,7 +171,9 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <Outlet />
       <CartDrawer />
+      <MetaPixelLoader />
       <Toaster position="top-center" richColors />
     </QueryClientProvider>
+
   );
 }
