@@ -93,22 +93,22 @@ function AdminInbox() {
 
   return (
     <div className="space-y-5 max-w-6xl">
-      <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div>
-          <h1 className="text-2xl font-semibold">Support Inbox</h1>
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 sm:flex sm:flex-wrap sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-semibold">Support Inbox</h1>
           <p className="text-sm text-muted-foreground mt-1">
             Contact form submissions and IMAP replies. {unreadCount > 0 && <span className="text-foreground font-medium">{unreadCount} unread</span>}
           </p>
         </div>
-        <Button variant="outline" size="sm" onClick={() => syncMut.mutate()} disabled={syncMut.isPending}>
-          {syncMut.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
-          Sync IMAP
+        <Button variant="outline" size="sm" className="shrink-0" onClick={() => syncMut.mutate()} disabled={syncMut.isPending}>
+          {syncMut.isPending ? <Loader2 className="w-4 h-4 sm:mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 sm:mr-2" />}
+          <span className="hidden sm:inline">Sync IMAP</span>
         </Button>
       </div>
 
-      <Card className="grid grid-cols-1 md:grid-cols-[320px_1fr] overflow-hidden h-[calc(100vh-220px)] min-h-[500px]">
+      <Card className="grid grid-cols-1 md:grid-cols-[300px_1fr] lg:grid-cols-[340px_1fr] overflow-hidden h-[calc(100vh-200px)] min-h-[500px]">
         {/* Left pane — list */}
-        <div className="border-r border-border/60 flex flex-col min-h-0">
+        <div className={`border-b md:border-b-0 md:border-r border-border/60 flex-col min-h-0 ${selected ? "hidden md:flex" : "flex"}`}>
           <div className="px-4 py-3 border-b border-border/60 flex items-center gap-2 text-sm font-medium">
             <InboxIcon className="w-4 h-4" /> Messages
           </div>
@@ -130,7 +130,7 @@ function AdminInbox() {
                         className={`w-full text-left px-4 py-3 hover:bg-muted/50 transition ${active ? "bg-muted/60" : ""}`}
                       >
                         <div className="flex items-center justify-between gap-2">
-                          <span className={`text-sm truncate ${m.status === "unread" ? "font-semibold" : "font-medium"}`}>
+                          <span className={`text-sm truncate min-w-0 ${m.status === "unread" ? "font-semibold" : "font-medium"}`}>
                             {m.name}
                           </span>
                           <StatusBadge status={m.status} />
@@ -149,45 +149,57 @@ function AdminInbox() {
         </div>
 
         {/* Right pane — detail */}
-        <div className="flex flex-col min-h-0">
+        <div className={`flex-col min-h-0 ${selected ? "flex" : "hidden md:flex"}`}>
           {!selected ? (
             <div className="flex-1 flex items-center justify-center text-sm text-muted-foreground">
               Select a message to view details.
             </div>
           ) : (
             <>
-              <div className="px-6 py-4 border-b border-border/60 flex items-start justify-between gap-4">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-lg font-semibold truncate">{selected.subject}</h2>
-                    <StatusBadge status={selected.status} />
-                  </div>
-                  <div className="text-sm text-muted-foreground mt-1">
-                    <span className="font-medium text-foreground">{selected.name}</span> &lt;
-                    <a href={`mailto:${selected.email}`} className="underline">{selected.email}</a>&gt;
-                    {selected.phone && <> · {selected.phone}</>}
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-1">
-                    {new Date(selected.created_at).toLocaleString()}
+              <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-border/60 flex flex-col gap-3">
+                <div className="flex items-start gap-2 min-w-0">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="md:hidden shrink-0 -ml-2 h-8 w-8 p-0"
+                    onClick={() => setSelectedId(null)}
+                    aria-label="Back to list"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                  </Button>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h2 className="text-base sm:text-lg font-semibold truncate min-w-0">{selected.subject}</h2>
+                      <StatusBadge status={selected.status} />
+                    </div>
+                    <div className="text-sm text-muted-foreground mt-1 break-words">
+                      <span className="font-medium text-foreground">{selected.name}</span>{" "}
+                      &lt;<a href={`mailto:${selected.email}`} className="underline break-all">{selected.email}</a>&gt;
+                      {selected.phone && <> · {selected.phone}</>}
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      {new Date(selected.created_at).toLocaleString()}
+                    </div>
                   </div>
                 </div>
-                <div className="flex gap-2 shrink-0">
+                <div className="flex flex-wrap gap-2">
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => setStatus(selected.status === "read" ? "unread" : "read")}
                     disabled={mut.isPending}
                   >
-                    <Mail className="w-4 h-4 mr-1.5" />
-                    Mark {selected.status === "read" ? "unread" : "read"}
+                    <Mail className="w-4 h-4 sm:mr-1.5" />
+                    <span className="hidden sm:inline">Mark {selected.status === "read" ? "unread" : "read"}</span>
                   </Button>
                   <Button
                     size="sm"
                     onClick={() => setStatus(selected.status === "resolved" ? "read" : "resolved")}
                     disabled={mut.isPending}
                   >
-                    <CheckCircle2 className="w-4 h-4 mr-1.5" />
-                    {selected.status === "resolved" ? "Reopen" : "Resolve"}
+                    <CheckCircle2 className="w-4 h-4 sm:mr-1.5" />
+                    <span className="hidden sm:inline">{selected.status === "resolved" ? "Reopen" : "Resolve"}</span>
+                    <span className="sm:hidden">{selected.status === "resolved" ? "Reopen" : "Done"}</span>
                   </Button>
                   <Button
                     size="sm"
@@ -197,14 +209,14 @@ function AdminInbox() {
                     }}
                     disabled={delMut.isPending}
                   >
-                    <Trash2 className="w-4 h-4 mr-1.5" />
-                    Delete
+                    <Trash2 className="w-4 h-4 sm:mr-1.5" />
+                    <span className="hidden sm:inline">Delete</span>
                   </Button>
                 </div>
               </div>
               <ScrollArea className="flex-1">
-                <div className="p-6">
-                  <p className="whitespace-pre-wrap text-sm leading-relaxed">{selected.message}</p>
+                <div className="p-4 sm:p-6">
+                  <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">{selected.message}</p>
                   <div className="mt-6">
                     <Button asChild variant="outline" size="sm">
                       <a href={`mailto:${selected.email}?subject=Re: ${encodeURIComponent(selected.subject)}`}>
