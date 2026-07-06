@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Truck, Loader2, CheckCircle2, Trash2, Film, Mail, Inbox, RefreshCw } from "lucide-react";
+import { Truck, Loader2, CheckCircle2, Trash2, Film, Mail, Inbox, RefreshCw, Target } from "lucide-react";
 import { toast } from "sonner";
 import {
   getSteadfastStatus,
@@ -25,6 +25,10 @@ import {
   getSmtpStatus, saveSmtpCredentials, deleteSmtpCredentials, testSmtpConnection,
   getImapStatus, saveImapCredentials, deleteImapCredentials, testImapConnection, syncImapInbox,
 } from "@/lib/email.functions";
+import {
+  getMetaPixelStatus, saveMetaPixelCredentials, deleteMetaPixelCredentials, testMetaPixelConnection,
+} from "@/lib/meta-pixel.functions";
+
 
 export const Route = createFileRoute("/admin/integrations")({
   head: () => ({ meta: [{ title: "Integrations — Admin" }, { name: "robots", content: "noindex" }] }),
