@@ -395,24 +395,52 @@ function CombosPage() {
 
             <div>
               <Label>Image</Label>
-              <div className="mt-1 flex items-center gap-3">
-                {form.image_url && (
-                  <div className="relative">
-                    <img src={form.image_url} alt="" className="w-20 h-20 object-cover rounded-md" />
-                    <button onClick={() => setForm({ ...form, image_url: null })} className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-0.5">
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
+              <div
+                className="mt-1 border-2 border-dashed border-border rounded-lg p-4"
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  const f = e.dataTransfer.files?.[0];
+                  if (f && f.type.startsWith("image/")) handleUpload(f);
+                }}
+              >
+                <div className="flex items-center gap-3 flex-wrap">
+                  {form.image_url && (
+                    <div className="relative">
+                      <img src={form.image_url} alt="" className="w-24 h-24 object-cover rounded-md" />
+                      <button
+                        type="button"
+                        onClick={() => setForm({ ...form, image_url: null })}
+                        className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  )}
+                  <label className="cursor-pointer">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => e.target.files?.[0] && handleUpload(e.target.files[0])}
+                      disabled={uploading}
+                    />
+                    <div className="flex items-center gap-2 px-3 py-2 border rounded-md text-sm hover:bg-accent">
+                      {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                      {form.image_url ? "Replace" : "Upload"}
+                    </div>
+                  </label>
+                  <MediaPicker
+                    bucket="combo-images"
+                    onPick={(url: string) => setForm((f) => ({ ...f, image_url: url }))}
+                  />
+                </div>
+                {!form.image_url && (
+                  <p className="text-xs text-muted-foreground mt-2 text-center">Drop an image, upload, or pick from the media library.</p>
                 )}
-                <label className="cursor-pointer">
-                  <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleUpload(e.target.files[0])} />
-                  <div className="flex items-center gap-2 px-3 py-2 border rounded-md text-sm hover:bg-accent">
-                    {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-                    {form.image_url ? "Replace" : "Upload"}
-                  </div>
-                </label>
               </div>
             </div>
+
 
             <div>
               <div className="flex items-center justify-between mb-2">
