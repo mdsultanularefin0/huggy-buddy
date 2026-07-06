@@ -273,7 +273,7 @@ function ProductPage() {
               <p className="text-sm font-medium mb-3">Size</p>
               <div className="flex flex-wrap gap-2">
                 {variants.map((v, i) => {
-                  const out = !v.in_stock && v.stock_quantity <= 0;
+                  const out = !product.in_stock || (!v.in_stock && v.stock_quantity <= 0);
                   return (
                     <button
                       key={v.id}
