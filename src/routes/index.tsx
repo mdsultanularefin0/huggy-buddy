@@ -381,15 +381,8 @@ function CategoryCarousel({ categories }: { categories: Array<{ id: string; slug
           );
         })}
       </CarouselContent>
-      <CarouselPrevious
-        aria-label="Previous categories"
-        className="left-1 sm:left-2 lg:-left-4 top-1/2 -translate-y-1/2 h-10 w-10 sm:h-11 sm:w-11 rounded-full z-20 bg-white/95 hover:bg-white text-[#52277a] border-white shadow-lg"
-      />
-      <CarouselNext
-        aria-label="Next categories"
-        className="right-1 sm:right-2 lg:-right-4 top-1/2 -translate-y-1/2 h-10 w-10 sm:h-11 sm:w-11 rounded-full z-20 bg-white/95 hover:bg-white text-[#52277a] border-white shadow-lg"
-      />
-
+      <CarouselPrevious className="left-1 sm:-left-4 z-10" />
+      <CarouselNext className="right-1 sm:-right-4 z-10" />
     </Carousel>
   );
 }
