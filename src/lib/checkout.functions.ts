@@ -196,17 +196,17 @@ export const createOrder = createServerFn({ method: "POST" })
         await rollback();
         throw new Error(`Out of stock: ${name}`);
       }
-      // Product-level in_stock trumps variant stock: skip decrement, unlimited.
+      // Product toggle ON: variants follow their own in_stock/quantity rules.
+      // Product toggle OFF: blocked above.
       const { data: ok, error: decErr } = await supabaseAdmin.rpc(
         "decrement_variant_stock" as never,
         { v_id: vid, v_qty: qty } as never,
       );
-      // Ignore variant failure when parent product toggle is on.
-      if ((decErr || ok !== true) && parentInStock.get(pid) !== true) {
+      if (decErr || ok !== true) {
         await rollback();
         throw new Error(`Out of stock: ${name}`);
       }
-      if (ok === true) decrementedVariants.push({ id: vid, qty });
+      decrementedVariants.push({ id: vid, qty });
     }
     for (const [pid, qty] of qtyByProduct) {
       if (parentInStock.get(pid) === false) {
