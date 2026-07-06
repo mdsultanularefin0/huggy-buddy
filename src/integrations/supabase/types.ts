@@ -128,6 +128,72 @@ export type Database = {
         }
         Relationships: []
       }
+      combo_categories: {
+        Row: {
+          category_id: string
+          combo_id: string
+          created_at: string
+        }
+        Insert: {
+          category_id: string
+          combo_id: string
+          created_at?: string
+        }
+        Update: {
+          category_id?: string
+          combo_id?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "combo_categories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "combo_categories_combo_id_fkey"
+            columns: ["combo_id"]
+            isOneToOne: false
+            referencedRelation: "combos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      combo_notes: {
+        Row: {
+          combo_id: string
+          created_at: string
+          note_id: string
+        }
+        Insert: {
+          combo_id: string
+          created_at?: string
+          note_id: string
+        }
+        Update: {
+          combo_id?: string
+          created_at?: string
+          note_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "combo_notes_combo_id_fkey"
+            columns: ["combo_id"]
+            isOneToOne: false
+            referencedRelation: "combos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "combo_notes_note_id_fkey"
+            columns: ["note_id"]
+            isOneToOne: false
+            referencedRelation: "notes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       combos: {
         Row: {
           combo_type: Database["public"]["Enums"]["combo_type"]
@@ -547,6 +613,72 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      product_categories: {
+        Row: {
+          category_id: string
+          created_at: string
+          product_id: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          product_id: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          product_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_categories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_categories_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_notes: {
+        Row: {
+          created_at: string
+          note_id: string
+          product_id: string
+        }
+        Insert: {
+          created_at?: string
+          note_id: string
+          product_id: string
+        }
+        Update: {
+          created_at?: string
+          note_id?: string
+          product_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_notes_note_id_fkey"
+            columns: ["note_id"]
+            isOneToOne: false
+            referencedRelation: "notes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_notes_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       product_reviews: {
         Row: {
