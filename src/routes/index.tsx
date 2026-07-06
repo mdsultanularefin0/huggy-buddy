@@ -361,9 +361,11 @@ function CategoryCarousel({ categories }: { categories: Array<{ id: string; slug
   const autoplayRef = useRef(Autoplay({ delay: 2500, stopOnInteraction: false, stopOnMouseEnter: true }));
   return (
     <Carousel
-      opts={{ loop: true, align: "start", dragFree: false }}
+      opts={{ loop: true, align: "start", dragFree: false, watchDrag: true }}
       plugins={[autoplayRef.current]}
-      className="w-full sm:max-w-[640px] md:max-w-[860px] lg:max-w-[720px] mx-auto"
+      className="w-full sm:max-w-[640px] md:max-w-[860px] lg:max-w-[720px] mx-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70 rounded-2xl"
+      tabIndex={0}
+      aria-label="Fragrance categories, use arrow keys or swipe to navigate"
     >
       <CarouselContent className="-ml-3 sm:-ml-4">
         {(categories.length < 8 ? [...categories, ...categories, ...categories] : categories).map((cat, i) => {
