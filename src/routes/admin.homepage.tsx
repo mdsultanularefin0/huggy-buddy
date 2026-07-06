@@ -240,6 +240,9 @@ function HomepagePage() {
         shopcat_enabled: shopcatEnabled,
         shopcat_title: shopcatTitle,
         shopcat_subtitle: shopcatSubtitle,
+        homepage_new_arrival_ids: newArrivalIds,
+        new_arrivals_enabled: newArrivalsEnabled,
+
 
       };
       if (settings?.id) {
