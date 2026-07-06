@@ -168,6 +168,7 @@ function ProductPage() {
   const [variantIdx, setVariantIdx] = useState<number | null>(null);
   const [qty, setQty] = useState(1);
   const add = useCart((s) => s.add);
+  const [isAdding, setIsAdding] = useState(false);
   const viewFired = useRef(false);
   useEffect(() => {
     if (viewFired.current || !product) return;
