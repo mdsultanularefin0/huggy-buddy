@@ -79,7 +79,12 @@ function ReferralsPage() {
   function startNew() { setEditing(null); setForm(empty); setOpen(true); }
   function startEdit(c: Code) {
     setEditing(c);
-    setForm({ code: c.code, discount_amount: c.discount_amount, is_active: c.is_active });
+    setForm({
+      code: c.code,
+      discount_amount: c.discount_amount,
+      discount_type: (c.discount_type === "percent" ? "percent" : "fixed"),
+      is_active: c.is_active,
+    });
     setOpen(true);
   }
 
