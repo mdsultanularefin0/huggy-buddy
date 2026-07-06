@@ -150,18 +150,43 @@ function CombosPage() {
             : null,
         products_json: form.products_json as never,
       };
-      const { error } = editing
-        ? await supabase.from("combos").update(payload).eq("id", editing.id)
-        : await supabase.from("combos").insert(payload);
-      if (error) throw error;
+      let comboId: string;
+      if (editing) {
+        const { error } = await supabase.from("combos").update(payload).eq("id", editing.id);
+        if (error) throw error;
+        comboId = editing.id;
+      } else {
+        const { data: created, error } = await supabase.from("combos").insert(payload).select("id").single();
+        if (error) throw error;
+        comboId = created.id;
+      }
+      await supabase.from("combo_categories").delete().eq("combo_id", comboId);
+      if (form.category_ids.length) {
+        const { error } = await supabase
+          .from("combo_categories")
+          .insert(form.category_ids.map((cid) => ({ combo_id: comboId, category_id: cid })));
+        if (error) throw error;
+      }
+      await supabase.from("combo_notes").delete().eq("combo_id", comboId);
+      if (form.note_ids.length) {
+        const { error } = await supabase
+          .from("combo_notes")
+          .insert(form.note_ids.map((nid) => ({ combo_id: comboId, note_id: nid })));
+        if (error) throw error;
+      }
     },
     onSuccess: () => {
       toast.success(editing ? "Combo updated" : "Combo created");
       qc.invalidateQueries({ queryKey: ["admin", "combos"] });
+      qc.invalidateQueries({ queryKey: ["admin", "combo_categories"] });
+      qc.invalidateQueries({ queryKey: ["admin", "combo_notes"] });
+      qc.invalidateQueries({ queryKey: ["public", "products-page"] });
+      qc.invalidateQueries({ queryKey: ["category-page"] });
       setOpen(false);
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
 
   const del = useMutation({
     mutationFn: async (id: string) => {
