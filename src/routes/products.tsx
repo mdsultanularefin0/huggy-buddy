@@ -104,7 +104,9 @@ export const Route = createFileRoute("/products")({
     meta: [
       { title: "All Fragrances — Veloura Essence" },
       { name: "description", content: "Browse all Veloura Essence luxury perfumes, combos, and signature scents." },
+      { property: "og:url", content: "/products" },
     ],
+    links: [{ rel: "canonical", href: "/products" }],
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(productsPageOptions),
   component: ProductsPage,

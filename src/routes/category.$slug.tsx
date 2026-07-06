@@ -115,7 +115,9 @@ export const Route = createFileRoute("/category/$slug")({
     meta: [
       { title: `${params.slug.replace(/-/g, " ")} — Veloura Essence` },
       { name: "description", content: `Shop the ${params.slug.replace(/-/g, " ")} collection at Veloura Essence.` },
+      { property: "og:url", content: `/category/${params.slug}` },
     ],
+    links: [{ rel: "canonical", href: `/category/${params.slug}` }],
   }),
   component: CategoryPage,
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,

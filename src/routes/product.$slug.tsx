@@ -62,6 +62,14 @@ export const Route = createFileRoute("/product/$slug")({
     if (!p) throw notFound();
     const { getRequestOrigin } = await import("@/lib/origin.functions");
     const origin = await getRequestOrigin();
+    const { data: reviews } = await (supabase as any)
+      .from("product_reviews")
+      .select("rating")
+      .eq("product_id", p.id)
+      .eq("status", "approved");
+    const ratings = (reviews ?? []).map((r: { rating: number }) => Number(r.rating)).filter((n: number) => n > 0);
+    const reviewCount = ratings.length;
+    const ratingValue = reviewCount ? ratings.reduce((s: number, n: number) => s + n, 0) / reviewCount : 0;
     return {
       origin,
       name: p.name,
@@ -69,6 +77,8 @@ export const Route = createFileRoute("/product/$slug")({
       image: p.image_url,
       price: effectivePrice(p.regular_price, p.sale_price),
       inStock: p.in_stock,
+      ratingValue,
+      reviewCount,
     };
   },
   head: ({ params, loaderData }) => {
@@ -120,6 +130,17 @@ export const Route = createFileRoute("/product/$slug")({
             : "https://schema.org/InStock",
         ...(url ? { url } : {}),
       },
+      ...(loaderData?.reviewCount
+        ? {
+            aggregateRating: {
+              "@type": "AggregateRating",
+              ratingValue: Number(loaderData.ratingValue.toFixed(2)),
+              reviewCount: loaderData.reviewCount,
+              bestRating: 5,
+              worstRating: 1,
+            },
+          }
+        : {}),
     };
     return {
       meta,
