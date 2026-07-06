@@ -417,8 +417,15 @@ function ProductsPage() {
           <h1 className="text-3xl font-semibold tracking-tight">Products</h1>
           <p className="text-muted-foreground mt-1">Manage your fragrance catalogue.</p>
         </div>
-        <Button onClick={startNew} variant="luxe"><Plus className="w-4 h-4 mr-1" /> New product</Button>
+        <div className="flex items-center gap-2">
+          <Button onClick={() => setImportOpen(true)} variant="outline">
+            <FileSpreadsheet className="w-4 h-4 mr-1" /> Bulk import
+          </Button>
+          <Button onClick={startNew} variant="luxe"><Plus className="w-4 h-4 mr-1" /> New product</Button>
+        </div>
       </div>
+
+      <BulkImportDialog open={importOpen} onOpenChange={setImportOpen} />
 
       {combos.length > 0 && (
         <Card className="shadow-card p-4">
