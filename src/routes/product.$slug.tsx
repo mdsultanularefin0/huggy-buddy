@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBDT, effectivePrice, hasSale } from "@/lib/currency";
@@ -8,6 +8,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { useCart } from "@/lib/cart-store";
 import { toast } from "sonner";
+import { fbqTrack } from "@/lib/meta-track";
 import {
   Accordion,
   AccordionContent,
@@ -166,6 +167,18 @@ function ProductPage() {
   const [variantIdx, setVariantIdx] = useState<number | null>(null);
   const [qty, setQty] = useState(1);
   const add = useCart((s) => s.add);
+  const viewFired = useRef(false);
+  useEffect(() => {
+    if (viewFired.current || !product) return;
+    viewFired.current = true;
+    fbqTrack("ViewContent", {
+      currency: "BDT",
+      value: effectivePrice(product.regular_price, product.sale_price),
+      content_type: "product",
+      content_ids: [product.id],
+      content_name: product.name,
+    });
+  }, [product]);
 
   if (!product) return null;
   const needsVariant = variants.length > 0;
