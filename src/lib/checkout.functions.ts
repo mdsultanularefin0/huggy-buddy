@@ -118,39 +118,76 @@ export const createOrder = createServerFn({ method: "POST" })
       .maybeSingle();
     if (zoneErr || !zone || !zone.is_active) throw new Error("Invalid delivery zone");
 
-    // Atomically decrement stock for every product line. Aggregate quantities
-    // per product id so multiple lines of the same product share one decrement.
+    // Atomically decrement stock. Items with a variantId decrement that
+    // specific product_variants row; items without one fall back to the
+    // parent product stock (legacy products without variants).
+    const qtyByVariant = new Map<string, { qty: number; name: string }>();
     const qtyByProduct = new Map<string, number>();
     for (const item of data.items) {
       if (item.kind !== "product") continue;
       if (item.quantity < 1 || item.quantity > 99) {
         throw new Error(`Invalid quantity for ${item.name}`);
       }
-      qtyByProduct.set(item.refId, (qtyByProduct.get(item.refId) ?? 0) + item.quantity);
+      if (item.variantId) {
+        const cur = qtyByVariant.get(item.variantId);
+        qtyByVariant.set(item.variantId, {
+          qty: (cur?.qty ?? 0) + item.quantity,
+          name: `${item.name}${item.size ? ` (${item.size})` : ""}`,
+        });
+      } else {
+        qtyByProduct.set(item.refId, (qtyByProduct.get(item.refId) ?? 0) + item.quantity);
+      }
     }
-    const decremented: Array<{ id: string; qty: number }> = [];
+
+    const decrementedVariants: Array<{ id: string; qty: number }> = [];
+    const decrementedProducts: Array<{ id: string; qty: number }> = [];
+
+    async function rollback() {
+      for (const d of decrementedVariants) {
+        const { data: cur } = await (supabaseAdmin as any)
+          .from("product_variants").select("stock_quantity").eq("id", d.id).maybeSingle();
+        if (cur) {
+          await (supabaseAdmin as any)
+            .from("product_variants")
+            .update({ stock_quantity: (cur.stock_quantity ?? 0) + d.qty })
+            .eq("id", d.id);
+        }
+      }
+      for (const d of decrementedProducts) {
+        const { data: cur } = await supabaseAdmin
+          .from("products").select("stock_quantity").eq("id", d.id).maybeSingle();
+        if (cur) {
+          await supabaseAdmin
+            .from("products")
+            .update({ stock_quantity: (cur.stock_quantity ?? 0) + d.qty, in_stock: true })
+            .eq("id", d.id);
+        }
+      }
+    }
+
+    for (const [vid, { qty, name }] of qtyByVariant) {
+      const { data: ok, error: decErr } = await supabaseAdmin.rpc(
+        "decrement_variant_stock" as never,
+        { v_id: vid, v_qty: qty } as never,
+      );
+      if (decErr || ok !== true) {
+        await rollback();
+        throw new Error(`Out of stock: ${name}`);
+      }
+      decrementedVariants.push({ id: vid, qty });
+    }
     for (const [pid, qty] of qtyByProduct) {
       const { data: ok, error: decErr } = await supabaseAdmin.rpc(
         "decrement_product_stock",
         { p_id: pid, p_qty: qty },
       );
       if (decErr || ok !== true) {
-        // Roll back any prior decrements before failing.
-        for (const d of decremented) {
-          const { data: cur } = await supabaseAdmin
-            .from("products").select("stock_quantity").eq("id", d.id).maybeSingle();
-          if (cur) {
-            await supabaseAdmin
-              .from("products")
-              .update({ stock_quantity: (cur.stock_quantity ?? 0) + d.qty, in_stock: true })
-              .eq("id", d.id);
-          }
-        }
+        await rollback();
         const { data: p } = await supabaseAdmin
           .from("products").select("name").eq("id", pid).maybeSingle();
         throw new Error(`Out of stock: ${p?.name ?? "item"}`);
       }
-      decremented.push({ id: pid, qty });
+      decrementedProducts.push({ id: pid, qty });
     }
 
 
