@@ -628,40 +628,63 @@ function ProductsPage() {
                 </div>
               </div>
               <div>
-                <Label htmlFor="cat">Category</Label>
-                <select
-                  id="cat"
-                  value={form.category_id ?? ""}
-                  onChange={(e) => setForm({ ...form, category_id: e.target.value || null })}
-                  className="mt-1 w-full h-10 rounded-md border bg-background px-3 text-sm"
-                >
-                  <option value="">— None —</option>
-                  {categories.map((c) => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
-                  ))}
-                </select>
+                <Label>Categories</Label>
+                <p className="text-xs text-muted-foreground">Assign to one or more categories.</p>
+                <div className="mt-2 max-h-40 overflow-y-auto rounded-md border p-2 grid grid-cols-2 gap-1">
+                  {categories.length === 0 && <p className="text-xs text-muted-foreground">No categories yet.</p>}
+                  {categories.map((c) => {
+                    const checked = form.category_ids.includes(c.id);
+                    return (
+                      <label key={c.id} className="flex items-center gap-2 text-sm cursor-pointer">
+                        <Checkbox
+                          checked={checked}
+                          onCheckedChange={(v) =>
+                            setForm((f) => ({
+                              ...f,
+                              category_ids: v
+                                ? Array.from(new Set([...f.category_ids, c.id]))
+                                : f.category_ids.filter((x) => x !== c.id),
+                            }))
+                          }
+                        />
+                        <span>{c.name}</span>
+                      </label>
+                    );
+                  })}
+                </div>
               </div>
               <div>
-                <Label htmlFor="scent_profile">
-                  Scent profile <span className="text-destructive">*</span>
+                <Label>
+                  Scent notes <span className="text-destructive">*</span>
                 </Label>
-                <select
-                  id="scent_profile"
-                  required
-                  value={form.scent_profile}
-                  onChange={(e) => setForm({ ...form, scent_profile: e.target.value })}
-                  className="mt-1 w-full h-10 rounded-md border bg-background px-3 text-sm"
-                >
-                  <option value="">— Select a scent profile —</option>
-                  {noteOptions.map((n) => (
-                    <option key={n} value={n}>{n}</option>
-                  ))}
-                  {form.scent_profile && !noteOptions.includes(form.scent_profile) && (
-                    <option value={form.scent_profile}>{form.scent_profile} (custom)</option>
-                  )}
-                </select>
-                <p className="text-xs text-muted-foreground mt-1">Required. Scent profiles come from the admin Notes section and drive the storefront filter.</p>
+                <p className="text-xs text-muted-foreground">Pick one or more notes. Drives the storefront scent filter.</p>
+                <div className="mt-2 max-h-40 overflow-y-auto rounded-md border p-2 grid grid-cols-2 gap-1">
+                  {notes.length === 0 && <p className="text-xs text-muted-foreground">No active notes yet.</p>}
+                  {notes.map((n) => {
+                    const checked = form.note_ids.includes(n.id);
+                    return (
+                      <label key={n.id} className="flex items-center gap-2 text-sm cursor-pointer">
+                        <Checkbox
+                          checked={checked}
+                          onCheckedChange={(v) =>
+                            setForm((f) => ({
+                              ...f,
+                              note_ids: v
+                                ? Array.from(new Set([...f.note_ids, n.id]))
+                                : f.note_ids.filter((x) => x !== n.id),
+                            }))
+                          }
+                        />
+                        <span>
+                          {n.title}
+                          {n.scent_profile && <span className="text-xs text-muted-foreground"> · {n.scent_profile}</span>}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
               </div>
+
             </TabsContent>
 
             <TabsContent forceMount value="media" className="space-y-4 mt-4 data-[state=inactive]:hidden">
