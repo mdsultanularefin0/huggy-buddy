@@ -19,21 +19,17 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { lookupOrder } from "@/lib/orders.functions";
 import { toast } from "sonner";
+import { pageMeta } from "@/lib/seo-meta";
 
 export const Route = createFileRoute("/track")({
-  head: () => ({
-    meta: [
-      { title: "Track your order — Veloura Essence" },
-      { name: "description", content: "Look up your Veloura Essence order using your order number and email." },
-      { property: "og:title", content: "Track your order — Veloura Essence" },
-      { property: "og:description", content: "Look up your Veloura Essence order using your order number and email." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-    links: [{ rel: "canonical", href: "/track" }],
+  head: () => pageMeta({
+    path: "/track",
+    title: "Track your order — Veloura Essence",
+    description: "Look up your Veloura Essence order using your order number and email.",
   }),
   component: TrackPage,
 });
+
 
 type OrderInfo = {
   id: string;

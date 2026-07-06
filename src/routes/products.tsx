@@ -11,6 +11,8 @@ import { SiteFooter } from "@/components/site-footer";
 import { ProductCard } from "@/components/product-card";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { pageMeta } from "@/lib/seo-meta";
+
 
 type ProductRow = {
   id: string;
@@ -100,25 +102,13 @@ export type ListingSearch = z.infer<typeof listingSearchSchema>;
 
 export const Route = createFileRoute("/products")({
   validateSearch: zodValidator(listingSearchSchema),
-  head: () => {
-    const title = "All Fragrances — Veloura Essence";
-    const description =
-      "Browse every Veloura Essence luxury perfume, curated combo, and signature scent — long-lasting silage, honest pricing, delivered across Bangladesh.";
-    return {
-      meta: [
-        { title },
-        { name: "description", content: description },
-        { property: "og:title", content: title },
-        { property: "og:description", content: description },
-        { property: "og:type", content: "website" },
-        { property: "og:url", content: "/products" },
-        { name: "twitter:card", content: "summary_large_image" },
-        { name: "twitter:title", content: title },
-        { name: "twitter:description", content: description },
-      ],
-      links: [{ rel: "canonical", href: "/products" }],
-    };
-  },
+  head: () => pageMeta({
+    path: "/products",
+    title: "All Fragrances — Veloura Essence",
+    description:
+      "Browse every Veloura Essence luxury perfume, curated combo, and signature scent — long-lasting silage, honest pricing, delivered across Bangladesh.",
+  }),
+
   loader: ({ context }) => context.queryClient.ensureQueryData(productsPageOptions),
   component: ProductsPage,
 });

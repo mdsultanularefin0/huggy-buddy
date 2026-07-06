@@ -13,16 +13,18 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { pageMeta } from "@/lib/seo-meta";
+
 
 export const Route = createFileRoute("/contact")({
-  head: () => ({
-    meta: [
-      { title: "Contact Us — Veloura Essence" },
-      { name: "description", content: "Get in touch with our team — visit, call, or send a message." },
-    ],
+  head: () => pageMeta({
+    path: "/contact",
+    title: "Contact Us — Veloura Essence",
+    description: "Reach the Veloura Essence team — visit, call, WhatsApp, or send a message.",
   }),
   component: ContactPage,
 });
+
 
 function ContactPage() {
   const { data: branding } = useQuery(brandingQueryOptions);

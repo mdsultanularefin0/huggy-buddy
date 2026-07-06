@@ -109,8 +109,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Veloura Essence — Luxury Perfumes in Bangladesh" },
       { name: "twitter:description", content: "Discover Veloura Essence — premium perfumes, curated combos, and build-your-own boxes. Free delivery available." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/bc586bd9-cb38-4724-b7f4-ebd0f5c85971/id-preview-2d4dbb87--cdd5ade0-8d6c-4aa6-bba6-fc33d5d51a07.lovable.app-1783161936266.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/bc586bd9-cb38-4724-b7f4-ebd0f5c85971/id-preview-2d4dbb87--cdd5ade0-8d6c-4aa6-bba6-fc33d5d51a07.lovable.app-1783161936266.png" },
+      { property: "og:site_name", content: "Veloura Essence" },
+
     ],
     links: [
       { rel: "stylesheet", href: appCss },

@@ -4,6 +4,8 @@ import { Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { pageMeta } from "@/lib/seo-meta";
+
 
 type ReviewRow = {
   id: string;
@@ -17,13 +19,13 @@ type ReviewRow = {
 };
 
 export const Route = createFileRoute("/reviews")({
-  head: () => ({
-    meta: [
-      { title: "Customer Reviews — Veloura Essence" },
-      { name: "description", content: "Read what customers say about Veloura Essence fragrances." },
-    ],
+  head: () => pageMeta({
+    path: "/reviews",
+    title: "Customer Reviews — Veloura Essence",
+    description: "Real reviews from Veloura Essence customers across Bangladesh.",
   }),
   component: ReviewsPage,
+
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
   notFoundComponent: () => <div className="p-8">Not found.</div>,
 });
