@@ -252,10 +252,22 @@ function ProductsPage() {
     setOpen(true);
   }
 
-  function startEdit(p: Product) {
+  async function startEdit(p: Product) {
     setEditing(p);
     const pAny = p as Product & { images_json?: unknown; stock_quantity?: number };
     const imgs = Array.isArray(pAny.images_json) ? (pAny.images_json as string[]).filter(Boolean) : [];
+    const { data: vRows } = await (supabase as any)
+      .from("product_variants")
+      .select("id,size_label,price,sale_price,stock_quantity,sort_order")
+      .eq("product_id", p.id)
+      .order("sort_order");
+    const variants: Variant[] = (vRows ?? []).map((v: Variant) => ({
+      id: v.id,
+      size_label: v.size_label,
+      price: v.price,
+      sale_price: v.sale_price ?? null,
+      stock_quantity: v.stock_quantity ?? 0,
+    }));
     setForm({
       name: p.name,
       short_description: (p as Product & { short_description?: string | null }).short_description ?? "",
@@ -266,7 +278,7 @@ function ProductsPage() {
       is_active: p.is_active,
       in_stock: p.in_stock,
       stock_quantity: pAny.stock_quantity ?? 0,
-      sizes_json: (Array.isArray(p.sizes_json) ? p.sizes_json : []) as Size[],
+      variants,
       category_id: (p as Product & { category_id: string | null }).category_id ?? null,
       scent_profile: (p as Product & { scent_profile?: string | null }).scent_profile ?? "",
     });
