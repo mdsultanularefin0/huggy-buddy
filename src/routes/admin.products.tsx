@@ -175,6 +175,7 @@ function ProductsPage() {
           price: v.price,
           sale_price: v.sale_price,
           stock_quantity: v.stock_quantity,
+          in_stock: v.in_stock,
           sort_order: idx,
         }));
         const { error } = await (supabase as any)
