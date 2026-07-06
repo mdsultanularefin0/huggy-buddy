@@ -157,7 +157,7 @@ export function MediaPicker({ onPick, label = "Library" }: { onPick: (url: strin
             className="w-48 h-9"
           />
           <div className="flex flex-wrap gap-1">
-            {(["all", ...BUCKETS] as const).map((b) => (
+            {(["all", ...BUCKETS, MEDIA_SERVER] as const).map((b) => (
               <Button
                 key={b}
                 type="button"
@@ -165,8 +165,9 @@ export function MediaPicker({ onPick, label = "Library" }: { onPick: (url: strin
                 variant={filter === b ? "default" : "outline"}
                 onClick={() => setFilter(b)}
               >
-                {b === "all" ? "All" : b.replace("-images", "")}
+                {b === "all" ? "All" : b === MEDIA_SERVER ? "server" : b.replace("-images", "")}
               </Button>
+
             ))}
           </div>
           <div className="ml-auto flex items-center gap-1">
