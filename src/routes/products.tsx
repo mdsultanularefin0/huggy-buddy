@@ -155,6 +155,14 @@ export function ListingShell({
     });
   }, [products, maxPrice, scents]);
 
+  // Combos only show when the "All" listing is used (no category filter) and
+  // when scent filters are inactive, since combos aren't scent-scoped.
+  const filteredCombos = useMemo(() => {
+    if (activeCategorySlug || scents.length > 0) return [];
+    return combos.filter((c) => effectivePrice(c.regular_price, c.sale_price) <= maxPrice);
+  }, [combos, maxPrice, scents, activeCategorySlug]);
+
+
   return (
     <div className="min-h-screen bg-white">
       <SiteHeader />
