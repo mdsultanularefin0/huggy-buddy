@@ -182,6 +182,8 @@ function HomepagePage() {
     setShopcatEnabled((s.shopcat_enabled as boolean) ?? true);
     setShopcatTitle((s.shopcat_title as string) ?? "");
     setShopcatSubtitle((s.shopcat_subtitle as string) ?? "");
+    setNewArrivalIds(((s.homepage_new_arrival_ids as string[] | null) ?? []) as string[]);
+    setNewArrivalsEnabled((s.new_arrivals_enabled as boolean | undefined) ?? true);
   }, [settings]);
 
 
