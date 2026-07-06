@@ -17,6 +17,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { formatBDT } from "@/lib/currency";
 import { uploadImage } from "@/lib/upload";
+import { MediaPicker } from "@/components/media-picker";
 import type { Database } from "@/integrations/supabase/types";
 
 type Combo = Database["public"]["Tables"]["combos"]["Row"];
