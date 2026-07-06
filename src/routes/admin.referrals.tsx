@@ -18,7 +18,7 @@ type Code = Database["public"]["Tables"]["referral_codes"]["Row"];
 
 export const Route = createFileRoute("/admin/referrals")({ component: ReferralsPage });
 
-const empty = { code: "", discount_amount: 0, is_active: true };
+const empty = { code: "", discount_amount: 0, discount_type: "fixed" as "fixed" | "percent", is_active: true };
 
 function ReferralsPage() {
   const qc = useQueryClient();
@@ -51,6 +51,7 @@ function ReferralsPage() {
       const payload = {
         code: form.code.trim().toUpperCase(),
         discount_amount: Number(form.discount_amount),
+        discount_type: form.discount_type,
         is_active: form.is_active,
       };
       const { error } = editing
@@ -78,7 +79,12 @@ function ReferralsPage() {
   function startNew() { setEditing(null); setForm(empty); setOpen(true); }
   function startEdit(c: Code) {
     setEditing(c);
-    setForm({ code: c.code, discount_amount: c.discount_amount, is_active: c.is_active });
+    setForm({
+      code: c.code,
+      discount_amount: c.discount_amount,
+      discount_type: (c.discount_type === "percent" ? "percent" : "fixed"),
+      is_active: c.is_active,
+    });
     setOpen(true);
   }
 
@@ -112,7 +118,7 @@ function ReferralsPage() {
               {codes.map((c) => (
                 <TableRow key={c.id}>
                   <TableCell className="font-mono font-medium">{c.code}</TableCell>
-                  <TableCell>{formatBDT(c.discount_amount)}</TableCell>
+                  <TableCell>{c.discount_type === "percent" ? `${c.discount_amount}%` : formatBDT(c.discount_amount)}</TableCell>
                   <TableCell>{usage[c.code] ?? 0}</TableCell>
                   <TableCell>
                     <span className={`text-xs px-2 py-1 rounded-full ${c.is_active ? "bg-emerald-100 text-emerald-800" : "bg-muted text-muted-foreground"}`}>
@@ -141,8 +147,23 @@ function ReferralsPage() {
               <Input value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })} className="mt-1 font-mono" placeholder="e.g. SARAH10" />
             </div>
             <div>
-              <Label>Discount amount (BDT)</Label>
-              <Input type="number" value={form.discount_amount} onChange={(e) => setForm({ ...form, discount_amount: Number(e.target.value) })} className="mt-1" />
+              <Label>Discount type</Label>
+              <div className="mt-1 inline-flex rounded-md border p-1 gap-1">
+                <button type="button" onClick={() => setForm({ ...form, discount_type: "fixed" })}
+                  className={`px-3 py-1 text-sm rounded ${form.discount_type === "fixed" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>
+                  Fixed (BDT)
+                </button>
+                <button type="button" onClick={() => setForm({ ...form, discount_type: "percent" })}
+                  className={`px-3 py-1 text-sm rounded ${form.discount_type === "percent" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>
+                  Percentage (%)
+                </button>
+              </div>
+            </div>
+            <div>
+              <Label>{form.discount_type === "percent" ? "Discount percent (0–100)" : "Discount amount (BDT)"}</Label>
+              <Input type="number" min={0} max={form.discount_type === "percent" ? 100 : undefined}
+                value={form.discount_amount}
+                onChange={(e) => setForm({ ...form, discount_amount: Number(e.target.value) })} className="mt-1" />
             </div>
             <label className="flex items-center gap-2 cursor-pointer">
               <Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
