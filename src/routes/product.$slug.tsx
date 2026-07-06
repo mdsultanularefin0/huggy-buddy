@@ -219,6 +219,8 @@ function ProductPage() {
       quantity: qty,
       size: sizeLabel,
     });
+    setIsAdding(true);
+    window.setTimeout(() => setIsAdding(false), 550);
     toast.success(`${product.name}${sizeLabel ? ` (${sizeLabel})` : ""} × ${qty} added to cart`);
   };
 
