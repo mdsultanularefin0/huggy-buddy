@@ -605,6 +605,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          in_stock: boolean
           price: number
           product_id: string
           sale_price: number | null
@@ -616,6 +617,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          in_stock?: boolean
           price: number
           product_id: string
           sale_price?: number | null
@@ -627,6 +629,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          in_stock?: boolean
           price?: number
           product_id?: string
           sale_price?: number | null
