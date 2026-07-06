@@ -8,6 +8,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { useCart } from "@/lib/cart-store";
 import { toast } from "sonner";
+import { fbqTrack } from "@/lib/meta-track";
 import {
   Accordion,
   AccordionContent,
