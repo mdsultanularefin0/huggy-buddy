@@ -373,7 +373,7 @@ function CheckoutPage() {
 
           </div>
 
-          <aside className="lg:sticky lg:top-24 h-fit p-6 rounded-2xl border bg-card space-y-5">
+          <aside className="lg:sticky lg:top-24 h-fit p-4 sm:p-6 rounded-2xl border bg-card space-y-5">
             <h2 className="font-semibold">Order Summary</h2>
             <div className="space-y-2 max-h-72 overflow-y-auto">
               {items.map((i) => (
