@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,9 @@ import { saveFaqs } from "@/lib/content.functions";
 export const Route = createFileRoute("/admin/homepage")({ component: HomepagePage });
 
 const NONE = "__none__";
+
+const TAB_VALUES = ["visibility","hero","banner","signature","art","shopcat","newarrivals","notes","whispers","reels","faq"] as const;
+type TabValue = typeof TAB_VALUES[number];
 
 type Note = { title: string; gradient: string; link?: string; image?: string; bg?: string };
 type Faq = { q: string; a: string };
