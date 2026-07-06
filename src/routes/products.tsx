@@ -380,3 +380,55 @@ function ScentProfileFilter({
     </div>
   );
 }
+
+function ComboCard({ combo }: { combo: ComboRow }) {
+  const onSale = hasSale(combo.regular_price, combo.sale_price);
+  const price = effectivePrice(combo.regular_price, combo.sale_price);
+  const pickN = combo.combo_type === "byob" ? combo.max_items_allowed ?? null : null;
+  return (
+    <Link
+      to="/combo/$id"
+      params={{ id: combo.id }}
+      className="group relative block bg-[#f5edff] rounded-3xl transition-shadow duration-500 hover:shadow-[0_30px_60px_-15px_rgba(82,39,122,0.25)]"
+    >
+      <span className="absolute -top-2 -left-2 sm:-top-3 sm:-left-3 md:-top-4 md:-left-4 z-10 w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 rounded-full bg-[#52277a] text-white flex items-center justify-center text-[7px] sm:text-[8px] md:text-[10px] font-bold tracking-widest uppercase shadow-lg ring-2 sm:ring-4 ring-white">
+        Combo
+      </span>
+      <div className="relative aspect-[4/5] overflow-hidden rounded-3xl bg-[#ece2f7]">
+        {combo.image_url ? (
+          <img
+            src={combo.image_url}
+            alt={combo.title}
+            loading="lazy"
+            className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#ece2f7] to-[#d8c4f0]">
+            <span className="text-[#52277a] font-serif text-3xl">{pickN ? `Pick ${pickN}` : "Combo"}</span>
+          </div>
+        )}
+        <div className="absolute inset-0 flex items-end justify-center pb-6 opacity-0 translate-y-2 transition-all duration-500 group-hover:opacity-100 group-hover:translate-y-0">
+          <span className="bg-white/95 backdrop-blur-sm text-[#52277a] px-8 py-3 text-[10px] font-bold tracking-[0.2em] uppercase rounded-full border border-[#52277a]/10 group-hover:bg-[#52277a] group-hover:text-white transition-colors duration-300">
+            {pickN ? `Build Combo` : "View Combo"}
+          </span>
+        </div>
+      </div>
+      <div className="px-4 py-6 text-center">
+        <p className="text-[10px] tracking-[0.25em] uppercase text-gray-400 mb-2 font-medium">
+          Veloura Combo
+        </p>
+        <h3 className="text-base text-[#1a1a1a] mb-3 leading-tight font-serif truncate">
+          {combo.title}
+        </h3>
+        <div className="flex items-center justify-center gap-3">
+          {onSale && (
+            <span className="text-xs text-gray-400 line-through font-light">{formatBDT(combo.regular_price)}</span>
+          )}
+          <span className={`text-sm font-semibold ${onSale ? "text-[#a555f0]" : "text-[#52277a]"}`}>
+            {formatBDT(price)}
+          </span>
+        </div>
+      </div>
+    </Link>
+  );
+}
