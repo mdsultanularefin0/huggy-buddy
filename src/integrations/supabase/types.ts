@@ -1009,6 +1009,7 @@ export type Database = {
           homepage_new_arrival_ids: string[]
           id: string
           marquee_text: string
+          new_arrivals_enabled: boolean
           notes_enabled: boolean
           notes_json: Json | null
           notes_subtitle: string | null
@@ -1090,6 +1091,7 @@ export type Database = {
           homepage_new_arrival_ids?: string[]
           id?: string
           marquee_text?: string
+          new_arrivals_enabled?: boolean
           notes_enabled?: boolean
           notes_json?: Json | null
           notes_subtitle?: string | null
@@ -1171,6 +1173,7 @@ export type Database = {
           homepage_new_arrival_ids?: string[]
           id?: string
           marquee_text?: string
+          new_arrivals_enabled?: boolean
           notes_enabled?: boolean
           notes_json?: Json | null
           notes_subtitle?: string | null
