@@ -193,9 +193,11 @@ function ProductPage() {
     (chosen ? !chosen.in_stock && chosen.stock_quantity <= 0 : false);
   const canAdd = product.in_stock && !chosenOut && (!needsVariant || variantIdx !== null);
 
+  const addingRef = useRef(false);
   const handleAdd = () => {
-    // Guard against rapid repeat clicks racing React's re-render.
-    if (isAdding) return;
+    // Synchronous ref guard blocks duplicate clicks that race React's
+    // re-render (state-based `isAdding` only updates on the next paint).
+    if (addingRef.current) return;
     if (!product.in_stock) {
       toast.error("This product is currently out of stock");
       return;
@@ -208,6 +210,8 @@ function ProductPage() {
       toast.error("This variant is out of stock");
       return;
     }
+    addingRef.current = true;
+    setIsAdding(true);
     const sizeLabel = chosen?.size_label ?? null;
     add({
       lineId: `product:${product.slug}:${sizeLabel ?? "default"}`,
@@ -221,8 +225,7 @@ function ProductPage() {
       quantity: qty,
       size: sizeLabel,
     });
-    setIsAdding(true);
-    window.setTimeout(() => setIsAdding(false), 550);
+    window.setTimeout(() => { addingRef.current = false; setIsAdding(false); }, 550);
     toast.success(`${product.name}${sizeLabel ? ` (${sizeLabel})` : ""} × ${qty} added to cart`);
   };
 
