@@ -265,11 +265,9 @@ export function ListingShell({
       if (activeCategorySlug) {
         const linkedCats = comboCategoryIds.get(c.id) ?? new Set<string>();
         const linkMatch = activeCategoryId ? linkedCats.has(activeCategoryId) : false;
-        const legacyMatch =
-          (activeCategorySlug === "combo-packs" && c.combo_type === "prebuilt") ||
-          (activeCategorySlug === "custom-combo" && c.combo_type === "byob");
-        if (!linkMatch && !legacyMatch) return false;
+        if (!linkMatch) return false;
       }
+
       if (scents.length > 0) {
         const set = comboScents.get(c.id) ?? new Set<string>();
         if (!scents.some((s) => set.has(s))) return false;
