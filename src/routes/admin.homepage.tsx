@@ -619,6 +619,58 @@ function HomepagePage() {
           </Card>
         </TabsContent>
 
+        {/* NEW ARRIVALS */}
+        <TabsContent value="newarrivals" className="mt-4 space-y-4">
+          <Card className="p-6 space-y-3 shadow-card">
+            <h2 className="text-lg font-semibold">New Arrivals section</h2>
+            <p className="text-xs text-muted-foreground">
+              Pick which products appear in the homepage New Arrivals section. They render in the order selected and show a green “New” badge.
+            </p>
+            <div className="space-y-2">
+              <Label>Selected products ({newArrivalIds.length})</Label>
+              {newArrivalIds.length === 0 ? (
+                <p className="text-xs text-muted-foreground">None selected yet.</p>
+              ) : (
+                <div className="space-y-1">
+                  {newArrivalIds.map((id, i) => {
+                    const p = allProducts.find((x) => x.id === id);
+                    return (
+                      <div key={id} className="flex items-center justify-between rounded border px-3 py-2 text-sm">
+                        <span className="truncate">{i + 1}. {p?.name ?? "(deleted)"}{p && !p.is_active ? " (inactive)" : ""}</span>
+                        <div className="flex items-center gap-1">
+                          <Button size="sm" variant="ghost" disabled={i === 0} onClick={() => setNewArrivalIds((arr) => { const n = arr.slice(); [n[i - 1], n[i]] = [n[i], n[i - 1]]; return n; })}>↑</Button>
+                          <Button size="sm" variant="ghost" disabled={i === newArrivalIds.length - 1} onClick={() => setNewArrivalIds((arr) => { const n = arr.slice(); [n[i + 1], n[i]] = [n[i], n[i + 1]]; return n; })}>↓</Button>
+                          <Button size="sm" variant="ghost" onClick={() => setNewArrivalIds((arr) => arr.filter((x) => x !== id))}><Trash2 className="w-3 h-3" /></Button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+            <div className="space-y-2 pt-2 border-t">
+              <Label>Add product</Label>
+              <div className="max-h-72 overflow-y-auto rounded border divide-y">
+                {allProducts.filter((p) => !newArrivalIds.includes(p.id)).map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => setNewArrivalIds((arr) => [...arr, p.id])}
+                    className="w-full flex items-center justify-between px-3 py-2 text-sm text-left hover:bg-muted"
+                  >
+                    <span className="truncate">{p.name}{!p.is_active ? " (inactive)" : ""}</span>
+                    <Plus className="w-3 h-3 shrink-0" />
+                  </button>
+                ))}
+                {allProducts.filter((p) => !newArrivalIds.includes(p.id)).length === 0 ? (
+                  <p className="px-3 py-2 text-xs text-muted-foreground">All products added.</p>
+                ) : null}
+              </div>
+            </div>
+          </Card>
+        </TabsContent>
+
+
         {/* NOTES */}
         <TabsContent value="notes" className="mt-4 space-y-4">
           <Card className="p-6 space-y-3 shadow-card">
