@@ -56,14 +56,30 @@ export function MediaPicker({ onPick, label = "Library" }: { onPick: (url: strin
   const fileRef = useRef<HTMLInputElement>(null);
   const qc = useQueryClient();
 
+  const listServerFn = useServerFn(listMediaServerFiles);
+  const deleteServerFn = useServerFn(deleteMediaServerFile);
+
   const { data, isLoading, refetch, isFetching } = useQuery({
     queryKey: ["media", "all-buckets"],
     enabled: open,
     queryFn: async (): Promise<MediaItem[]> => {
-      const results = await Promise.all(BUCKETS.map(loadBucket));
-      return results.flat();
+      const bucketResults = await Promise.all(BUCKETS.map(loadBucket));
+      let serverFiles: MediaItem[] = [];
+      try {
+        const res = await listServerFn();
+        serverFiles = (res?.files ?? []).map((f: { name: string; url: string; created?: string | null }) => ({
+          name: f.name,
+          url: f.url,
+          bucket: MEDIA_SERVER,
+          created_at: f.created ?? null,
+        }));
+      } catch {
+        // media server may not be configured; ignore
+      }
+      return [...bucketResults.flat(), ...serverFiles];
     },
   });
+
 
   const filtered = useMemo(
     () =>
