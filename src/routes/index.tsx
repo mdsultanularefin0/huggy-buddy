@@ -446,6 +446,7 @@ function Landing() {
   const notesEnabled = (h.notes_enabled as boolean | undefined) ?? true;
   const whispersEnabled = (h.whispers_enabled as boolean | undefined) ?? true;
   const shopcatEnabled = (h.shopcat_enabled as boolean | undefined) ?? true;
+  const newArrivalsEnabled = (h.new_arrivals_enabled as boolean | undefined) ?? true;
   const shopcatTitle = (h.shopcat_title as string) || "Shop by Category";
   const shopcatSubtitle = (h.shopcat_subtitle as string) || "";
   const whispersTitle = (h.whispers_title as string) || "Customer Whispers";
@@ -722,7 +723,7 @@ function Landing() {
         ) : null}
 
         {/* New Arrivals */}
-        {newArrivals.length > 0 ? (
+        {newArrivalsEnabled && newArrivals.length > 0 ? (
           <section className="w-full py-16 bg-[#faf7ff]">
             <div className="max-w-7xl mx-auto px-4">
               <div className="text-center max-w-2xl mx-auto mb-10">

@@ -96,6 +96,7 @@ function HomepagePage() {
   const [shopcatSubtitle, setShopcatSubtitle] = useState("");
   // New Arrivals
   const [newArrivalIds, setNewArrivalIds] = useState<string[]>([]);
+  const [newArrivalsEnabled, setNewArrivalsEnabled] = useState(true);
 
 
   type UploadKind = "hero" | "overlay" | "art" | "banner" | "signature" | `note-${number}`;
@@ -179,6 +180,7 @@ function HomepagePage() {
     setNotesEnabled((s.notes_enabled as boolean) ?? true);
     setWhispersEnabled((s.whispers_enabled as boolean) ?? true);
     setShopcatEnabled((s.shopcat_enabled as boolean) ?? true);
+    setNewArrivalsEnabled((s.new_arrivals_enabled as boolean) ?? true);
     setShopcatTitle((s.shopcat_title as string) ?? "");
     setShopcatSubtitle((s.shopcat_subtitle as string) ?? "");
     setNewArrivalIds(((s.homepage_new_arrival_ids as string[] | null) ?? []) as string[]);
@@ -239,6 +241,7 @@ function HomepagePage() {
         shopcat_title: shopcatTitle,
         shopcat_subtitle: shopcatSubtitle,
         homepage_new_arrival_ids: newArrivalIds,
+        new_arrivals_enabled: newArrivalsEnabled,
 
 
 
@@ -328,6 +331,7 @@ function HomepagePage() {
               ["Scent notes", notesEnabled, setNotesEnabled],
               ["Customer whispers", whispersEnabled, setWhispersEnabled],
               ["Shop by Category", shopcatEnabled, setShopcatEnabled],
+              ["New Arrivals", newArrivalsEnabled, setNewArrivalsEnabled],
               ["Reels", reelsEnabled, setReelsEnabled],
               ["FAQ", faqsEnabled, setFaqsEnabled],
             ] as const).map(([label, value, setter]) => (
