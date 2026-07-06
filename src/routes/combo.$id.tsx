@@ -247,17 +247,19 @@ function ComboPage() {
                     <Check className="w-4 h-4" />
                   </span>
                 )}
-                {outOfStock && (
-                  <span className="absolute top-3 left-3 z-10 text-[10px] font-semibold uppercase tracking-wider bg-black/70 text-white px-2 py-1 rounded-full">
-                    Out of stock
-                  </span>
-                )}
-                <div className="relative aspect-[4/5] overflow-hidden rounded-3xl bg-[#ece2f7]">
+                <div className={`relative aspect-[4/5] overflow-hidden rounded-3xl bg-[#ece2f7] ${outOfStock ? "opacity-70" : ""}`}>
                   {p.image_url ? (
-                    <img src={p.image_url} alt={p.name} loading="lazy" className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 ${outOfStock ? "grayscale" : ""}`} />
+                    <img src={p.image_url} alt={p.name} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-gray-400">
                       <Gift className="w-8 h-8" />
+                    </div>
+                  )}
+                  {outOfStock && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="bg-red-600 text-white px-6 py-2.5 text-[10px] font-bold tracking-[0.2em] uppercase rounded-full shadow-lg">
+                        Out of stock
+                      </span>
                     </div>
                   )}
                 </div>
