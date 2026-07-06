@@ -42,8 +42,9 @@ export function MetaPixelLoader() {
       s?.parentNode?.insertBefore(t, s);
     })(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
     /* eslint-enable */
-    window.fbq?.("init", pixelId);
-    window.fbq?.("track", "PageView");
+    (window.fbq as any)("init", pixelId);
+    (window.fbq as any)("track", "PageView");
+
   }, [pixelId]);
 
   // Fire PageView on subsequent route changes.
