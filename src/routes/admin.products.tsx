@@ -789,6 +789,18 @@ function ProductsPage() {
                 />
                 <p className="text-xs text-muted-foreground mt-1">Shown as the red circle on the product card. Leave empty to auto-show "Sale" when discounted.</p>
               </div>
+              <div className="flex items-center justify-between rounded-lg border p-3">
+                <div>
+                  <Label htmlFor="new_arrival" className="cursor-pointer">Mark as New Arrival</Label>
+                  <p className="text-xs text-muted-foreground mt-0.5">Shows a green "New" badge — overrides the Sale/custom badge.</p>
+                </div>
+                <Switch
+                  id="new_arrival"
+                  checked={form.is_new_arrival}
+                  onCheckedChange={(v) => setForm({ ...form, is_new_arrival: v })}
+                />
+              </div>
+
               <p className="text-xs text-muted-foreground">Base pricing is used when a product has no variants. Add variants below to sell per-size with their own pricing.</p>
 
             </TabsContent>
