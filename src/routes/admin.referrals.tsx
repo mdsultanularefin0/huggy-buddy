@@ -118,7 +118,7 @@ function ReferralsPage() {
               {codes.map((c) => (
                 <TableRow key={c.id}>
                   <TableCell className="font-mono font-medium">{c.code}</TableCell>
-                  <TableCell>{formatBDT(c.discount_amount)}</TableCell>
+                  <TableCell>{c.discount_type === "percent" ? `${c.discount_amount}%` : formatBDT(c.discount_amount)}</TableCell>
                   <TableCell>{usage[c.code] ?? 0}</TableCell>
                   <TableCell>
                     <span className={`text-xs px-2 py-1 rounded-full ${c.is_active ? "bg-emerald-100 text-emerald-800" : "bg-muted text-muted-foreground"}`}>
