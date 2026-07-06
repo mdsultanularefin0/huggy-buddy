@@ -84,6 +84,56 @@ function CombosPage() {
     variantsByProduct.set(v.product_id, arr);
   }
 
+  const { data: categories = [] } = useQuery({
+    queryKey: ["admin", "combos", "categories"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("categories").select("id,name").order("sort_order");
+      if (error) throw error;
+      return data as { id: string; name: string }[];
+    },
+  });
+  const { data: notes = [] } = useQuery({
+    queryKey: ["admin", "combos", "notes"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("notes")
+        .select("id,title,scent_profile,is_active")
+        .eq("is_active", true)
+        .order("sort_order");
+      if (error) throw error;
+      return data as { id: string; title: string; scent_profile: string | null; is_active: boolean }[];
+    },
+  });
+  const { data: comboCategoryLinks = [] } = useQuery({
+    queryKey: ["admin", "combo_categories"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("combo_categories").select("combo_id,category_id");
+      if (error) throw error;
+      return data as { combo_id: string; category_id: string }[];
+    },
+  });
+  const { data: comboNoteLinks = [] } = useQuery({
+    queryKey: ["admin", "combo_notes"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("combo_notes").select("combo_id,note_id");
+      if (error) throw error;
+      return data as { combo_id: string; note_id: string }[];
+    },
+  });
+  const catIdsByCombo = new Map<string, string[]>();
+  for (const l of comboCategoryLinks) {
+    const a = catIdsByCombo.get(l.combo_id) ?? [];
+    a.push(l.category_id);
+    catIdsByCombo.set(l.combo_id, a);
+  }
+  const noteIdsByCombo = new Map<string, string[]>();
+  for (const l of comboNoteLinks) {
+    const a = noteIdsByCombo.get(l.combo_id) ?? [];
+    a.push(l.note_id);
+    noteIdsByCombo.set(l.combo_id, a);
+  }
+
+
   const save = useMutation({
     mutationFn: async () => {
       const payload = {
