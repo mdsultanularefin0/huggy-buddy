@@ -43,7 +43,7 @@ const productOptions = (slug: string) =>
     queryFn: async () => {
       const { data, error } = await (supabase as any)
         .from("products")
-        .select("id,slug,name,short_description,description,regular_price,sale_price,image_url,in_stock,category:categories(name,slug),product_variants(id,size_label,price,sale_price,stock_quantity)")
+        .select("id,slug,name,short_description,description,regular_price,sale_price,image_url,in_stock,category:categories(name,slug),product_variants(id,size_label,price,sale_price,stock_quantity,in_stock)")
         .eq("slug", slug)
         .eq("is_active", true)
         .maybeSingle();
