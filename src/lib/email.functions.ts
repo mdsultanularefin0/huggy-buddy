@@ -40,6 +40,7 @@ export async function sendMail(opts: {
   text?: string;
   replyTo?: string;
   kind?: string;
+  sentBy?: { id: string; email?: string | null } | null;
 }): Promise<{ ok: boolean; error?: string }> {
   const creds = await loadSmtpCreds();
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -65,16 +66,19 @@ export async function sendMail(opts: {
     });
     await supabaseAdmin.from("email_log").insert({
       to_email: toStr, subject: opts.subject, kind: opts.kind ?? "custom", status: "sent",
+      sent_by: opts.sentBy?.id ?? null, sent_by_email: opts.sentBy?.email ?? null,
     });
     return { ok: true };
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     await supabaseAdmin.from("email_log").insert({
       to_email: toStr, subject: opts.subject, kind: opts.kind ?? "custom", status: "failed", error: msg,
+      sent_by: opts.sentBy?.id ?? null, sent_by_email: opts.sentBy?.email ?? null,
     });
     return { ok: false, error: msg };
   }
 }
+
 
 
 // ---------------- Admin: status / save / delete / test ----------------
