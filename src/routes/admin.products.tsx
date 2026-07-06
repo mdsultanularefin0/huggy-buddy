@@ -53,6 +53,8 @@ const empty = {
   scent_profile: "" as string,
   category_ids: [] as string[],
   note_ids: [] as string[],
+  badge: "" as string,
+
 };
 
 
@@ -195,8 +197,9 @@ function ProductsPage() {
           (form.note_ids.length > 0 && notes.find((n) => n.id === form.note_ids[0])?.scent_profile) ||
           form.scent_profile ||
           null,
-
+        badge: form.badge.trim() || null,
       };
+
       let productId: string;
       if (editing) {
         const { error } = await supabase.from("products").update(payload).eq("id", editing.id);
@@ -369,6 +372,8 @@ function ProductsPage() {
       scent_profile: (p as Product & { scent_profile?: string | null }).scent_profile ?? "",
       category_ids: categoryIdsByProduct.get(p.id) ?? [],
       note_ids: noteIdsByProduct.get(p.id) ?? [],
+      badge: (p as Product & { badge?: string | null }).badge ?? "",
+
     });
 
     setOpen(true);
@@ -766,7 +771,20 @@ function ProductsPage() {
                   <Input id="sale" type="number" value={form.sale_price ?? ""} onChange={(e) => setForm({ ...form, sale_price: e.target.value === "" ? null : Number(e.target.value) })} className="mt-1" />
                 </div>
               </div>
+              <div>
+                <Label htmlFor="badge">Custom badge text (optional)</Label>
+                <Input
+                  id="badge"
+                  value={form.badge}
+                  maxLength={16}
+                  placeholder='e.g. "New", "Hot", "Limited"'
+                  onChange={(e) => setForm({ ...form, badge: e.target.value })}
+                  className="mt-1"
+                />
+                <p className="text-xs text-muted-foreground mt-1">Shown as the red circle on the product card. Leave empty to auto-show "Sale" when discounted.</p>
+              </div>
               <p className="text-xs text-muted-foreground">Base pricing is used when a product has no variants. Add variants below to sell per-size with their own pricing.</p>
+
             </TabsContent>
 
             <TabsContent forceMount value="inventory" className="space-y-4 mt-4 data-[state=inactive]:hidden">
