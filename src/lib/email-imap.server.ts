@@ -13,8 +13,18 @@ export type ImapCreds = {
   username: string;
   password: string;
   mailbox: string;
+  mailboxes?: string[];
   mark_seen: boolean;
+  import_all?: boolean;
 };
+
+function resolveMailboxes(c: ImapCreds): string[] {
+  const list = (c.mailboxes && c.mailboxes.length ? c.mailboxes : [c.mailbox || "INBOX"])
+    .map((m) => m.trim()).filter(Boolean);
+  return list.length ? list : ["INBOX"];
+}
+
+const MAX_PER_RUN = 50;
 
 const IMAP_PROVIDER = "imap";
 
