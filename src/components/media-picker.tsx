@@ -1,5 +1,6 @@
 import { useState, useMemo, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -8,11 +9,14 @@ import { Loader2, Images, Upload, Copy, Trash2, Eye, Check } from "lucide-react"
 import { toast } from "sonner";
 import { uploadImage } from "@/lib/upload";
 import { Lightbox } from "@/components/lightbox";
+import { listMediaServerFiles, deleteMediaServerFile } from "@/lib/integrations.functions";
 
 const BUCKETS = ["hero-images", "product-images", "combo-images", "review-images"] as const;
+const MEDIA_SERVER = "media-server" as const;
 const SIGN_TTL = 60 * 60 * 24 * 365 * 10;
 
 type MediaItem = { name: string; url: string; bucket: string; created_at?: string | null };
+
 
 async function loadBucket(bucket: string): Promise<MediaItem[]> {
   const { data: files, error } = await supabase.storage
