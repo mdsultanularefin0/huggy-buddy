@@ -40,7 +40,15 @@ export type ComboRow = {
 const productsPageOptions = queryOptions({
   queryKey: ["public", "products-page"],
   queryFn: async () => {
-    const [{ data: products, error: pe }, { data: cats, error: ce }, { data: combos, error: coe }] = await Promise.all([
+    const [
+      { data: products, error: pe },
+      { data: cats, error: ce },
+      { data: combos, error: coe },
+      { data: pCats, error: pce },
+      { data: pNotes, error: pne },
+      { data: cCats, error: cce },
+      { data: cNotes, error: cne },
+    ] = await Promise.all([
       supabase
         .from("products")
         .select("id,slug,name,regular_price,sale_price,sizes_json,image_url,category_id,in_stock,scent_profile")
@@ -56,17 +64,30 @@ const productsPageOptions = queryOptions({
         .select("id,title,regular_price,sale_price,image_url,combo_type,max_items_allowed")
         .eq("is_active", true)
         .order("created_at", { ascending: false }),
+      supabase.from("product_categories").select("product_id,category_id"),
+      supabase.from("product_notes").select("product_id,note:notes(scent_profile)"),
+      supabase.from("combo_categories").select("combo_id,category_id"),
+      supabase.from("combo_notes").select("combo_id,note:notes(scent_profile)"),
     ]);
     if (pe) throw pe;
     if (ce) throw ce;
     if (coe) throw coe;
+    if (pce) throw pce;
+    if (pne) throw pne;
+    if (cce) throw cce;
+    if (cne) throw cne;
     return {
       products: (products ?? []) as unknown as ProductRow[],
       categories: (cats ?? []) as Cat[],
       combos: (combos ?? []) as unknown as ComboRow[],
+      productCategoryLinks: (pCats ?? []) as { product_id: string; category_id: string }[],
+      productNoteLinks: (pNotes ?? []) as { product_id: string; note: { scent_profile: string | null } | null }[],
+      comboCategoryLinks: (cCats ?? []) as { combo_id: string; category_id: string }[],
+      comboNoteLinks: (cNotes ?? []) as { combo_id: string; note: { scent_profile: string | null } | null }[],
     };
   },
 });
+
 
 export const MAX_PRICE_DEFAULT = 10000;
 
