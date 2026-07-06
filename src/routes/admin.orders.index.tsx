@@ -76,9 +76,10 @@ function OrdersPage() {
 
   useEffect(() => { setPage(1); }, [statusFilter]);
 
-  const { data: pageData, isLoading, isError, error } = useQuery({
+  const { data: pageData, isLoading, isFetching, isError, error } = useQuery({
     queryKey: ["admin", "orders", statusFilter, page, limit],
     queryFn: () => fetchOrders({ data: { statusFilter, page, limit } }),
+    placeholderData: (prev) => prev,
   });
   const orders: Order[] = pageData?.orders ?? [];
   const total = pageData?.total ?? 0;
@@ -463,17 +464,19 @@ function OrdersPage() {
           <Button
             variant="outline"
             size="sm"
-            disabled={page <= 1 || isLoading}
+            disabled={page <= 1 || isFetching}
             onClick={() => setPage((p) => Math.max(1, p - 1))}
           >
+            {isFetching ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : null}
             Previous
           </Button>
           <Button
             variant="outline"
             size="sm"
-            disabled={page >= totalPages || isLoading}
+            disabled={page >= totalPages || isFetching}
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
           >
+            {isFetching ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : null}
             Next
           </Button>
         </div>
