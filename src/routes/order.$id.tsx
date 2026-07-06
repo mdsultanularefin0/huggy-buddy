@@ -103,9 +103,18 @@ function OrderPage() {
             <h2 className="font-semibold mb-3">Items</h2>
             <div className="space-y-2">
               {items.map((i, idx) => (
-                <div key={idx} className="flex justify-between text-sm">
-                  <span>{i.name}{i.size ? ` (${i.size})` : ""} × {i.quantity}</span>
-                  <span className="font-medium">{formatBDT(i.unitPrice * i.quantity)}</span>
+                <div key={idx} className="text-sm">
+                  <div className="flex justify-between">
+                    <span>{i.name}{i.size ? ` (${i.size})` : ""} × {i.quantity}</span>
+                    <span className="font-medium">{formatBDT(i.unitPrice * i.quantity)}</span>
+                  </div>
+                  {i.selections && i.selections.length > 0 && (
+                    <ul className="mt-1 ml-3 text-xs text-muted-foreground list-disc list-inside">
+                      {i.selections.map((s, si) => (
+                        <li key={si}>{s.name}</li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
               ))}
             </div>
