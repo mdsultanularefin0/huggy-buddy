@@ -29,7 +29,17 @@ type Msg = {
 function AdminInbox() {
   const list = useServerFn(listContactMessages);
   const update = useServerFn(updateContactStatus);
+  const sync = useServerFn(syncImapInbox);
   const qc = useQueryClient();
+
+  const syncMut = useMutation({
+    mutationFn: () => sync(),
+    onSuccess: (r: { fetched: number; imported: number; skipped: number; errors: number }) => {
+      toast.success(`Synced: ${r.imported} new, ${r.skipped} dup, ${r.errors} err`);
+      qc.invalidateQueries({ queryKey: ["contact-messages"] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Sync failed"),
+  });
 
   const { data, isLoading } = useQuery({
     queryKey: ["contact-messages"],
