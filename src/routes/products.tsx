@@ -155,14 +155,14 @@ export function ListingShell({
     });
   }, [products, maxPrice, scents]);
 
-  // Combos appear on the "All" listing, on the "Combo Packs" category (all combos),
-  // and on the "Custom Combo" category (BYOB only). Hidden on other categories and
+  // "combo-packs" shows prebuilt bundles; "custom-combo" shows BYOB.
+  // On "All" (no category) show everything. Hidden on other categories and
   // when scent filters are active (combos aren't scent-scoped).
   const filteredCombos = useMemo(() => {
     if (scents.length > 0) return [];
     let pool = combos;
     if (activeCategorySlug) {
-      if (activeCategorySlug === "combo-packs") pool = combos;
+      if (activeCategorySlug === "combo-packs") pool = combos.filter((c) => c.combo_type === "prebuilt");
       else if (activeCategorySlug === "custom-combo") pool = combos.filter((c) => c.combo_type === "byob");
       else return [];
     }
