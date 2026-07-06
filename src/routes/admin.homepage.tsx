@@ -56,6 +56,9 @@ function HomepagePage() {
   // Timer
   const [flashTitle, setFlashTitle] = useState("");
   const [flashEnabled, setFlashEnabled] = useState(true);
+  const [activeTab, setActiveTab] = useState<TabValue>("hero");
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
   const [autoReset, setAutoReset] = useState(false);
   const [durationDays, setDurationDays] = useState(7);
   const [timerEndLocal, setTimerEndLocal] = useState("");
@@ -305,7 +308,7 @@ function HomepagePage() {
       </div>
 
       {(() => null)()}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabValue)} className="w-full">
         <div
           className="w-full overflow-x-auto -mx-1 px-1 pb-1"
           onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; touchStartY.current = e.touches[0].clientY; }}
