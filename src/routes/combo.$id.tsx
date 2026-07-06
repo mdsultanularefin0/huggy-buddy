@@ -151,12 +151,12 @@ function ComboPage() {
     return (
       <div className="min-h-screen bg-background">
         <SiteHeader />
-        <div className="max-w-6xl mx-auto px-6 py-10">
-          <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+          <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4 sm:mb-6">
             <ArrowLeft className="w-4 h-4" /> Back to shop
           </Link>
-          <div className="grid md:grid-cols-2 gap-10">
-            <div className="aspect-[4/3] rounded-3xl bg-muted overflow-hidden">
+          <div className="grid md:grid-cols-2 gap-6 md:gap-10">
+            <div className="aspect-[4/3] rounded-2xl sm:rounded-3xl bg-muted overflow-hidden">
               {combo.image_url ? (
                 <img src={combo.image_url} alt={combo.title} loading="lazy" className="w-full h-full object-cover" />
               ) : (
@@ -164,17 +164,17 @@ function ComboPage() {
               )}
             </div>
             <div>
-              <h1 className="text-3xl md:text-4xl font-semibold tracking-tight">{combo.title}</h1>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight">{combo.title}</h1>
               <div className="flex items-baseline gap-3 mt-3">
-                <span className="text-2xl font-semibold">{formatBDT(price)}</span>
+                <span className="text-xl sm:text-2xl font-semibold">{formatBDT(price)}</span>
                 {hasSale(combo.regular_price, combo.sale_price) && (
-                  <span className="text-base text-muted-foreground line-through">{formatBDT(combo.regular_price)}</span>
+                  <span className="text-sm sm:text-base text-muted-foreground line-through">{formatBDT(combo.regular_price)}</span>
                 )}
               </div>
               {combo.description && (
-                <p className="text-sm text-muted-foreground mt-5 whitespace-pre-line">{combo.description}</p>
+                <p className="text-sm text-muted-foreground mt-4 sm:mt-5 whitespace-pre-line">{combo.description}</p>
               )}
-              <div className="mt-8">
+              <div className="mt-6 sm:mt-8">
                 <p className="text-sm font-medium mb-3">Includes</p>
                 <div className="space-y-2">
                   {included.map((p) => (
@@ -182,12 +182,12 @@ function ComboPage() {
                       <div className="w-12 h-12 rounded-lg bg-muted overflow-hidden flex-shrink-0">
                         {p.image_url && <img src={p.image_url} alt={p.name} loading="lazy" className="w-full h-full object-cover" />}
                       </div>
-                      <span className="flex-1 text-sm font-medium">{p.name}</span>
+                      <span className="flex-1 text-sm font-medium min-w-0 truncate">{p.name}</span>
                     </div>
                   ))}
                 </div>
               </div>
-              <Button variant="hero" size="lg" className="w-full mt-8" onClick={handleAdd}>
+              <Button variant="hero" size="lg" className="w-full mt-6 sm:mt-8" onClick={handleAdd}>
                 Add to cart — {formatBDT(price)}
               </Button>
             </div>
@@ -197,6 +197,7 @@ function ComboPage() {
       </div>
     );
   }
+
 
   // BYOB: hero + selectable card grid + sticky action bar
   return (
