@@ -3,6 +3,7 @@ import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
+import { Spinner } from "@/components/ui/spinner";
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
@@ -39,16 +40,43 @@ const buttonVariants = cva(
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
   asChild?: boolean;
+  isLoading?: boolean;
+  loadingText?: string;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
+  ({ className, variant, size, asChild = false, isLoading = false, loadingText, disabled, children, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
+    // With asChild, Slot expects a single child, so skip the spinner overlay
+    // and let the consumer own its content.
+    if (asChild) {
+      return (
+        <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props}>
+          {children}
+        </Comp>
+      );
+    }
     return (
-      <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
+      <Comp
+        className={cn(buttonVariants({ variant, size, className }), "relative")}
+        ref={ref}
+        disabled={disabled || isLoading}
+        aria-busy={isLoading || undefined}
+        {...props}
+      >
+        <span className={cn("inline-flex items-center gap-2 transition-opacity", isLoading && !loadingText && "opacity-0")}>
+          {isLoading && loadingText ? loadingText : children}
+        </span>
+        {isLoading && !loadingText && (
+          <span className="absolute inset-0 flex items-center justify-center">
+            <Spinner size={size === "sm" ? 14 : size === "lg" || size === "xl" ? 22 : 18} />
+          </span>
+        )}
+      </Comp>
     );
   },
 );
 Button.displayName = "Button";
 
 export { Button, buttonVariants };
+
