@@ -135,6 +135,13 @@ export function InvoiceDocument({
               <td className="p-2">
                 <div className="font-medium">{it.name}</div>
                 {it.size && <div className="text-xs text-gray-500">{it.size}</div>}
+                {it.selections && it.selections.length > 0 && (
+                  <ul className="mt-1 ml-3 text-xs text-gray-600 list-disc list-inside">
+                    {it.selections.map((s, si) => (
+                      <li key={si}>{s.name}</li>
+                    ))}
+                  </ul>
+                )}
               </td>
               <td className="p-2 text-right">{it.qty}</td>
               <td className="p-2 text-right">{formatBDT(it.price)}</td>
