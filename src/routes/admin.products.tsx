@@ -352,6 +352,45 @@ function ProductsPage() {
         <Button onClick={startNew} variant="luxe"><Plus className="w-4 h-4 mr-1" /> New product</Button>
       </div>
 
+      {combos.length > 0 && (
+        <Card className="shadow-card p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h2 className="font-semibold">Combos & Bundles</h2>
+              <p className="text-xs text-muted-foreground">Pre-built packs and Build-Your-Own-Box. Manage in the Combos tab.</p>
+            </div>
+            <Button asChild variant="outline" size="sm">
+              <a href="/admin/combos">Manage combos</a>
+            </Button>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {combos.map((c) => (
+              <a
+                key={c.id}
+                href="/admin/combos"
+                className="flex items-center gap-3 p-2 rounded-md border hover:bg-accent transition-colors"
+              >
+                {c.image_url ? (
+                  <img src={c.image_url} alt="" className="w-12 h-12 rounded object-cover" />
+                ) : (
+                  <div className="w-12 h-12 rounded bg-muted" />
+                )}
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-medium truncate">{c.title}</div>
+                  <div className="text-xs text-muted-foreground flex items-center gap-2">
+                    <span>{c.combo_type === "prebuilt" ? "Combo Pack" : "Custom Combo"}</span>
+                    <span>·</span>
+                    <span>{c.sale_price ? formatBDT(c.sale_price) : formatBDT(c.regular_price)}</span>
+                    {!c.is_active && <span className="text-muted-foreground">· Hidden</span>}
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </Card>
+      )}
+
+
       <div className="flex flex-wrap items-center gap-3">
         <Input
           placeholder="Search by name…"
