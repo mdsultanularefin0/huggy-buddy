@@ -10,9 +10,10 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Mail, CheckCircle2, Inbox as InboxIcon, RefreshCw, Trash2, ArrowLeft, Reply, Send, PenSquare } from "lucide-react";
+import { Loader2, Mail, CheckCircle2, Inbox as InboxIcon, RefreshCw, Trash2, ArrowLeft, Reply, Send, PenSquare, History } from "lucide-react";
 import { toast } from "sonner";
-import { listContactMessages, updateContactStatus, syncImapInbox, deleteContactMessage, replyToContactMessage, sendAdminEmail } from "@/lib/email.functions";
+import { listContactMessages, updateContactStatus, syncImapInbox, deleteContactMessage, replyToContactMessage, sendAdminEmail, listSentEmails } from "@/lib/email.functions";
+
 
 export const Route = createFileRoute("/admin/inbox")({
   head: () => ({ meta: [{ title: "Support Inbox — Admin" }, { name: "robots", content: "noindex" }] }),
@@ -131,6 +132,17 @@ function AdminInbox() {
     onError: (e) => toast.error(e instanceof Error ? e.message : "Send failed"),
   });
 
+  const listSent = useServerFn(listSentEmails);
+  const [auditOpen, setAuditOpen] = useState(false);
+  const { data: sentRows, isLoading: sentLoading, refetch: refetchSent, isFetching: sentFetching } = useQuery({
+    queryKey: ["email-audit-log"],
+    queryFn: () => listSent() as Promise<Array<{
+      id: string; to_email: string; subject: string; kind: string; status: string;
+      error: string | null; sent_by_email: string | null; created_at: string;
+    }>>,
+    enabled: auditOpen,
+  });
+
   return (
     <div className="space-y-5 max-w-6xl">
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 sm:flex sm:flex-wrap sm:justify-between">
@@ -145,12 +157,17 @@ function AdminInbox() {
             <PenSquare className="w-4 h-4 sm:mr-2" />
             <span className="hidden sm:inline">Compose</span>
           </Button>
+          <Button variant="outline" size="sm" onClick={() => setAuditOpen(true)}>
+            <History className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">Sent log</span>
+          </Button>
           <Button variant="outline" size="sm" onClick={() => syncMut.mutate()} disabled={syncMut.isPending}>
             {syncMut.isPending ? <Loader2 className="w-4 h-4 sm:mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 sm:mr-2" />}
             <span className="hidden sm:inline">Sync IMAP</span>
           </Button>
         </div>
       </div>
+
 
       <Card className="grid grid-cols-1 md:grid-cols-[300px_1fr] lg:grid-cols-[340px_1fr] overflow-hidden h-[calc(100vh-200px)] min-h-[500px]">
         {/* Left pane — list */}
@@ -341,7 +358,56 @@ function AdminInbox() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={auditOpen} onOpenChange={setAuditOpen}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              Sent email log
+              <Button variant="ghost" size="sm" onClick={() => refetchSent()} disabled={sentFetching} className="ml-auto">
+                {sentFetching ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+              </Button>
+            </DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="max-h-[65vh]">
+            {sentLoading ? (
+              <div className="p-8 flex justify-center"><Loader2 className="w-4 h-4 animate-spin" /></div>
+            ) : !sentRows || sentRows.length === 0 ? (
+              <div className="p-8 text-center text-sm text-muted-foreground">No emails sent yet.</div>
+            ) : (
+              <table className="w-full text-sm">
+                <thead className="sticky top-0 bg-background border-b border-border/60">
+                  <tr className="text-left text-xs text-muted-foreground">
+                    <th className="py-2 pr-3 font-medium">When</th>
+                    <th className="py-2 pr-3 font-medium">Sent by</th>
+                    <th className="py-2 pr-3 font-medium">To</th>
+                    <th className="py-2 pr-3 font-medium">Subject</th>
+                    <th className="py-2 pr-3 font-medium">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sentRows.map((r) => (
+                    <tr key={r.id} className="border-b border-border/40 align-top">
+                      <td className="py-2 pr-3 whitespace-nowrap text-muted-foreground">{new Date(r.created_at).toLocaleString()}</td>
+                      <td className="py-2 pr-3 break-all">{r.sent_by_email ?? <span className="text-muted-foreground">—</span>}</td>
+                      <td className="py-2 pr-3 break-all">{r.to_email}</td>
+                      <td className="py-2 pr-3 break-words">{r.subject}</td>
+                      <td className="py-2 pr-3">
+                        <Badge variant="outline" className={`text-[10px] uppercase ${r.status === "sent" ? "bg-emerald-500/15 text-emerald-600 border-emerald-500/30" : "bg-rose-500/15 text-rose-600 border-rose-500/30"}`}>
+                          {r.status}
+                        </Badge>
+                        {r.error && <div className="text-[11px] text-rose-600 mt-1 break-words">{r.error}</div>}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
     </div>
+
   );
 }
 

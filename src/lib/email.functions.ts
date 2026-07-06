@@ -40,6 +40,7 @@ export async function sendMail(opts: {
   text?: string;
   replyTo?: string;
   kind?: string;
+  sentBy?: { id: string; email?: string | null } | null;
 }): Promise<{ ok: boolean; error?: string }> {
   const creds = await loadSmtpCreds();
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -65,16 +66,19 @@ export async function sendMail(opts: {
     });
     await supabaseAdmin.from("email_log").insert({
       to_email: toStr, subject: opts.subject, kind: opts.kind ?? "custom", status: "sent",
+      sent_by: opts.sentBy?.id ?? null, sent_by_email: opts.sentBy?.email ?? null,
     });
     return { ok: true };
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     await supabaseAdmin.from("email_log").insert({
       to_email: toStr, subject: opts.subject, kind: opts.kind ?? "custom", status: "failed", error: msg,
+      sent_by: opts.sentBy?.id ?? null, sent_by_email: opts.sentBy?.email ?? null,
     });
     return { ok: false, error: msg };
   }
 }
+
 
 
 // ---------------- Admin: status / save / delete / test ----------------
@@ -414,7 +418,10 @@ export const replyToContactMessage = createServerFn({ method: "POST" })
     const safe = (s: string) =>
       s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
     const html = `<div style="font-family:sans-serif;line-height:1.6;white-space:pre-wrap">${safe(data.message)}</div>`;
-    const r = await sendMail({ to: data.to, subject: data.subject, html, kind: "contact_reply" });
+    const r = await sendMail({
+      to: data.to, subject: data.subject, html, kind: "contact_reply",
+      sentBy: { id: context.userId, email: (context.claims as any)?.email ?? null },
+    });
     if (!r.ok) throw new Error(r.error ?? "Failed to send reply");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await supabaseAdmin.from("contact_messages").update({ status: "resolved" }).eq("id", data.id);
@@ -434,10 +441,28 @@ export const sendAdminEmail = createServerFn({ method: "POST" })
     const safe = (s: string) =>
       s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
     const html = `<div style="font-family:sans-serif;line-height:1.6;white-space:pre-wrap">${safe(data.message)}</div>`;
-    const r = await sendMail({ to: data.to, subject: data.subject, html, kind: "admin_compose" });
+    const r = await sendMail({
+      to: data.to, subject: data.subject, html, kind: "admin_compose",
+      sentBy: { id: context.userId, email: (context.claims as any)?.email ?? null },
+    });
     if (!r.ok) throw new Error(r.error ?? "Failed to send");
     return { ok: true };
   });
+
+export const listSentEmails = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.userId, context.supabase);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("email_log")
+      .select("id, to_email, subject, kind, status, error, sent_by, sent_by_email, created_at")
+      .order("created_at", { ascending: false })
+      .limit(500);
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
 
 // ==================== IMAP (incoming mail) ====================
 const IMAP_PROVIDER = "imap";
