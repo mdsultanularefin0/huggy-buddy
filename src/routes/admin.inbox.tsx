@@ -68,6 +68,16 @@ function AdminInbox() {
     onError: (e) => toast.error(e instanceof Error ? e.message : "Update failed"),
   });
 
+  const delMut = useMutation({
+    mutationFn: (id: string) => del({ data: { id } }),
+    onSuccess: (_r, id) => {
+      qc.invalidateQueries({ queryKey: ["contact-messages"] });
+      if (selectedId === id) setSelectedId(null);
+      toast.success("Message deleted");
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Delete failed"),
+  });
+
   const setStatus = (status: Msg["status"]) => {
     if (!selected) return;
     mut.mutate({ id: selected.id, status });
