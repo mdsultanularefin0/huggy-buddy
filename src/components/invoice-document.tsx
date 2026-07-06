@@ -60,6 +60,7 @@ export function InvoiceDocument({
     price: it.price ?? it.unitPrice ?? 0,
     size: it.size ?? null,
     image: it.image ?? it.imageUrl ?? null,
+    selections: Array.isArray(it.selections) ? it.selections : null,
   }));
   const c = order.customer_json ?? {};
   const shopName = branding?.shop_name ?? "Invoice";
