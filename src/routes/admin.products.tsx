@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Plus, Pencil, Trash2, Loader2, Upload, X, GripVertical, Eye, EyeOff, PackageCheck, PackageX } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Upload, X, GripVertical, Eye, EyeOff, PackageCheck, PackageX, FileSpreadsheet } from "lucide-react";
 import { toast } from "sonner";
 import { formatBDT } from "@/lib/currency";
 import { HtmlEditor } from "@/components/html-editor";
@@ -22,6 +22,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useSelection } from "@/hooks/use-selection";
 import { BulkActionBar } from "@/components/bulk-action-bar";
 import { MediaPicker } from "@/components/media-picker";
+import { BulkImportDialog } from "@/components/bulk-import-dialog";
 
 type Product = Database["public"]["Tables"]["products"]["Row"];
 type Variant = {
@@ -58,6 +59,7 @@ const empty = {
 function ProductsPage() {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
   const [form, setForm] = useState(empty);
   const [uploading, setUploading] = useState(false);
@@ -415,8 +417,15 @@ function ProductsPage() {
           <h1 className="text-3xl font-semibold tracking-tight">Products</h1>
           <p className="text-muted-foreground mt-1">Manage your fragrance catalogue.</p>
         </div>
-        <Button onClick={startNew} variant="luxe"><Plus className="w-4 h-4 mr-1" /> New product</Button>
+        <div className="flex items-center gap-2">
+          <Button onClick={() => setImportOpen(true)} variant="outline">
+            <FileSpreadsheet className="w-4 h-4 mr-1" /> Bulk import
+          </Button>
+          <Button onClick={startNew} variant="luxe"><Plus className="w-4 h-4 mr-1" /> New product</Button>
+        </div>
       </div>
+
+      <BulkImportDialog open={importOpen} onOpenChange={setImportOpen} />
 
       {combos.length > 0 && (
         <Card className="shadow-card p-4">
