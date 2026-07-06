@@ -400,7 +400,7 @@ function Landing() {
     ? selectedIds
         .map((id) => allCategories.find((c) => c.id === id))
         .filter((c): c is (typeof allCategories)[number] => Boolean(c))
-    : allCategories;
+    const { data: newArrivals = [] } = useQuery(newArrivalsQuery);
 
   const heroImage = hero?.hero_image ?? null;
   const heroImageZoom = Number(((hero ?? {}) as Record<string, unknown>).hero_image_zoom ?? 100) || 100;
