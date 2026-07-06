@@ -14,6 +14,8 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { useCart, cartSubtotal } from "@/lib/cart-store";
 import { createOrder, validateCoupon, validateReferral } from "@/lib/checkout.functions";
+import { trackMetaEvent } from "@/lib/meta-pixel.functions";
+import { fbqTrack } from "@/lib/meta-track";
 import { BD_DISTRICTS } from "@/lib/bd-districts";
 import { toast } from "sonner";
 
