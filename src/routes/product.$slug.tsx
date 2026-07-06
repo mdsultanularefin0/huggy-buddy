@@ -16,7 +16,13 @@ import {
 } from "@/components/ui/accordion";
 import { ProductReviews } from "@/components/product-reviews";
 
-type Size = { size_label: string; price: number; sale_price?: number | null; in_stock?: boolean };
+type Variant = {
+  id: string;
+  size_label: string;
+  price: number;
+  sale_price: number | null;
+  stock_quantity: number;
+};
 type Product = {
   id: string;
   slug: string;
@@ -25,22 +31,25 @@ type Product = {
   description: string | null;
   regular_price: number;
   sale_price: number | null;
-  sizes_json: Size[] | null;
   image_url: string | null;
   in_stock: boolean;
+  product_variants: Variant[];
 };
 
 const productOptions = (slug: string) =>
   queryOptions({
     queryKey: ["product", "slug", slug],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("products")
-        .select("id,slug,name,short_description,description,regular_price,sale_price,sizes_json,image_url,in_stock,category:categories(name,slug)")
+        .select("id,slug,name,short_description,description,regular_price,sale_price,image_url,in_stock,category:categories(name,slug),product_variants(id,size_label,price,sale_price,stock_quantity)")
         .eq("slug", slug)
         .eq("is_active", true)
         .maybeSingle();
       if (error) throw error;
+      if (data?.product_variants) {
+        data.product_variants.sort((a: Variant, b: Variant) => a.size_label.localeCompare(b.size_label));
+      }
       return data as (Product & { category: { name: string; slug: string } | null }) | null;
     },
   });
