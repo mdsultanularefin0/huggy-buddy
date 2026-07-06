@@ -94,6 +94,9 @@ function HomepagePage() {
   const [shopcatEnabled, setShopcatEnabled] = useState(true);
   const [shopcatTitle, setShopcatTitle] = useState("");
   const [shopcatSubtitle, setShopcatSubtitle] = useState("");
+  // New Arrivals
+  const [newArrivalIds, setNewArrivalIds] = useState<string[]>([]);
+  const [newArrivalsEnabled, setNewArrivalsEnabled] = useState(true);
 
 
   type UploadKind = "hero" | "overlay" | "art" | "banner" | "signature" | `note-${number}`;
