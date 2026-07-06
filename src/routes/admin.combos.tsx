@@ -60,6 +60,25 @@ function CombosPage() {
     },
   });
 
+  const { data: variants = [] } = useQuery({
+    queryKey: ["admin", "variants", "options"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("product_variants")
+        .select("product_id,size_label")
+        .order("sort_order");
+      if (error) throw error;
+      return data as { product_id: string; size_label: string }[];
+    },
+  });
+
+  const variantsByProduct = new Map<string, string[]>();
+  for (const v of variants) {
+    const arr = variantsByProduct.get(v.product_id) ?? [];
+    arr.push(v.size_label);
+    variantsByProduct.set(v.product_id, arr);
+  }
+
   const save = useMutation({
     mutationFn: async () => {
       const payload = {
