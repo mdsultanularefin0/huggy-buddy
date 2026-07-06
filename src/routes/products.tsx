@@ -278,7 +278,8 @@ export function ListingShell({
     });
   }, [combos, maxPrice, scents, activeCategorySlug, activeCategoryId, comboCategoryIds, comboScents]);
 
-  }, [combos, maxPrice, scents, activeCategorySlug]);
+
+
 
 
   return (
