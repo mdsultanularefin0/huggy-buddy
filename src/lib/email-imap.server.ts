@@ -1,7 +1,5 @@
-// Server-only IMAP sync worker. Imported by email.functions.ts and the
-// /api/public/mail/sync route. Kept out of .functions.ts to avoid the
-// tss-serverfn-split transformer stripping / dropping it.
-import { ImapFlow } from "imapflow";
+// Server-only IMAP sync. Cloudflare Workers can't run raw TCP/TLS sockets,
+// so imapflow lives in the Node media-server. This module proxies to it.
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { decryptJson } from "@/lib/integration-crypto.server";
 
@@ -17,14 +15,6 @@ export type ImapCreds = {
   import_all?: boolean;
 };
 
-function resolveMailboxes(c: ImapCreds): string[] {
-  const list = (c.mailboxes && c.mailboxes.length ? c.mailboxes : [c.mailbox || "INBOX"])
-    .map((m) => m.trim()).filter(Boolean);
-  return list.length ? list : ["INBOX"];
-}
-
-const MAX_PER_RUN = 50;
-
 const IMAP_PROVIDER = "imap";
 
 export async function loadImapCreds(): Promise<ImapCreds> {
@@ -37,110 +27,82 @@ export async function loadImapCreds(): Promise<ImapCreds> {
   return decryptJson<ImapCreds>(data);
 }
 
+function mediaServerConfig() {
+  const url = process.env.MEDIA_SERVER_URL;
+  const key = process.env.MEDIA_SERVER_KEY;
+  if (!url || !key) {
+    throw new Error(
+      "IMAP proxy is not configured. Set MEDIA_SERVER_URL and MEDIA_SERVER_KEY.",
+    );
+  }
+  return { url: url.replace(/\/$/, ""), key };
+}
+
+async function callMediaServer<T>(path: string, body: unknown): Promise<T> {
+  const { url, key } = mediaServerConfig();
+  const res = await fetch(`${url}${path}`, {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-api-key": key },
+    body: JSON.stringify(body),
+  });
+  const text = await res.text();
+  let json: unknown;
+  try { json = JSON.parse(text); } catch { json = { error: text }; }
+  if (!res.ok) {
+    const msg = (json as { error?: string })?.error || `Media server error ${res.status}`;
+    throw new Error(msg);
+  }
+  return json as T;
+}
+
+type SyncResponse = {
+  ok: boolean;
+  fetched: number;
+  messages: Array<{
+    mailbox: string;
+    uid: string;
+    name: string;
+    email: string;
+    subject: string;
+    body: string;
+    messageId: string;
+  }>;
+};
+
 export async function runImapSync(): Promise<{
   fetched: number; imported: number; skipped: number; errors: number;
 }> {
   const creds = await loadImapCreds();
-  const client = new ImapFlow({
-    host: creds.host,
-    port: creds.port,
-    secure: creds.secure,
-    auth: { user: creds.username, pass: creds.password },
-    logger: false,
-  });
-
   const stats = { fetched: 0, imported: 0, skipped: 0, errors: 0 };
-  const importAll = !!creds.import_all;
-  const mailboxes = resolveMailboxes(creds);
-  await client.connect();
-  try {
-    for (const mbox of mailboxes) {
-      if (stats.fetched >= MAX_PER_RUN) break;
-      let lock;
-      try {
-        lock = await client.getMailboxLock(mbox);
-      } catch {
-        stats.errors++;
-        continue;
-      }
-      try {
-        const criteria = importAll ? { all: true } : { seen: false };
-        const uids = (await client.search(criteria, { uid: true })) || [];
-        const remaining = MAX_PER_RUN - stats.fetched;
-        const slice = uids.slice(0, remaining);
-        for (const uid of slice) {
-          stats.fetched++;
-          try {
-            const msg = await client.fetchOne(
-              String(uid),
-              { envelope: true, bodyParts: ["text"] },
-              { uid: true },
-            );
-            if (!msg || !msg.envelope) { stats.errors++; continue; }
-            const env = msg.envelope;
-            const fromAddr = env.from?.[0];
-            const email = fromAddr?.address ?? "unknown@unknown";
-            const name = fromAddr?.name || email.split("@")[0];
-            const subject = env.subject || "(no subject)";
-            const textBuf = msg.bodyParts?.get("text");
-            const body = textBuf ? Buffer.from(textBuf).toString("utf8") : "";
-            const messageId = env.messageId || `${creds.host}:${mbox}:${uid}`;
 
-            const { error: insertErr } = await supabaseAdmin
-              .from("contact_messages").insert({
-                name: name.slice(0, 100),
-                email: email.slice(0, 200),
-                phone: null,
-                subject: subject.slice(0, 200),
-                message: body.slice(0, 20000),
-                status: "unread",
-                source: "imap",
-                message_id: messageId,
-              });
-            if (insertErr) {
-              if (insertErr.code === "23505") stats.skipped++;
-              else stats.errors++;
-            } else {
-              stats.imported++;
-            }
+  const result = await callMediaServer<SyncResponse>("/imap/sync", creds);
+  stats.fetched = result.fetched;
 
-            if (creds.mark_seen && !importAll) {
-              await client.messageFlagsAdd(
-                String(uid), ["\\Seen"], { uid: true },
-              );
-            }
-          } catch {
-            stats.errors++;
-          }
-        }
-      } finally {
-        lock.release();
-      }
+  for (const m of result.messages) {
+    const { error: insertErr } = await supabaseAdmin
+      .from("contact_messages").insert({
+        name: (m.name || "").slice(0, 100),
+        email: (m.email || "").slice(0, 200),
+        phone: null,
+        subject: (m.subject || "").slice(0, 200),
+        message: (m.body || "").slice(0, 20000),
+        status: "unread",
+        source: "imap",
+        message_id: m.messageId,
+      });
+    if (insertErr) {
+      if (insertErr.code === "23505") stats.skipped++;
+      else stats.errors++;
+    } else {
+      stats.imported++;
     }
-  } finally {
-    await client.logout().catch(() => { /* ignore */ });
   }
   return stats;
 }
 
+type TestResponse = { ok: true; exists: number; unseen: number; mailboxes: string[] };
+
 export async function testImapCreds() {
   const creds = await loadImapCreds();
-  const client = new ImapFlow({
-    host: creds.host, port: creds.port, secure: creds.secure,
-    auth: { user: creds.username, pass: creds.password },
-    logger: false,
-  });
-  await client.connect();
-  const mailboxes = resolveMailboxes(creds);
-  let exists = 0;
-  let unseen = 0;
-  for (const mbox of mailboxes) {
-    try {
-      const info = await client.mailboxOpen(mbox);
-      exists += info.exists || 0;
-      unseen += (info as unknown as { unseen?: number }).unseen ?? 0;
-    } catch { /* ignore missing folder */ }
-  }
-  await client.logout();
-  return { ok: true, exists, unseen, mailboxes };
+  return callMediaServer<TestResponse>("/imap/test", creds);
 }
