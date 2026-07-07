@@ -93,6 +93,20 @@ function CouponsPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const selection = useSelection(coupons);
+  const bulkDelete = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase.from("coupons").delete().in("id", ids);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Deleted");
+      qc.invalidateQueries({ queryKey: ["admin", "coupons"] });
+      selection.clear();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const toggle = useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
       const { error } = await supabase.from("coupons").update({ is_active }).eq("id", id);
