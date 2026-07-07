@@ -107,13 +107,13 @@ function CustomersPage() {
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-semibold tracking-tight">Customers</h1>
-        <p className="text-muted-foreground mt-1">Track buyers and flag risky accounts.</p>
+        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">Customers</h1>
+        <p className="text-muted-foreground mt-1 text-sm sm:text-base">Track buyers and flag risky accounts.</p>
       </div>
 
-      <div className="flex items-center gap-3">
-        <Input placeholder="Search by phone, name, email…" value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-xs" />
-        <span className="text-sm text-muted-foreground ml-auto">{filtered.length} customer{filtered.length === 1 ? "" : "s"}</span>
+      <div className="flex flex-wrap items-center gap-3">
+        <Input placeholder="Search by phone, name, email…" value={search} onChange={(e) => setSearch(e.target.value)} className="w-full sm:max-w-xs" />
+        <span className="text-sm text-muted-foreground sm:ml-auto">{filtered.length} customer{filtered.length === 1 ? "" : "s"}</span>
       </div>
 
       <Card className="shadow-card overflow-hidden">

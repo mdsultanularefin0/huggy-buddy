@@ -372,16 +372,16 @@ function OrdersPage() {
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-semibold tracking-tight">Orders</h1>
-        <p className="text-muted-foreground mt-1">Manage incoming orders and fulfillment.</p>
+        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">Orders</h1>
+        <p className="text-muted-foreground mt-1 text-sm sm:text-base">Manage incoming orders and fulfillment.</p>
       </div>
 
-      <div className="flex flex-wrap items-end gap-3">
+      <div className="flex flex-wrap items-end gap-2 sm:gap-3">
         <Input
           placeholder="Search order # / phone / name / tracking…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="max-w-xs"
+          className="w-full sm:max-w-xs"
         />
         <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as OrderStatus | "all")}>
           <SelectTrigger className="w-40"><SelectValue placeholder="Status" /></SelectTrigger>

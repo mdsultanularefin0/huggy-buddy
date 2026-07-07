@@ -425,19 +425,19 @@ function ProductsPage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Products</h1>
-          <p className="text-muted-foreground mt-1">Manage your fragrance catalogue.</p>
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">Products</h1>
+          <p className="text-muted-foreground mt-1 text-sm sm:text-base">Manage your fragrance catalogue.</p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button onClick={() => setGlobalOpen(true)} variant="outline" title="Edit the 3 sections shown on every product page">
-            <Settings className="w-4 h-4 mr-1" /> Global settings
+        <div className="flex flex-wrap items-center gap-2">
+          <Button size="sm" onClick={() => setGlobalOpen(true)} variant="outline" title="Edit the 3 sections shown on every product page">
+            <Settings className="w-4 h-4 sm:mr-1" /> <span className="hidden sm:inline">Global settings</span>
           </Button>
-          <Button onClick={() => setImportOpen(true)} variant="outline">
-            <FileSpreadsheet className="w-4 h-4 mr-1" /> Bulk import
+          <Button size="sm" onClick={() => setImportOpen(true)} variant="outline">
+            <FileSpreadsheet className="w-4 h-4 sm:mr-1" /> <span className="hidden sm:inline">Bulk import</span>
           </Button>
-          <Button onClick={startNew} variant="luxe"><Plus className="w-4 h-4 mr-1" /> New product</Button>
+          <Button size="sm" onClick={startNew} variant="luxe"><Plus className="w-4 h-4 mr-1" /> New product</Button>
         </div>
       </div>
 
@@ -629,7 +629,7 @@ function ProductsPage() {
             <DialogTitle>{editing ? "Edit product" : "New product"}</DialogTitle>
           </DialogHeader>
           <Tabs defaultValue="basics" className="py-2">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto gap-1">
               <TabsTrigger value="basics">Basics</TabsTrigger>
               <TabsTrigger value="media">Media</TabsTrigger>
               <TabsTrigger value="pricing">Pricing</TabsTrigger>
@@ -811,41 +811,45 @@ function ProductsPage() {
                   </Button>
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">Each row is a size (e.g. 50ml). Toggle <strong>In stock</strong> to keep it always available without tracking quantity; otherwise, set a stock quantity to track inventory.</p>
-                {form.variants.length > 0 && (
-                  <div className="grid grid-cols-[1fr_90px_90px_90px_90px_auto] gap-2 items-center mt-2 px-1 text-xs text-muted-foreground">
-                    <span>Size</span><span>Price</span><span>Sale</span><span>Stock qty</span><span>In stock</span><span></span>
-                  </div>
-                )}
-                <div className="mt-1 space-y-2">
-                  {form.variants.map((v, i) => {
-                    const qtyLocked = v.in_stock; // toggle on -> qty disabled and forced 0
-                    const toggleLocked = v.stock_quantity > 0; // qty > 0 -> toggle disabled (off)
-                    return (
-                      <div key={v.id ?? `new-${i}`} className="grid grid-cols-[1fr_90px_90px_90px_90px_auto] gap-2 items-center">
-                        <Input placeholder="e.g. 50ml" value={v.size_label} onChange={(e) => updateVariant(i, { size_label: e.target.value })} />
-                        <Input type="number" min={0} placeholder="Price" value={v.price} onChange={(e) => updateVariant(i, { price: Number(e.target.value) })} />
-                        <Input type="number" min={0} placeholder="Sale" value={v.sale_price ?? ""} onChange={(e) => updateVariant(i, { sale_price: e.target.value === "" ? null : Number(e.target.value) })} />
-                        <Input
-                          type="number"
-                          min={0}
-                          placeholder="Stock"
-                          disabled={qtyLocked}
-                          value={qtyLocked ? 0 : v.stock_quantity}
-                          onChange={(e) => updateVariant(i, { stock_quantity: Math.max(0, Number(e.target.value) || 0) })}
-                        />
-                        <div className="flex justify-center">
-                          <Switch
-                            checked={v.in_stock}
-                            disabled={toggleLocked}
-                            onCheckedChange={(val) => updateVariant(i, { in_stock: val, ...(val ? { stock_quantity: 0 } : {}) })}
-                          />
-                        </div>
-                        <Button type="button" variant="ghost" size="sm" onClick={() => setForm((f) => ({ ...f, variants: f.variants.filter((_, idx) => idx !== i) }))}>
-                          <X className="w-4 h-4" />
-                        </Button>
+                <div className="mt-2 -mx-1 overflow-x-auto">
+                  <div className="min-w-[560px] px-1">
+                    {form.variants.length > 0 && (
+                      <div className="grid grid-cols-[1fr_90px_90px_90px_90px_auto] gap-2 items-center text-xs text-muted-foreground">
+                        <span>Size</span><span>Price</span><span>Sale</span><span>Stock qty</span><span>In stock</span><span></span>
                       </div>
-                    );
-                  })}
+                    )}
+                    <div className="mt-1 space-y-2">
+                      {form.variants.map((v, i) => {
+                        const qtyLocked = v.in_stock;
+                        const toggleLocked = v.stock_quantity > 0;
+                        return (
+                          <div key={v.id ?? `new-${i}`} className="grid grid-cols-[1fr_90px_90px_90px_90px_auto] gap-2 items-center">
+                            <Input placeholder="e.g. 50ml" value={v.size_label} onChange={(e) => updateVariant(i, { size_label: e.target.value })} />
+                            <Input type="number" min={0} placeholder="Price" value={v.price} onChange={(e) => updateVariant(i, { price: Number(e.target.value) })} />
+                            <Input type="number" min={0} placeholder="Sale" value={v.sale_price ?? ""} onChange={(e) => updateVariant(i, { sale_price: e.target.value === "" ? null : Number(e.target.value) })} />
+                            <Input
+                              type="number"
+                              min={0}
+                              placeholder="Stock"
+                              disabled={qtyLocked}
+                              value={qtyLocked ? 0 : v.stock_quantity}
+                              onChange={(e) => updateVariant(i, { stock_quantity: Math.max(0, Number(e.target.value) || 0) })}
+                            />
+                            <div className="flex justify-center">
+                              <Switch
+                                checked={v.in_stock}
+                                disabled={toggleLocked}
+                                onCheckedChange={(val) => updateVariant(i, { in_stock: val, ...(val ? { stock_quantity: 0 } : {}) })}
+                              />
+                            </div>
+                            <Button type="button" variant="ghost" size="sm" onClick={() => setForm((f) => ({ ...f, variants: f.variants.filter((_, idx) => idx !== i) }))}>
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
               </div>
 
