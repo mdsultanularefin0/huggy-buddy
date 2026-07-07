@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { evaluateCoupon } from "./coupon-eval";
 
 const CartItemSchema = z.object({
   lineId: z.string(),
@@ -45,21 +46,17 @@ export const validateCoupon = createServerFn({ method: "POST" })
     const { data: cp, error } = await supabaseAdmin
       .from("coupons")
       .select("code,discount_type,discount_value,min_order_amount,max_discount,expires_at,usage_limit,used_count,is_active")
-      .ilike("code", data.code)
+      .ilike("code", data.code.trim())
       .maybeSingle();
     if (error) throw new Error("Could not validate coupon");
-    if (!cp || !cp.is_active) throw new Error("Invalid coupon code");
-    if (cp.expires_at && new Date(cp.expires_at) < new Date()) throw new Error("This coupon has expired");
-    if (cp.usage_limit != null && cp.used_count >= cp.usage_limit) throw new Error("This coupon has reached its usage limit");
-    if (data.subtotal < (cp.min_order_amount ?? 0)) {
-      throw new Error(`Add more to reach the minimum order of ${cp.min_order_amount} for this coupon`);
-    }
-    let discount = cp.discount_type === "percent"
-      ? Math.floor((data.subtotal * cp.discount_value) / 100)
-      : cp.discount_value;
-    if (cp.max_discount != null) discount = Math.min(discount, cp.max_discount);
-    discount = Math.min(discount, data.subtotal);
-    return { code: cp.code, discount, discountType: cp.discount_type, discountValue: cp.discount_value };
+    const result = evaluateCoupon(cp, data.subtotal);
+    if (!result.ok) throw new Error(result.message);
+    return {
+      code: result.code,
+      discount: result.discount,
+      discountType: result.discountType,
+      discountValue: result.discountValue,
+    };
   });
 
 const ValidateReferralSchema = z.object({
@@ -311,21 +308,15 @@ export const createOrder = createServerFn({ method: "POST" })
       const { data: cp } = await supabaseAdmin
         .from("coupons")
         .select("code,discount_type,discount_value,min_order_amount,max_discount,expires_at,usage_limit,used_count,is_active")
-        .eq("code", couponCode)
-        .eq("is_active", true)
+        .ilike("code", couponCode)
         .maybeSingle();
-      if (!cp) throw new Error("Invalid coupon code");
-      if (cp.expires_at && new Date(cp.expires_at) < new Date()) throw new Error("Coupon expired");
-      if (cp.usage_limit != null && cp.used_count >= cp.usage_limit) throw new Error("Coupon usage limit reached");
-      if (subtotal < (cp.min_order_amount ?? 0)) {
-        throw new Error(`Coupon requires minimum order of ${cp.min_order_amount}`);
+      const result = evaluateCoupon(cp, subtotal);
+      if (!result.ok) throw new Error(result.message);
+      const cd = Math.min(result.discount, Math.max(0, subtotal - discount));
+      if (cd > 0) {
+        discount += cd;
+        couponApplied = result.code;
       }
-      let cd = cp.discount_type === "percent"
-        ? Math.floor((subtotal * cp.discount_value) / 100)
-        : cp.discount_value;
-      if (cp.max_discount != null) cd = Math.min(cd, cp.max_discount);
-      discount += Math.min(cd, Math.max(0, subtotal - discount));
-      couponApplied = cp.code;
     }
 
     discount = Math.min(discount, subtotal);
