@@ -149,6 +149,7 @@ function AdminOrderDetail() {
     return <div className="p-12 text-center text-muted-foreground">Order not found.</div>;
   }
 
+  const isTerminal = ["Completed", "Cancelled", "Returned"].includes(order.order_status);
   const c = (order.customer_json as { name?: string; phone?: string; address?: string; email?: string; district?: string; area?: string } | null) ?? {};
   const items = ((order.items_json as Array<Record<string, unknown>>) ?? []).map((it) => ({
     name: (it.name as string | undefined) ?? "",
@@ -168,20 +169,6 @@ function AdminOrderDetail() {
           <Link to="/admin/orders"><ArrowLeft className="w-4 h-4 mr-1" />Back to orders</Link>
         </Button>
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => refreshStatus.mutate()}
-            disabled={refreshStatus.isPending}
-            title="Check courier status and update order"
-          >
-            {refreshStatus.isPending ? (
-              <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-            ) : (
-              <RefreshCw className="w-4 h-4 mr-1" />
-            )}
-            Refresh status
-          </Button>
           <Button variant="outline" size="sm" asChild>
             <Link to="/admin/orders/$id/label" params={{ id }} target="_blank">
               <Tag className="w-4 h-4 mr-1" /> Courier label
@@ -234,6 +221,21 @@ function AdminOrderDetail() {
               {ORDER_STATUSES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
             </SelectContent>
           </Select>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-9"
+            onClick={() => refreshStatus.mutate()}
+            disabled={refreshStatus.isPending || isTerminal}
+            title={isTerminal ? `Order is ${order.order_status} — status check skipped` : "Check courier status and update order"}
+          >
+            {refreshStatus.isPending ? (
+              <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+            ) : (
+              <RefreshCw className="w-4 h-4 mr-1" />
+            )}
+            Refresh status
+          </Button>
         </div>
       </div>
 
