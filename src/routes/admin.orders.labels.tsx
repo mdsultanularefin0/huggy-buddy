@@ -76,7 +76,7 @@ function Label({ order }: { order: OrderRow }) {
 
   return (
     <div
-      className="courier-label bg-white text-black border border-black overflow-hidden"
+      className="courier-label bg-white text-black border border-black overflow-hidden flex flex-col"
       style={{ width: "50mm", height: "72mm", padding: "2mm", fontSize: "7pt", lineHeight: 1.15 }}
     >
       <div className="flex justify-between items-start border-b border-black pb-1 mb-1">
@@ -85,12 +85,13 @@ function Label({ order }: { order: OrderRow }) {
           <div className="font-mono font-bold truncate" style={{ fontSize: "7pt" }}>{order.order_number}</div>
         </div>
         <div className="border border-black px-1 font-bold uppercase" style={{ fontSize: "6pt" }}>
-          {order.payment_method === "COD" ? "COD" : "PAID"}
+          {due > 0 ? "COD" : "PAID"}
         </div>
       </div>
 
       <div className="text-center border-b border-black pb-1 mb-1">
-        <div className="flex justify-center"><Barcode value={courierId} /></div>
+        <div className="uppercase" style={{ fontSize: "5.5pt" }}>Courier ID</div>
+        <div className="font-mono font-bold leading-tight break-all" style={{ fontSize: "11pt" }}>{courierId}</div>
       </div>
 
       <div className="border-b border-black pb-1 mb-1" style={{ fontSize: "6.5pt" }}>
@@ -111,16 +112,20 @@ function Label({ order }: { order: OrderRow }) {
         </div>
       </div>
 
-      <div style={{ fontSize: "5.5pt" }}>
+      <div style={{ fontSize: "5.5pt" }} className="flex-1 min-h-0 overflow-hidden">
         <ul>
-          {items.slice(0, 3).map((it, i) => (
+          {items.slice(0, 2).map((it, i) => (
             <li key={i} className="flex justify-between gap-1 truncate">
               <span className="truncate">{it.name}</span>
               <span className="font-mono">×{it.qty}</span>
             </li>
           ))}
-          {items.length > 3 && <li className="italic">+{items.length - 3} more…</li>}
+          {items.length > 2 && <li className="italic">+{items.length - 2} more…</li>}
         </ul>
+      </div>
+
+      <div className="mt-auto pt-1 border-t border-black flex justify-center">
+        <Barcode value={courierId} />
       </div>
     </div>
   );
