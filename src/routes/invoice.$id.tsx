@@ -8,6 +8,7 @@ import { ArrowLeft, Download, Loader2, Printer } from "lucide-react";
 import { getInvoiceOrder } from "@/lib/invoice.functions";
 import { InvoiceDocument, type InvoiceOrder, type InvoiceBranding } from "@/components/invoice-document";
 import { toast } from "sonner";
+import { normalizeOklchInClone } from "@/lib/pdf-color-safe";
 
 const searchSchema = z.object({ token: z.string().optional() });
 
@@ -57,7 +58,7 @@ function InvoicePage() {
           margin: 0,
           filename: `invoice-${data.order.order_number}.pdf`,
           image: { type: "jpeg", quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff" },
+          html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff", onclone: (doc: Document, el: HTMLElement) => normalizeOklchInClone(doc, el) },
           jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
         })
         .save();

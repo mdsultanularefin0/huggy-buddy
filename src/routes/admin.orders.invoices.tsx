@@ -8,6 +8,7 @@ import { InvoiceDocument, type InvoiceOrder, type InvoiceBranding } from "@/comp
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Download, Loader2, Printer } from "lucide-react";
 import { toast } from "sonner";
+import { normalizeOklchInClone } from "@/lib/pdf-color-safe";
 
 const searchSchema = z.object({ ids: z.string().min(1) });
 
@@ -58,7 +59,7 @@ function BulkInvoicesPage() {
           margin: 0,
           filename: `invoices-${new Date().toISOString().slice(0, 10)}.pdf`,
           image: { type: "jpeg", quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff" },
+          html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff", onclone: (doc: Document, el: HTMLElement) => normalizeOklchInClone(doc, el) },
           jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
           pagebreak: { mode: ["css", "legacy"], before: ".invoice-page-break" },
         })
