@@ -340,6 +340,7 @@ export const getAdminDashboardStats = createServerFn({ method: "GET" })
         .from("products")
         .select("id, name, stock_quantity, image_url")
         .eq("is_active", true)
+        .eq("in_stock", false)
         .lte("stock_quantity", 5)
         .order("stock_quantity", { ascending: true })
         .limit(5),
