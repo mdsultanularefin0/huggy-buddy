@@ -187,7 +187,13 @@ function CouponsPage() {
                 const pct = limit && limit > 0 ? Math.min(100, Math.round((used / limit) * 100)) : 0;
                 const exhausted = limit != null && remaining === 0;
                 return (
-                <TableRow key={c.id}>
+                <TableRow key={c.id} data-state={selection.isSelected(c.id) ? "selected" : undefined}>
+                  <TableCell onClick={(e) => e.stopPropagation()}>
+                    <Checkbox
+                      checked={selection.isSelected(c.id)}
+                      onCheckedChange={(v) => selection.toggle(c.id, !!v)}
+                    />
+                  </TableCell>
                   <TableCell className="font-mono font-medium">{c.code}</TableCell>
                   <TableCell>{formatDiscount(c)}</TableCell>
                   <TableCell>{formatBDT(c.min_order_amount)}</TableCell>
