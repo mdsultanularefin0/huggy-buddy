@@ -145,7 +145,7 @@ function Label({ order }: { order: OrderRow }) {
 
 function BulkLabelsPage() {
   const { ids } = Route.useSearch();
-  const idList = ids.split(",").map((s) => s.trim()).filter(Boolean);
+  const idList = ids.split(",").map((s: string) => s.trim()).filter(Boolean);
   const fetchOrders = useServerFn(getAdminOrdersByIds);
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["admin", "orders-bulk-labels", ids],
