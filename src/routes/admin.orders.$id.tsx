@@ -100,11 +100,41 @@ function AdminOrderDetail() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const COURIER_TO_ORDER: Record<string, OrderStatus> = {
+    pending: "Shipped",
+    in_review: "Processing",
+    hold: "Processing",
+    delivered_approval_pending: "Completed",
+    partial_delivered_approval_pending: "Completed",
+    delivered: "Completed",
+    partial_delivered: "Completed",
+    cancelled_approval_pending: "Returned",
+    cancelled: "Returned",
+  };
+
   const refreshStatus = useMutation({
-    mutationFn: () => checkStatus({ data: { by: "invoice", value: order?.order_number ?? "" } }),
-    onSuccess: (r) => {
-      setRemoteStatus(r?.delivery_status ?? "unknown");
-      toast.success(`Steadfast: ${r?.delivery_status ?? "unknown"}`);
+    mutationFn: async () => {
+      if (!order?.consignment_id && !order?.tracking_code) {
+        return { delivery_status: null as string | null, mapped: "Pending" as OrderStatus, noCourier: true };
+      }
+      const r = await checkStatus({
+        data: order?.consignment_id
+          ? { by: "cid", value: String(order.consignment_id) }
+          : { by: "tracking", value: order?.tracking_code ?? "" },
+      });
+      const key = (r?.delivery_status ?? "").toLowerCase();
+      return { delivery_status: r?.delivery_status ?? null, mapped: COURIER_TO_ORDER[key] ?? null, noCourier: false };
+    },
+    onSuccess: async (r) => {
+      setRemoteStatus(r.delivery_status ?? (r.noCourier ? "no courier" : "unknown"));
+      if (r.mapped && r.mapped !== order?.order_status) {
+        await updateOrder({ data: { id, patch: { order_status: r.mapped } } });
+        qc.invalidateQueries({ queryKey: ["admin", "order", id] });
+        qc.invalidateQueries({ queryKey: ["admin", "orders"] });
+        toast.success(r.noCourier ? "No courier ID — marked Pending" : `Courier: ${r.delivery_status} → ${r.mapped}`);
+      } else {
+        toast.success(r.noCourier ? "No courier ID" : `Courier: ${r.delivery_status ?? "unknown"}`);
+      }
     },
     onError: (e: Error) => toast.error(e.message),
   });
