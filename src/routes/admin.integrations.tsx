@@ -45,12 +45,12 @@ function AdminIntegrations() {
         </p>
       </div>
       <Tabs defaultValue="smtp" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="smtp"><Mail className="w-4 h-4 mr-2" />SMTP (Outgoing)</TabsTrigger>
-          <TabsTrigger value="imap"><Inbox className="w-4 h-4 mr-2" />IMAP (Incoming)</TabsTrigger>
-          <TabsTrigger value="steadfast"><Truck className="w-4 h-4 mr-2" />Steadfast</TabsTrigger>
-          <TabsTrigger value="media"><Film className="w-4 h-4 mr-2" />Media Server</TabsTrigger>
-          <TabsTrigger value="meta"><Target className="w-4 h-4 mr-2" />Meta Pixel & CAPI</TabsTrigger>
+        <TabsList className="flex w-full flex-wrap h-auto gap-1 justify-start sm:inline-flex sm:w-auto sm:flex-nowrap">
+          <TabsTrigger value="smtp" className="flex-1 sm:flex-none min-w-[calc(50%-0.25rem)] sm:min-w-0"><Mail className="w-4 h-4 mr-2" /><span className="truncate">SMTP</span></TabsTrigger>
+          <TabsTrigger value="imap" className="flex-1 sm:flex-none min-w-[calc(50%-0.25rem)] sm:min-w-0"><Inbox className="w-4 h-4 mr-2" /><span className="truncate">IMAP</span></TabsTrigger>
+          <TabsTrigger value="steadfast" className="flex-1 sm:flex-none min-w-[calc(50%-0.25rem)] sm:min-w-0"><Truck className="w-4 h-4 mr-2" /><span className="truncate">Steadfast</span></TabsTrigger>
+          <TabsTrigger value="media" className="flex-1 sm:flex-none min-w-[calc(50%-0.25rem)] sm:min-w-0"><Film className="w-4 h-4 mr-2" /><span className="truncate">Media</span></TabsTrigger>
+          <TabsTrigger value="meta" className="flex-1 sm:flex-none min-w-[calc(100%-0.25rem)] sm:min-w-0"><Target className="w-4 h-4 mr-2" /><span className="truncate">Meta Pixel</span></TabsTrigger>
         </TabsList>
         <TabsContent value="smtp"><SmtpCard /></TabsContent>
         <TabsContent value="imap"><ImapCard /></TabsContent>
