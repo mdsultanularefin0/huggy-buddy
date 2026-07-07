@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, Eye, ShieldAlert, X, Truck, CheckCheck, MoreVertical, FileText, ExternalLink, Copy, Phone, PackageCheck, PackageX, Ban, Download, Tag } from "lucide-react";
+import { Loader2, Eye, ShieldAlert, X, Truck, CheckCheck, MoreVertical, FileText, ExternalLink, Copy, Phone, PackageCheck, PackageX, Ban, Download, Tag, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { formatBDT } from "@/lib/currency";
 import type { Database } from "@/integrations/supabase/types";
@@ -16,7 +16,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { listAdminOrders, updateOrderAdmin } from "@/lib/admin-mutations.functions";
 import { exportOrdersForCSV } from "@/lib/admin-data-ops.functions";
 import { toCSV, downloadCSV } from "@/lib/csv";
-import { getSteadfastFraudCheck, bulkCreateSteadfastShipments } from "@/lib/integrations.functions";
+import { getSteadfastFraudCheck, bulkCreateSteadfastShipments, getSteadfastDeliveryStatus } from "@/lib/integrations.functions";
 import { getInvoiceToken } from "@/lib/invoice.functions";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useSelection } from "@/hooks/use-selection";
@@ -63,6 +63,7 @@ function OrdersPage() {
   const updateOrder = useServerFn(updateOrderAdmin);
   const fraudFn = useServerFn(getSteadfastFraudCheck);
   const bulkShipFn = useServerFn(bulkCreateSteadfastShipments);
+  const checkStatusFn = useServerFn(getSteadfastDeliveryStatus);
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
   const [paymentFilter, setPaymentFilter] = useState<PaymentStatus | "all">("all");
   const [search, setSearch] = useState("");
@@ -224,6 +225,51 @@ function OrdersPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const COURIER_TO_ORDER: Record<string, OrderStatus> = {
+    pending: "Shipped",
+    in_review: "Processing",
+    hold: "Processing",
+    delivered_approval_pending: "Completed",
+    partial_delivered_approval_pending: "Completed",
+    delivered: "Completed",
+    partial_delivered: "Completed",
+    cancelled_approval_pending: "Returned",
+    cancelled: "Returned",
+  };
+  const TERMINAL: OrderStatus[] = ["Completed", "Cancelled", "Returned"];
+
+  const refreshAll = useMutation({
+    mutationFn: async () => {
+      const candidates = (orders ?? []).filter(
+        (o) => !TERMINAL.includes(o.order_status) && (o.consignment_id || o.tracking_code),
+      );
+      let updated = 0;
+      let skipped = (orders?.length ?? 0) - candidates.length;
+      for (const o of candidates) {
+        try {
+          const r = await checkStatusFn({
+            data: o.consignment_id
+              ? { by: "cid" as const, value: String(o.consignment_id) }
+              : { by: "tracking" as const, value: o.tracking_code ?? "" },
+          });
+          const mapped = COURIER_TO_ORDER[(r?.delivery_status ?? "").toLowerCase()];
+          if (mapped && mapped !== o.order_status) {
+            await updateOrder({ data: { id: o.id, patch: { order_status: mapped } } });
+            updated++;
+          }
+        } catch {
+          skipped++;
+        }
+      }
+      return { updated, skipped, checked: candidates.length };
+    },
+    onSuccess: (r) => {
+      toast.success(`Checked ${r.checked} · updated ${r.updated}${r.skipped ? ` · skipped ${r.skipped}` : ""}`);
+      qc.invalidateQueries({ queryKey: ["admin", "orders"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const anyBulkPending = bulkStatus.isPending || bulkPayment.isPending || bulkShip.isPending;
   const MAX_PDF = 100;
   const selectedOrders = (orders ?? []).filter((o) => selection.selectedIds.includes(o.id));
@@ -363,6 +409,16 @@ function OrdersPage() {
           <span className="text-sm text-muted-foreground">
             {filtered.length} of {total} order{total === 1 ? "" : "s"}
           </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => refreshAll.mutate()}
+            disabled={refreshAll.isPending}
+            title="Check courier status for all in-progress orders on this page"
+          >
+            {refreshAll.isPending ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-1" />}
+            Refresh statuses
+          </Button>
           <Button variant="outline" size="sm" onClick={handleExport} disabled={exporting}>
             {exporting ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Download className="w-4 h-4 mr-1" />}
             Export CSV
