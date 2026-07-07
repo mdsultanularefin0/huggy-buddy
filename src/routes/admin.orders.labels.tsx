@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Download, Loader2, Printer } from "lucide-react";
 import { formatBDT } from "@/lib/currency";
 import { toast } from "sonner";
+import { normalizeOklchInClone } from "@/lib/pdf-color-safe";
 
 const searchSchema = z.object({ ids: z.string().min(1) });
 
