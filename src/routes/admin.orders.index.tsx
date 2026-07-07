@@ -409,6 +409,16 @@ function OrdersPage() {
           <span className="text-sm text-muted-foreground">
             {filtered.length} of {total} order{total === 1 ? "" : "s"}
           </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => refreshAll.mutate()}
+            disabled={refreshAll.isPending}
+            title="Check courier status for all in-progress orders on this page"
+          >
+            {refreshAll.isPending ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-1" />}
+            Refresh statuses
+          </Button>
           <Button variant="outline" size="sm" onClick={handleExport} disabled={exporting}>
             {exporting ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Download className="w-4 h-4 mr-1" />}
             Export CSV
