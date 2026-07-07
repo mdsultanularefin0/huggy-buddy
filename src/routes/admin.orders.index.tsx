@@ -225,6 +225,51 @@ function OrdersPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const COURIER_TO_ORDER: Record<string, OrderStatus> = {
+    pending: "Shipped",
+    in_review: "Processing",
+    hold: "Processing",
+    delivered_approval_pending: "Completed",
+    partial_delivered_approval_pending: "Completed",
+    delivered: "Completed",
+    partial_delivered: "Completed",
+    cancelled_approval_pending: "Returned",
+    cancelled: "Returned",
+  };
+  const TERMINAL: OrderStatus[] = ["Completed", "Cancelled", "Returned"];
+
+  const refreshAll = useMutation({
+    mutationFn: async () => {
+      const candidates = (orders ?? []).filter(
+        (o) => !TERMINAL.includes(o.order_status) && (o.consignment_id || o.tracking_code),
+      );
+      let updated = 0;
+      let skipped = (orders?.length ?? 0) - candidates.length;
+      for (const o of candidates) {
+        try {
+          const r = await checkStatusFn({
+            data: o.consignment_id
+              ? { by: "cid" as const, value: String(o.consignment_id) }
+              : { by: "tracking" as const, value: o.tracking_code ?? "" },
+          });
+          const mapped = COURIER_TO_ORDER[(r?.delivery_status ?? "").toLowerCase()];
+          if (mapped && mapped !== o.order_status) {
+            await updateOrder({ data: { id: o.id, patch: { order_status: mapped } } });
+            updated++;
+          }
+        } catch {
+          skipped++;
+        }
+      }
+      return { updated, skipped, checked: candidates.length };
+    },
+    onSuccess: (r) => {
+      toast.success(`Checked ${r.checked} · updated ${r.updated}${r.skipped ? ` · skipped ${r.skipped}` : ""}`);
+      qc.invalidateQueries({ queryKey: ["admin", "orders"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const anyBulkPending = bulkStatus.isPending || bulkPayment.isPending || bulkShip.isPending;
   const MAX_PDF = 100;
   const selectedOrders = (orders ?? []).filter((o) => selection.selectedIds.includes(o.id));
