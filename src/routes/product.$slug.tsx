@@ -358,26 +358,7 @@ function ProductPage() {
             {!product.in_stock ? "Out of stock" : needsVariant && variantIdx === null ? "Select a size" : chosenOut ? "Variant out of stock" : "Add to Cart"}
           </Button>
 
-          <Accordion type="single" collapsible className="mt-8">
-            <AccordionItem value="notes">
-              <AccordionTrigger>Notes & Ingredients</AccordionTrigger>
-              <AccordionContent>
-                Crafted with premium imported oils. Top, heart, and base notes designed to evolve gracefully on skin.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="shipping">
-              <AccordionTrigger>Shipping Info</AccordionTrigger>
-              <AccordionContent>
-                Nationwide delivery across Bangladesh in 2–4 business days. Free shipping on orders over ৳999.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="usage">
-              <AccordionTrigger>How to Use</AccordionTrigger>
-              <AccordionContent>
-                Spray onto pulse points — wrists, neck, and behind the ears — from 15–20 cm away for best projection.
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
+          <ProductAccordions />
         </div>
       </div>
       {product.description && (
