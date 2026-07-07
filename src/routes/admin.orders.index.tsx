@@ -281,7 +281,7 @@ function OrdersPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const anyBulkPending = bulkStatus.isPending || bulkPayment.isPending || bulkShip.isPending;
+  const anyBulkPending = bulkStatus.isPending || bulkPayment.isPending || bulkShip.isPending || bulkDelete.isPending;
   const MAX_PDF = 100;
   const selectedOrders = (orders ?? []).filter((o) => selection.selectedIds.includes(o.id));
 
