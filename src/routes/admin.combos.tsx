@@ -313,6 +313,12 @@ function CombosPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-10">
+                  <Checkbox
+                    checked={selection.allChecked ? true : selection.someChecked ? "indeterminate" : false}
+                    onCheckedChange={(v) => selection.toggleAll(!!v)}
+                  />
+                </TableHead>
                 <TableHead className="w-16"></TableHead>
                 <TableHead>Title</TableHead>
                 <TableHead>Type</TableHead>
@@ -326,7 +332,13 @@ function CombosPage() {
               {combos.map((c) => {
                 const items = Array.isArray(c.products_json) ? (c.products_json as unknown[]).length : 0;
                 return (
-                  <TableRow key={c.id}>
+                  <TableRow key={c.id} data-state={selection.isSelected(c.id) ? "selected" : undefined}>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      <Checkbox
+                        checked={selection.isSelected(c.id)}
+                        onCheckedChange={(v) => selection.toggle(c.id, !!v)}
+                      />
+                    </TableCell>
                     <TableCell>
                       {c.image_url ? (
                         <img src={c.image_url} alt="" className="w-12 h-12 rounded-md object-cover" loading="lazy" />
