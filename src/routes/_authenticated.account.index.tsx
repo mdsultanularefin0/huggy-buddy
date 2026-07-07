@@ -76,12 +76,10 @@ function ProfilePage() {
         ) : (
           <Form {...form}>
             <form onSubmit={form.handleSubmit((v) => mut.mutate(v))} className="space-y-4">
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input value={data?.email ?? ""} disabled />
-                </FormControl>
-              </FormItem>
+              <div className="space-y-2">
+                <Label>Email</Label>
+                <Input value={data?.email ?? ""} disabled />
+              </div>
               <FormField
                 control={form.control}
                 name="name"
