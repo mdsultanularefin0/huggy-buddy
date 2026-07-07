@@ -92,6 +92,20 @@ function CategoriesPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const selection = useSelection(categories);
+  const bulkDelete = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase.from("categories").delete().in("id", ids);
+      if (error) throw error;
+    },
+    onSuccess: (_d, ids) => {
+      toast.success(`Deleted ${ids.length} categor${ids.length === 1 ? "y" : "ies"}`);
+      qc.invalidateQueries({ queryKey: ["admin", "categories"] });
+      selection.clear();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const reorder = useMutation({
     mutationFn: async (ordered: Category[]) => {
       const updates = ordered.map((c, i) =>
