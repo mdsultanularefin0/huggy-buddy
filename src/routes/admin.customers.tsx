@@ -105,6 +105,16 @@ function CustomersPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const bulkDelete = useMutation({
+    mutationFn: async (ids: string[]) => deleteCustomers({ data: { ids } }),
+    onSuccess: (r) => {
+      toast.success(`Deleted ${r.deleted} customer${r.deleted === 1 ? "" : "s"}`);
+      qc.invalidateQueries({ queryKey: ["admin", "customers"] });
+      selection.clear();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       <div>
