@@ -163,6 +163,12 @@ function CouponsPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-10">
+                  <Checkbox
+                    checked={selection.allChecked ? true : selection.someChecked ? "indeterminate" : false}
+                    onCheckedChange={(v) => selection.toggleAll(!!v)}
+                  />
+                </TableHead>
                 <TableHead>Code</TableHead>
                 <TableHead>Discount</TableHead>
                 <TableHead>Min order</TableHead>
