@@ -9,9 +9,12 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, Pencil, Trash2, Loader2, Upload, X, GripVertical } from "lucide-react";
 import { toast } from "sonner";
 import { uploadImage } from "@/lib/upload";
+import { useSelection } from "@/hooks/use-selection";
+import { BulkActionBar } from "@/components/bulk-action-bar";
 import type { Database } from "@/integrations/supabase/types";
 
 type Category = Database["public"]["Tables"]["categories"]["Row"];
@@ -85,6 +88,20 @@ function CategoriesPage() {
     onSuccess: () => {
       toast.success("Deleted");
       qc.invalidateQueries({ queryKey: ["admin", "categories"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const selection = useSelection(categories);
+  const bulkDelete = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase.from("categories").delete().in("id", ids);
+      if (error) throw error;
+    },
+    onSuccess: (_d, ids) => {
+      toast.success(`Deleted ${ids.length} categor${ids.length === 1 ? "y" : "ies"}`);
+      qc.invalidateQueries({ queryKey: ["admin", "categories"] });
+      selection.clear();
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -180,6 +197,13 @@ function CategoriesPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-10">
+                  <Checkbox
+                    checked={selection.allChecked ? true : selection.someChecked ? "indeterminate" : false}
+                    onCheckedChange={(v) => selection.toggleAll(!!v)}
+                    aria-label="Select all"
+                  />
+                </TableHead>
                 <TableHead className="w-8" />
                 <TableHead>Image</TableHead>
                 <TableHead>Name</TableHead>
@@ -199,7 +223,15 @@ function CategoriesPage() {
                   onDrop={() => handleDrop(c.id)}
                   onDragEnd={() => setDragId(null)}
                   className={`cursor-move ${dragId === c.id ? "opacity-50" : ""}`}
+                  data-state={selection.isSelected(c.id) ? "selected" : undefined}
                 >
+                  <TableCell onClick={(e) => e.stopPropagation()}>
+                    <Checkbox
+                      checked={selection.isSelected(c.id)}
+                      onCheckedChange={(v) => selection.toggle(c.id, !!v)}
+                      aria-label={`Select ${c.name}`}
+                    />
+                  </TableCell>
                   <TableCell className="text-muted-foreground">
                     <GripVertical className="w-4 h-4" />
                   </TableCell>
@@ -233,6 +265,13 @@ function CategoriesPage() {
         )}
       </Card>
       <p className="text-xs text-muted-foreground -mt-2">Drag rows to reorder. The top 3 active categories show on mobile/tablet; top 4 on desktop.</p>
+
+      <BulkActionBar count={selection.count} onClear={selection.clear}>
+        <Button variant="ghost" size="sm" disabled={bulkDelete.isPending} onClick={() => { if (confirm(`Delete ${selection.count} categor${selection.count === 1 ? "y" : "ies"}? This cannot be undone.`)) bulkDelete.mutate(selection.selectedIds); }}>
+          {bulkDelete.isPending ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Trash2 className="w-4 h-4 mr-1 text-destructive" />} Delete
+        </Button>
+      </BulkActionBar>
+
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-lg">
