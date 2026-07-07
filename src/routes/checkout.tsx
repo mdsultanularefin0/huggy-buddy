@@ -19,6 +19,7 @@ import { trackMetaEvent } from "@/lib/meta-pixel.functions";
 import { fbqTrack } from "@/lib/meta-track";
 import { BD_DISTRICTS } from "@/lib/bd-districts";
 import { toast } from "sonner";
+import { friendlyError } from "@/lib/friendly-error";
 
 type Zone = {
   id: string; zone_name: string; fee_amount: number; free_shipping_threshold: number | null;
@@ -172,7 +173,9 @@ function CheckoutPage() {
     onError: (err: Error) => {
       setAppliedCoupon(null);
       setAppliedReferral(null);
-      setPromoError(err.message || "Invalid promo code");
+      const msg = friendlyError(err, "Invalid promo code");
+      setPromoError(msg);
+      toast.error(msg);
     },
   });
 
@@ -248,7 +251,7 @@ function CheckoutPage() {
       navigate({ to: "/order/$id", params: { id: res.id } });
     },
 
-    onError: (err: Error) => toast.error(err.message || "Failed to place order"),
+    onError: (err: Error) => toast.error(friendlyError(err, "Failed to place order")),
   });
 
   if (items.length === 0) {
