@@ -807,6 +807,18 @@ function OrdersPage() {
             >
               <Ban className="w-4 h-4 mr-2" /> Cancel orders
             </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className="text-rose-600"
+              onClick={() => {
+                if (selection.count === 0) { toast.error("Select at least one order"); return; }
+                if (confirm(`Permanently delete ${selection.count} order(s)? This cannot be undone.`)) {
+                  bulkDelete.mutate(selection.selectedIds);
+                }
+              }}
+            >
+              <Trash2 className="w-4 h-4 mr-2" /> Delete orders
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </BulkActionBar>
