@@ -31,6 +31,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { BD_DISTRICTS } from "@/lib/bd-districts";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { normalizeBdPhone } from "@/lib/phone";
 
 export const Route = createFileRoute("/_authenticated/account/addresses")({
   head: () => ({
