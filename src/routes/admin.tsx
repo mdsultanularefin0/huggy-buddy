@@ -235,16 +235,23 @@ function AdminSidebar({ email }: { email: string }) {
 
 
 function AdminLoading() {
+  const { data: branding } = useQuery(brandingQueryOptions);
+  const logoUrl = branding?.site_logo_url ?? branding?.site_icon_url ?? null;
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="flex flex-col items-center gap-3">
-        <div
-          className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg"
-          style={{ backgroundColor: "#52277a" }}
-        >
-          <Loader2 className="w-7 h-7 text-white animate-spin" />
+      <div className="flex flex-col items-center gap-4">
+        <div className="relative w-20 h-20">
+          <span className="absolute inset-0 rounded-full border-2 border-[color:var(--gold)]/20" />
+          <span className="absolute inset-0 rounded-full border-2 border-transparent border-t-[color:var(--gold)] animate-spin" />
+          <div className="absolute inset-2 rounded-full bg-background flex items-center justify-center overflow-hidden">
+            {logoUrl ? (
+              <img src={logoUrl} alt="" className="w-10 h-10 object-contain" />
+            ) : (
+              <Loader2 className="w-6 h-6 text-[color:var(--gold)] animate-spin" />
+            )}
+          </div>
         </div>
-        <p className="text-sm text-muted-foreground">Verifying admin access…</p>
+        <p className="text-xs uppercase tracking-[0.28em] text-muted-foreground">Verifying admin access</p>
       </div>
     </div>
   );
