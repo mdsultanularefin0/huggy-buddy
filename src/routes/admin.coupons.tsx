@@ -244,6 +244,20 @@ function CouponsPage() {
         )}
       </Card>
 
+      <BulkActionBar count={selection.count} onClear={selection.clear}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-destructive hover:text-destructive"
+          onClick={() => {
+            if (confirm(`Delete ${selection.count} coupon(s)?`)) bulkDelete.mutate(selection.selectedIds);
+          }}
+          disabled={bulkDelete.isPending}
+        >
+          <Trash2 className="w-4 h-4 mr-1" /> Delete
+        </Button>
+      </BulkActionBar>
+
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{editing ? "Edit coupon" : "New coupon"}</DialogTitle></DialogHeader>
