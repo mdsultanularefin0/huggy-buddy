@@ -149,6 +149,7 @@ function AdminOrderDetail() {
     return <div className="p-12 text-center text-muted-foreground">Order not found.</div>;
   }
 
+  const isTerminal = ["Completed", "Cancelled", "Returned"].includes(order.order_status);
   const c = (order.customer_json as { name?: string; phone?: string; address?: string; email?: string; district?: string; area?: string } | null) ?? {};
   const items = ((order.items_json as Array<Record<string, unknown>>) ?? []).map((it) => ({
     name: (it.name as string | undefined) ?? "",
