@@ -226,6 +226,16 @@ function OrdersPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const bulkDelete = useMutation({
+    mutationFn: async (ids: string[]) => deleteOrders({ data: { ids } }),
+    onSuccess: (r) => {
+      toast.success(`Deleted ${r.deleted} order${r.deleted === 1 ? "" : "s"}`);
+      qc.invalidateQueries({ queryKey: ["admin", "orders"] });
+      selection.clear();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const COURIER_TO_ORDER: Record<string, OrderStatus> = {
     pending: "Shipped",
     in_review: "Processing",
