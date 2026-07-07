@@ -295,8 +295,9 @@ export const createOrder = createServerFn({ method: "POST" })
     const shippingFee =
       freeThreshold > 0 && subtotal >= freeThreshold ? 0 : zone.fee_amount;
 
-    // Referral: flat discount when code matches an active row. Invalid/inactive
-    // codes are rejected so the customer sees the same total the server applies.
+    // Referral: percent or flat discount when code matches an active row.
+    // Invalid/inactive/self/reused codes are rejected so the customer sees
+    // the same total the server applies.
     let discount = 0;
     let referralApplied: string | null = null;
     const refCode = (data.referralCode ?? "").trim();
@@ -307,14 +308,25 @@ export const createOrder = createServerFn({ method: "POST" })
         .ilike("code", refCode)
         .maybeSingle();
       if (refErr) throw new Error("Could not validate referral code");
-      if (!ref || !ref.is_active) throw new Error("Invalid referral code");
-      const raw = Math.max(0, ref.discount_amount ?? 0);
-      const refDiscount = ref.discount_type === "percent"
-        ? Math.floor((subtotal * Math.min(raw, 100)) / 100)
-        : raw;
-      if (refDiscount <= 0) throw new Error("Referral code has no discount");
-      discount += Math.min(refDiscount, subtotal);
-      referralApplied = ref.code;
+
+      // Prior redemptions by this buyer's normalized phone (prevents reuse).
+      const buyerPhone = normalizePhone(data.customer.phone);
+      let previouslyUsedCodes: string[] = [];
+      if (buyerPhone) {
+        const { data: prior } = await supabaseAdmin
+          .from("orders")
+          .select("referral_used")
+          .eq("customer_json->>phone", buyerPhone)
+          .not("referral_used", "is", null);
+        previouslyUsedCodes = (prior ?? [])
+          .map((r) => (r as { referral_used: string | null }).referral_used)
+          .filter((c): c is string => !!c);
+      }
+
+      const result = evaluateReferral(ref, subtotal, { previouslyUsedCodes });
+      if (!result.ok) throw new Error(result.message);
+      discount += Math.min(result.discount, subtotal);
+      referralApplied = result.code;
     }
 
     // Coupon: percent or flat discount, with min order, max cap, expiry, usage limit
