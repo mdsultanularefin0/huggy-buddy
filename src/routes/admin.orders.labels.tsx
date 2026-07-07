@@ -12,7 +12,7 @@ import { formatBDT } from "@/lib/currency";
 const searchSchema = z.object({ ids: z.string().min(1) });
 
 export const Route = createFileRoute("/admin/orders/labels")({
-  validateSearch: (s) => searchSchema.parse(s),
+  validateSearch: (s: Record<string, unknown>) => searchSchema.parse(s),
   head: () => ({
     meta: [
       { title: "Courier Labels" },
