@@ -63,6 +63,7 @@ function OrdersPage() {
   const updateOrder = useServerFn(updateOrderAdmin);
   const fraudFn = useServerFn(getSteadfastFraudCheck);
   const bulkShipFn = useServerFn(bulkCreateSteadfastShipments);
+  const checkStatusFn = useServerFn(getSteadfastDeliveryStatus);
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
   const [paymentFilter, setPaymentFilter] = useState<PaymentStatus | "all">("all");
   const [search, setSearch] = useState("");
