@@ -223,7 +223,15 @@ function CategoriesPage() {
                   onDrop={() => handleDrop(c.id)}
                   onDragEnd={() => setDragId(null)}
                   className={`cursor-move ${dragId === c.id ? "opacity-50" : ""}`}
+                  data-state={selection.isSelected(c.id) ? "selected" : undefined}
                 >
+                  <TableCell onClick={(e) => e.stopPropagation()}>
+                    <Checkbox
+                      checked={selection.isSelected(c.id)}
+                      onCheckedChange={(v) => selection.toggle(c.id, !!v)}
+                      aria-label={`Select ${c.name}`}
+                    />
+                  </TableCell>
                   <TableCell className="text-muted-foreground">
                     <GripVertical className="w-4 h-4" />
                   </TableCell>
