@@ -167,6 +167,27 @@ function OrdersPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const bulkPayment = useMutation({
+    mutationFn: async ({ ids, payment_status }: { ids: string[]; payment_status: PaymentStatus }) => {
+      await Promise.all(ids.map((id) => {
+        const patch: Record<string, unknown> = { payment_status };
+        if (payment_status === "Paid") {
+          const row = orders?.find((o) => o.id === id);
+          if (row) patch.amount_paid = Number(row.total);
+        } else if (payment_status === "Pending") {
+          patch.amount_paid = 0;
+        }
+        return updateOrder({ data: { id, patch } });
+      }));
+    },
+    onSuccess: (_d, v) => {
+      toast.success(`Payment updated for ${v.ids.length} order${v.ids.length === 1 ? "" : "s"}`);
+      qc.invalidateQueries({ queryKey: ["admin", "orders"] });
+      selection.clear();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const bulkShip = useMutation({
     mutationFn: async (ids: string[]) => bulkShipFn({ data: { order_ids: ids } }),
     onSuccess: () => {
