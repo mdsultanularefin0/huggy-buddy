@@ -189,6 +189,11 @@ function AdminInbox() {
         {/* Left pane — list */}
         <div className={`border-b md:border-b-0 md:border-r border-border/60 flex-col min-h-0 ${selected ? "hidden md:flex" : "flex"}`}>
           <div className="px-4 py-3 border-b border-border/60 flex items-center gap-2 text-sm font-medium">
+            <Checkbox
+              checked={selection.allChecked ? true : selection.someChecked ? "indeterminate" : false}
+              onCheckedChange={(v) => selection.toggleAll(!!v)}
+              aria-label="Select all"
+            />
             <InboxIcon className="w-4 h-4" /> Messages
           </div>
           <ScrollArea className="flex-1">
@@ -202,23 +207,33 @@ function AdminInbox() {
               <ul className="divide-y divide-border/60">
                 {messages.map((m) => {
                   const active = selected?.id === m.id;
+                  const checked = selection.isSelected(m.id);
                   return (
                     <li key={m.id}>
-                      <button
-                        onClick={() => openMsg(m)}
-                        className={`w-full text-left px-4 py-3 hover:bg-muted/50 transition ${active ? "bg-muted/60" : ""}`}
-                      >
-                        <div className="flex items-center justify-between gap-2">
-                          <span className={`text-sm truncate min-w-0 ${m.status === "unread" ? "font-semibold" : "font-medium"}`}>
-                            {m.name}
-                          </span>
-                          <StatusBadge status={m.status} />
+                      <div className={`w-full flex items-start gap-2 px-4 py-3 hover:bg-muted/50 transition ${active ? "bg-muted/60" : ""}`}>
+                        <div className="pt-0.5" onClick={(e) => e.stopPropagation()}>
+                          <Checkbox
+                            checked={checked}
+                            onCheckedChange={(v) => selection.toggle(m.id, !!v)}
+                            aria-label="Select message"
+                          />
                         </div>
-                        <div className="text-xs text-muted-foreground truncate mt-0.5">{m.subject}</div>
-                        <div className="text-[11px] text-muted-foreground mt-1">
-                          {new Date(m.created_at).toLocaleString()}
-                        </div>
-                      </button>
+                        <button
+                          onClick={() => openMsg(m)}
+                          className="flex-1 text-left min-w-0"
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <span className={`text-sm truncate min-w-0 ${m.status === "unread" ? "font-semibold" : "font-medium"}`}>
+                              {m.name}
+                            </span>
+                            <StatusBadge status={m.status} />
+                          </div>
+                          <div className="text-xs text-muted-foreground truncate mt-0.5">{m.subject}</div>
+                          <div className="text-[11px] text-muted-foreground mt-1">
+                            {new Date(m.created_at).toLocaleString()}
+                          </div>
+                        </button>
+                      </div>
                     </li>
                   );
                 })}
