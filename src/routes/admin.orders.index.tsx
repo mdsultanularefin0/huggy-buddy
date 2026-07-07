@@ -653,6 +653,7 @@ function OrdersPage() {
                               }}
                             >
                               <Trash2 className="w-4 h-4 mr-2" /> Delete order
+                            </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>
