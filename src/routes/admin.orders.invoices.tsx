@@ -34,7 +34,7 @@ export const Route = createFileRoute("/admin/orders/invoices")({
 
 function BulkInvoicesPage() {
   const { ids } = Route.useSearch();
-  const idList = ids.split(",").map((s) => s.trim()).filter(Boolean);
+  const idList = ids.split(",").map((s: string) => s.trim()).filter(Boolean);
   const fetchInvoices = useServerFn(getAdminInvoicesByIds);
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["admin", "bulk-invoices", ids],
