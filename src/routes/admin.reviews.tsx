@@ -141,51 +141,72 @@ function AdminReviewsPage() {
       ) : rows.length === 0 ? (
         <p className="text-sm text-muted-foreground">No {tab} reviews.</p>
       ) : (
-        <div className="space-y-3">
-          {rows.map((r) => (
-            <div key={r.id} className="border rounded-lg p-4 bg-card">
-              <div className="flex items-start justify-between gap-4 flex-wrap">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2 text-sm">
-                    <span className="font-medium">{r.author_name}</span>
-                    {!r.user_id && <span className="text-xs px-1.5 py-0.5 rounded bg-muted text-muted-foreground">Guest</span>}
-                    <span className="text-muted-foreground">· {new Date(r.created_at).toLocaleDateString()}</span>
+        <>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Checkbox
+              checked={selection.allChecked ? true : selection.someChecked ? "indeterminate" : false}
+              onCheckedChange={(v) => selection.toggleAll(!!v)}
+              aria-label="Select all reviews"
+            />
+            <span>Select all on this page ({rows.length})</span>
+          </div>
+          <div className="space-y-3">
+            {rows.map((r) => (
+              <div key={r.id} className="border rounded-lg p-4 bg-card" data-state={selection.isSelected(r.id) ? "selected" : undefined}>
+                <div className="flex items-start gap-3 flex-wrap">
+                  <Checkbox
+                    className="mt-1"
+                    checked={selection.isSelected(r.id)}
+                    onCheckedChange={(v) => selection.toggle(r.id, !!v)}
+                    aria-label={`Select review by ${r.author_name}`}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="font-medium">{r.author_name}</span>
+                      {!r.user_id && <span className="text-xs px-1.5 py-0.5 rounded bg-muted text-muted-foreground">Guest</span>}
+                      <span className="text-muted-foreground">· {new Date(r.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <div className="flex text-primary my-1">
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <Star key={i} className={`w-4 h-4 ${i <= r.rating ? "fill-current" : "text-muted"}`} />
+                      ))}
+                    </div>
+                    {r.products && (
+                      <p className="text-xs text-muted-foreground">
+                        on <span className="font-medium text-foreground">{r.products.name}</span>
+                      </p>
+                    )}
+                    {r.title && <p className="font-medium mt-2">{r.title}</p>}
+                    {r.body && <p className="text-sm text-muted-foreground mt-1 whitespace-pre-line">{r.body}</p>}
+                    {r.images && r.images.length > 0 && (
+                      <ImageGallery images={r.images} alt="Review photo" />
+                    )}
                   </div>
-                  <div className="flex text-primary my-1">
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <Star key={i} className={`w-4 h-4 ${i <= r.rating ? "fill-current" : "text-muted"}`} />
-                    ))}
+                  <div className="flex gap-2 shrink-0">
+                    {r.status !== "approved" && (
+                      <Button size="sm" onClick={() => setStatus.mutate({ id: r.id, status: "approved" })} disabled={setStatus.isPending}>
+                        <Check className="w-4 h-4 mr-1" /> Approve
+                      </Button>
+                    )}
+                    {r.status !== "rejected" && (
+                      <Button size="sm" variant="outline" onClick={() => setStatus.mutate({ id: r.id, status: "rejected" })} disabled={setStatus.isPending}>
+                        <X className="w-4 h-4 mr-1" /> Reject
+                      </Button>
+                    )}
+                    <Button size="sm" variant="ghost" onClick={() => { if (confirm("Delete this review?")) remove.mutate(r.id); }}>
+                      <Trash2 className="w-4 h-4 text-destructive" />
+                    </Button>
                   </div>
-                  {r.products && (
-                    <p className="text-xs text-muted-foreground">
-                      on <span className="font-medium text-foreground">{r.products.name}</span>
-                    </p>
-                  )}
-                  {r.title && <p className="font-medium mt-2">{r.title}</p>}
-                  {r.body && <p className="text-sm text-muted-foreground mt-1 whitespace-pre-line">{r.body}</p>}
-                  {r.images && r.images.length > 0 && (
-                    <ImageGallery images={r.images} alt="Review photo" />
-                  )}
-                </div>
-                <div className="flex gap-2 shrink-0">
-                  {r.status !== "approved" && (
-                    <Button size="sm" onClick={() => setStatus.mutate({ id: r.id, status: "approved" })} disabled={setStatus.isPending}>
-                      <Check className="w-4 h-4 mr-1" /> Approve
-                    </Button>
-                  )}
-                  {r.status !== "rejected" && (
-                    <Button size="sm" variant="outline" onClick={() => setStatus.mutate({ id: r.id, status: "rejected" })} disabled={setStatus.isPending}>
-                      <X className="w-4 h-4 mr-1" /> Reject
-                    </Button>
-                  )}
-                  <Button size="sm" variant="ghost" onClick={() => { if (confirm("Delete this review?")) remove.mutate(r.id); }}>
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+          <BulkActionBar count={selection.count} onClear={selection.clear}>
+            <Button variant="ghost" size="sm" disabled={bulkDelete.isPending} onClick={() => { if (confirm(`Delete ${selection.count} review(s)?`)) bulkDelete.mutate(selection.selectedIds); }}>
+              {bulkDelete.isPending ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Trash2 className="w-4 h-4 mr-1 text-destructive" />} Delete
+            </Button>
+          </BulkActionBar>
+        </>
       )}
     </div>
   );
