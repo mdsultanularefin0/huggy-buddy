@@ -152,3 +152,34 @@ function SubscribeForm() {
     </form>
   );
 }
+
+function FooterCategoryLinks() {
+  const { data } = useQuery({
+    queryKey: ["public", "categories", "footer-top5"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("categories")
+        .select("name, slug")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true })
+        .limit(5);
+      if (error) throw error;
+      return data ?? [];
+    },
+    staleTime: 5 * 60_000,
+  });
+  return (
+    <>
+      {(data ?? []).map((c) => (
+        <Link
+          key={c.slug}
+          to="/category/$slug"
+          params={{ slug: c.slug }}
+          className="text-gray-300 hover:text-white mb-2 block text-sm"
+        >
+          {c.name}
+        </Link>
+      ))}
+    </>
+  );
+}
