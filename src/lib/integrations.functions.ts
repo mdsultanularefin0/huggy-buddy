@@ -317,8 +317,17 @@ export const getMediaServerStatus = createServerFn({ method: "GET" })
   });
 
 const saveMediaSchema = z.object({
-  base_url: z.string().url().max(300),
-  api_key: z.string().min(1).max(500),
+  base_url: z
+    .string()
+    .trim()
+    .min(1)
+    .max(300)
+    .transform((v) => (/^https?:\/\//i.test(v) ? v : `https://${v}`))
+    .refine((v) => {
+      try { new URL(v); return true; } catch { return false; }
+    }, { message: "Invalid url" })
+    .transform((v) => v.replace(/\/$/, "")),
+  api_key: z.string().trim().min(1).max(500),
 });
 
 export const saveMediaServerCredentials = createServerFn({ method: "POST" })
