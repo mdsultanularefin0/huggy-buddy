@@ -897,6 +897,7 @@ function Landing() {
               </div>
               <Carousel
                 opts={{ align: "start", loop: true, dragFree: false }}
+                plugins={[Autoplay({ delay: 3500, stopOnInteraction: false, stopOnMouseEnter: true })]}
                 className="w-full relative"
               >
                 <CarouselContent className="-ml-3 sm:-ml-4 touch-pan-y">
