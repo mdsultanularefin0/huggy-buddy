@@ -31,6 +31,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { BD_DISTRICTS } from "@/lib/bd-districts";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { normalizeBdPhone } from "@/lib/phone";
 
 export const Route = createFileRoute("/_authenticated/account/addresses")({
   head: () => ({
@@ -243,7 +244,17 @@ function AddressesPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Phone</FormLabel>
-                    <FormControl><Input {...field} /></FormControl>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="tel"
+                        inputMode="numeric"
+                        autoComplete="tel"
+                        maxLength={16}
+                        placeholder="01XXXXXXXXX"
+                        onChange={(e) => field.onChange(normalizeBdPhone(e.target.value))}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}

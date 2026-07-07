@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { pageMeta } from "@/lib/seo-meta";
+import { normalizeBdPhone } from "@/lib/phone";
 
 
 export const Route = createFileRoute("/contact")({
@@ -149,7 +150,7 @@ function ContactForm() {
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="cf-phone">Phone (optional)</Label>
-            <Input id="cf-phone" maxLength={30} value={form.phone} onChange={(e) => upd("phone", e.target.value)} />
+            <Input id="cf-phone" type="tel" inputMode="numeric" autoComplete="tel" maxLength={16} placeholder="01XXXXXXXXX" value={form.phone} onChange={(e) => upd("phone", normalizeBdPhone(e.target.value))} />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="cf-subject">Subject</Label>

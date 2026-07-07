@@ -18,6 +18,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
+import { normalizeBdPhone } from "@/lib/phone";
 
 export const Route = createFileRoute("/_authenticated/account/")({
   head: () => ({
@@ -98,7 +99,17 @@ function ProfilePage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Phone</FormLabel>
-                    <FormControl><Input {...field} /></FormControl>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="tel"
+                        inputMode="numeric"
+                        autoComplete="tel"
+                        maxLength={16}
+                        placeholder="01XXXXXXXXX"
+                        onChange={(e) => field.onChange(normalizeBdPhone(e.target.value))}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
