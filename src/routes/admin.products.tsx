@@ -431,6 +431,9 @@ function ProductsPage() {
           <p className="text-muted-foreground mt-1">Manage your fragrance catalogue.</p>
         </div>
         <div className="flex items-center gap-2">
+          <Button onClick={() => setGlobalOpen(true)} variant="outline" title="Edit the 3 sections shown on every product page">
+            <Settings className="w-4 h-4 mr-1" /> Global settings
+          </Button>
           <Button onClick={() => setImportOpen(true)} variant="outline">
             <FileSpreadsheet className="w-4 h-4 mr-1" /> Bulk import
           </Button>
@@ -439,6 +442,7 @@ function ProductsPage() {
       </div>
 
       <BulkImportDialog open={importOpen} onOpenChange={setImportOpen} />
+      <ProductGlobalSettingsDialog open={globalOpen} onOpenChange={setGlobalOpen} />
 
       {combos.length > 0 && (
         <Card className="shadow-card p-4">
