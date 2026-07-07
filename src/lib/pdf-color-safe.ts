@@ -39,7 +39,7 @@ export function normalizeOklchInClone(clonedDoc: Document, clonedEl: HTMLElement
     const style = (el as HTMLElement).style;
     for (const p of props) {
       const v = cs[p] as string | undefined;
-      if (v && v.includes("oklch")) style[p as string] = toRgb(v);
+      if (v && v.includes("oklch")) (style as unknown as Record<string, string>)[p as string] = toRgb(v);
     }
     // Background images (gradients) that use oklch — strip to none as fallback.
     const bg = cs.backgroundImage;
