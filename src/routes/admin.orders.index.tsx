@@ -155,16 +155,29 @@ function OrdersPage() {
 
   const selection = useSelection(filtered);
 
+  type OrdersPage = { orders: Order[]; total: number; totalPages: number };
+  const patchOrdersCache = (ids: string[], patch: Partial<Order>) => {
+    qc.setQueriesData<OrdersPage>({ queryKey: ["admin", "orders"] }, (old) => {
+      if (!old?.orders) return old;
+      const set = new Set(ids);
+      return { ...old, orders: old.orders.map((o) => (set.has(o.id) ? { ...o, ...patch } : o)) };
+    });
+  };
+
   const bulkStatus = useMutation({
     mutationFn: async ({ ids, order_status }: { ids: string[]; order_status: OrderStatus }) => {
       await Promise.all(ids.map((id) => updateOrder({ data: { id, patch: { order_status } } })));
     },
+    onMutate: async ({ ids, order_status }) => {
+      await qc.cancelQueries({ queryKey: ["admin", "orders"] });
+      patchOrdersCache(ids, { order_status } as Partial<Order>);
+    },
     onSuccess: (_d, v) => {
       toast.success(`Updated ${v.ids.length} order${v.ids.length === 1 ? "" : "s"}`);
-      qc.invalidateQueries({ queryKey: ["admin", "orders"] });
       selection.clear();
     },
     onError: (e: Error) => toast.error(e.message),
+    onSettled: () => { qc.invalidateQueries({ queryKey: ["admin", "orders"] }); },
   });
 
   const bulkPayment = useMutation({
@@ -180,12 +193,25 @@ function OrdersPage() {
         return updateOrder({ data: { id, patch } });
       }));
     },
+    onMutate: async ({ ids, payment_status }) => {
+      await qc.cancelQueries({ queryKey: ["admin", "orders"] });
+      const patch: Partial<Order> = { payment_status };
+      if (payment_status === "Pending") (patch as { amount_paid?: number }).amount_paid = 0;
+      patchOrdersCache(ids, patch);
+      if (payment_status === "Paid") {
+        qc.setQueriesData<OrdersPage>({ queryKey: ["admin", "orders"] }, (old) => {
+          if (!old?.orders) return old;
+          const set = new Set(ids);
+          return { ...old, orders: old.orders.map((o) => set.has(o.id) ? { ...o, payment_status, amount_paid: Number(o.total) } : o) };
+        });
+      }
+    },
     onSuccess: (_d, v) => {
       toast.success(`Payment updated for ${v.ids.length} order${v.ids.length === 1 ? "" : "s"}`);
-      qc.invalidateQueries({ queryKey: ["admin", "orders"] });
       selection.clear();
     },
     onError: (e: Error) => toast.error(e.message),
+    onSettled: () => { qc.invalidateQueries({ queryKey: ["admin", "orders"] }); },
   });
 
   const bulkShip = useMutation({
