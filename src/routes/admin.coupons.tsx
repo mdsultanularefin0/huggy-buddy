@@ -12,6 +12,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Pencil, Trash2, Loader2 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useSelection } from "@/hooks/use-selection";
+import { BulkActionBar } from "@/components/bulk-action-bar";
 import { toast } from "sonner";
 import { formatBDT } from "@/lib/currency";
 import { saveCoupon } from "@/lib/coupons.functions";
@@ -90,6 +93,20 @@ function CouponsPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const selection = useSelection(coupons);
+  const bulkDelete = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase.from("coupons").delete().in("id", ids);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Deleted");
+      qc.invalidateQueries({ queryKey: ["admin", "coupons"] });
+      selection.clear();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const toggle = useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
       const { error } = await supabase.from("coupons").update({ is_active }).eq("id", id);
@@ -146,6 +163,12 @@ function CouponsPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-10">
+                  <Checkbox
+                    checked={selection.allChecked ? true : selection.someChecked ? "indeterminate" : false}
+                    onCheckedChange={(v) => selection.toggleAll(!!v)}
+                  />
+                </TableHead>
                 <TableHead>Code</TableHead>
                 <TableHead>Discount</TableHead>
                 <TableHead>Min order</TableHead>
@@ -164,7 +187,13 @@ function CouponsPage() {
                 const pct = limit && limit > 0 ? Math.min(100, Math.round((used / limit) * 100)) : 0;
                 const exhausted = limit != null && remaining === 0;
                 return (
-                <TableRow key={c.id}>
+                <TableRow key={c.id} data-state={selection.isSelected(c.id) ? "selected" : undefined}>
+                  <TableCell onClick={(e) => e.stopPropagation()}>
+                    <Checkbox
+                      checked={selection.isSelected(c.id)}
+                      onCheckedChange={(v) => selection.toggle(c.id, !!v)}
+                    />
+                  </TableCell>
                   <TableCell className="font-mono font-medium">{c.code}</TableCell>
                   <TableCell>{formatDiscount(c)}</TableCell>
                   <TableCell>{formatBDT(c.min_order_amount)}</TableCell>
@@ -214,6 +243,20 @@ function CouponsPage() {
           </Table>
         )}
       </Card>
+
+      <BulkActionBar count={selection.count} onClear={selection.clear}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-destructive hover:text-destructive"
+          onClick={() => {
+            if (confirm(`Delete ${selection.count} coupon(s)?`)) bulkDelete.mutate(selection.selectedIds);
+          }}
+          disabled={bulkDelete.isPending}
+        >
+          <Trash2 className="w-4 h-4 mr-1" /> Delete
+        </Button>
+      </BulkActionBar>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
