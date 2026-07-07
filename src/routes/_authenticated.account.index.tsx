@@ -99,7 +99,17 @@ function ProfilePage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Phone</FormLabel>
-                    <FormControl><Input {...field} /></FormControl>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="tel"
+                        inputMode="numeric"
+                        autoComplete="tel"
+                        maxLength={16}
+                        placeholder="01XXXXXXXXX"
+                        onChange={(e) => field.onChange(normalizeBdPhone(e.target.value))}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
