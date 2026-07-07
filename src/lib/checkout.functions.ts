@@ -308,21 +308,15 @@ export const createOrder = createServerFn({ method: "POST" })
       const { data: cp } = await supabaseAdmin
         .from("coupons")
         .select("code,discount_type,discount_value,min_order_amount,max_discount,expires_at,usage_limit,used_count,is_active")
-        .eq("code", couponCode)
-        .eq("is_active", true)
+        .ilike("code", couponCode)
         .maybeSingle();
-      if (!cp) throw new Error("Invalid coupon code");
-      if (cp.expires_at && new Date(cp.expires_at) < new Date()) throw new Error("Coupon expired");
-      if (cp.usage_limit != null && cp.used_count >= cp.usage_limit) throw new Error("Coupon usage limit reached");
-      if (subtotal < (cp.min_order_amount ?? 0)) {
-        throw new Error(`Coupon requires minimum order of ${cp.min_order_amount}`);
+      const result = evaluateCoupon(cp, subtotal);
+      if (!result.ok) throw new Error(result.message);
+      const cd = Math.min(result.discount, Math.max(0, subtotal - discount));
+      if (cd > 0) {
+        discount += cd;
+        couponApplied = result.code;
       }
-      let cd = cp.discount_type === "percent"
-        ? Math.floor((subtotal * cp.discount_value) / 100)
-        : cp.discount_value;
-      if (cp.max_discount != null) cd = Math.min(cd, cp.max_discount);
-      discount += Math.min(cd, Math.max(0, subtotal - discount));
-      couponApplied = cp.code;
     }
 
     discount = Math.min(discount, subtotal);
