@@ -108,9 +108,7 @@ function LabelPage() {
 
           <div className="text-center py-2 border-b border-black">
             <div className="text-[10px] uppercase tracking-wider mb-1">Courier ID</div>
-            <div className="flex justify-center">
-              <Barcode value={courierId} />
-            </div>
+            <div className="font-mono font-bold leading-tight break-all" style={{ fontSize: "28px" }}>{courierId}</div>
           </div>
 
           <div className="grid grid-cols-2 gap-2 py-2 border-b border-black text-[11px]">
