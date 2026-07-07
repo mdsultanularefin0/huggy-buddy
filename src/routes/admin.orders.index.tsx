@@ -16,7 +16,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { listAdminOrders, updateOrderAdmin } from "@/lib/admin-mutations.functions";
 import { exportOrdersForCSV } from "@/lib/admin-data-ops.functions";
 import { toCSV, downloadCSV } from "@/lib/csv";
-import { getSteadfastFraudCheck, bulkCreateSteadfastShipments } from "@/lib/integrations.functions";
+import { getSteadfastFraudCheck, bulkCreateSteadfastShipments, getSteadfastDeliveryStatus } from "@/lib/integrations.functions";
 import { getInvoiceToken } from "@/lib/invoice.functions";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useSelection } from "@/hooks/use-selection";
