@@ -437,6 +437,19 @@ function AdminInbox() {
           </ScrollArea>
         </DialogContent>
       </Dialog>
+      <BulkActionBar count={selection.count} onClear={selection.clear}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-destructive hover:text-destructive"
+          onClick={() => {
+            if (confirm(`Delete ${selection.count} message(s) permanently?`)) bulkDelMut.mutate(selection.selectedIds);
+          }}
+          disabled={bulkDelMut.isPending}
+        >
+          <Trash2 className="w-4 h-4 mr-1" /> Delete
+        </Button>
+      </BulkActionBar>
     </div>
 
   );
