@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { evaluateCoupon } from "./coupon-eval";
+import { evaluateReferral } from "./referral-eval";
 
 const CartItemSchema = z.object({
   lineId: z.string(),
