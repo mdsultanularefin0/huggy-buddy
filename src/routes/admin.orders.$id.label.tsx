@@ -134,9 +134,9 @@ function LabelPage() {
               <div className="font-bold text-base">{totalQty}</div>
             </div>
             <div>
-              <div className="uppercase tracking-wider text-[9px]">COD Amount</div>
+              <div className="uppercase tracking-wider text-[9px]">COD / Due</div>
               <div className="font-bold text-base">
-                {order.payment_method === "COD" ? formatBDT(Math.max(0, Number(order.total) - Number(order.amount_paid ?? 0))) : formatBDT(0)}
+                {formatBDT(Math.max(0, Number(order.total) - Number(order.amount_paid ?? 0)))}
               </div>
             </div>
             <div>
