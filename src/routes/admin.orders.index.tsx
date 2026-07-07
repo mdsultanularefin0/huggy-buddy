@@ -61,6 +61,7 @@ function OrdersPage() {
   const qc = useQueryClient();
   const fetchOrders = useServerFn(listAdminOrders);
   const updateOrder = useServerFn(updateOrderAdmin);
+  const deleteOrders = useServerFn(deleteOrdersAdmin);
   const fraudFn = useServerFn(getSteadfastFraudCheck);
   const bulkShipFn = useServerFn(bulkCreateSteadfastShipments);
   const checkStatusFn = useServerFn(getSteadfastDeliveryStatus);
