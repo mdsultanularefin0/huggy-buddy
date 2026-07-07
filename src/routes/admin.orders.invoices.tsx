@@ -8,6 +8,7 @@ import { InvoiceDocument, type InvoiceOrder, type InvoiceBranding } from "@/comp
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Download, Loader2, Printer } from "lucide-react";
 import { toast } from "sonner";
+import { normalizeOklchInClone } from "@/lib/pdf-color-safe";
 
 const searchSchema = z.object({ ids: z.string().min(1) });
 
