@@ -143,36 +143,54 @@ function BulkLabelsPage() {
   }
 
   const orders = data as OrderRow[];
+  const pages: OrderRow[][] = [];
+  for (let i = 0; i < orders.length; i += 16) pages.push(orders.slice(i, i + 16));
 
   return (
     <div className="min-h-screen bg-muted/30 print:bg-white">
-      <div className="max-w-3xl mx-auto px-4 py-6 print:hidden">
+      <div className="max-w-4xl mx-auto px-4 py-6 print:hidden">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <Button variant="ghost" size="sm" asChild>
             <Link to="/admin/orders"><ArrowLeft className="w-4 h-4 mr-1" /> Back to orders</Link>
           </Button>
-          <div className="text-sm text-muted-foreground">{orders.length} label{orders.length === 1 ? "" : "s"}</div>
+          <div className="text-sm text-muted-foreground">
+            {orders.length} label{orders.length === 1 ? "" : "s"} · {pages.length} A4 page{pages.length === 1 ? "" : "s"}
+          </div>
           <Button variant="luxe" size="sm" onClick={() => window.print()}>
             <Printer className="w-4 h-4 mr-1" /> Print all
           </Button>
         </div>
       </div>
 
-      <div className="pb-10 print:p-0 space-y-6 print:space-y-0">
-        {orders.map((o) => (
-          <div key={o.id} className="label-page">
-            <Label order={o} />
+      <div className="pb-10 print:p-0 flex flex-col items-center gap-6 print:gap-0">
+        {pages.map((page, pi) => (
+          <div
+            key={pi}
+            className="a4-page bg-white shadow print:shadow-none"
+            style={{ width: "210mm", height: "297mm", padding: "5mm", boxSizing: "border-box" }}
+          >
+            <div
+              className="grid"
+              style={{
+                gridTemplateColumns: "repeat(4, 50mm)",
+                gridTemplateRows: "repeat(4, 72mm)",
+                gap: "0",
+                justifyContent: "center",
+                alignContent: "start",
+              }}
+            >
+              {page.map((o) => <Label key={o.id} order={o} />)}
+            </div>
           </div>
         ))}
       </div>
 
       <style>{`
         @media print {
-          @page { size: 100mm 150mm; margin: 0; }
+          @page { size: A4; margin: 0; }
           body { background: white !important; }
-          .label-page { page-break-after: always; break-after: page; }
-          .label-page:last-child { page-break-after: auto; break-after: auto; }
-          .courier-label { box-shadow: none !important; border: 0 !important; margin: 0 !important; }
+          .a4-page { page-break-after: always; break-after: page; box-shadow: none !important; margin: 0 !important; }
+          .a4-page:last-child { page-break-after: auto; break-after: auto; }
         }
       `}</style>
     </div>
