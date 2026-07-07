@@ -70,6 +70,7 @@ function LabelPage() {
     qty: (it.qty as number | undefined) ?? (it.quantity as number | undefined) ?? 1,
   }));
   const totalQty = items.reduce((n, it) => n + (it.qty ?? 1), 0);
+  const due = Math.max(0, Number(order.total) - Number(order.amount_paid ?? 0));
 
   const courierId = order.consignment_id ? String(order.consignment_id) : (order.tracking_code ?? order.order_number);
 
