@@ -57,6 +57,7 @@ import { Route as AdminAuditLogsRouteImport } from './routes/admin.audit-logs'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated.account'
 import { Route as AdminOrdersIndexRouteImport } from './routes/admin.orders.index'
 import { Route as AuthenticatedAccountIndexRouteImport } from './routes/_authenticated.account.index'
+import { Route as AdminOrdersLabelsRouteImport } from './routes/admin.orders.labels'
 import { Route as AdminOrdersIdRouteImport } from './routes/admin.orders.$id'
 import { Route as AuthenticatedAccountWishlistRouteImport } from './routes/_authenticated.account.wishlist'
 import { Route as AuthenticatedAccountAddressesRouteImport } from './routes/_authenticated.account.addresses'
@@ -306,6 +307,11 @@ const AuthenticatedAccountIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedAccountRoute,
   } as any)
+const AdminOrdersLabelsRoute = AdminOrdersLabelsRouteImport.update({
+  id: '/orders/labels',
+  path: '/orders/labels',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminOrdersIdRoute = AdminOrdersIdRouteImport.update({
   id: '/orders/$id',
   path: '/orders/$id',
@@ -395,6 +401,7 @@ export interface FileRoutesByFullPath {
   '/account/addresses': typeof AuthenticatedAccountAddressesRoute
   '/account/wishlist': typeof AuthenticatedAccountWishlistRoute
   '/admin/orders/$id': typeof AdminOrdersIdRouteWithChildren
+  '/admin/orders/labels': typeof AdminOrdersLabelsRoute
   '/account/': typeof AuthenticatedAccountIndexRoute
   '/admin/orders/': typeof AdminOrdersIndexRoute
   '/account/orders/$id': typeof AuthenticatedAccountOrdersIdRoute
@@ -449,6 +456,7 @@ export interface FileRoutesByTo {
   '/account/addresses': typeof AuthenticatedAccountAddressesRoute
   '/account/wishlist': typeof AuthenticatedAccountWishlistRoute
   '/admin/orders/$id': typeof AdminOrdersIdRouteWithChildren
+  '/admin/orders/labels': typeof AdminOrdersLabelsRoute
   '/account': typeof AuthenticatedAccountIndexRoute
   '/admin/orders': typeof AdminOrdersIndexRoute
   '/account/orders/$id': typeof AuthenticatedAccountOrdersIdRoute
@@ -507,6 +515,7 @@ export interface FileRoutesById {
   '/_authenticated/account/addresses': typeof AuthenticatedAccountAddressesRoute
   '/_authenticated/account/wishlist': typeof AuthenticatedAccountWishlistRoute
   '/admin/orders/$id': typeof AdminOrdersIdRouteWithChildren
+  '/admin/orders/labels': typeof AdminOrdersLabelsRoute
   '/_authenticated/account/': typeof AuthenticatedAccountIndexRoute
   '/admin/orders/': typeof AdminOrdersIndexRoute
   '/_authenticated/account/orders/$id': typeof AuthenticatedAccountOrdersIdRoute
@@ -565,6 +574,7 @@ export interface FileRouteTypes {
     | '/account/addresses'
     | '/account/wishlist'
     | '/admin/orders/$id'
+    | '/admin/orders/labels'
     | '/account/'
     | '/admin/orders/'
     | '/account/orders/$id'
@@ -619,6 +629,7 @@ export interface FileRouteTypes {
     | '/account/addresses'
     | '/account/wishlist'
     | '/admin/orders/$id'
+    | '/admin/orders/labels'
     | '/account'
     | '/admin/orders'
     | '/account/orders/$id'
@@ -676,6 +687,7 @@ export interface FileRouteTypes {
     | '/_authenticated/account/addresses'
     | '/_authenticated/account/wishlist'
     | '/admin/orders/$id'
+    | '/admin/orders/labels'
     | '/_authenticated/account/'
     | '/admin/orders/'
     | '/_authenticated/account/orders/$id'
@@ -1050,6 +1062,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAccountIndexRouteImport
       parentRoute: typeof AuthenticatedAccountRoute
     }
+    '/admin/orders/labels': {
+      id: '/admin/orders/labels'
+      path: '/orders/labels'
+      fullPath: '/admin/orders/labels'
+      preLoaderRoute: typeof AdminOrdersLabelsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/orders/$id': {
       id: '/admin/orders/$id'
       path: '/orders/$id'
@@ -1168,6 +1187,7 @@ interface AdminRouteChildren {
   AdminZonesRoute: typeof AdminZonesRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminOrdersIdRoute: typeof AdminOrdersIdRouteWithChildren
+  AdminOrdersLabelsRoute: typeof AdminOrdersLabelsRoute
   AdminOrdersIndexRoute: typeof AdminOrdersIndexRoute
 }
 
@@ -1194,6 +1214,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminZonesRoute: AdminZonesRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminOrdersIdRoute: AdminOrdersIdRouteWithChildren,
+  AdminOrdersLabelsRoute: AdminOrdersLabelsRoute,
   AdminOrdersIndexRoute: AdminOrdersIndexRoute,
 }
 
