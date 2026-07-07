@@ -224,6 +224,55 @@ function OrdersPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const anyBulkPending = bulkStatus.isPending || bulkPayment.isPending || bulkShip.isPending;
+  const MAX_PDF = 100;
+  const selectedOrders = (orders ?? []).filter((o) => selection.selectedIds.includes(o.id));
+
+  type CourierEligibility = { eligibleIds: string[]; skipped: { id: string; order_number: string; reason: string }[] };
+  const courierEligibility: CourierEligibility = (() => {
+    const eligibleIds: string[] = [];
+    const skipped: CourierEligibility["skipped"] = [];
+    for (const o of selectedOrders) {
+      const c = (o.customer_json ?? {}) as { phone?: string; address?: string };
+      let reason: string | null = null;
+      if (o.consignment_id || o.tracking_code) reason = "already shipped";
+      else if (o.order_status === "Cancelled" || o.order_status === "Returned") reason = `${o.order_status.toLowerCase()}`;
+      else if (!c.phone) reason = "missing phone";
+      else if (!c.address) reason = "missing address";
+      if (reason) skipped.push({ id: o.id, order_number: o.order_number, reason });
+      else eligibleIds.push(o.id);
+    }
+    return { eligibleIds, skipped };
+  })();
+
+  function runBulkShip() {
+    if (selection.count === 0) { toast.error("Select at least one order"); return; }
+    const { eligibleIds, skipped } = courierEligibility;
+    if (eligibleIds.length === 0) {
+      toast.error("No eligible orders", { description: "All selected orders are already shipped, cancelled, or missing address/phone." });
+      return;
+    }
+    if (skipped.length > 0) {
+      toast.warning(`Skipping ${skipped.length} order${skipped.length === 1 ? "" : "s"}`, {
+        description: skipped.slice(0, 3).map((s) => `${s.order_number}: ${s.reason}`).join(" · ") + (skipped.length > 3 ? ` · +${skipped.length - 3} more` : ""),
+      });
+    }
+    if (!confirm(`Create courier shipments for ${eligibleIds.length} order(s)?`)) return;
+    bulkShip.mutate(eligibleIds);
+  }
+
+  function openBulkPdf(kind: "invoices" | "labels") {
+    if (selection.count === 0) { toast.error("Select at least one order"); return; }
+    if (selection.count > MAX_PDF) {
+      toast.error(`Too many orders`, { description: `Select up to ${MAX_PDF} at a time (you have ${selection.count}).` });
+      return;
+    }
+    const url = `/admin/orders/${kind}?ids=${encodeURIComponent(selection.selectedIds.join(","))}`;
+    const w = window.open(url, "_blank");
+    if (!w) { toast.error("Popup blocked", { description: "Allow popups for this site to open the print view." }); return; }
+    toast.success(`Opening ${selection.count} ${kind}`);
+  }
+
   async function runFraud(phone: string) {
     if (!phone) { toast.error("No phone on this order"); return; }
     setFraud({ phone, loading: true, result: null });
