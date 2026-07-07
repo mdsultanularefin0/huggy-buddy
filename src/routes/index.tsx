@@ -917,8 +917,8 @@ function Landing() {
                     );
                   })}
                 </CarouselContent>
-                <CarouselPrevious className="hidden sm:flex -left-4" />
-                <CarouselNext className="hidden sm:flex -right-4" />
+                <CarouselPrevious className="hidden sm:flex left-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white shadow-md" />
+                <CarouselNext className="hidden sm:flex right-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white shadow-md" />
               </Carousel>
 
             </div>
