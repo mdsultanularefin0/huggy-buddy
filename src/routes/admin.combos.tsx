@@ -387,6 +387,20 @@ function CombosPage() {
         )}
       </Card>
 
+      <BulkActionBar count={selection.count} onClear={selection.clear}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-destructive hover:text-destructive"
+          onClick={() => {
+            if (confirm(`Delete ${selection.count} combo(s)?`)) bulkDelete.mutate(selection.selectedIds);
+          }}
+          disabled={bulkDelete.isPending}
+        >
+          <Trash2 className="w-4 h-4 mr-1" /> Delete
+        </Button>
+      </BulkActionBar>
+
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
