@@ -7,14 +7,10 @@ import { FaFacebookF, FaInstagram, FaXTwitter, FaYoutube, FaTiktok, FaWhatsapp }
 import type { IconType } from "react-icons";
 import { brandingQueryOptions } from "@/lib/branding-query";
 import { subscribeNewsletter } from "@/lib/email.functions";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-const SHOP_LINKS = [
-  { label: "Female Scent", slug: "female-fragrance" },
-  { label: "Male Scent", slug: "male-fragrance" },
-  { label: "Combo Pack", slug: "combo-packs" },
-  { label: "Customize Combo", slug: "custom-combo" },
-] as const;
+
 
 const SUPPORT_LINKS = [
   { label: "About", to: "/about" as const },
@@ -77,16 +73,10 @@ export function SiteFooter(_props: {
         </div>
         <div>
           <h4 className="text-lg font-semibold mb-4">Shop</h4>
-          {SHOP_LINKS.map((l) => (
-            <Link
-              key={l.slug}
-              to="/category/$slug"
-              params={{ slug: l.slug }}
-              className="text-gray-300 hover:text-white mb-2 block text-sm"
-            >
-              {l.label}
-            </Link>
-          ))}
+          <Link to="/products" className="text-gray-300 hover:text-white mb-2 block text-sm">
+            All Fragrances
+          </Link>
+          <FooterCategoryLinks />
         </div>
         <div>
           <h4 className="text-lg font-semibold mb-4">Support</h4>
