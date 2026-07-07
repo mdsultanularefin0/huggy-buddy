@@ -200,6 +200,9 @@ function CustomersPage() {
         <Button variant="ghost" size="sm" disabled={bulkRisk.isPending} onClick={() => bulkRisk.mutate({ ids: selection.selectedIds, risk_level: "normal" })}>
           <ShieldCheck className="w-4 h-4 mr-1 text-emerald-600" /> Mark normal
         </Button>
+        <Button variant="ghost" size="sm" disabled={bulkDelete.isPending} onClick={() => { if (confirm(`Delete ${selection.count} customer(s)? This cannot be undone.`)) bulkDelete.mutate(selection.selectedIds); }}>
+          {bulkDelete.isPending ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Trash2 className="w-4 h-4 mr-1 text-destructive" />} Delete
+        </Button>
       </BulkActionBar>
 
 
