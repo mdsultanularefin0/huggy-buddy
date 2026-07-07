@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { pageMeta } from "@/lib/seo-meta";
+import { normalizeBdPhone } from "@/lib/phone";
 
 
 export const Route = createFileRoute("/contact")({
