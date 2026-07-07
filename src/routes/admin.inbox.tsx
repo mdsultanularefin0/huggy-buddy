@@ -86,6 +86,19 @@ function AdminInbox() {
     onError: (e) => toast.error(e instanceof Error ? e.message : "Delete failed"),
   });
 
+  const bulkDel = useServerFn(bulkDeleteContactMessages);
+  const selection = useSelection(messages);
+  const bulkDelMut = useMutation({
+    mutationFn: (ids: string[]) => bulkDel({ data: { ids } }),
+    onSuccess: (_r, ids) => {
+      qc.invalidateQueries({ queryKey: ["contact-messages"] });
+      if (selectedId && ids.includes(selectedId)) setSelectedId(null);
+      selection.clear();
+      toast.success(`${ids.length} message(s) deleted`);
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Delete failed"),
+  });
+
   const reply = useServerFn(replyToContactMessage);
   const [replyOpen, setReplyOpen] = useState(false);
   const [replySubject, setReplySubject] = useState("");
