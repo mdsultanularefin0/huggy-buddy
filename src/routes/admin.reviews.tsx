@@ -9,9 +9,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { uploadImage } from "@/lib/upload";
 import { ImageGallery } from "@/components/lightbox";
+import { useServerFn } from "@tanstack/react-start";
+import { deleteReviewsAdmin } from "@/lib/admin-mutations.functions";
+import { useSelection } from "@/hooks/use-selection";
+import { BulkActionBar } from "@/components/bulk-action-bar";
 
 export const Route = createFileRoute("/admin/reviews")({
   head: () => ({ meta: [{ title: "Reviews — Admin" }, { name: "robots", content: "noindex" }] }),
