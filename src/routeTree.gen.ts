@@ -62,6 +62,7 @@ import { Route as AuthenticatedAccountWishlistRouteImport } from './routes/_auth
 import { Route as AuthenticatedAccountAddressesRouteImport } from './routes/_authenticated.account.addresses'
 import { Route as AuthenticatedAccountOrdersIndexRouteImport } from './routes/_authenticated.account.orders.index'
 import { Route as ApiPublicMailSyncRouteImport } from './routes/api/public/mail.sync'
+import { Route as AdminOrdersIdLabelRouteImport } from './routes/admin.orders.$id.label'
 import { Route as AuthenticatedAccountOrdersIdRouteImport } from './routes/_authenticated.account.orders.$id'
 
 const UnsubscribeRoute = UnsubscribeRouteImport.update({
@@ -333,6 +334,11 @@ const ApiPublicMailSyncRoute = ApiPublicMailSyncRouteImport.update({
   path: '/api/public/mail/sync',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminOrdersIdLabelRoute = AdminOrdersIdLabelRouteImport.update({
+  id: '/label',
+  path: '/label',
+  getParentRoute: () => AdminOrdersIdRoute,
+} as any)
 const AuthenticatedAccountOrdersIdRoute =
   AuthenticatedAccountOrdersIdRouteImport.update({
     id: '/orders/$id',
@@ -388,10 +394,11 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/account/addresses': typeof AuthenticatedAccountAddressesRoute
   '/account/wishlist': typeof AuthenticatedAccountWishlistRoute
-  '/admin/orders/$id': typeof AdminOrdersIdRoute
+  '/admin/orders/$id': typeof AdminOrdersIdRouteWithChildren
   '/account/': typeof AuthenticatedAccountIndexRoute
   '/admin/orders/': typeof AdminOrdersIndexRoute
   '/account/orders/$id': typeof AuthenticatedAccountOrdersIdRoute
+  '/admin/orders/$id/label': typeof AdminOrdersIdLabelRoute
   '/api/public/mail/sync': typeof ApiPublicMailSyncRoute
   '/account/orders/': typeof AuthenticatedAccountOrdersIndexRoute
 }
@@ -441,10 +448,11 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/account/addresses': typeof AuthenticatedAccountAddressesRoute
   '/account/wishlist': typeof AuthenticatedAccountWishlistRoute
-  '/admin/orders/$id': typeof AdminOrdersIdRoute
+  '/admin/orders/$id': typeof AdminOrdersIdRouteWithChildren
   '/account': typeof AuthenticatedAccountIndexRoute
   '/admin/orders': typeof AdminOrdersIndexRoute
   '/account/orders/$id': typeof AuthenticatedAccountOrdersIdRoute
+  '/admin/orders/$id/label': typeof AdminOrdersIdLabelRoute
   '/api/public/mail/sync': typeof ApiPublicMailSyncRoute
   '/account/orders': typeof AuthenticatedAccountOrdersIndexRoute
 }
@@ -498,10 +506,11 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/_authenticated/account/addresses': typeof AuthenticatedAccountAddressesRoute
   '/_authenticated/account/wishlist': typeof AuthenticatedAccountWishlistRoute
-  '/admin/orders/$id': typeof AdminOrdersIdRoute
+  '/admin/orders/$id': typeof AdminOrdersIdRouteWithChildren
   '/_authenticated/account/': typeof AuthenticatedAccountIndexRoute
   '/admin/orders/': typeof AdminOrdersIndexRoute
   '/_authenticated/account/orders/$id': typeof AuthenticatedAccountOrdersIdRoute
+  '/admin/orders/$id/label': typeof AdminOrdersIdLabelRoute
   '/api/public/mail/sync': typeof ApiPublicMailSyncRoute
   '/_authenticated/account/orders/': typeof AuthenticatedAccountOrdersIndexRoute
 }
@@ -559,6 +568,7 @@ export interface FileRouteTypes {
     | '/account/'
     | '/admin/orders/'
     | '/account/orders/$id'
+    | '/admin/orders/$id/label'
     | '/api/public/mail/sync'
     | '/account/orders/'
   fileRoutesByTo: FileRoutesByTo
@@ -612,6 +622,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/admin/orders'
     | '/account/orders/$id'
+    | '/admin/orders/$id/label'
     | '/api/public/mail/sync'
     | '/account/orders'
   id:
@@ -668,6 +679,7 @@ export interface FileRouteTypes {
     | '/_authenticated/account/'
     | '/admin/orders/'
     | '/_authenticated/account/orders/$id'
+    | '/admin/orders/$id/label'
     | '/api/public/mail/sync'
     | '/_authenticated/account/orders/'
   fileRoutesById: FileRoutesById
@@ -1073,6 +1085,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicMailSyncRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/orders/$id/label': {
+      id: '/admin/orders/$id/label'
+      path: '/label'
+      fullPath: '/admin/orders/$id/label'
+      preLoaderRoute: typeof AdminOrdersIdLabelRouteImport
+      parentRoute: typeof AdminOrdersIdRoute
+    }
     '/_authenticated/account/orders/$id': {
       id: '/_authenticated/account/orders/$id'
       path: '/orders/$id'
@@ -1114,6 +1133,18 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
+interface AdminOrdersIdRouteChildren {
+  AdminOrdersIdLabelRoute: typeof AdminOrdersIdLabelRoute
+}
+
+const AdminOrdersIdRouteChildren: AdminOrdersIdRouteChildren = {
+  AdminOrdersIdLabelRoute: AdminOrdersIdLabelRoute,
+}
+
+const AdminOrdersIdRouteWithChildren = AdminOrdersIdRoute._addFileChildren(
+  AdminOrdersIdRouteChildren,
+)
+
 interface AdminRouteChildren {
   AdminAuditLogsRoute: typeof AdminAuditLogsRoute
   AdminCategoriesRoute: typeof AdminCategoriesRoute
@@ -1136,7 +1167,7 @@ interface AdminRouteChildren {
   AdminUploadTestRoute: typeof AdminUploadTestRoute
   AdminZonesRoute: typeof AdminZonesRoute
   AdminIndexRoute: typeof AdminIndexRoute
-  AdminOrdersIdRoute: typeof AdminOrdersIdRoute
+  AdminOrdersIdRoute: typeof AdminOrdersIdRouteWithChildren
   AdminOrdersIndexRoute: typeof AdminOrdersIndexRoute
 }
 
@@ -1162,7 +1193,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminUploadTestRoute: AdminUploadTestRoute,
   AdminZonesRoute: AdminZonesRoute,
   AdminIndexRoute: AdminIndexRoute,
-  AdminOrdersIdRoute: AdminOrdersIdRoute,
+  AdminOrdersIdRoute: AdminOrdersIdRouteWithChildren,
   AdminOrdersIndexRoute: AdminOrdersIndexRoute,
 }
 

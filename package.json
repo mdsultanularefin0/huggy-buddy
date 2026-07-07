@@ -58,6 +58,7 @@
     "html2pdf.js": "^0.14.0",
     "imapflow": "^1.4.3",
     "input-otp": "^1.4.2",
+    "jsbarcode": "^3.12.3",
     "lucide-react": "^0.575.0",
     "mailparser": "^3.9.12",
     "nodemailer": "^9.0.3",
