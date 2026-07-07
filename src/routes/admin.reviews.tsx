@@ -83,6 +83,19 @@ function AdminReviewsPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const selection = useSelection(rows);
+  const deleteReviews = useServerFn(deleteReviewsAdmin);
+  const bulkDelete = useMutation({
+    mutationFn: async (ids: string[]) => deleteReviews({ data: { ids } }),
+    onSuccess: (r) => {
+      toast.success(`Deleted ${r.deleted} review${r.deleted === 1 ? "" : "s"}`);
+      qc.invalidateQueries({ queryKey: ["admin", "reviews"] });
+      qc.invalidateQueries({ queryKey: ["reviews"] });
+      selection.clear();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const counts = useQuery({
     queryKey: ["admin", "reviews", "counts"],
     queryFn: async () => {
