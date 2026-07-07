@@ -645,6 +645,14 @@ function OrdersPage() {
                             >
                               <Copy className="w-4 h-4 mr-2" /> Copy tracking
                             </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              className="text-rose-600 focus:text-rose-600"
+                              onClick={() => {
+                                if (confirm(`Delete order ${o.order_number}? This cannot be undone.`)) bulkDelete.mutate([o.id]);
+                              }}
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" /> Delete order
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>
