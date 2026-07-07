@@ -12,6 +12,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Pencil, Trash2, Loader2 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useSelection } from "@/hooks/use-selection";
+import { BulkActionBar } from "@/components/bulk-action-bar";
 import { toast } from "sonner";
 import { formatBDT } from "@/lib/currency";
 import { saveCoupon } from "@/lib/coupons.functions";
