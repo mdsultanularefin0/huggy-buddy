@@ -220,6 +220,21 @@ function AdminOrderDetail() {
               {ORDER_STATUSES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
             </SelectContent>
           </Select>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-9"
+            onClick={() => refreshStatus.mutate()}
+            disabled={refreshStatus.isPending || isTerminal}
+            title={isTerminal ? `Order is ${order.order_status} — status check skipped` : "Check courier status and update order"}
+          >
+            {refreshStatus.isPending ? (
+              <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+            ) : (
+              <RefreshCw className="w-4 h-4 mr-1" />
+            )}
+            Refresh status
+          </Button>
         </div>
       </div>
 
