@@ -150,6 +150,39 @@ function BulkLabelsPage() {
   const pages: OrderRow[][] = [];
   for (let i = 0; i < orders.length; i += 16) pages.push(orders.slice(i, i + 16));
 
+  return <BulkLabelsView orders={orders} pages={pages} />;
+}
+
+function BulkLabelsView({ orders, pages }: { orders: OrderRow[]; pages: OrderRow[][] }) {
+  const [downloading, setDownloading] = useState(false);
+
+  async function handleDownload() {
+    setDownloading(true);
+    try {
+      const el = document.getElementById("bulk-labels-print");
+      if (!el) throw new Error("Not ready");
+      const mod = await import("html2pdf.js");
+      const html2pdf = (mod as unknown as { default: (...args: unknown[]) => unknown }).default ?? (mod as unknown as (...a: unknown[]) => unknown);
+      await (html2pdf as unknown as (opts?: unknown) => {
+        from: (el: HTMLElement) => { set: (o: unknown) => { save: () => Promise<void> } };
+      })()
+        .from(el)
+        .set({
+          margin: 0,
+          filename: `labels-${new Date().toISOString().slice(0, 10)}.pdf`,
+          image: { type: "jpeg", quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff" },
+          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+          pagebreak: { mode: ["css", "legacy"], before: ".a4-page:not(:first-child)" },
+        })
+        .save();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Download failed");
+    } finally {
+      setDownloading(false);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-muted/30 print:bg-white">
       <div className="max-w-4xl mx-auto px-4 py-6 print:hidden">
@@ -160,13 +193,19 @@ function BulkLabelsPage() {
           <div className="text-sm text-muted-foreground">
             {orders.length} label{orders.length === 1 ? "" : "s"} · {pages.length} A4 page{pages.length === 1 ? "" : "s"}
           </div>
-          <Button variant="luxe" size="sm" onClick={() => window.print()}>
-            <Printer className="w-4 h-4 mr-1" /> Print all
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => window.print()}>
+              <Printer className="w-4 h-4 mr-1" /> Print all
+            </Button>
+            <Button variant="luxe" size="sm" onClick={handleDownload} disabled={downloading}>
+              {downloading ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Download className="w-4 h-4 mr-1" />}
+              Download PDF
+            </Button>
+          </div>
         </div>
       </div>
 
-      <div className="pb-10 print:p-0 flex flex-col items-center gap-6 print:gap-0">
+      <div id="bulk-labels-print" className="pb-10 print:p-0 flex flex-col items-center gap-6 print:gap-0">
         {pages.map((page, pi) => (
           <div
             key={pi}
@@ -192,11 +231,16 @@ function BulkLabelsPage() {
       <style>{`
         @media print {
           @page { size: A4; margin: 0; }
-          body { background: white !important; }
+          html, body { background: white !important; }
+          body * { visibility: hidden !important; }
+          #bulk-labels-print, #bulk-labels-print * { visibility: visible !important; }
+          #bulk-labels-print { position: absolute; left: 0; top: 0; }
           .a4-page { page-break-after: always; break-after: page; box-shadow: none !important; margin: 0 !important; }
           .a4-page:last-child { page-break-after: auto; break-after: auto; }
         }
       `}</style>
     </div>
+  );
+}
   );
 }
