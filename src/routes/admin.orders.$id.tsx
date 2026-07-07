@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, FileText, Loader2, Truck } from "lucide-react";
+import { ArrowLeft, FileText, Loader2, Tag, Truck } from "lucide-react";
 import { toast } from "sonner";
 import { formatBDT } from "@/lib/currency";
 import { supabase } from "@/integrations/supabase/client";
@@ -137,11 +137,18 @@ function AdminOrderDetail() {
         <Button variant="ghost" size="sm" asChild>
           <Link to="/admin/orders"><ArrowLeft className="w-4 h-4 mr-1" />Back to orders</Link>
         </Button>
-        <Button variant="outline" size="sm" asChild>
-          <Link to="/invoice/$id" params={{ id }} target="_blank">
-            <FileText className="w-4 h-4 mr-1" /> View invoice
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/admin/orders/$id/label" params={{ id }} target="_blank">
+              <Tag className="w-4 h-4 mr-1" /> Courier label
+            </Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/invoice/$id" params={{ id }} target="_blank">
+              <FileText className="w-4 h-4 mr-1" /> View invoice
+            </Link>
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-wrap items-start justify-between gap-3">
