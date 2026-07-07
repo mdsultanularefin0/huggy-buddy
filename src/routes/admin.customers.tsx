@@ -10,12 +10,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, AlertTriangle, Pencil, ShieldAlert, ShieldCheck } from "lucide-react";
+import { Loader2, AlertTriangle, Pencil, ShieldAlert, ShieldCheck, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { formatBDT } from "@/lib/currency";
 import type { Database } from "@/integrations/supabase/types";
 import { useServerFn } from "@tanstack/react-start";
-import { updateCustomerAdmin } from "@/lib/admin-mutations.functions";
+import { updateCustomerAdmin, deleteCustomersAdmin } from "@/lib/admin-mutations.functions";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useSelection } from "@/hooks/use-selection";
 import { BulkActionBar } from "@/components/bulk-action-bar";
@@ -28,6 +28,7 @@ export const Route = createFileRoute("/admin/customers")({ component: CustomersP
 function CustomersPage() {
   const qc = useQueryClient();
   const updateCustomer = useServerFn(updateCustomerAdmin);
+  const deleteCustomers = useServerFn(deleteCustomersAdmin);
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState<Customer | null>(null);
   const [form, setForm] = useState({ name: "", risk_level: "normal" as RiskLevel, notes: "" });
@@ -104,6 +105,16 @@ function CustomersPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const bulkDelete = useMutation({
+    mutationFn: async (ids: string[]) => deleteCustomers({ data: { ids } }),
+    onSuccess: (r) => {
+      toast.success(`Deleted ${r.deleted} customer${r.deleted === 1 ? "" : "s"}`);
+      qc.invalidateQueries({ queryKey: ["admin", "customers"] });
+      selection.clear();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       <div>
@@ -170,6 +181,9 @@ function CustomersPage() {
                     </TableCell>
                     <TableCell className="text-right">
                       <Button variant="ghost" size="sm" onClick={() => startEdit(c)}><Pencil className="w-4 h-4" /></Button>
+                      <Button variant="ghost" size="sm" onClick={() => { if (confirm(`Delete ${c.name ?? c.phone}? This cannot be undone.`)) bulkDelete.mutate([c.id]); }}>
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 );
@@ -185,6 +199,9 @@ function CustomersPage() {
         </Button>
         <Button variant="ghost" size="sm" disabled={bulkRisk.isPending} onClick={() => bulkRisk.mutate({ ids: selection.selectedIds, risk_level: "normal" })}>
           <ShieldCheck className="w-4 h-4 mr-1 text-emerald-600" /> Mark normal
+        </Button>
+        <Button variant="ghost" size="sm" disabled={bulkDelete.isPending} onClick={() => { if (confirm(`Delete ${selection.count} customer(s)? This cannot be undone.`)) bulkDelete.mutate(selection.selectedIds); }}>
+          {bulkDelete.isPending ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Trash2 className="w-4 h-4 mr-1 text-destructive" />} Delete
         </Button>
       </BulkActionBar>
 

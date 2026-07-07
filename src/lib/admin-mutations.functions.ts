@@ -249,6 +249,56 @@ export const updateCustomerAdmin = createServerFn({ method: "POST" })
     return row;
   });
 
+const bulkIdsSchema = z.object({ ids: z.array(z.string().uuid()).min(1).max(200) });
+
+export const deleteOrdersAdmin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => bulkIdsSchema.parse(data))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId, context.supabase);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error, count } = await supabaseAdmin
+      .from("orders").delete({ count: "exact" }).in("id", data.ids);
+    if (error) throw new Error(error.message);
+    for (const id of data.ids) {
+      await writeAudit({
+        actor_id: context.userId, entity: "order", entity_id: id,
+        action: "delete", status: "ok", fields: [], payload: null,
+      });
+    }
+    return { deleted: count ?? 0 };
+  });
+
+export const deleteCustomersAdmin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => bulkIdsSchema.parse(data))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId, context.supabase);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error, count } = await supabaseAdmin
+      .from("customers").delete({ count: "exact" }).in("id", data.ids);
+    if (error) throw new Error(error.message);
+    for (const id of data.ids) {
+      await writeAudit({
+        actor_id: context.userId, entity: "customer", entity_id: id,
+        action: "delete", status: "ok", fields: [], payload: null,
+      });
+    }
+    return { deleted: count ?? 0 };
+  });
+
+export const deleteReviewsAdmin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => bulkIdsSchema.parse(data))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId, context.supabase);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error, count } = await supabaseAdmin
+      .from("product_reviews").delete({ count: "exact" }).in("id", data.ids);
+    if (error) throw new Error(error.message);
+    return { deleted: count ?? 0 };
+  });
+
 export const getAdminDashboardStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {

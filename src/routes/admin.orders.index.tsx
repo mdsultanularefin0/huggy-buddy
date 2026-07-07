@@ -8,12 +8,12 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, Eye, ShieldAlert, X, Truck, CheckCheck, MoreVertical, FileText, ExternalLink, Copy, Phone, PackageCheck, PackageX, Ban, Download, Tag, RefreshCw } from "lucide-react";
+import { Loader2, Eye, ShieldAlert, X, Truck, CheckCheck, MoreVertical, FileText, ExternalLink, Copy, Phone, PackageCheck, PackageX, Ban, Download, Tag, RefreshCw, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { formatBDT } from "@/lib/currency";
 import type { Database } from "@/integrations/supabase/types";
 import { useServerFn } from "@tanstack/react-start";
-import { listAdminOrders, updateOrderAdmin } from "@/lib/admin-mutations.functions";
+import { listAdminOrders, updateOrderAdmin, deleteOrdersAdmin } from "@/lib/admin-mutations.functions";
 import { exportOrdersForCSV } from "@/lib/admin-data-ops.functions";
 import { toCSV, downloadCSV } from "@/lib/csv";
 import { getSteadfastFraudCheck, bulkCreateSteadfastShipments, getSteadfastDeliveryStatus } from "@/lib/integrations.functions";
@@ -61,6 +61,7 @@ function OrdersPage() {
   const qc = useQueryClient();
   const fetchOrders = useServerFn(listAdminOrders);
   const updateOrder = useServerFn(updateOrderAdmin);
+  const deleteOrders = useServerFn(deleteOrdersAdmin);
   const fraudFn = useServerFn(getSteadfastFraudCheck);
   const bulkShipFn = useServerFn(bulkCreateSteadfastShipments);
   const checkStatusFn = useServerFn(getSteadfastDeliveryStatus);
@@ -225,6 +226,16 @@ function OrdersPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const bulkDelete = useMutation({
+    mutationFn: async (ids: string[]) => deleteOrders({ data: { ids } }),
+    onSuccess: (r) => {
+      toast.success(`Deleted ${r.deleted} order${r.deleted === 1 ? "" : "s"}`);
+      qc.invalidateQueries({ queryKey: ["admin", "orders"] });
+      selection.clear();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const COURIER_TO_ORDER: Record<string, OrderStatus> = {
     pending: "Shipped",
     in_review: "Processing",
@@ -270,7 +281,7 @@ function OrdersPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const anyBulkPending = bulkStatus.isPending || bulkPayment.isPending || bulkShip.isPending;
+  const anyBulkPending = bulkStatus.isPending || bulkPayment.isPending || bulkShip.isPending || bulkDelete.isPending;
   const MAX_PDF = 100;
   const selectedOrders = (orders ?? []).filter((o) => selection.selectedIds.includes(o.id));
 
@@ -634,6 +645,15 @@ function OrdersPage() {
                             >
                               <Copy className="w-4 h-4 mr-2" /> Copy tracking
                             </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              className="text-rose-600 focus:text-rose-600"
+                              onClick={() => {
+                                if (confirm(`Delete order ${o.order_number}? This cannot be undone.`)) bulkDelete.mutate([o.id]);
+                              }}
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" /> Delete order
+                            </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>
@@ -786,6 +806,18 @@ function OrdersPage() {
               }}
             >
               <Ban className="w-4 h-4 mr-2" /> Cancel orders
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className="text-rose-600"
+              onClick={() => {
+                if (selection.count === 0) { toast.error("Select at least one order"); return; }
+                if (confirm(`Permanently delete ${selection.count} order(s)? This cannot be undone.`)) {
+                  bulkDelete.mutate(selection.selectedIds);
+                }
+              }}
+            >
+              <Trash2 className="w-4 h-4 mr-2" /> Delete orders
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
