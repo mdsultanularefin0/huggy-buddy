@@ -544,29 +544,101 @@ function OrdersPage() {
       <FraudDialog data={fraud} onClose={() => setFraud(null)} />
 
       <BulkActionBar count={selection.count} onClear={selection.clear}>
-        <Button variant="ghost" size="sm" disabled={bulkStatus.isPending} onClick={() => bulkStatus.mutate({ ids: selection.selectedIds, order_status: "Processing" })}>
-          Processing
-        </Button>
-        <Button variant="ghost" size="sm" disabled={bulkStatus.isPending} onClick={() => bulkStatus.mutate({ ids: selection.selectedIds, order_status: "Shipped" })}>
-          Shipped
-        </Button>
-        <Button variant="ghost" size="sm" disabled={bulkStatus.isPending} onClick={() => bulkStatus.mutate({ ids: selection.selectedIds, order_status: "Completed" })}>
-          <CheckCheck className="w-4 h-4 mr-1" /> Complete
-        </Button>
-        <Button variant="ghost" size="sm" className="text-rose-600" disabled={bulkStatus.isPending} onClick={() => {
-          if (confirm(`Cancel ${selection.count} order(s)?`)) bulkStatus.mutate({ ids: selection.selectedIds, order_status: "Cancelled" });
-        }}>
-          Cancel
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" disabled={bulkStatus.isPending}>
+              <CheckCheck className="w-4 h-4 mr-1" /> Order status
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="center">
+            <DropdownMenuLabel>Set order status</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {ORDER_STATUSES.map((s) => (
+              <DropdownMenuItem
+                key={s}
+                className={s === "Cancelled" ? "text-rose-600" : undefined}
+                onClick={() => {
+                  if (s === "Cancelled" && !confirm(`Cancel ${selection.count} order(s)?`)) return;
+                  bulkStatus.mutate({ ids: selection.selectedIds, order_status: s });
+                }}
+              >
+                {s}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" disabled={bulkPayment.isPending}>
+              <PackageCheck className="w-4 h-4 mr-1" /> Payment
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="center">
+            <DropdownMenuLabel>Set payment status</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {PAYMENT_STATUSES.map((s) => (
+              <DropdownMenuItem
+                key={s}
+                onClick={() => bulkPayment.mutate({ ids: selection.selectedIds, payment_status: s })}
+              >
+                {s}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <div className="h-5 w-px bg-border mx-1" />
+
         <Button variant="ghost" size="sm" disabled={bulkShip.isPending} onClick={() => bulkShip.mutate(selection.selectedIds)}>
-          <Truck className="w-4 h-4 mr-1" /> Send to Steadfast
+          {bulkShip.isPending ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Truck className="w-4 h-4 mr-1" />}
+          Send to courier
+        </Button>
+        <Button variant="ghost" size="sm" onClick={() => {
+          if (selection.count > 8 && !confirm(`Open ${selection.count} invoice tabs?`)) return;
+          for (const id of selection.selectedIds) window.open(`/invoice/${id}`, "_blank");
+        }}>
+          <FileText className="w-4 h-4 mr-1" /> Invoices
         </Button>
         <Button variant="ghost" size="sm" onClick={() => {
           const url = `/admin/orders/labels?ids=${encodeURIComponent(selection.selectedIds.join(","))}`;
           window.open(url, "_blank");
         }}>
-          <Tag className="w-4 h-4 mr-1" /> Print labels
+          <Tag className="w-4 h-4 mr-1" /> Labels
         </Button>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8">
+              <MoreVertical className="w-4 h-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>More actions</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => {
+                const nums = (orders ?? [])
+                  .filter((o) => selection.selectedIds.includes(o.id))
+                  .map((o) => o.order_number).join(", ");
+                navigator.clipboard.writeText(nums);
+                toast.success("Order numbers copied");
+              }}
+            >
+              <Copy className="w-4 h-4 mr-2" /> Copy order numbers
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="text-rose-600"
+              onClick={() => {
+                if (confirm(`Cancel ${selection.count} order(s)?`)) {
+                  bulkStatus.mutate({ ids: selection.selectedIds, order_status: "Cancelled" });
+                }
+              }}
+            >
+              <Ban className="w-4 h-4 mr-2" /> Cancel orders
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </BulkActionBar>
     </div>
   );
