@@ -266,6 +266,13 @@ function CategoriesPage() {
       </Card>
       <p className="text-xs text-muted-foreground -mt-2">Drag rows to reorder. The top 3 active categories show on mobile/tablet; top 4 on desktop.</p>
 
+      <BulkActionBar count={selection.count} onClear={selection.clear}>
+        <Button variant="ghost" size="sm" disabled={bulkDelete.isPending} onClick={() => { if (confirm(`Delete ${selection.count} categor${selection.count === 1 ? "y" : "ies"}? This cannot be undone.`)) bulkDelete.mutate(selection.selectedIds); }}>
+          {bulkDelete.isPending ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Trash2 className="w-4 h-4 mr-1 text-destructive" />} Delete
+        </Button>
+      </BulkActionBar>
+
+
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
