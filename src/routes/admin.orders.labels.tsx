@@ -172,7 +172,7 @@ function BulkLabelsView({ orders, pages }: { orders: OrderRow[]; pages: OrderRow
           margin: 0,
           filename: `labels-${new Date().toISOString().slice(0, 10)}.pdf`,
           image: { type: "jpeg", quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff" },
+          html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff", onclone: (doc: Document, el: HTMLElement) => normalizeOklchInClone(doc, el) },
           jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
           pagebreak: { mode: ["css", "legacy"], before: ".a4-page:not(:first-child)" },
         })
