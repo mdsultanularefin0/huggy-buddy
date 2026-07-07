@@ -303,7 +303,17 @@ function CheckoutPage() {
                 </div>
                 <div>
                   <Label htmlFor="phone">Phone *</Label>
-                  <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} required placeholder="01XXXXXXXXX" />
+                  <Input
+                    id="phone"
+                    type="tel"
+                    inputMode="numeric"
+                    autoComplete="tel"
+                    maxLength={16}
+                    value={phone}
+                    onChange={(e) => setPhone(normalizeBdPhone(e.target.value))}
+                    required
+                    placeholder="01XXXXXXXXX"
+                  />
                 </div>
               </div>
               <div>
