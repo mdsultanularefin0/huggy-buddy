@@ -203,6 +203,20 @@ function CombosPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const selection = useSelection(combos);
+  const bulkDelete = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase.from("combos").delete().in("id", ids);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Deleted");
+      qc.invalidateQueries({ queryKey: ["admin", "combos"] });
+      selection.clear();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   function startNew() {
     setEditing(null);
     setForm(empty);
