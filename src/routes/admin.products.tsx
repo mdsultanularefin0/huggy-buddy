@@ -12,7 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Plus, Pencil, Trash2, Loader2, Upload, X, GripVertical, Eye, EyeOff, PackageCheck, PackageX, FileSpreadsheet } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Upload, X, GripVertical, Eye, EyeOff, PackageCheck, PackageX, FileSpreadsheet, Settings } from "lucide-react";
+import { ProductGlobalSettingsDialog } from "@/components/product-global-settings-dialog";
 import { toast } from "sonner";
 import { formatBDT } from "@/lib/currency";
 import { HtmlEditor } from "@/components/html-editor";
