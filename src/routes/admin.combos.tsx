@@ -13,6 +13,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Pencil, Trash2, Loader2, Upload, X } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useSelection } from "@/hooks/use-selection";
+import { BulkActionBar } from "@/components/bulk-action-bar";
 
 import { toast } from "sonner";
 import { formatBDT } from "@/lib/currency";
@@ -201,6 +203,20 @@ function CombosPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const selection = useSelection(combos);
+  const bulkDelete = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase.from("combos").delete().in("id", ids);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Deleted");
+      qc.invalidateQueries({ queryKey: ["admin", "combos"] });
+      selection.clear();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   function startNew() {
     setEditing(null);
     setForm(empty);
@@ -297,6 +313,12 @@ function CombosPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-10">
+                  <Checkbox
+                    checked={selection.allChecked ? true : selection.someChecked ? "indeterminate" : false}
+                    onCheckedChange={(v) => selection.toggleAll(!!v)}
+                  />
+                </TableHead>
                 <TableHead className="w-16"></TableHead>
                 <TableHead>Title</TableHead>
                 <TableHead>Type</TableHead>
@@ -310,7 +332,13 @@ function CombosPage() {
               {combos.map((c) => {
                 const items = Array.isArray(c.products_json) ? (c.products_json as unknown[]).length : 0;
                 return (
-                  <TableRow key={c.id}>
+                  <TableRow key={c.id} data-state={selection.isSelected(c.id) ? "selected" : undefined}>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      <Checkbox
+                        checked={selection.isSelected(c.id)}
+                        onCheckedChange={(v) => selection.toggle(c.id, !!v)}
+                      />
+                    </TableCell>
                     <TableCell>
                       {c.image_url ? (
                         <img src={c.image_url} alt="" className="w-12 h-12 rounded-md object-cover" loading="lazy" />
@@ -358,6 +386,20 @@ function CombosPage() {
           </Table>
         )}
       </Card>
+
+      <BulkActionBar count={selection.count} onClear={selection.clear}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-destructive hover:text-destructive"
+          onClick={() => {
+            if (confirm(`Delete ${selection.count} combo(s)?`)) bulkDelete.mutate(selection.selectedIds);
+          }}
+          disabled={bulkDelete.isPending}
+        >
+          <Trash2 className="w-4 h-4 mr-1" /> Delete
+        </Button>
+      </BulkActionBar>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
