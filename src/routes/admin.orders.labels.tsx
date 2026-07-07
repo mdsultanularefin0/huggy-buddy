@@ -39,10 +39,9 @@ function Barcode({ value }: { value: string }) {
     try {
       JsBarcode(ref.current, value, {
         format: "CODE128",
-        width: 1.4,
-        height: 32,
-        displayValue: true,
-        fontSize: 9,
+        width: 1.2,
+        height: 28,
+        displayValue: false,
         margin: 0,
         background: "#ffffff",
       });
