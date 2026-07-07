@@ -65,6 +65,7 @@ function ProductsPage() {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  const [globalOpen, setGlobalOpen] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
   const [form, setForm] = useState(empty);
   const [uploading, setUploading] = useState(false);
