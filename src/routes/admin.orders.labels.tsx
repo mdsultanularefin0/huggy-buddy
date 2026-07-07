@@ -39,16 +39,16 @@ function Barcode({ value }: { value: string }) {
     try {
       JsBarcode(ref.current, value, {
         format: "CODE128",
-        width: 2,
-        height: 70,
+        width: 1.4,
+        height: 32,
         displayValue: true,
-        fontSize: 16,
+        fontSize: 9,
         margin: 0,
         background: "#ffffff",
       });
     } catch { /* noop */ }
   }, [value]);
-  return <svg ref={ref} />;
+  return <svg ref={ref} style={{ maxWidth: "100%" }} />;
 }
 
 type OrderRow = {
@@ -72,71 +72,54 @@ function Label({ order }: { order: OrderRow }) {
   }));
   const totalQty = items.reduce((n, it) => n + (it.qty ?? 1), 0);
   const courierId = order.consignment_id ? String(order.consignment_id) : (order.tracking_code ?? order.order_number);
+  const due = Math.max(0, Number(order.total) - Number(order.amount_paid ?? 0));
 
   return (
     <div
-      className="courier-label bg-white text-black mx-auto border border-black shadow print:shadow-none print:border-0"
-      style={{ width: "100mm", padding: "6mm" }}
+      className="courier-label bg-white text-black border border-black overflow-hidden"
+      style={{ width: "50mm", height: "72mm", padding: "2mm", fontSize: "7pt", lineHeight: 1.15 }}
     >
-      <div className="flex justify-between items-start border-b border-black pb-2 mb-2">
-        <div>
-          <div className="text-[11px] uppercase tracking-wider">Veloura Essence</div>
-          <div className="text-xs">Order: <span className="font-mono font-semibold">{order.order_number}</span></div>
+      <div className="flex justify-between items-start border-b border-black pb-1 mb-1">
+        <div className="min-w-0">
+          <div className="uppercase font-semibold truncate" style={{ fontSize: "6pt" }}>Veloura Essence</div>
+          <div className="font-mono font-bold truncate" style={{ fontSize: "7pt" }}>{order.order_number}</div>
         </div>
-        <div className="text-right text-[10px]">
-          {new Date(order.created_at).toLocaleDateString()}
-          <div className="mt-1 border border-black px-2 py-0.5 font-bold uppercase">
-            {order.payment_method === "COD" ? "Cash on Delivery" : "Prepaid"}
-          </div>
+        <div className="border border-black px-1 font-bold uppercase" style={{ fontSize: "6pt" }}>
+          {order.payment_method === "COD" ? "COD" : "PAID"}
         </div>
       </div>
 
-      <div className="text-center py-2 border-b border-black">
-        <div className="text-[10px] uppercase tracking-wider mb-1">Courier ID</div>
+      <div className="text-center border-b border-black pb-1 mb-1">
         <div className="flex justify-center"><Barcode value={courierId} /></div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 py-2 border-b border-black text-[11px]">
+      <div className="border-b border-black pb-1 mb-1" style={{ fontSize: "6.5pt" }}>
+        <div className="font-semibold truncate">{c.name ?? "—"}</div>
+        {c.phone && <div>{c.phone}</div>}
+        {c.address && <div className="line-clamp-2">{c.address}</div>}
+        {(c.area || c.district) && <div className="truncate">{[c.area, c.district].filter(Boolean).join(", ")}</div>}
+      </div>
+
+      <div className="flex justify-between items-center border-b border-black pb-1 mb-1">
         <div>
-          <div className="uppercase tracking-wider text-[9px]">From</div>
-          <div className="font-semibold">Veloura Essence</div>
-          <div>Dhaka, Bangladesh</div>
+          <div className="uppercase" style={{ fontSize: "5.5pt" }}>Items</div>
+          <div className="font-bold">{totalQty}</div>
         </div>
-        <div>
-          <div className="uppercase tracking-wider text-[9px]">To</div>
-          <div className="font-semibold">{c.name ?? "—"}</div>
-          {c.phone && <div>{c.phone}</div>}
-          {c.address && <div>{c.address}</div>}
-          {(c.area || c.district) && <div>{[c.area, c.district].filter(Boolean).join(", ")}</div>}
+        <div className="text-right">
+          <div className="uppercase" style={{ fontSize: "5.5pt" }}>COD / Due</div>
+          <div className="font-bold" style={{ fontSize: "9pt" }}>{formatBDT(due)}</div>
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-2 py-2 border-b border-black text-[11px] text-center">
-        <div>
-          <div className="uppercase tracking-wider text-[9px]">Items</div>
-          <div className="font-bold text-base">{totalQty}</div>
-        </div>
-        <div>
-          <div className="uppercase tracking-wider text-[9px]">COD Amount</div>
-          <div className="font-bold text-base">
-            {order.payment_method === "COD" ? formatBDT(Math.max(0, Number(order.total) - Number(order.amount_paid ?? 0))) : formatBDT(0)}
-          </div>
-        </div>
-        <div>
-          <div className="uppercase tracking-wider text-[9px]">Weight</div>
-          <div className="font-bold text-base">0.5 kg</div>
-        </div>
-      </div>
-
-      <div className="py-2 text-[10px]">
-        <div className="uppercase tracking-wider text-[9px] mb-1">Contents</div>
-        <ul className="space-y-0.5">
-          {items.map((it, i) => (
-            <li key={i} className="flex justify-between gap-2">
+      <div style={{ fontSize: "5.5pt" }}>
+        <ul>
+          {items.slice(0, 3).map((it, i) => (
+            <li key={i} className="flex justify-between gap-1 truncate">
               <span className="truncate">{it.name}</span>
               <span className="font-mono">×{it.qty}</span>
             </li>
           ))}
+          {items.length > 3 && <li className="italic">+{items.length - 3} more…</li>}
         </ul>
       </div>
     </div>
