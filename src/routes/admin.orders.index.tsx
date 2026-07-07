@@ -621,18 +621,20 @@ function OrdersPage() {
       <BulkActionBar count={selection.count} onClear={selection.clear}>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" disabled={bulkStatus.isPending}>
-              <CheckCheck className="w-4 h-4 mr-1" /> Order status
+            <Button variant="ghost" size="sm" disabled={anyBulkPending}>
+              {bulkStatus.isPending ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <CheckCheck className="w-4 h-4 mr-1" />}
+              Order status
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="center">
-            <DropdownMenuLabel>Set order status</DropdownMenuLabel>
+            <DropdownMenuLabel>Set order status ({selection.count})</DropdownMenuLabel>
             <DropdownMenuSeparator />
             {ORDER_STATUSES.map((s) => (
               <DropdownMenuItem
                 key={s}
                 className={s === "Cancelled" ? "text-rose-600" : undefined}
                 onClick={() => {
+                  if (selection.count === 0) { toast.error("Select at least one order"); return; }
                   if (s === "Cancelled" && !confirm(`Cancel ${selection.count} order(s)?`)) return;
                   bulkStatus.mutate({ ids: selection.selectedIds, order_status: s });
                 }}
@@ -645,17 +647,21 @@ function OrdersPage() {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" disabled={bulkPayment.isPending}>
-              <PackageCheck className="w-4 h-4 mr-1" /> Payment
+            <Button variant="ghost" size="sm" disabled={anyBulkPending}>
+              {bulkPayment.isPending ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <PackageCheck className="w-4 h-4 mr-1" />}
+              Payment
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="center">
-            <DropdownMenuLabel>Set payment status</DropdownMenuLabel>
+            <DropdownMenuLabel>Set payment status ({selection.count})</DropdownMenuLabel>
             <DropdownMenuSeparator />
             {PAYMENT_STATUSES.map((s) => (
               <DropdownMenuItem
                 key={s}
-                onClick={() => bulkPayment.mutate({ ids: selection.selectedIds, payment_status: s })}
+                onClick={() => {
+                  if (selection.count === 0) { toast.error("Select at least one order"); return; }
+                  bulkPayment.mutate({ ids: selection.selectedIds, payment_status: s });
+                }}
               >
                 {s}
               </DropdownMenuItem>
@@ -665,26 +671,38 @@ function OrdersPage() {
 
         <div className="h-5 w-px bg-border mx-1" />
 
-        <Button variant="ghost" size="sm" disabled={bulkShip.isPending} onClick={() => bulkShip.mutate(selection.selectedIds)}>
+        <Button
+          variant="ghost"
+          size="sm"
+          disabled={anyBulkPending || courierEligibility.eligibleIds.length === 0}
+          title={courierEligibility.eligibleIds.length === 0 ? "No eligible orders in selection" : `${courierEligibility.eligibleIds.length} eligible`}
+          onClick={runBulkShip}
+        >
           {bulkShip.isPending ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Truck className="w-4 h-4 mr-1" />}
-          Send to courier
+          Send to courier{courierEligibility.eligibleIds.length !== selection.count ? ` (${courierEligibility.eligibleIds.length})` : ""}
         </Button>
-        <Button variant="ghost" size="sm" onClick={() => {
-          const url = `/admin/orders/invoices?ids=${encodeURIComponent(selection.selectedIds.join(","))}`;
-          window.open(url, "_blank");
-        }}>
+        <Button
+          variant="ghost"
+          size="sm"
+          disabled={selection.count === 0 || selection.count > MAX_PDF}
+          title={selection.count > MAX_PDF ? `Max ${MAX_PDF} at a time` : "Open printable invoices"}
+          onClick={() => openBulkPdf("invoices")}
+        >
           <FileText className="w-4 h-4 mr-1" /> Invoices
         </Button>
-        <Button variant="ghost" size="sm" onClick={() => {
-          const url = `/admin/orders/labels?ids=${encodeURIComponent(selection.selectedIds.join(","))}`;
-          window.open(url, "_blank");
-        }}>
+        <Button
+          variant="ghost"
+          size="sm"
+          disabled={selection.count === 0 || selection.count > MAX_PDF}
+          title={selection.count > MAX_PDF ? `Max ${MAX_PDF} at a time` : "Open printable labels"}
+          onClick={() => openBulkPdf("labels")}
+        >
           <Tag className="w-4 h-4 mr-1" /> Labels
         </Button>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Button variant="ghost" size="icon" className="h-8 w-8" disabled={anyBulkPending}>
               <MoreVertical className="w-4 h-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -693,11 +711,11 @@ function OrdersPage() {
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {
-                const nums = (orders ?? [])
-                  .filter((o) => selection.selectedIds.includes(o.id))
-                  .map((o) => o.order_number).join(", ");
-                navigator.clipboard.writeText(nums);
-                toast.success("Order numbers copied");
+                if (selectedOrders.length === 0) { toast.error("Nothing selected"); return; }
+                const nums = selectedOrders.map((o) => o.order_number).join(", ");
+                navigator.clipboard.writeText(nums)
+                  .then(() => toast.success(`Copied ${selectedOrders.length} order number${selectedOrders.length === 1 ? "" : "s"}`))
+                  .catch(() => toast.error("Could not copy to clipboard"));
               }}
             >
               <Copy className="w-4 h-4 mr-2" /> Copy order numbers
@@ -705,6 +723,7 @@ function OrdersPage() {
             <DropdownMenuItem
               className="text-rose-600"
               onClick={() => {
+                if (selection.count === 0) { toast.error("Select at least one order"); return; }
                 if (confirm(`Cancel ${selection.count} order(s)?`)) {
                   bulkStatus.mutate({ ids: selection.selectedIds, order_status: "Cancelled" });
                 }
@@ -715,6 +734,7 @@ function OrdersPage() {
           </DropdownMenuContent>
         </DropdownMenu>
       </BulkActionBar>
+
     </div>
   );
 }
