@@ -181,6 +181,9 @@ function CustomersPage() {
                     </TableCell>
                     <TableCell className="text-right">
                       <Button variant="ghost" size="sm" onClick={() => startEdit(c)}><Pencil className="w-4 h-4" /></Button>
+                      <Button variant="ghost" size="sm" onClick={() => { if (confirm(`Delete ${c.name ?? c.phone}? This cannot be undone.`)) bulkDelete.mutate([c.id]); }}>
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 );
