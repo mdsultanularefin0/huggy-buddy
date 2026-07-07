@@ -242,5 +242,3 @@ function BulkLabelsView({ orders, pages }: { orders: OrderRow[]; pages: OrderRow
     </div>
   );
 }
-  );
-}
