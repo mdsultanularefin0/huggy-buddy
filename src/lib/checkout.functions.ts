@@ -63,6 +63,7 @@ export const validateCoupon = createServerFn({ method: "POST" })
 const ValidateReferralSchema = z.object({
   code: z.string().trim().min(1).max(40),
   subtotal: z.number().int().nonnegative(),
+  buyerPhone: z.string().trim().max(20).optional(),
 });
 
 export const validateReferral = createServerFn({ method: "POST" })
@@ -72,16 +73,30 @@ export const validateReferral = createServerFn({ method: "POST" })
     const { data: ref, error } = await supabaseAdmin
       .from("referral_codes")
       .select("code,discount_amount,discount_type,is_active")
-      .ilike("code", data.code)
+      .ilike("code", data.code.trim())
       .maybeSingle();
     if (error) throw new Error("Could not validate referral code");
-    if (!ref || !ref.is_active) throw new Error("Invalid referral code");
-    const raw = Math.max(0, ref.discount_amount ?? 0);
-    const refDiscount = ref.discount_type === "percent"
-      ? Math.floor((data.subtotal * Math.min(raw, 100)) / 100)
-      : raw;
-    if (refDiscount <= 0) throw new Error("Referral code has no discount");
-    return { code: ref.code, discount: Math.min(refDiscount, data.subtotal) };
+
+    // Look up prior redemptions by the buyer's normalized phone so a customer
+    // can't stack the same referral across multiple orders.
+    let previouslyUsedCodes: string[] = [];
+    if (data.buyerPhone) {
+      const phone = normalizePhone(data.buyerPhone);
+      if (phone) {
+        const { data: prior } = await supabaseAdmin
+          .from("orders")
+          .select("referral_used")
+          .eq("customer_json->>phone", phone)
+          .not("referral_used", "is", null);
+        previouslyUsedCodes = (prior ?? [])
+          .map((r) => (r as { referral_used: string | null }).referral_used)
+          .filter((c): c is string => !!c);
+      }
+    }
+
+    const result = evaluateReferral(ref, data.subtotal, { previouslyUsedCodes });
+    if (!result.ok) throw new Error(result.message);
+    return { code: result.code, discount: result.discount, discountType: result.discountType };
   });
 
 function generateOrderNumber() {
