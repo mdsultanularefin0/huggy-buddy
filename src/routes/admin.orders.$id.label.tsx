@@ -70,6 +70,7 @@ function LabelPage() {
     qty: (it.qty as number | undefined) ?? (it.quantity as number | undefined) ?? 1,
   }));
   const totalQty = items.reduce((n, it) => n + (it.qty ?? 1), 0);
+  const due = Math.max(0, Number(order.total) - Number(order.amount_paid ?? 0));
 
   const courierId = order.consignment_id ? String(order.consignment_id) : (order.tracking_code ?? order.order_number);
 
@@ -100,16 +101,14 @@ function LabelPage() {
             <div className="text-right text-[10px]">
               {new Date(order.created_at).toLocaleDateString()}
               <div className="mt-1 border border-black px-2 py-0.5 font-bold uppercase">
-                {order.payment_method === "COD" ? "Cash on Delivery" : "Prepaid"}
+                {due > 0 ? "Cash on Delivery" : "Prepaid"}
               </div>
             </div>
           </div>
 
           <div className="text-center py-2 border-b border-black">
             <div className="text-[10px] uppercase tracking-wider mb-1">Courier ID</div>
-            <div className="flex justify-center">
-              <Barcode value={courierId} />
-            </div>
+            <div className="font-mono font-bold leading-tight break-all" style={{ fontSize: "28px" }}>{courierId}</div>
           </div>
 
           <div className="grid grid-cols-2 gap-2 py-2 border-b border-black text-[11px]">
@@ -157,8 +156,11 @@ function LabelPage() {
             </ul>
           </div>
 
+          <div className="pt-3 border-t border-black flex justify-center">
+            <Barcode value={courierId} />
+          </div>
           {order.tracking_code && (
-            <div className="pt-2 border-t border-black text-center text-[10px]">
+            <div className="pt-1 text-center text-[10px]">
               Tracking: <span className="font-mono font-semibold">{order.tracking_code}</span>
             </div>
           )}
