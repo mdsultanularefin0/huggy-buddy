@@ -11,8 +11,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Mail, CheckCircle2, Inbox as InboxIcon, RefreshCw, Trash2, ArrowLeft, Reply, Send, PenSquare, History } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useSelection } from "@/hooks/use-selection";
+import { BulkActionBar } from "@/components/bulk-action-bar";
 import { toast } from "sonner";
-import { listContactMessages, updateContactStatus, syncImapInbox, deleteContactMessage, replyToContactMessage, sendAdminEmail, listSentEmails } from "@/lib/email.functions";
+import { listContactMessages, updateContactStatus, syncImapInbox, deleteContactMessage, bulkDeleteContactMessages, replyToContactMessage, sendAdminEmail, listSentEmails } from "@/lib/email.functions";
 
 
 export const Route = createFileRoute("/admin/inbox")({
