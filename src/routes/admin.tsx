@@ -122,7 +122,7 @@ function AdminLayout() {
             <div className="h-5 w-px bg-border/70" />
             <span className="text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">Veloura Essence · Admin</span>
           </header>
-          <main className="flex-1 p-6 lg:p-8">
+          <main className="flex-1 p-3 sm:p-6 lg:p-8">
             <Outlet />
           </main>
         </div>
