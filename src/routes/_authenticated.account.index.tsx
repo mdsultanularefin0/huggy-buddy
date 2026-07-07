@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { getMyProfile, updateMyProfile } from "@/lib/account.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import {
   Form,
@@ -76,12 +77,10 @@ function ProfilePage() {
         ) : (
           <Form {...form}>
             <form onSubmit={form.handleSubmit((v) => mut.mutate(v))} className="space-y-4">
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input value={data?.email ?? ""} disabled />
-                </FormControl>
-              </FormItem>
+              <div className="space-y-2">
+                <Label>Email</Label>
+                <Input value={data?.email ?? ""} disabled />
+              </div>
               <FormField
                 control={form.control}
                 name="name"
