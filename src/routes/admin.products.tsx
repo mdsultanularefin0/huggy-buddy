@@ -12,7 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Plus, Pencil, Trash2, Loader2, Upload, X, GripVertical, Eye, EyeOff, PackageCheck, PackageX, FileSpreadsheet } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Upload, X, GripVertical, Eye, EyeOff, PackageCheck, PackageX, FileSpreadsheet, Settings } from "lucide-react";
+import { ProductGlobalSettingsDialog } from "@/components/product-global-settings-dialog";
 import { toast } from "sonner";
 import { formatBDT } from "@/lib/currency";
 import { HtmlEditor } from "@/components/html-editor";
@@ -64,6 +65,7 @@ function ProductsPage() {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  const [globalOpen, setGlobalOpen] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
   const [form, setForm] = useState(empty);
   const [uploading, setUploading] = useState(false);
@@ -429,6 +431,9 @@ function ProductsPage() {
           <p className="text-muted-foreground mt-1">Manage your fragrance catalogue.</p>
         </div>
         <div className="flex items-center gap-2">
+          <Button onClick={() => setGlobalOpen(true)} variant="outline" title="Edit the 3 sections shown on every product page">
+            <Settings className="w-4 h-4 mr-1" /> Global settings
+          </Button>
           <Button onClick={() => setImportOpen(true)} variant="outline">
             <FileSpreadsheet className="w-4 h-4 mr-1" /> Bulk import
           </Button>
@@ -437,6 +442,7 @@ function ProductsPage() {
       </div>
 
       <BulkImportDialog open={importOpen} onOpenChange={setImportOpen} />
+      <ProductGlobalSettingsDialog open={globalOpen} onOpenChange={setGlobalOpen} />
 
       {combos.length > 0 && (
         <Card className="shadow-card p-4">

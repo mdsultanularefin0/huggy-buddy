@@ -1065,6 +1065,12 @@ export type Database = {
           notes_json: Json | null
           notes_subtitle: string | null
           notes_title: string | null
+          product_notes_content: string | null
+          product_notes_title: string | null
+          product_shipping_content: string | null
+          product_shipping_title: string | null
+          product_usage_content: string | null
+          product_usage_title: string | null
           reels_enabled: boolean
           reels_json: Json
           reels_title: string
@@ -1147,6 +1153,12 @@ export type Database = {
           notes_json?: Json | null
           notes_subtitle?: string | null
           notes_title?: string | null
+          product_notes_content?: string | null
+          product_notes_title?: string | null
+          product_shipping_content?: string | null
+          product_shipping_title?: string | null
+          product_usage_content?: string | null
+          product_usage_title?: string | null
           reels_enabled?: boolean
           reels_json?: Json
           reels_title?: string
@@ -1229,6 +1241,12 @@ export type Database = {
           notes_json?: Json | null
           notes_subtitle?: string | null
           notes_title?: string | null
+          product_notes_content?: string | null
+          product_notes_title?: string | null
+          product_shipping_content?: string | null
+          product_shipping_title?: string | null
+          product_usage_content?: string | null
+          product_usage_title?: string | null
           reels_enabled?: boolean
           reels_json?: Json
           reels_title?: string

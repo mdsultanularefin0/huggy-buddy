@@ -1,5 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
+import { useSuspenseQuery, useQuery, queryOptions } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -358,26 +358,7 @@ function ProductPage() {
             {!product.in_stock ? "Out of stock" : needsVariant && variantIdx === null ? "Select a size" : chosenOut ? "Variant out of stock" : "Add to Cart"}
           </Button>
 
-          <Accordion type="single" collapsible className="mt-8">
-            <AccordionItem value="notes">
-              <AccordionTrigger>Notes & Ingredients</AccordionTrigger>
-              <AccordionContent>
-                Crafted with premium imported oils. Top, heart, and base notes designed to evolve gracefully on skin.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="shipping">
-              <AccordionTrigger>Shipping Info</AccordionTrigger>
-              <AccordionContent>
-                Nationwide delivery across Bangladesh in 2–4 business days. Free shipping on orders over ৳999.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="usage">
-              <AccordionTrigger>How to Use</AccordionTrigger>
-              <AccordionContent>
-                Spray onto pulse points — wrists, neck, and behind the ears — from 15–20 cm away for best projection.
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
+          <ProductAccordions />
         </div>
       </div>
       {product.description && (
@@ -392,5 +373,51 @@ function ProductPage() {
       <ProductReviews productId={product.id} />
       <SiteFooter />
     </div>
+  );
+}
+
+const ACCORDION_DEFAULTS = {
+  product_notes_title: "Notes & Ingredients",
+  product_notes_content:
+    "Crafted with premium imported oils. Top, heart, and base notes designed to evolve gracefully on skin.",
+  product_shipping_title: "Shipping Info",
+  product_shipping_content:
+    "Nationwide delivery across Bangladesh in 2–4 business days. Free shipping on orders over ৳999.",
+  product_usage_title: "How to Use",
+  product_usage_content:
+    "Spray onto pulse points — wrists, neck, and behind the ears — from 15–20 cm away for best projection.",
+};
+
+function ProductAccordions() {
+  const { data } = useQuery({
+    queryKey: ["site_settings", "product-accordions"],
+    staleTime: 5 * 60 * 1000,
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("site_settings")
+        .select(
+          "product_notes_title,product_notes_content,product_shipping_title,product_shipping_content,product_usage_title,product_usage_content",
+        )
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
+      return (data ?? {}) as Partial<typeof ACCORDION_DEFAULTS>;
+    },
+  });
+  const s = { ...ACCORDION_DEFAULTS, ...(data ?? {}) };
+  const items: [string, string, string][] = [
+    ["notes", s.product_notes_title || ACCORDION_DEFAULTS.product_notes_title, s.product_notes_content || ACCORDION_DEFAULTS.product_notes_content],
+    ["shipping", s.product_shipping_title || ACCORDION_DEFAULTS.product_shipping_title, s.product_shipping_content || ACCORDION_DEFAULTS.product_shipping_content],
+    ["usage", s.product_usage_title || ACCORDION_DEFAULTS.product_usage_title, s.product_usage_content || ACCORDION_DEFAULTS.product_usage_content],
+  ];
+  return (
+    <Accordion type="single" collapsible className="mt-8">
+      {items.map(([val, title, content]) => (
+        <AccordionItem key={val} value={val}>
+          <AccordionTrigger>{title}</AccordionTrigger>
+          <AccordionContent className="whitespace-pre-line">{content}</AccordionContent>
+        </AccordionItem>
+      ))}
+    </Accordion>
   );
 }
