@@ -101,7 +101,7 @@ function LabelPage() {
             <div className="text-right text-[10px]">
               {new Date(order.created_at).toLocaleDateString()}
               <div className="mt-1 border border-black px-2 py-0.5 font-bold uppercase">
-                {order.payment_method === "COD" ? "Cash on Delivery" : "Prepaid"}
+                {due > 0 ? "Cash on Delivery" : "Prepaid"}
               </div>
             </div>
           </div>
