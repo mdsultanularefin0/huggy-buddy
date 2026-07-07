@@ -168,20 +168,6 @@ function AdminOrderDetail() {
           <Link to="/admin/orders"><ArrowLeft className="w-4 h-4 mr-1" />Back to orders</Link>
         </Button>
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => refreshStatus.mutate()}
-            disabled={refreshStatus.isPending}
-            title="Check courier status and update order"
-          >
-            {refreshStatus.isPending ? (
-              <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-            ) : (
-              <RefreshCw className="w-4 h-4 mr-1" />
-            )}
-            Refresh status
-          </Button>
           <Button variant="outline" size="sm" asChild>
             <Link to="/admin/orders/$id/label" params={{ id }} target="_blank">
               <Tag className="w-4 h-4 mr-1" /> Courier label
