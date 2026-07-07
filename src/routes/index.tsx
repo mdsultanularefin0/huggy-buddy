@@ -897,7 +897,7 @@ function Landing() {
               </div>
               <Carousel
                 opts={{ align: "start", loop: true, dragFree: false }}
-                className="w-full relative sm:px-12"
+                className="w-full relative"
               >
                 <CarouselContent className="-ml-3 sm:-ml-4 touch-pan-y">
                   {reels.map((r, i) => {
@@ -917,8 +917,8 @@ function Landing() {
                     );
                   })}
                 </CarouselContent>
-                <CarouselPrevious className="hidden sm:flex left-0 top-1/2 -translate-y-1/2 z-20 h-10 w-10 bg-white hover:bg-white shadow-md" />
-                <CarouselNext className="hidden sm:flex right-0 top-1/2 -translate-y-1/2 z-20 h-10 w-10 bg-white hover:bg-white shadow-md" />
+                <CarouselPrevious className="pointer-events-auto absolute! -left-3 sm:-left-4 top-1/2 -translate-y-1/2 h-7 w-7 sm:h-8 sm:w-8 rounded-full border border-[#52277a]/60 bg-white/80 text-[#52277a] shadow-none backdrop-blur-sm hover:bg-[#52277a] hover:text-white [&_svg]:size-3.5 sm:[&_svg]:size-4" />
+                <CarouselNext className="pointer-events-auto absolute! -right-3 sm:-right-4 top-1/2 -translate-y-1/2 h-7 w-7 sm:h-8 sm:w-8 rounded-full border border-[#52277a]/60 bg-white/80 text-[#52277a] shadow-none backdrop-blur-sm hover:bg-[#52277a] hover:text-white [&_svg]:size-3.5 sm:[&_svg]:size-4" />
               </Carousel>
 
             </div>
