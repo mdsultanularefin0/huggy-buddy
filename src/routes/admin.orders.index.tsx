@@ -595,8 +595,8 @@ function OrdersPage() {
           Send to courier
         </Button>
         <Button variant="ghost" size="sm" onClick={() => {
-          if (selection.count > 8 && !confirm(`Open ${selection.count} invoice tabs?`)) return;
-          for (const id of selection.selectedIds) window.open(`/invoice/${id}`, "_blank");
+          const url = `/admin/orders/invoices?ids=${encodeURIComponent(selection.selectedIds.join(","))}`;
+          window.open(url, "_blank");
         }}>
           <FileText className="w-4 h-4 mr-1" /> Invoices
         </Button>
