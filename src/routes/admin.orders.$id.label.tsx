@@ -156,8 +156,11 @@ function LabelPage() {
             </ul>
           </div>
 
+          <div className="pt-3 border-t border-black flex justify-center">
+            <Barcode value={courierId} />
+          </div>
           {order.tracking_code && (
-            <div className="pt-2 border-t border-black text-center text-[10px]">
+            <div className="pt-1 text-center text-[10px]">
               Tracking: <span className="font-mono font-semibold">{order.tracking_code}</span>
             </div>
           )}
