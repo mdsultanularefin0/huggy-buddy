@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, Eye, ShieldAlert, X, Truck, CheckCheck, MoreVertical, FileText, ExternalLink, Copy, Phone, PackageCheck, PackageX, Ban, Download } from "lucide-react";
+import { Loader2, Eye, ShieldAlert, X, Truck, CheckCheck, MoreVertical, FileText, ExternalLink, Copy, Phone, PackageCheck, PackageX, Ban, Download, Tag } from "lucide-react";
 import { toast } from "sonner";
 import { formatBDT } from "@/lib/currency";
 import type { Database } from "@/integrations/supabase/types";
@@ -539,6 +539,12 @@ function OrdersPage() {
         </Button>
         <Button variant="ghost" size="sm" disabled={bulkShip.isPending} onClick={() => bulkShip.mutate(selection.selectedIds)}>
           <Truck className="w-4 h-4 mr-1" /> Send to Steadfast
+        </Button>
+        <Button variant="ghost" size="sm" onClick={() => {
+          const url = `/admin/orders/labels?ids=${encodeURIComponent(selection.selectedIds.join(","))}`;
+          window.open(url, "_blank");
+        }}>
+          <Tag className="w-4 h-4 mr-1" /> Print labels
         </Button>
       </BulkActionBar>
     </div>
