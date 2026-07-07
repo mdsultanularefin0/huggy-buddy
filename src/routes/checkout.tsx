@@ -3,6 +3,7 @@ import { useSuspenseQuery, queryOptions, useMutation } from "@tanstack/react-que
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, Check, Loader2, X } from "lucide-react";
+import { normalizeBdPhone, isValidBdPhone } from "@/lib/phone";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
