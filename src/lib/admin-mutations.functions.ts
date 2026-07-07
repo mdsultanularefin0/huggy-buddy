@@ -170,6 +170,26 @@ export const getAdminOrdersByIds = createServerFn({ method: "POST" })
     return data.ids.map((id) => byId.get(id)).filter(Boolean);
   });
 
+export const getAdminInvoicesByIds = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) =>
+    z.object({ ids: z.array(z.string().uuid()).min(1).max(100) }).parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId, context.supabase);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const [{ data: rows, error }, { data: settings }] = await Promise.all([
+      supabaseAdmin.from("orders").select("*").in("id", data.ids),
+      supabaseAdmin.from("site_settings")
+        .select("shop_name, shop_tagline, shop_email, shop_phone, shop_address, site_logo_url")
+        .limit(1).maybeSingle(),
+    ]);
+    if (error) throw new Error(error.message);
+    const byId = new Map((rows ?? []).map((r) => [r.id, r]));
+    const orders = data.ids.map((id) => byId.get(id)).filter(Boolean);
+    return { orders, branding: settings ?? null };
+  });
+
 const customerUpdateSchema = z.object({
   id: z.string().uuid(),
   patch: z.object({

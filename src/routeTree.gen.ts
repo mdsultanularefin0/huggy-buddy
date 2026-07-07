@@ -58,6 +58,7 @@ import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticate
 import { Route as AdminOrdersIndexRouteImport } from './routes/admin.orders.index'
 import { Route as AuthenticatedAccountIndexRouteImport } from './routes/_authenticated.account.index'
 import { Route as AdminOrdersLabelsRouteImport } from './routes/admin.orders.labels'
+import { Route as AdminOrdersInvoicesRouteImport } from './routes/admin.orders.invoices'
 import { Route as AdminOrdersIdRouteImport } from './routes/admin.orders.$id'
 import { Route as AuthenticatedAccountWishlistRouteImport } from './routes/_authenticated.account.wishlist'
 import { Route as AuthenticatedAccountAddressesRouteImport } from './routes/_authenticated.account.addresses'
@@ -312,6 +313,11 @@ const AdminOrdersLabelsRoute = AdminOrdersLabelsRouteImport.update({
   path: '/orders/labels',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminOrdersInvoicesRoute = AdminOrdersInvoicesRouteImport.update({
+  id: '/orders/invoices',
+  path: '/orders/invoices',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminOrdersIdRoute = AdminOrdersIdRouteImport.update({
   id: '/orders/$id',
   path: '/orders/$id',
@@ -401,6 +407,7 @@ export interface FileRoutesByFullPath {
   '/account/addresses': typeof AuthenticatedAccountAddressesRoute
   '/account/wishlist': typeof AuthenticatedAccountWishlistRoute
   '/admin/orders/$id': typeof AdminOrdersIdRouteWithChildren
+  '/admin/orders/invoices': typeof AdminOrdersInvoicesRoute
   '/admin/orders/labels': typeof AdminOrdersLabelsRoute
   '/account/': typeof AuthenticatedAccountIndexRoute
   '/admin/orders/': typeof AdminOrdersIndexRoute
@@ -456,6 +463,7 @@ export interface FileRoutesByTo {
   '/account/addresses': typeof AuthenticatedAccountAddressesRoute
   '/account/wishlist': typeof AuthenticatedAccountWishlistRoute
   '/admin/orders/$id': typeof AdminOrdersIdRouteWithChildren
+  '/admin/orders/invoices': typeof AdminOrdersInvoicesRoute
   '/admin/orders/labels': typeof AdminOrdersLabelsRoute
   '/account': typeof AuthenticatedAccountIndexRoute
   '/admin/orders': typeof AdminOrdersIndexRoute
@@ -515,6 +523,7 @@ export interface FileRoutesById {
   '/_authenticated/account/addresses': typeof AuthenticatedAccountAddressesRoute
   '/_authenticated/account/wishlist': typeof AuthenticatedAccountWishlistRoute
   '/admin/orders/$id': typeof AdminOrdersIdRouteWithChildren
+  '/admin/orders/invoices': typeof AdminOrdersInvoicesRoute
   '/admin/orders/labels': typeof AdminOrdersLabelsRoute
   '/_authenticated/account/': typeof AuthenticatedAccountIndexRoute
   '/admin/orders/': typeof AdminOrdersIndexRoute
@@ -574,6 +583,7 @@ export interface FileRouteTypes {
     | '/account/addresses'
     | '/account/wishlist'
     | '/admin/orders/$id'
+    | '/admin/orders/invoices'
     | '/admin/orders/labels'
     | '/account/'
     | '/admin/orders/'
@@ -629,6 +639,7 @@ export interface FileRouteTypes {
     | '/account/addresses'
     | '/account/wishlist'
     | '/admin/orders/$id'
+    | '/admin/orders/invoices'
     | '/admin/orders/labels'
     | '/account'
     | '/admin/orders'
@@ -687,6 +698,7 @@ export interface FileRouteTypes {
     | '/_authenticated/account/addresses'
     | '/_authenticated/account/wishlist'
     | '/admin/orders/$id'
+    | '/admin/orders/invoices'
     | '/admin/orders/labels'
     | '/_authenticated/account/'
     | '/admin/orders/'
@@ -1069,6 +1081,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminOrdersLabelsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/orders/invoices': {
+      id: '/admin/orders/invoices'
+      path: '/orders/invoices'
+      fullPath: '/admin/orders/invoices'
+      preLoaderRoute: typeof AdminOrdersInvoicesRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/orders/$id': {
       id: '/admin/orders/$id'
       path: '/orders/$id'
@@ -1187,6 +1206,7 @@ interface AdminRouteChildren {
   AdminZonesRoute: typeof AdminZonesRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminOrdersIdRoute: typeof AdminOrdersIdRouteWithChildren
+  AdminOrdersInvoicesRoute: typeof AdminOrdersInvoicesRoute
   AdminOrdersLabelsRoute: typeof AdminOrdersLabelsRoute
   AdminOrdersIndexRoute: typeof AdminOrdersIndexRoute
 }
@@ -1214,6 +1234,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminZonesRoute: AdminZonesRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminOrdersIdRoute: AdminOrdersIdRouteWithChildren,
+  AdminOrdersInvoicesRoute: AdminOrdersInvoicesRoute,
   AdminOrdersLabelsRoute: AdminOrdersLabelsRoute,
   AdminOrdersIndexRoute: AdminOrdersIndexRoute,
 }
