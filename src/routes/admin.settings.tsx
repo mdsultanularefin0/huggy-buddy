@@ -303,7 +303,51 @@ function SettingsPage() {
             <SaveBar pending={save.isPending} onSave={() => save.mutate()} />
           </Card>
         </TabsContent>
+
+        <TabsContent value="emails" className="mt-4">
+          <Card className="p-6 space-y-6 shadow-card">
+            <div>
+              <Label className="text-base">Order confirmation email</Label>
+              <p className="text-xs text-muted-foreground">
+                Sent to the customer after checkout (when an email is provided) and included in the admin notification.
+                Available variables:{" "}
+                <code className="text-[11px]">{"{{order_number}} {{customer_name}} {{items}} {{subtotal}} {{shipping}} {{discount}} {{discount_row}} {{total}} {{payment_method}} {{shipping_address}} {{shop_name}} {{shop_tagline}} {{shop_email}}"}</code>
+              </p>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Subject</Label>
+              <Input
+                value={orderEmailSubject}
+                onChange={(e) => setOrderEmailSubject(e.target.value)}
+                placeholder={DEFAULT_ORDER_EMAIL_SUBJECT}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <Label>Body (HTML)</Label>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setOrderEmailSubject(DEFAULT_ORDER_EMAIL_SUBJECT);
+                    setOrderEmailBody(DEFAULT_ORDER_EMAIL_BODY);
+                    toast.success("Default template loaded — click Save to apply");
+                  }}
+                >
+                  Load default template
+                </Button>
+              </div>
+              <HtmlEditor value={orderEmailBody} onChange={setOrderEmailBody} />
+              <p className="text-xs text-muted-foreground">
+                Leave empty to fall back to the built-in default. {"{{items}}"} is replaced with pre-rendered table rows for each line item.
+              </p>
+            </div>
+            <SaveBar pending={save.isPending} onSave={() => save.mutate()} />
+          </Card>
+        </TabsContent>
       </Tabs>
+
     </div>
   );
 }
