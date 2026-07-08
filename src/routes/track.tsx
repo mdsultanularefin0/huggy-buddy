@@ -272,9 +272,6 @@ function TrackPage() {
                 </p>
               </div>
               <div className="flex flex-col items-end gap-2">
-                <Badge variant="outline" className="gap-1">
-                  <Truck className="w-3.5 h-3.5" /> {CARRIER}
-                </Badge>
                 <Link
                   to="/order/$id"
                   params={{ id: order.id }}
