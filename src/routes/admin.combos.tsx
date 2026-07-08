@@ -107,6 +107,14 @@ function CombosPage() {
       return data as { id: string; title: string; scent_profile: string | null; is_active: boolean }[];
     },
   });
+  const { data: productCategoryLinks = [] } = useQuery({
+    queryKey: ["admin", "product_categories"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("product_categories").select("product_id,category_id");
+      if (error) throw error;
+      return data as { product_id: string; category_id: string }[];
+    },
+  });
   const { data: comboCategoryLinks = [] } = useQuery({
     queryKey: ["admin", "combo_categories"],
     queryFn: async () => {
@@ -288,6 +296,30 @@ function CombosPage() {
       }
     }
     setForm((f) => ({ ...f, products_json: items }));
+  }
+
+  function fillPoolFromCategories(categoryIds: string[]) {
+    if (categoryIds.length === 0) {
+      toast.error("Select at least one category first.");
+      return;
+    }
+    const set = new Set(categoryIds);
+    const productIds = new Set(
+      productCategoryLinks.filter((l) => set.has(l.category_id)).map((l) => l.product_id),
+    );
+    const items: ComboItem[] = [];
+    for (const p of products) {
+      if (!productIds.has(p.id)) continue;
+      const sizes = variantsByProduct.get(p.id) ?? [];
+      if (sizes.length === 0) items.push({ product_id: p.id, size_label: null });
+      else for (const s of sizes) items.push({ product_id: p.id, size_label: s });
+    }
+    if (items.length === 0) {
+      toast.error("No products found in the selected categories.");
+      return;
+    }
+    setForm((f) => ({ ...f, products_json: items }));
+    toast.success(`Filled pool with ${items.length} item${items.length === 1 ? "" : "s"}.`);
   }
 
   return (
@@ -494,9 +526,21 @@ function CombosPage() {
 
 
             <div>
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
                 <Label>{form.combo_type === "byob" ? "Selectable products (pool)" : "Included products"}</Label>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
+                  {form.combo_type === "byob" && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => fillPoolFromCategories(form.category_ids)}
+                      disabled={!products.length}
+                      title="Populate pool with all products from the selected categories above"
+                    >
+                      Fill from categories
+                    </Button>
+                  )}
                   <Button type="button" variant="outline" size="sm" onClick={addAllVariants} disabled={!products.length}>
                     Add all
                   </Button>
