@@ -502,9 +502,13 @@ function CheckoutPage() {
                       maxLength={16}
                       value={senderNumber}
                       onChange={(e) => setSenderNumber(normalizeBdPhone(e.target.value))}
+                      onBlur={() => setPayTouched((t) => ({ ...t, sender: true }))}
                       placeholder="01XXXXXXXXX"
                       required
+                      aria-invalid={!!senderError}
+                      aria-describedby="sender-number-error"
                     />
+                    {senderError && <p id="sender-number-error" className="text-xs text-destructive">{senderError}</p>}
                   </div>
                   <div className="space-y-1.5">
                     <Label htmlFor="trx-id" className="text-xs">Transaction ID (TrxID) *</Label>
@@ -512,9 +516,13 @@ function CheckoutPage() {
                       id="trx-id"
                       value={trxId}
                       onChange={(e) => setTrxId(e.target.value.toUpperCase())}
+                      onBlur={() => setPayTouched((t) => ({ ...t, trx: true }))}
                       placeholder="e.g. 9A7B2C3D4E"
                       required
+                      aria-invalid={!!trxError}
+                      aria-describedby="trx-id-error"
                     />
+                    {trxError && <p id="trx-id-error" className="text-xs text-destructive">{trxError}</p>}
                   </div>
                 </div>
               )}
