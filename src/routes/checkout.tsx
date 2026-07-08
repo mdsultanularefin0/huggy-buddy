@@ -226,6 +226,9 @@ function CheckoutPage() {
           },
           deliveryZoneId: zoneId,
           paymentMethod,
+          paymentDetails: requiresPaymentDetails
+            ? { senderNumber: senderNumber.trim(), trxId: trxId.trim() }
+            : undefined,
           items,
           referralCode: appliedReferral?.code || undefined,
           couponCode: appliedCoupon?.code || undefined,
