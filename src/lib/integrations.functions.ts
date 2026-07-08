@@ -255,7 +255,14 @@ export const getSteadfastDeliveryStatus = createServerFn({ method: "POST" })
       `/status_by_trackingcode/${encodeURIComponent(data.value)}`;
     const body = await steadfastFetch(path, { method: "GET" }) as
       { status?: number; delivery_status?: string; message?: string } | null;
-    return { delivery_status: body?.delivery_status ?? null, message: body?.message ?? null };
+    const delivery = body?.delivery_status ?? null;
+    if (delivery) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const col = data.by === "cid" ? "consignment_id" : data.by === "invoice" ? "order_number" : "tracking_code";
+      const val: string | number = data.by === "cid" ? Number(data.value) : data.value;
+      await supabaseAdmin.from("orders").update({ courier_status: delivery }).eq(col, val);
+    }
+    return { delivery_status: delivery, message: body?.message ?? null };
   });
 
 // -------- Current balance --------
