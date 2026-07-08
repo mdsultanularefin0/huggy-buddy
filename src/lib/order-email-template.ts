@@ -1,24 +1,44 @@
 // Default order confirmation email template + variable substitution.
-// Shared between the admin editor (preview / "load default") and the
-// checkout server function that actually sends the mail.
+// Invoice-style design: thank-you header then invoice-like details.
 
 export const DEFAULT_ORDER_EMAIL_SUBJECT =
-  "Order #{{order_number}} — {{shop_name}}";
+  "Invoice for Order #{{order_number}} — {{shop_name}}";
 
-export const DEFAULT_ORDER_EMAIL_BODY = `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;max-width:600px;margin:0 auto;background:#ffffff;color:#1f1f1f">
-  <div style="background:#52277a;padding:28px 24px;text-align:center;color:#ffffff">
-    <h1 style="margin:0;font-size:22px;font-weight:600;letter-spacing:0.3px">{{shop_name}}</h1>
-    <p style="margin:6px 0 0;font-size:13px;opacity:0.85">{{shop_tagline}}</p>
-  </div>
-  <div style="padding:28px 24px">
-    <h2 style="margin:0 0 8px;font-size:20px;color:#52277a">Thank you, {{customer_name}}!</h2>
-    <p style="margin:0 0 18px;font-size:14px;line-height:1.55;color:#4a4a4a">
-      We've received your order <strong>#{{order_number}}</strong> and are preparing it with care. You'll get another email as soon as it ships.
+export const DEFAULT_ORDER_EMAIL_BODY = `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;max-width:640px;margin:0 auto;background:#ffffff;color:#1f1f1f;border:1px solid #ece4f5">
+  <div style="padding:32px 28px 20px;text-align:center;border-bottom:1px solid #ece4f5">
+    <h1 style="margin:0 0 6px;font-size:24px;color:#52277a;font-weight:700;letter-spacing:0.3px">Thank you, {{customer_name}}!</h1>
+    <p style="margin:0;font-size:14px;color:#555;line-height:1.55">
+      We've received your order and are preparing it with care.<br/>
+      A confirmation of your purchase is below.
     </p>
-    <table style="width:100%;border-collapse:collapse;font-size:14px;margin-top:8px">
+  </div>
+
+  <div style="padding:24px 28px 8px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px">
+    <div style="flex:1;min-width:220px">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:6px">Invoice From</div>
+      <div style="font-size:15px;font-weight:600;color:#52277a">{{shop_name}}</div>
+      <div style="font-size:13px;color:#666;line-height:1.5">{{shop_tagline}}<br/>{{shop_email}}</div>
+    </div>
+    <div style="flex:1;min-width:220px;text-align:right">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:6px">Invoice</div>
+      <div style="font-size:15px;font-weight:600;color:#1f1f1f">#{{order_number}}</div>
+      <div style="font-size:13px;color:#666">{{order_date}}</div>
+    </div>
+  </div>
+
+  <div style="padding:16px 28px 8px">
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:6px">Billed To</div>
+    <div style="font-size:14px;color:#1f1f1f;line-height:1.5">
+      <strong>{{customer_name}}</strong><br/>
+      {{shipping_address}}
+    </div>
+  </div>
+
+  <div style="padding:20px 28px 0">
+    <table style="width:100%;border-collapse:collapse;font-size:14px">
       <thead>
         <tr style="background:#faf7fd;color:#52277a">
-          <th style="text-align:left;padding:10px 12px;border-bottom:1px solid #ece4f5">Item</th>
+          <th style="text-align:left;padding:10px 12px;border-bottom:1px solid #ece4f5">Description</th>
           <th style="text-align:right;padding:10px 12px;border-bottom:1px solid #ece4f5">Amount</th>
         </tr>
       </thead>
@@ -32,14 +52,17 @@ export const DEFAULT_ORDER_EMAIL_BODY = `<div style="font-family:-apple-system,B
         <tr><td style="padding:12px;border-top:2px solid #52277a;font-weight:700;color:#52277a">Total</td><td style="padding:12px;border-top:2px solid #52277a;text-align:right;font-weight:700;color:#52277a">৳ {{total}}</td></tr>
       </tfoot>
     </table>
-    <div style="margin-top:24px;padding:16px;background:#faf7fd;border-radius:8px;font-size:13px;color:#4a4a4a">
-      <strong style="color:#52277a">Payment:</strong> {{payment_method}}<br/>
-      <strong style="color:#52277a">Ships to:</strong> {{shipping_address}}
-    </div>
-    <p style="margin:24px 0 0;font-size:13px;color:#777;line-height:1.5">
-      Questions? Reply to this email or reach us at {{shop_email}}.
-    </p>
   </div>
+
+  <div style="margin:24px 28px;padding:16px;background:#faf7fd;border-radius:8px;font-size:13px;color:#4a4a4a;line-height:1.6">
+    <div><strong style="color:#52277a">Payment Method:</strong> {{payment_method}}</div>
+    <div><strong style="color:#52277a">Ships To:</strong> {{shipping_address}}</div>
+  </div>
+
+  <div style="padding:0 28px 28px;font-size:13px;color:#777;line-height:1.55">
+    Questions about this invoice? Reply to this email or contact us at {{shop_email}}.
+  </div>
+
   <div style="background:#f6f3fa;padding:16px;text-align:center;font-size:12px;color:#888">
     © {{shop_name}} · Thank you for shopping with us
   </div>
@@ -47,6 +70,7 @@ export const DEFAULT_ORDER_EMAIL_BODY = `<div style="font-family:-apple-system,B
 
 export type OrderEmailVars = {
   order_number: string | number;
+  order_date: string;
   customer_name: string;
   items: string; // pre-rendered <tr> rows
   subtotal: number | string;
