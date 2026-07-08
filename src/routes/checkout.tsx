@@ -294,6 +294,7 @@ function CheckoutPage() {
     if (upazila.trim().length < 2) return toast.error("Enter your upazila/thana");
     if (address.trim().length < 5) return toast.error("Enter a delivery address");
     if (requiresPaymentDetails) {
+      setPayTouched({ sender: true, trx: true });
       if (!isValidBdPhone(senderNumber)) return toast.error("Enter the number you paid from (01XXXXXXXXX)");
       if (trxId.trim().length < 4) return toast.error("Enter the transaction ID (TrxID)");
     }
