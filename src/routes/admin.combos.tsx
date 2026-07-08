@@ -526,9 +526,21 @@ function CombosPage() {
 
 
             <div>
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
                 <Label>{form.combo_type === "byob" ? "Selectable products (pool)" : "Included products"}</Label>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
+                  {form.combo_type === "byob" && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => fillPoolFromCategories(form.category_ids)}
+                      disabled={!products.length}
+                      title="Populate pool with all products from the selected categories above"
+                    >
+                      Fill from categories
+                    </Button>
+                  )}
                   <Button type="button" variant="outline" size="sm" onClick={addAllVariants} disabled={!products.length}>
                     Add all
                   </Button>
