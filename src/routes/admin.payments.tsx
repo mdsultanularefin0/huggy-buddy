@@ -18,6 +18,12 @@ type Method = Database["public"]["Tables"]["payment_methods"]["Row"];
 
 export const Route = createFileRoute("/admin/payments")({ component: PaymentsPage });
 
+const PRESETS: { name: string; instructions: string; requiresAccount: boolean }[] = [
+  { name: "Cash on Delivery", instructions: "Pay the full amount in cash when your order is delivered.", requiresAccount: false },
+  { name: "Bkash Send Money", instructions: "Open bKash → Send Money → enter the number above → send the exact total → then submit your bKash number & TrxID below.", requiresAccount: true },
+  { name: "Nagad Send Money", instructions: "Open Nagad → Send Money → enter the number above → send the exact total → then submit your Nagad number & TrxID below.", requiresAccount: true },
+];
+
 const empty = { method_name: "", sort_order: 0, is_active: true, account_number: "", instructions: "" };
 
 function PaymentsPage() {
