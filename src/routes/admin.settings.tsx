@@ -70,6 +70,8 @@ function SettingsPage() {
       setSocialYoutube(str("social_youtube"));
       setSocialTiktok(str("social_tiktok"));
       setSocialWhatsapp(str("social_whatsapp"));
+      setOrderEmailSubject(str("order_email_subject"));
+      setOrderEmailBody(str("order_email_body"));
     }
   }, [settings]);
 
