@@ -438,23 +438,42 @@ export const createOrder = createServerFn({ method: "POST" })
         .from("integration_credentials")
         .select("encrypted_data, iv, auth_tag").eq("provider", "smtp").maybeSingle();
       if (enc) {
+        const {
+          DEFAULT_ORDER_EMAIL_SUBJECT,
+          DEFAULT_ORDER_EMAIL_BODY,
+          renderOrderEmail,
+        } = await import("@/lib/order-email-template");
+        const { data: settings } = await sa
+          .from("site_settings")
+          .select("shop_name, shop_tagline, shop_email, order_email_subject, order_email_body")
+          .limit(1)
+          .maybeSingle();
         const itemLines = data.items.map(
-          (i) => `<tr><td>${i.name}${i.size ? ` (${i.size})` : ""} × ${i.quantity}</td><td style="text-align:right">৳ ${i.unitPrice * i.quantity}</td></tr>`,
+          (i) => `<tr><td style="padding:8px 12px;border-bottom:1px solid #eee">${i.name}${i.size ? ` (${i.size})` : ""} × ${i.quantity}</td><td style="padding:8px 12px;text-align:right;border-bottom:1px solid #eee">৳ ${i.unitPrice * i.quantity}</td></tr>`,
         ).join("");
-        const html = `
-          <h2>Thank you for your order!</h2>
-          <p>Order <strong>#${orderNumber}</strong> received.</p>
-          <table style="width:100%;border-collapse:collapse">${itemLines}
-            <tr><td>Subtotal</td><td style="text-align:right">৳ ${subtotal}</td></tr>
-            <tr><td>Shipping</td><td style="text-align:right">৳ ${shippingFee}</td></tr>
-            ${discount > 0 ? `<tr><td>Discount</td><td style="text-align:right">-৳ ${discount}</td></tr>` : ""}
-            <tr><td><strong>Total</strong></td><td style="text-align:right"><strong>৳ ${total}</strong></td></tr>
-          </table>
-          <p>We'll notify you when it ships.</p>`;
+        const addr = data.customer.address || "—";
+        const vars = {
+          order_number: orderNumber,
+          customer_name: data.customer.name || "there",
+          items: itemLines,
+          subtotal, shipping: shippingFee, discount, total,
+          discount_row: discount > 0
+            ? `<tr><td style="padding:8px 12px;color:#666">Discount</td><td style="padding:8px 12px;text-align:right;color:#c0392b">-৳ ${discount}</td></tr>`
+            : "",
+          payment_method: data.paymentMethod,
+          shipping_address: addr,
+          shop_name: settings?.shop_name || "Veloura Essence",
+          shop_tagline: settings?.shop_tagline || "",
+          shop_email: settings?.shop_email || "",
+        };
+        const subjectTpl = settings?.order_email_subject || DEFAULT_ORDER_EMAIL_SUBJECT;
+        const bodyTpl = settings?.order_email_body || DEFAULT_ORDER_EMAIL_BODY;
+        const subject = renderOrderEmail(subjectTpl, vars);
+        const html = renderOrderEmail(bodyTpl, vars);
         if (data.customer.email) {
           void sendMail({
             to: data.customer.email,
-            subject: `Order #${orderNumber} — Veloura Essence`,
+            subject,
             html, kind: "order_confirmation",
           });
         }
@@ -473,6 +492,7 @@ export const createOrder = createServerFn({ method: "POST" })
         } catch { /* ignore */ }
       }
     } catch { /* SMTP missing or send failed — order still succeeds */ }
+
 
     // Meta CAPI Purchase (best-effort). event_id = order.id lets the browser
     // pixel dedupe when it fires the same event with { eventID: order.id }.
