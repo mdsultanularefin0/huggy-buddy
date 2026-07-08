@@ -466,19 +466,17 @@ function CheckoutPage() {
             </div>
 
             <div className="border-t pt-4 space-y-2">
-              <Label className="text-sm">Payment Method</Label>
-              <div className="grid grid-cols-2 gap-2">
-                {data.methods.map((m) => (
-                  <button
-                    key={m.id}
-                    type="button"
-                    onClick={() => setPaymentMethod(m.method_name)}
-                    className={`text-left p-2.5 rounded-lg border text-sm transition-colors ${paymentMethod === m.method_name ? "border-primary bg-primary/5 font-medium" : "border-border hover:border-primary/40"}`}
-                  >
-                    {m.method_name}
-                  </button>
-                ))}
-              </div>
+              <Label htmlFor="payment-method" className="text-sm">Payment Method</Label>
+              <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+                <SelectTrigger id="payment-method" className="mt-1">
+                  <SelectValue placeholder="Select payment method" />
+                </SelectTrigger>
+                <SelectContent>
+                  {data.methods.map((m) => (
+                    <SelectItem key={m.id} value={m.method_name}>{m.method_name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               {selectedMethod?.account_number && (
                 <div className="mt-3 rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-3">
                   <div className="text-sm">
