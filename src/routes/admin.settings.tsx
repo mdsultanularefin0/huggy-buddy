@@ -96,6 +96,8 @@ function SettingsPage() {
         social_youtube: socialYoutube || null,
         social_tiktok: socialTiktok || null,
         social_whatsapp: socialWhatsapp || null,
+        order_email_subject: orderEmailSubject || null,
+        order_email_body: orderEmailBody || null,
       };
       if (settings?.id) {
         const { error } = await supabase.from("site_settings").update(payload).eq("id", settings.id);
