@@ -12,6 +12,8 @@ import { Loader2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { uploadImage } from "@/lib/upload";
 import { validateAndOptimizeBrandImage } from "@/lib/image-validate";
+import { HtmlEditor } from "@/components/html-editor";
+import { DEFAULT_ORDER_EMAIL_SUBJECT, DEFAULT_ORDER_EMAIL_BODY } from "@/lib/order-email-template";
 
 export const Route = createFileRoute("/admin/settings")({ component: SettingsPage });
 
