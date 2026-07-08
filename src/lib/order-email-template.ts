@@ -80,6 +80,7 @@ export type OrderEmailVars = {
   discount_row: string; // full <tr> or empty
   total: number | string;
   payment_method: string;
+  payment_details_rows: string; // pre-rendered rows or empty
   shipping_address: string;
   shop_name: string;
   shop_tagline: string;
