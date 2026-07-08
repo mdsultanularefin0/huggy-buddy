@@ -30,6 +30,7 @@ export type InvoiceOrder = {
   shipping_fee: number;
   discount: number;
   payment_method: string;
+  payment_details?: { senderNumber?: string; trxId?: string } | null;
   payment_status: string;
   order_status: string;
   tracking_code?: string | null;
@@ -171,6 +172,12 @@ export function InvoiceDocument({
       {/* Footer */}
       <div className="mt-10 pt-6 border-t text-xs text-gray-600 space-y-1">
         <div><span className="text-gray-500">Payment method:</span> {order.payment_method}</div>
+        {order.payment_details?.senderNumber && (
+          <div><span className="text-gray-500">Sender number:</span> <span className="font-mono">{order.payment_details.senderNumber}</span></div>
+        )}
+        {order.payment_details?.trxId && (
+          <div><span className="text-gray-500">TrxID:</span> <span className="font-mono">{order.payment_details.trxId}</span></div>
+        )}
         {order.tracking_code && <div><span className="text-gray-500">Tracking:</span> {order.tracking_code}</div>}
         <div className="pt-3 text-center text-gray-500">Thank you for shopping with {shopName}.</div>
       </div>
