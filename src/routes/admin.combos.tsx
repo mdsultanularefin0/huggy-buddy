@@ -107,6 +107,14 @@ function CombosPage() {
       return data as { id: string; title: string; scent_profile: string | null; is_active: boolean }[];
     },
   });
+  const { data: productCategoryLinks = [] } = useQuery({
+    queryKey: ["admin", "product_categories"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("product_categories").select("product_id,category_id");
+      if (error) throw error;
+      return data as { product_id: string; category_id: string }[];
+    },
+  });
   const { data: comboCategoryLinks = [] } = useQuery({
     queryKey: ["admin", "combo_categories"],
     queryFn: async () => {
