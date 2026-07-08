@@ -30,16 +30,15 @@ const comboOptions = (id: string) =>
       if (error) throw error;
       if (!combo) return null;
       const productIds = ((combo.products_json as ComboItem[]) ?? []).map((p) => p.product_id);
-      const [productsRes, comboCatsRes, prodCatsRes] = await Promise.all([
+      const [productsRes, prodCatsRes] = await Promise.all([
         productIds.length
           ? supabase.from("products").select("id,name,image_url,in_stock").in("id", productIds)
           : Promise.resolve({ data: [] as ProductMini[] } as { data: ProductMini[] }),
-        supabase.from("combo_categories").select("category_id").eq("combo_id", id),
         productIds.length
           ? supabase.from("product_categories").select("product_id,category_id").in("product_id", productIds)
           : Promise.resolve({ data: [] as { product_id: string; category_id: string }[] }),
       ]);
-      const catIds = (comboCatsRes.data ?? []).map((c) => c.category_id);
+      const catIds = Array.from(new Set((prodCatsRes.data ?? []).map((r) => r.category_id)));
       const { data: cats } = catIds.length
         ? await supabase.from("categories").select("id,name").in("id", catIds).order("name")
         : { data: [] as CategoryMini[] };
