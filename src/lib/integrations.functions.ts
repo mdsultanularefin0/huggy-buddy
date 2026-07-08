@@ -169,12 +169,10 @@ export const createSteadfastShipment = createServerFn({ method: "POST" })
 
     const tracking = body?.consignment?.tracking_code ?? null;
     const consignmentId = body?.consignment?.consignment_id ?? null;
-    const courierStatus = body?.consignment?.status ?? null;
-    if (tracking || consignmentId || courierStatus) {
-      const patch: { tracking_code?: string; consignment_id?: number; courier_status?: string } = {};
+    if (tracking || consignmentId) {
+      const patch: { tracking_code?: string; consignment_id?: number } = {};
       if (tracking) patch.tracking_code = tracking;
       if (consignmentId) patch.consignment_id = consignmentId;
-      if (courierStatus) patch.courier_status = courierStatus;
       await supabaseAdmin.from("orders").update(patch).eq("id", data.order_id);
     }
 
@@ -229,10 +227,9 @@ export const bulkCreateSteadfastShipments = createServerFn({ method: "POST" })
         .map((r) => {
           const id = byInvoice.get(r.invoice);
           if (!id) return Promise.resolve();
-          const patch: { tracking_code?: string; consignment_id?: number; courier_status?: string } = {};
+          const patch: { tracking_code?: string; consignment_id?: number } = {};
           if (r.tracking_code) patch.tracking_code = r.tracking_code;
           if (r.consignment_id) patch.consignment_id = r.consignment_id;
-          if (r.status) patch.courier_status = r.status;
           if (Object.keys(patch).length === 0) return Promise.resolve();
           return supabaseAdmin.from("orders").update(patch).eq("id", id);
         }),
@@ -258,7 +255,14 @@ export const getSteadfastDeliveryStatus = createServerFn({ method: "POST" })
       `/status_by_trackingcode/${encodeURIComponent(data.value)}`;
     const body = await steadfastFetch(path, { method: "GET" }) as
       { status?: number; delivery_status?: string; message?: string } | null;
-    return { delivery_status: body?.delivery_status ?? null, message: body?.message ?? null };
+    const delivery = body?.delivery_status ?? null;
+    if (delivery) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const col = data.by === "cid" ? "consignment_id" : data.by === "invoice" ? "order_number" : "tracking_code";
+      const val: string | number = data.by === "cid" ? Number(data.value) : data.value;
+      await supabaseAdmin.from("orders").update({ courier_status: delivery }).eq(col, val);
+    }
+    return { delivery_status: delivery, message: body?.message ?? null };
   });
 
 // -------- Current balance --------
