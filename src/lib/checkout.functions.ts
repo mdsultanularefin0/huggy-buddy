@@ -451,7 +451,7 @@ export const createOrder = createServerFn({ method: "POST" })
         const itemLines = data.items.map(
           (i) => `<tr><td style="padding:8px 12px;border-bottom:1px solid #eee">${i.name}${i.size ? ` (${i.size})` : ""} × ${i.quantity}</td><td style="padding:8px 12px;text-align:right;border-bottom:1px solid #eee">৳ ${i.unitPrice * i.quantity}</td></tr>`,
         ).join("");
-        const addr = `${data.customer.address || ""}${data.customer.city ? ", " + data.customer.city : ""}`.trim() || "—";
+        const addr = data.customer.address || "—";
         const vars = {
           order_number: orderNumber,
           customer_name: data.customer.name || "there",
