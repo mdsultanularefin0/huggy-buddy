@@ -229,10 +229,9 @@ export const bulkCreateSteadfastShipments = createServerFn({ method: "POST" })
         .map((r) => {
           const id = byInvoice.get(r.invoice);
           if (!id) return Promise.resolve();
-          const patch: { tracking_code?: string; consignment_id?: number; courier_status?: string } = {};
+          const patch: { tracking_code?: string; consignment_id?: number } = {};
           if (r.tracking_code) patch.tracking_code = r.tracking_code;
           if (r.consignment_id) patch.consignment_id = r.consignment_id;
-          if (r.status) patch.courier_status = r.status;
           if (Object.keys(patch).length === 0) return Promise.resolve();
           return supabaseAdmin.from("orders").update(patch).eq("id", id);
         }),
