@@ -405,6 +405,7 @@ export const createOrder = createServerFn({ method: "POST" })
         total,
         delivery_zone_id: zone.id,
         payment_method: data.paymentMethod,
+        payment_details: data.paymentDetails ?? null,
         payment_status: "Pending",
         order_status: "Pending",
         referral_used: referralApplied,
