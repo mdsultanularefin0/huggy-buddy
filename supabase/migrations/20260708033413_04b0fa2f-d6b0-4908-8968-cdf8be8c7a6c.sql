@@ -1,0 +1,3 @@
+ALTER TABLE public.site_settings 
+  ADD COLUMN IF NOT EXISTS order_email_subject TEXT,
+  ADD COLUMN IF NOT EXISTS order_email_body TEXT;

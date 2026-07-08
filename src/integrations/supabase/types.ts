@@ -1065,6 +1065,8 @@ export type Database = {
           notes_json: Json | null
           notes_subtitle: string | null
           notes_title: string | null
+          order_email_body: string | null
+          order_email_subject: string | null
           product_notes_content: string | null
           product_notes_title: string | null
           product_shipping_content: string | null
@@ -1153,6 +1155,8 @@ export type Database = {
           notes_json?: Json | null
           notes_subtitle?: string | null
           notes_title?: string | null
+          order_email_body?: string | null
+          order_email_subject?: string | null
           product_notes_content?: string | null
           product_notes_title?: string | null
           product_shipping_content?: string | null
@@ -1241,6 +1245,8 @@ export type Database = {
           notes_json?: Json | null
           notes_subtitle?: string | null
           notes_title?: string | null
+          order_email_body?: string | null
+          order_email_subject?: string | null
           product_notes_content?: string | null
           product_notes_title?: string | null
           product_shipping_content?: string | null
