@@ -468,6 +468,10 @@ export const createOrder = createServerFn({ method: "POST" })
             ? `<tr><td style="padding:8px 12px;color:#666">Discount</td><td style="padding:8px 12px;text-align:right;color:#c0392b">-৳ ${discount}</td></tr>`
             : "",
           payment_method: data.paymentMethod,
+          payment_details_rows: data.paymentDetails
+            ? `<div><strong style="color:#52277a">Sender Number:</strong> ${data.paymentDetails.senderNumber}</div>`
+              + `<div><strong style="color:#52277a">TrxID:</strong> ${data.paymentDetails.trxId}</div>`
+            : "",
           shipping_address: addr,
           shop_name: settings?.shop_name || "Veloura Essence",
           shop_tagline: settings?.shop_tagline || "",
