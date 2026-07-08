@@ -120,11 +120,35 @@ function PaymentsPage() {
         <DialogContent>
           <DialogHeader><DialogTitle>{editing ? "Edit method" : "New method"}</DialogTitle></DialogHeader>
           <div className="space-y-4 py-2">
-            <div><Label>Method name</Label><Input value={form.method_name} onChange={(e) => setForm({ ...form, method_name: e.target.value })} className="mt-1" placeholder="e.g. Cash on Delivery" /></div>
+            <div>
+              <Label>Method</Label>
+              <Select
+                value={PRESETS.some((p) => p.name === form.method_name) ? form.method_name : (form.method_name ? "__custom" : "")}
+                onValueChange={(v) => {
+                  if (v === "__custom") { setForm({ ...form, method_name: "" }); return; }
+                  const preset = PRESETS.find((p) => p.name === v);
+                  setForm({
+                    ...form,
+                    method_name: v,
+                    instructions: form.instructions || preset?.instructions || "",
+                    account_number: preset?.requiresAccount ? form.account_number : "",
+                  });
+                }}
+              >
+                <SelectTrigger className="mt-1"><SelectValue placeholder="Select a method" /></SelectTrigger>
+                <SelectContent>
+                  {PRESETS.map((p) => <SelectItem key={p.name} value={p.name}>{p.name}</SelectItem>)}
+                  <SelectItem value="__custom">Custom…</SelectItem>
+                </SelectContent>
+              </Select>
+              {!PRESETS.some((p) => p.name === form.method_name) && (
+                <Input value={form.method_name} onChange={(e) => setForm({ ...form, method_name: e.target.value })} className="mt-2" placeholder="Custom method name" />
+              )}
+            </div>
             <div><Label>Sort order</Label><Input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} className="mt-1" /></div>
             <div>
               <Label>Account / receiver number</Label>
-              <Input value={form.account_number} onChange={(e) => setForm({ ...form, account_number: e.target.value })} className="mt-1" placeholder="e.g. 01XXXXXXXXX (for bKash Send Money)" />
+              <Input value={form.account_number} onChange={(e) => setForm({ ...form, account_number: e.target.value })} className="mt-1" placeholder="e.g. 01XXXXXXXXX (for Send Money)" />
               <p className="text-xs text-muted-foreground mt-1">Shown to customer at checkout so they can send payment.</p>
             </div>
             <div>
