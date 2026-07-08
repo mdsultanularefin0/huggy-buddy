@@ -100,11 +100,12 @@ function ComboPage() {
   const { id } = Route.useParams();
   const { data } = useSuspenseQuery(comboOptions(id));
   const [selected, setSelected] = useState<string[]>([]);
+  const [activeCat, setActiveCat] = useState<string>("all");
   const add = useCart((s) => s.add);
   const navigate = useNavigate();
 
   if (!data) return null;
-  const { combo, products } = data;
+  const { combo, products, categories, productCatMap } = data;
   const price = effectivePrice(combo.regular_price, combo.sale_price);
   const isByob = combo.combo_type === "byob";
   const limit = combo.max_items_allowed ?? products.length;
