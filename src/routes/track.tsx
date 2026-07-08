@@ -89,7 +89,7 @@ function buildTimeline(o: OrderInfo): Step[] {
   const courier = (o.courier_status ?? "").toLowerCase();
 
   const isCancelled = ["cancelled", "canceled"].includes(orderStatus);
-  const isDelivered = orderStatus === "delivered" || courier === "delivered";
+  const isDelivered = ["delivered", "completed", "complete"].includes(orderStatus) || courier === "delivered";
   const isShipped =
     ["shipped", "in_transit", "on_the_way", "picked_up"].some((s) => courier.includes(s)) ||
     !!o.consignment_id ||
