@@ -169,12 +169,10 @@ export const createSteadfastShipment = createServerFn({ method: "POST" })
 
     const tracking = body?.consignment?.tracking_code ?? null;
     const consignmentId = body?.consignment?.consignment_id ?? null;
-    const courierStatus = body?.consignment?.status ?? null;
-    if (tracking || consignmentId || courierStatus) {
-      const patch: { tracking_code?: string; consignment_id?: number; courier_status?: string } = {};
+    if (tracking || consignmentId) {
+      const patch: { tracking_code?: string; consignment_id?: number } = {};
       if (tracking) patch.tracking_code = tracking;
       if (consignmentId) patch.consignment_id = consignmentId;
-      if (courierStatus) patch.courier_status = courierStatus;
       await supabaseAdmin.from("orders").update(patch).eq("id", data.order_id);
     }
 
