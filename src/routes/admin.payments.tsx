@@ -115,6 +115,15 @@ function PaymentsPage() {
           <div className="space-y-4 py-2">
             <div><Label>Method name</Label><Input value={form.method_name} onChange={(e) => setForm({ ...form, method_name: e.target.value })} className="mt-1" placeholder="e.g. Cash on Delivery" /></div>
             <div><Label>Sort order</Label><Input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} className="mt-1" /></div>
+            <div>
+              <Label>Account / receiver number</Label>
+              <Input value={form.account_number} onChange={(e) => setForm({ ...form, account_number: e.target.value })} className="mt-1" placeholder="e.g. 01XXXXXXXXX (for bKash Send Money)" />
+              <p className="text-xs text-muted-foreground mt-1">Shown to customer at checkout so they can send payment.</p>
+            </div>
+            <div>
+              <Label>Instructions (optional)</Label>
+              <Input value={form.instructions} onChange={(e) => setForm({ ...form, instructions: e.target.value })} className="mt-1" placeholder="e.g. Send Money (Personal), no reference needed" />
+            </div>
             <label className="flex items-center gap-2 cursor-pointer">
               <Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
               <span className="text-sm">Active</span>
