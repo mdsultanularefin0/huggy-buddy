@@ -112,6 +112,11 @@ function CheckoutPage() {
     [data.methods, paymentMethod],
   );
   const requiresPaymentDetails = !!selectedMethod?.account_number;
+  const [payTouched, setPayTouched] = useState({ sender: false, trx: false });
+  const senderError = requiresPaymentDetails && payTouched.sender && !isValidBdPhone(senderNumber)
+    ? "Enter the 11-digit number you paid from (01XXXXXXXXX)" : null;
+  const trxError = requiresPaymentDetails && payTouched.trx && trxId.trim().length < 4
+    ? "Enter the transaction ID from your payment SMS" : null;
   const [promoCode, setPromoCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null);
   const [appliedReferral, setAppliedReferral] = useState<{ code: string; discount: number } | null>(null);
@@ -289,6 +294,7 @@ function CheckoutPage() {
     if (upazila.trim().length < 2) return toast.error("Enter your upazila/thana");
     if (address.trim().length < 5) return toast.error("Enter a delivery address");
     if (requiresPaymentDetails) {
+      setPayTouched({ sender: true, trx: true });
       if (!isValidBdPhone(senderNumber)) return toast.error("Enter the number you paid from (01XXXXXXXXX)");
       if (trxId.trim().length < 4) return toast.error("Enter the transaction ID (TrxID)");
     }
@@ -497,9 +503,13 @@ function CheckoutPage() {
                       maxLength={16}
                       value={senderNumber}
                       onChange={(e) => setSenderNumber(normalizeBdPhone(e.target.value))}
+                      onBlur={() => setPayTouched((t) => ({ ...t, sender: true }))}
                       placeholder="01XXXXXXXXX"
                       required
+                      aria-invalid={!!senderError}
+                      aria-describedby="sender-number-error"
                     />
+                    {senderError && <p id="sender-number-error" className="text-xs text-destructive">{senderError}</p>}
                   </div>
                   <div className="space-y-1.5">
                     <Label htmlFor="trx-id" className="text-xs">Transaction ID (TrxID) *</Label>
@@ -507,9 +517,13 @@ function CheckoutPage() {
                       id="trx-id"
                       value={trxId}
                       onChange={(e) => setTrxId(e.target.value.toUpperCase())}
+                      onBlur={() => setPayTouched((t) => ({ ...t, trx: true }))}
                       placeholder="e.g. 9A7B2C3D4E"
                       required
+                      aria-invalid={!!trxError}
+                      aria-describedby="trx-id-error"
                     />
+                    {trxError && <p id="trx-id-error" className="text-xs text-destructive">{trxError}</p>}
                   </div>
                 </div>
               )}
