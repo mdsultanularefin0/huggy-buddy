@@ -268,9 +268,20 @@ function ComboPage() {
           </div>
         )}
 
+        <div className="max-w-md mx-auto mb-6 sm:mb-8">
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search perfumes…"
+            className="w-full px-4 py-2.5 rounded-full border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-[#52277a]/40"
+          />
+        </div>
+
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
           {products
             .filter((p) => activeCat === "all" || (productCatMap[p.id] ?? []).includes(activeCat))
+            .filter((p) => !search.trim() || p.name.toLowerCase().includes(search.trim().toLowerCase()))
             .map((p) => {
             const checked = selected.includes(p.id);
             const outOfStock = !p.in_stock;
