@@ -62,7 +62,7 @@ function PaymentsPage() {
   function startNew() { setEditing(null); setForm(empty); setOpen(true); }
   function startEdit(m: Method) {
     setEditing(m);
-    setForm({ method_name: m.method_name, sort_order: m.sort_order, is_active: m.is_active });
+    setForm({ method_name: m.method_name, sort_order: m.sort_order, is_active: m.is_active, account_number: m.account_number ?? "", instructions: m.instructions ?? "" });
     setOpen(true);
   }
 
