@@ -36,7 +36,7 @@ function PaymentsPage() {
 
   const save = useMutation({
     mutationFn: async () => {
-      const payload = { method_name: form.method_name, sort_order: Number(form.sort_order), is_active: form.is_active };
+      const payload = { method_name: form.method_name, sort_order: Number(form.sort_order), is_active: form.is_active, account_number: form.account_number || null, instructions: form.instructions || null };
       const { error } = editing
         ? await supabase.from("payment_methods").update(payload).eq("id", editing.id)
         : await supabase.from("payment_methods").insert(payload);
