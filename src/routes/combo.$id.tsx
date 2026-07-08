@@ -100,6 +100,7 @@ function ComboPage() {
   const { data } = useSuspenseQuery(comboOptions(id));
   const [selected, setSelected] = useState<string[]>([]);
   const [activeCat, setActiveCat] = useState<string>("all");
+  const [search, setSearch] = useState("");
   const add = useCart((s) => s.add);
   const navigate = useNavigate();
 
