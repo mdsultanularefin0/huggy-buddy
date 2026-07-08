@@ -56,6 +56,7 @@ export const DEFAULT_ORDER_EMAIL_BODY = `<div style="font-family:-apple-system,B
 
   <div style="margin:24px 28px;padding:16px;background:#faf7fd;border-radius:8px;font-size:13px;color:#4a4a4a;line-height:1.6">
     <div><strong style="color:#52277a">Payment Method:</strong> {{payment_method}}</div>
+    {{payment_details_rows}}
     <div><strong style="color:#52277a">Ships To:</strong> {{shipping_address}}</div>
   </div>
 
