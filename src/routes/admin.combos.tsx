@@ -298,6 +298,30 @@ function CombosPage() {
     setForm((f) => ({ ...f, products_json: items }));
   }
 
+  function fillPoolFromCategories(categoryIds: string[]) {
+    if (categoryIds.length === 0) {
+      toast.error("Select at least one category first.");
+      return;
+    }
+    const set = new Set(categoryIds);
+    const productIds = new Set(
+      productCategoryLinks.filter((l) => set.has(l.category_id)).map((l) => l.product_id),
+    );
+    const items: ComboItem[] = [];
+    for (const p of products) {
+      if (!productIds.has(p.id)) continue;
+      const sizes = variantsByProduct.get(p.id) ?? [];
+      if (sizes.length === 0) items.push({ product_id: p.id, size_label: null });
+      else for (const s of sizes) items.push({ product_id: p.id, size_label: s });
+    }
+    if (items.length === 0) {
+      toast.error("No products found in the selected categories.");
+      return;
+    }
+    setForm((f) => ({ ...f, products_json: items }));
+    toast.success(`Filled pool with ${items.length} item${items.length === 1 ? "" : "s"}.`);
+  }
+
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
