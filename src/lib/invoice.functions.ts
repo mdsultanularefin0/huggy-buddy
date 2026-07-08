@@ -15,7 +15,7 @@ export const getInvoiceOrder = createServerFn({ method: "GET" })
     const { data: order, error } = await supabaseAdmin
       .from("orders")
       .select(
-        "id,order_number,created_at,total,subtotal,shipping_fee,discount,payment_method,payment_status,order_status,tracking_code,referral_used,customer_json,items_json,user_id"
+        "id,order_number,created_at,total,subtotal,shipping_fee,discount,payment_method,payment_details,payment_status,order_status,tracking_code,referral_used,customer_json,items_json,user_id"
       )
       .eq("id", data.id)
       .maybeSingle();
