@@ -24,7 +24,7 @@ import { friendlyError } from "@/lib/friendly-error";
 type Zone = {
   id: string; zone_name: string; fee_amount: number; free_shipping_threshold: number | null;
 };
-type PayMethod = { id: string; method_name: string };
+type PayMethod = { id: string; method_name: string; account_number: string | null; instructions: string | null };
 
 const checkoutOptions = queryOptions({
   queryKey: ["checkout-config"],
@@ -32,7 +32,7 @@ const checkoutOptions = queryOptions({
     const [zones, methods] = await Promise.all([
       supabase.from("delivery_zones").select("id,zone_name,fee_amount,free_shipping_threshold")
         .eq("is_active", true).order("sort_order", { ascending: true }),
-      supabase.from("payment_methods").select("id,method_name")
+      supabase.from("payment_methods").select("id,method_name,account_number,instructions")
         .eq("is_active", true).order("sort_order", { ascending: true }),
     ]);
     return {
