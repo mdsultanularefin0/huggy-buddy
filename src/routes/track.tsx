@@ -14,7 +14,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { lookupOrder } from "@/lib/orders.functions";
@@ -53,7 +52,7 @@ type OrderInfo = {
   };
 };
 
-const CARRIER = "Pathao / Steadfast";
+const CARRIER = "Steadfast";
 
 function fmtDate(iso: string) {
   try {
@@ -273,9 +272,6 @@ function TrackPage() {
                 </p>
               </div>
               <div className="flex flex-col items-end gap-2">
-                <Badge variant="outline" className="gap-1">
-                  <Truck className="w-3.5 h-3.5" /> {CARRIER}
-                </Badge>
                 <Link
                   to="/order/$id"
                   params={{ id: order.id }}
