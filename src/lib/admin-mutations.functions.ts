@@ -73,9 +73,9 @@ export const updateOrderAdmin = createServerFn({ method: "POST" })
 
     const patch = { ...data.patch };
 
-    // Read current total (needed for clamping / auto-fill rules).
+    // Read current total + status (needed for clamping / auto-fill rules).
     const { data: cur, error: readErr } = await supabaseAdmin
-      .from("orders").select("total").eq("id", data.id).single();
+      .from("orders").select("total, order_status").eq("id", data.id).single();
     if (readErr || !cur) throw new Error(readErr?.message ?? "Order not found");
     const total = Number(cur.total);
 
@@ -83,6 +83,17 @@ export const updateOrderAdmin = createServerFn({ method: "POST" })
     if (patch.order_status === "Completed") {
       if (patch.payment_status === undefined) patch.payment_status = "Paid";
       if (patch.amount_paid === undefined) patch.amount_paid = total;
+    }
+    // Rule: reverting from Completed to a pre-delivery status resets payment to Pending.
+    if (
+      cur.order_status === "Completed" &&
+      patch.order_status &&
+      patch.order_status !== "Completed" &&
+      patch.order_status !== "Cancelled" &&
+      patch.order_status !== "Returned"
+    ) {
+      if (patch.payment_status === undefined) patch.payment_status = "Pending";
+      if (patch.amount_paid === undefined) patch.amount_paid = 0;
     }
     // Rule: payment_status = Paid → amount_paid = total (due = 0).
     if (patch.payment_status === "Paid") {
