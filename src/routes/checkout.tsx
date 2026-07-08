@@ -105,6 +105,13 @@ function CheckoutPage() {
   const [upazila, setUpazila] = useState("");
   const [address, setAddress] = useState("");
   const [paymentMethod, setPaymentMethod] = useState(data.methods[0]?.method_name ?? "");
+  const [senderNumber, setSenderNumber] = useState("");
+  const [trxId, setTrxId] = useState("");
+  const selectedMethod = useMemo(
+    () => data.methods.find((m) => m.method_name === paymentMethod),
+    [data.methods, paymentMethod],
+  );
+  const requiresPaymentDetails = !!selectedMethod?.account_number;
   const [promoCode, setPromoCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null);
   const [appliedReferral, setAppliedReferral] = useState<{ code: string; discount: number } | null>(null);
