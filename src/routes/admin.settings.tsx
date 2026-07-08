@@ -36,6 +36,8 @@ function SettingsPage() {
   const [socialYoutube, setSocialYoutube] = useState("");
   const [socialTiktok, setSocialTiktok] = useState("");
   const [socialWhatsapp, setSocialWhatsapp] = useState("");
+  const [orderEmailSubject, setOrderEmailSubject] = useState("");
+  const [orderEmailBody, setOrderEmailBody] = useState("");
 
   const { data: settings, isLoading } = useQuery({
     queryKey: ["admin", "site_settings"],
