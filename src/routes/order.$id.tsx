@@ -129,6 +129,12 @@ function OrderPage() {
             )}
             <div className="flex justify-between font-semibold text-base pt-2"><span>Total</span><span>{formatBDT(order.total)}</span></div>
             <div className="flex justify-between pt-2"><span className="text-muted-foreground">Payment</span><span>{order.payment_method}</span></div>
+            {order.payment_details?.trxId && (
+              <>
+                <div className="flex justify-between"><span className="text-muted-foreground">Sender number</span><span className="font-mono">{order.payment_details.senderNumber}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">TrxID</span><span className="font-mono">{order.payment_details.trxId}</span></div>
+              </>
+            )}
           </div>
         </div>
 
