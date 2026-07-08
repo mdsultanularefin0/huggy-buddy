@@ -144,12 +144,15 @@ function SettingsPage() {
       </div>
 
       <Tabs defaultValue="branding" className="w-full">
-        <TabsList className="grid grid-cols-2 sm:grid-cols-4 w-full h-auto">
+        <TabsList className="grid grid-cols-2 sm:grid-cols-5 w-full h-auto">
           <TabsTrigger value="branding">Branding</TabsTrigger>
           <TabsTrigger value="shop">Shop info</TabsTrigger>
           <TabsTrigger value="social">Social</TabsTrigger>
           <TabsTrigger value="layout">Layout</TabsTrigger>
+          <TabsTrigger value="emails">Emails</TabsTrigger>
         </TabsList>
+
+
 
         <TabsContent value="branding" className="mt-4">
           <Card className="p-6 space-y-6 shadow-card">
