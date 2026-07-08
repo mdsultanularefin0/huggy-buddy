@@ -274,6 +274,16 @@ function AdminOrderDetail() {
             )}
             <div className="flex justify-between font-semibold pt-2 border-t"><span>Total</span><span>{formatBDT(order.total)}</span></div>
             <div className="text-xs text-muted-foreground pt-1">Payment method: {order.payment_method}</div>
+            {(() => {
+              const pd = order.payment_details as { senderNumber?: string; trxId?: string } | null;
+              if (!pd?.trxId && !pd?.senderNumber) return null;
+              return (
+                <div className="text-xs text-muted-foreground space-y-0.5">
+                  {pd.senderNumber && <div>Sender number: <span className="font-mono text-foreground">{pd.senderNumber}</span></div>}
+                  {pd.trxId && <div>TrxID: <span className="font-mono text-foreground">{pd.trxId}</span></div>}
+                </div>
+              );
+            })()}
           </div>
         </Card>
 
