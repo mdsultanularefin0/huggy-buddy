@@ -246,8 +246,32 @@ function ComboPage() {
           </p>
         </div>
 
+        {categories.length >= 2 && (
+          <div className="flex flex-wrap justify-center gap-2 mb-6 sm:mb-8">
+            {[{ id: "all", name: "All" }, ...categories].map((c) => {
+              const active = activeCat === c.id;
+              return (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => setActiveCat(c.id)}
+                  className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${
+                    active
+                      ? "bg-[#52277a] text-white"
+                      : "bg-[#f5edff] text-[#52277a] hover:bg-[#ece2f7]"
+                  }`}
+                >
+                  {c.name}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-          {products.map((p) => {
+          {products
+            .filter((p) => activeCat === "all" || (productCatMap[p.id] ?? []).includes(activeCat))
+            .map((p) => {
             const checked = selected.includes(p.id);
             const outOfStock = !p.in_stock;
             const disabled = outOfStock || (!checked && selected.length >= limit);
