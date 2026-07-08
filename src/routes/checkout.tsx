@@ -479,6 +479,40 @@ function CheckoutPage() {
                   </button>
                 ))}
               </div>
+              {selectedMethod?.account_number && (
+                <div className="mt-3 rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-3">
+                  <div className="text-sm">
+                    <div className="font-medium">Send payment to</div>
+                    <div className="mt-1 font-mono text-lg tracking-wide select-all">{selectedMethod.account_number}</div>
+                    {selectedMethod.instructions && (
+                      <p className="text-xs text-muted-foreground mt-1 whitespace-pre-line">{selectedMethod.instructions}</p>
+                    )}
+                    <p className="text-xs text-muted-foreground mt-1">Total to send: <span className="font-semibold text-foreground">{formatBDT(total)}</span></p>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="sender-number" className="text-xs">Your {selectedMethod.method_name} number *</Label>
+                    <Input
+                      id="sender-number"
+                      inputMode="numeric"
+                      maxLength={16}
+                      value={senderNumber}
+                      onChange={(e) => setSenderNumber(normalizeBdPhone(e.target.value))}
+                      placeholder="01XXXXXXXXX"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="trx-id" className="text-xs">Transaction ID (TrxID) *</Label>
+                    <Input
+                      id="trx-id"
+                      value={trxId}
+                      onChange={(e) => setTrxId(e.target.value.toUpperCase())}
+                      placeholder="e.g. 9A7B2C3D4E"
+                      required
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="border-t pt-4 space-y-1 text-sm">
