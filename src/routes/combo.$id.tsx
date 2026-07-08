@@ -309,6 +309,16 @@ function ComboPage() {
                   )}
                 </div>
                 <div className="px-2 py-3 sm:px-3 sm:py-4 text-center">
+                  {(() => {
+                    const catName = (productCatMap[p.id] ?? [])
+                      .map((cid) => categories.find((c) => c.id === cid)?.name)
+                      .filter(Boolean)[0];
+                    return catName ? (
+                      <p className="text-[9px] sm:text-[10px] tracking-[0.2em] uppercase text-gray-400 mb-1 font-medium truncate">
+                        {catName}
+                      </p>
+                    ) : null;
+                  })()}
                   <h3 className="text-xs sm:text-sm font-serif text-[#1a1a1a] truncate">{p.name}</h3>
                 </div>
               </button>
