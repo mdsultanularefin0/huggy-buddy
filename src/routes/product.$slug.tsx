@@ -278,14 +278,22 @@ function ProductPage() {
 
         <div>
           <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-[#52277a]">{product.name}</h1>
-          <div className="flex items-center gap-2 mt-2 text-sm text-gray-600">
-            <div className="flex text-[#a555f0]">
-              {[0, 1, 2, 3, 4].map((i) => (
-                <Star key={i} className="w-4 h-4 fill-current" />
-              ))}
+          {loaderData.reviewCount > 0 && (
+            <div className="flex items-center gap-2 mt-2 text-sm text-gray-600">
+              <div className="flex text-[#a555f0]">
+                {[0, 1, 2, 3, 4].map((i) => (
+                  <Star
+                    key={i}
+                    className={`w-4 h-4 ${i < Math.round(loaderData.ratingValue) ? "fill-current" : ""}`}
+                  />
+                ))}
+              </div>
+              <span>
+                {loaderData.ratingValue.toFixed(1)} · {loaderData.reviewCount} review
+                {loaderData.reviewCount === 1 ? "" : "s"}
+              </span>
             </div>
-            <span>5.0 · 24 reviews</span>
-          </div>
+          )}
           <div className="flex items-baseline gap-3 mt-4">
             <span className="text-2xl font-semibold">{formatBDT(price)}</span>
             {hasSale(regular, sale) && (
