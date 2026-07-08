@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Pencil, Trash2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -16,6 +17,12 @@ import type { Database } from "@/integrations/supabase/types";
 type Method = Database["public"]["Tables"]["payment_methods"]["Row"];
 
 export const Route = createFileRoute("/admin/payments")({ component: PaymentsPage });
+
+const PRESETS: { name: string; instructions: string; requiresAccount: boolean }[] = [
+  { name: "Cash on Delivery", instructions: "Pay the full amount in cash when your order is delivered.", requiresAccount: false },
+  { name: "Bkash Send Money", instructions: "Open bKash → Send Money → enter the number above → send the exact total → then submit your bKash number & TrxID below.", requiresAccount: true },
+  { name: "Nagad Send Money", instructions: "Open Nagad → Send Money → enter the number above → send the exact total → then submit your Nagad number & TrxID below.", requiresAccount: true },
+];
 
 const empty = { method_name: "", sort_order: 0, is_active: true, account_number: "", instructions: "" };
 
@@ -113,11 +120,35 @@ function PaymentsPage() {
         <DialogContent>
           <DialogHeader><DialogTitle>{editing ? "Edit method" : "New method"}</DialogTitle></DialogHeader>
           <div className="space-y-4 py-2">
-            <div><Label>Method name</Label><Input value={form.method_name} onChange={(e) => setForm({ ...form, method_name: e.target.value })} className="mt-1" placeholder="e.g. Cash on Delivery" /></div>
+            <div>
+              <Label>Method</Label>
+              <Select
+                value={PRESETS.some((p) => p.name === form.method_name) ? form.method_name : (form.method_name ? "__custom" : "")}
+                onValueChange={(v) => {
+                  if (v === "__custom") { setForm({ ...form, method_name: "" }); return; }
+                  const preset = PRESETS.find((p) => p.name === v);
+                  setForm({
+                    ...form,
+                    method_name: v,
+                    instructions: form.instructions || preset?.instructions || "",
+                    account_number: preset?.requiresAccount ? form.account_number : "",
+                  });
+                }}
+              >
+                <SelectTrigger className="mt-1"><SelectValue placeholder="Select a method" /></SelectTrigger>
+                <SelectContent>
+                  {PRESETS.map((p) => <SelectItem key={p.name} value={p.name}>{p.name}</SelectItem>)}
+                  <SelectItem value="__custom">Custom…</SelectItem>
+                </SelectContent>
+              </Select>
+              {!PRESETS.some((p) => p.name === form.method_name) && (
+                <Input value={form.method_name} onChange={(e) => setForm({ ...form, method_name: e.target.value })} className="mt-2" placeholder="Custom method name" />
+              )}
+            </div>
             <div><Label>Sort order</Label><Input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} className="mt-1" /></div>
             <div>
               <Label>Account / receiver number</Label>
-              <Input value={form.account_number} onChange={(e) => setForm({ ...form, account_number: e.target.value })} className="mt-1" placeholder="e.g. 01XXXXXXXXX (for bKash Send Money)" />
+              <Input value={form.account_number} onChange={(e) => setForm({ ...form, account_number: e.target.value })} className="mt-1" placeholder="e.g. 01XXXXXXXXX (for Send Money)" />
               <p className="text-xs text-muted-foreground mt-1">Shown to customer at checkout so they can send payment.</p>
             </div>
             <div>
