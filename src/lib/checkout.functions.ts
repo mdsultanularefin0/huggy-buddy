@@ -454,7 +454,9 @@ export const createOrder = createServerFn({ method: "POST" })
         const addr = data.customer.address || "—";
         const vars = {
           order_number: orderNumber,
+          order_date: new Date().toLocaleDateString("en-GB", { year: "numeric", month: "short", day: "numeric" }),
           customer_name: data.customer.name || "there",
+
           items: itemLines,
           subtotal, shipping: shippingFee, discount, total,
           discount_row: discount > 0
