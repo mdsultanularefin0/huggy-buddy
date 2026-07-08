@@ -28,6 +28,10 @@ const CheckoutSchema = z.object({
   }),
   deliveryZoneId: z.string().uuid(),
   paymentMethod: z.string().min(1).max(60),
+  paymentDetails: z.object({
+    senderNumber: z.string().trim().min(6).max(20),
+    trxId: z.string().trim().min(4).max(60),
+  }).optional(),
   items: z.array(CartItemSchema).min(1),
   referralCode: z.string().trim().max(40).optional().or(z.literal("")),
   couponCode: z.string().trim().max(40).optional().or(z.literal("")),
