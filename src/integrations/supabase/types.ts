@@ -558,6 +558,7 @@ export type Database = {
           notes: string | null
           order_number: string
           order_status: Database["public"]["Enums"]["order_status"]
+          payment_details: Json | null
           payment_method: string
           payment_status: Database["public"]["Enums"]["payment_status"]
           referral_used: string | null
@@ -583,6 +584,7 @@ export type Database = {
           notes?: string | null
           order_number?: string
           order_status?: Database["public"]["Enums"]["order_status"]
+          payment_details?: Json | null
           payment_method: string
           payment_status?: Database["public"]["Enums"]["payment_status"]
           referral_used?: string | null
@@ -608,6 +610,7 @@ export type Database = {
           notes?: string | null
           order_number?: string
           order_status?: Database["public"]["Enums"]["order_status"]
+          payment_details?: Json | null
           payment_method?: string
           payment_status?: Database["public"]["Enums"]["payment_status"]
           referral_used?: string | null
@@ -637,24 +640,30 @@ export type Database = {
       }
       payment_methods: {
         Row: {
+          account_number: string | null
           created_at: string
           id: string
+          instructions: string | null
           is_active: boolean
           method_name: string
           sort_order: number
           updated_at: string
         }
         Insert: {
+          account_number?: string | null
           created_at?: string
           id?: string
+          instructions?: string | null
           is_active?: boolean
           method_name: string
           sort_order?: number
           updated_at?: string
         }
         Update: {
+          account_number?: string | null
           created_at?: string
           id?: string
+          instructions?: string | null
           is_active?: boolean
           method_name?: string
           sort_order?: number
