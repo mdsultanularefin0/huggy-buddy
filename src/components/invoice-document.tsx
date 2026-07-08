@@ -30,6 +30,7 @@ export type InvoiceOrder = {
   shipping_fee: number;
   discount: number;
   payment_method: string;
+  payment_details?: { senderNumber?: string; trxId?: string } | null;
   payment_status: string;
   order_status: string;
   tracking_code?: string | null;
