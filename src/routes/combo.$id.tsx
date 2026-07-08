@@ -19,6 +19,7 @@ type Combo = {
   image_url: string | null; max_items_allowed: number | null;
 };
 type ProductMini = { id: string; name: string; image_url: string | null; in_stock: boolean };
+type CategoryMini = { id: string; name: string };
 
 const comboOptions = (id: string) =>
   queryOptions({
@@ -29,10 +30,29 @@ const comboOptions = (id: string) =>
       if (error) throw error;
       if (!combo) return null;
       const productIds = ((combo.products_json as ComboItem[]) ?? []).map((p) => p.product_id);
-      const { data: products } = productIds.length
-        ? await supabase.from("products").select("id,name,image_url,in_stock").in("id", productIds)
-        : { data: [] };
-      return { combo: combo as unknown as Combo, products: (products ?? []) as ProductMini[] };
+      const [productsRes, comboCatsRes, prodCatsRes] = await Promise.all([
+        productIds.length
+          ? supabase.from("products").select("id,name,image_url,in_stock").in("id", productIds)
+          : Promise.resolve({ data: [] as ProductMini[] } as { data: ProductMini[] }),
+        supabase.from("combo_categories").select("category_id").eq("combo_id", id),
+        productIds.length
+          ? supabase.from("product_categories").select("product_id,category_id").in("product_id", productIds)
+          : Promise.resolve({ data: [] as { product_id: string; category_id: string }[] }),
+      ]);
+      const catIds = (comboCatsRes.data ?? []).map((c) => c.category_id);
+      const { data: cats } = catIds.length
+        ? await supabase.from("categories").select("id,name").in("id", catIds).order("name")
+        : { data: [] as CategoryMini[] };
+      const productCatMap: Record<string, string[]> = {};
+      (prodCatsRes.data ?? []).forEach((r) => {
+        (productCatMap[r.product_id] ||= []).push(r.category_id);
+      });
+      return {
+        combo: combo as unknown as Combo,
+        products: (productsRes.data ?? []) as ProductMini[],
+        categories: (cats ?? []) as CategoryMini[],
+        productCatMap,
+      };
     },
   });
 
@@ -80,11 +100,12 @@ function ComboPage() {
   const { id } = Route.useParams();
   const { data } = useSuspenseQuery(comboOptions(id));
   const [selected, setSelected] = useState<string[]>([]);
+  const [activeCat, setActiveCat] = useState<string>("all");
   const add = useCart((s) => s.add);
   const navigate = useNavigate();
 
   if (!data) return null;
-  const { combo, products } = data;
+  const { combo, products, categories, productCatMap } = data;
   const price = effectivePrice(combo.regular_price, combo.sale_price);
   const isByob = combo.combo_type === "byob";
   const limit = combo.max_items_allowed ?? products.length;
@@ -225,8 +246,32 @@ function ComboPage() {
           </p>
         </div>
 
+        {categories.length >= 2 && (
+          <div className="flex flex-wrap justify-center gap-2 mb-6 sm:mb-8">
+            {[{ id: "all", name: "All" }, ...categories].map((c) => {
+              const active = activeCat === c.id;
+              return (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => setActiveCat(c.id)}
+                  className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${
+                    active
+                      ? "bg-[#52277a] text-white"
+                      : "bg-[#f5edff] text-[#52277a] hover:bg-[#ece2f7]"
+                  }`}
+                >
+                  {c.name}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-          {products.map((p) => {
+          {products
+            .filter((p) => activeCat === "all" || (productCatMap[p.id] ?? []).includes(activeCat))
+            .map((p) => {
             const checked = selected.includes(p.id);
             const outOfStock = !p.in_stock;
             const disabled = outOfStock || (!checked && selected.length >= limit);
