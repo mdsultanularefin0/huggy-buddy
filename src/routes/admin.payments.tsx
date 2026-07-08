@@ -17,7 +17,7 @@ type Method = Database["public"]["Tables"]["payment_methods"]["Row"];
 
 export const Route = createFileRoute("/admin/payments")({ component: PaymentsPage });
 
-const empty = { method_name: "", sort_order: 0, is_active: true };
+const empty = { method_name: "", sort_order: 0, is_active: true, account_number: "", instructions: "" };
 
 function PaymentsPage() {
   const qc = useQueryClient();
