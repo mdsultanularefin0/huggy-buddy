@@ -2,7 +2,7 @@
 // Keeps og:url and canonical self-referencing the current page so crawlers
 // attribute per-page metadata correctly.
 
-const SITE = "https://heart-hug-light.lovable.app";
+const SITE = "https://velouraessencebd.com";
 
 export function pageMeta(opts: {
   path: string; // e.g. "/about"
