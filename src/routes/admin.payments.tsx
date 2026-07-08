@@ -17,7 +17,7 @@ type Method = Database["public"]["Tables"]["payment_methods"]["Row"];
 
 export const Route = createFileRoute("/admin/payments")({ component: PaymentsPage });
 
-const empty = { method_name: "", sort_order: 0, is_active: true };
+const empty = { method_name: "", sort_order: 0, is_active: true, account_number: "", instructions: "" };
 
 function PaymentsPage() {
   const qc = useQueryClient();
@@ -36,7 +36,7 @@ function PaymentsPage() {
 
   const save = useMutation({
     mutationFn: async () => {
-      const payload = { method_name: form.method_name, sort_order: Number(form.sort_order), is_active: form.is_active };
+      const payload = { method_name: form.method_name, sort_order: Number(form.sort_order), is_active: form.is_active, account_number: form.account_number || null, instructions: form.instructions || null };
       const { error } = editing
         ? await supabase.from("payment_methods").update(payload).eq("id", editing.id)
         : await supabase.from("payment_methods").insert(payload);
@@ -62,7 +62,7 @@ function PaymentsPage() {
   function startNew() { setEditing(null); setForm(empty); setOpen(true); }
   function startEdit(m: Method) {
     setEditing(m);
-    setForm({ method_name: m.method_name, sort_order: m.sort_order, is_active: m.is_active });
+    setForm({ method_name: m.method_name, sort_order: m.sort_order, is_active: m.is_active, account_number: m.account_number ?? "", instructions: m.instructions ?? "" });
     setOpen(true);
   }
 
@@ -115,6 +115,15 @@ function PaymentsPage() {
           <div className="space-y-4 py-2">
             <div><Label>Method name</Label><Input value={form.method_name} onChange={(e) => setForm({ ...form, method_name: e.target.value })} className="mt-1" placeholder="e.g. Cash on Delivery" /></div>
             <div><Label>Sort order</Label><Input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} className="mt-1" /></div>
+            <div>
+              <Label>Account / receiver number</Label>
+              <Input value={form.account_number} onChange={(e) => setForm({ ...form, account_number: e.target.value })} className="mt-1" placeholder="e.g. 01XXXXXXXXX (for bKash Send Money)" />
+              <p className="text-xs text-muted-foreground mt-1">Shown to customer at checkout so they can send payment.</p>
+            </div>
+            <div>
+              <Label>Instructions (optional)</Label>
+              <Input value={form.instructions} onChange={(e) => setForm({ ...form, instructions: e.target.value })} className="mt-1" placeholder="e.g. Send Money (Personal), no reference needed" />
+            </div>
             <label className="flex items-center gap-2 cursor-pointer">
               <Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
               <span className="text-sm">Active</span>
