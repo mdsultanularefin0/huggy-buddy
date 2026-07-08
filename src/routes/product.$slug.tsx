@@ -163,6 +163,7 @@ export const Route = createFileRoute("/product/$slug")({
 
 function ProductPage() {
   const { slug } = Route.useParams();
+  const loaderData = Route.useLoaderData();
   const { data: product } = useSuspenseQuery(productOptions(slug));
   const variants = product?.product_variants ?? [];
   const [variantIdx, setVariantIdx] = useState<number | null>(null);
