@@ -112,6 +112,11 @@ function CheckoutPage() {
     [data.methods, paymentMethod],
   );
   const requiresPaymentDetails = !!selectedMethod?.account_number;
+  const [payTouched, setPayTouched] = useState({ sender: false, trx: false });
+  const senderError = requiresPaymentDetails && payTouched.sender && !isValidBdPhone(senderNumber)
+    ? "Enter the 11-digit number you paid from (01XXXXXXXXX)" : null;
+  const trxError = requiresPaymentDetails && payTouched.trx && trxId.trim().length < 4
+    ? "Enter the transaction ID from your payment SMS" : null;
   const [promoCode, setPromoCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null);
   const [appliedReferral, setAppliedReferral] = useState<{ code: string; discount: number } | null>(null);
