@@ -161,8 +161,24 @@ function AuthPage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="signup-phone">Phone number</Label>
-                  <Input id="signup-phone" type="tel" required value={phone} onChange={(e) => setPhone(e.target.value)} />
+                  <Input
+                    id="signup-phone"
+                    type="tel"
+                    inputMode="numeric"
+                    autoComplete="tel"
+                    placeholder="01XXXXXXXXX"
+                    required
+                    value={phone}
+                    onChange={(e) => setPhone(normalizeBdPhone(e.target.value))}
+                    aria-invalid={phone.length > 0 && !isValidBdPhone(phone)}
+                  />
+                  {phone.length > 0 && !isValidBdPhone(phone) && (
+                    <p className="text-xs text-destructive">
+                      Enter an 11-digit Bangladeshi mobile number starting with 01.
+                    </p>
+                  )}
                 </div>
+
 
 
 
