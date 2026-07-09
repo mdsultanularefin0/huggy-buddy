@@ -75,7 +75,7 @@ function InvoicePage() {
             backgroundColor: "#ffffff",
             windowWidth: el.scrollWidth,
             windowHeight: el.scrollHeight,
-            onclone: (doc: Document, el: HTMLElement) => normalizeOklchInClone(doc, el),
+            onclone: async (doc: Document, el: HTMLElement) => { if (doc.fonts?.ready) await doc.fonts.ready; normalizeOklchInClone(doc, el); },
           },
           jsPDF: { unit: "mm", format: "a4", orientation: "portrait", compress: true },
           pagebreak: { mode: ["css", "legacy"], avoid: ["tr", ".pdf-keep"] },
