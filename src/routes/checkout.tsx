@@ -157,6 +157,11 @@ function CheckoutPage() {
   }
 
   useEffect(() => {
+    const userEmail = user?.email ?? savedProfile.data?.email ?? null;
+    if (userEmail) setEmail(userEmail);
+  }, [user?.email, savedProfile.data?.email]);
+
+  useEffect(() => {
     if (autoFilled.current) return;
     const list = savedAddresses.data;
     if (!list || list.length === 0) return;
@@ -411,8 +416,19 @@ function CheckoutPage() {
                 </div>
               </div>
               <div>
-                <Label htmlFor="email">Email (optional)</Label>
-                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                <Label htmlFor="email">Email {user ? "" : "(optional)"}</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  readOnly={!!user?.email}
+                  disabled={!!user?.email}
+                  className={user?.email ? "bg-muted cursor-not-allowed" : undefined}
+                />
+                {user?.email ? (
+                  <p className="text-xs text-muted-foreground mt-1">Linked to your account</p>
+                ) : null}
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
