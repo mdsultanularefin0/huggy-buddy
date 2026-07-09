@@ -1,7 +1,8 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useSuspenseQuery, useQuery, queryOptions } from "@tanstack/react-query";
+import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
+import { useSuspenseQuery, useQuery, useMutation, useQueryClient, queryOptions } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, Star } from "lucide-react";
+import { ArrowLeft, Heart, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBDT, effectivePrice, hasSale } from "@/lib/currency";
 import { SiteHeader } from "@/components/site-header";
@@ -17,6 +18,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { ProductReviews } from "@/components/product-reviews";
+import { useSession } from "@/hooks/use-session";
+import { listMyWishlist, toggleMyWishlist } from "@/lib/account.functions";
 
 type Variant = {
   id: string;
@@ -172,6 +175,36 @@ function ProductPage() {
   const [isAdding, setIsAdding] = useState(false);
   const viewFired = useRef(false);
   const addingRef = useRef(false);
+
+  // Wishlist
+  const { user } = useSession();
+  const navigate = useNavigate();
+  const qc = useQueryClient();
+  const fetchWishlist = useServerFn(listMyWishlist);
+  const toggleWishlist = useServerFn(toggleMyWishlist);
+  const { data: wishlist } = useQuery({
+    queryKey: ["my-wishlist", user?.id],
+    queryFn: () => fetchWishlist() as Promise<Array<{ product_id: string }>>,
+    enabled: !!user,
+    staleTime: 60_000,
+  });
+  const inWishlist = !!wishlist?.some((w) => w.product_id === product?.id);
+  const wishMut = useMutation({
+    mutationFn: (productId: string) => toggleWishlist({ data: { productId } }),
+    onSuccess: (res) => {
+      toast.success(res.added ? "Added to wishlist" : "Removed from wishlist");
+      qc.invalidateQueries({ queryKey: ["my-wishlist"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  function handleWishlist() {
+    if (!user) {
+      toast.info("Sign in to save to wishlist");
+      navigate({ to: "/auth" });
+      return;
+    }
+    if (product) wishMut.mutate(product.id);
+  }
   useEffect(() => {
     if (viewFired.current || !product) return;
     viewFired.current = true;
@@ -365,6 +398,17 @@ function ProductPage() {
             className="mt-4 w-full bg-[#52277a] hover:bg-[#3f1d5e] disabled:opacity-50 text-white rounded-2xl py-4 font-semibold h-auto"
           >
             {!product.in_stock ? "Out of stock" : needsVariant && variantIdx === null ? "Select a size" : chosenOut ? "Variant out of stock" : "Add to Cart"}
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleWishlist}
+            isLoading={wishMut.isPending}
+            className="mt-2 w-full rounded-2xl py-4 font-semibold h-auto border-[#52277a]/40 text-[#52277a] hover:bg-[#52277a]/5"
+          >
+            <Heart className={`w-4 h-4 mr-2 ${inWishlist ? "fill-[#52277a] text-[#52277a]" : ""}`} />
+            {inWishlist ? "Saved to Wishlist" : "Add to Wishlist"}
           </Button>
 
           <ProductAccordions />
