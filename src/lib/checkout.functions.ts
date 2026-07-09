@@ -130,6 +130,28 @@ export const createOrder = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
+    // If the caller is a signed-in customer, stamp the order with their
+    // user_id so it shows up under Account → Orders (RLS matches by user_id,
+    // email, or profile phone; user_id is the most reliable).
+    let authUserId: string | null = null;
+    try {
+      const { getRequest } = await import("@tanstack/react-start/server");
+      const req = getRequest();
+      const authHeader = req?.headers?.get("authorization") ?? "";
+      const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+      if (token && token.split(".").length === 3) {
+        const { createClient } = await import("@supabase/supabase-js");
+        const sb = createClient(
+          process.env.SUPABASE_URL!,
+          process.env.SUPABASE_PUBLISHABLE_KEY!,
+          { auth: { storage: undefined, persistSession: false, autoRefreshToken: false } },
+        );
+        const { data: claims } = await sb.auth.getClaims(token);
+        authUserId = claims?.claims?.sub ?? null;
+      }
+    } catch { /* guest checkout — leave user_id null */ }
+
+
     // -------- Idempotency guard (ad-hoc throttle) --------
     // Prevent duplicate orders when a client bypasses the UI guard (double
     // submit, retry, network glitch). If the same phone submitted an order
@@ -410,6 +432,7 @@ export const createOrder = createServerFn({ method: "POST" })
         order_status: "Pending",
         referral_used: referralApplied,
         coupon_used: couponApplied,
+        user_id: authUserId,
       })
       .select("id,order_number,total")
       .single();
