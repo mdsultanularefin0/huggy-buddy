@@ -136,9 +136,14 @@ function AuthPage() {
             <TabsContent value="signup">
               <form onSubmit={handleSignUp} className="space-y-4">
                 <div className="space-y-2">
+                  <Label htmlFor="signup-name">Full name</Label>
+                  <Input id="signup-name" type="text" required value={fullName} onChange={(e) => setFullName(e.target.value)} />
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="signup-email">Email</Label>
                   <Input id="signup-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
                 </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="signup-password">Password</Label>
                   <Input id="signup-password" type="password" minLength={6} required value={password} onChange={(e) => setPassword(e.target.value)} />
