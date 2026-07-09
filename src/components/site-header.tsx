@@ -20,6 +20,29 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
   const count = cartCount(items);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const searchTriggerRef = useRef<HTMLButtonElement>(null);
+  const searchOverlayRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!searchOpen) return;
+    const onDown = (e: MouseEvent | TouchEvent) => {
+      const t = e.target as Node;
+      if (searchOverlayRef.current?.contains(t)) return;
+      if (searchTriggerRef.current?.contains(t)) return;
+      setSearchOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSearchOpen(false);
+    };
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("touchstart", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("touchstart", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [searchOpen]);
 
   const [signedIn, setSignedIn] = useState(false);
   const navigate = useNavigate();
