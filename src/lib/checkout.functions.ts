@@ -104,9 +104,12 @@ export const validateReferral = createServerFn({ method: "POST" })
   });
 
 function generateOrderNumber() {
-  const ts = Date.now().toString(36).toUpperCase();
+  const d = new Date();
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = d.toLocaleString("en-US", { month: "short" }).toUpperCase();
+  const year = d.getFullYear();
   const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
-  return `VE-${ts}-${rand}`;
+  return `VE-${day}${month}${year}-${rand}`;
 }
 
 // Normalize Bangladeshi phone numbers to canonical +8801XXXXXXXXX form so
