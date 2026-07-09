@@ -45,7 +45,9 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
+
 
 
   const goNext = () => navigate({ to: search.redirect ?? "/admin" });
@@ -63,16 +65,19 @@ function AuthPage() {
   async function handleSignUp(e: React.FormEvent) {
     e.preventDefault();
     const name = fullName.trim();
+    const phoneTrim = phone.trim();
     if (!name) return toast.error("Please enter your name");
+    if (!phoneTrim) return toast.error("Please enter your phone number");
     setLoading(true);
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: window.location.origin + "/admin",
-        data: { full_name: name, name },
+        data: { full_name: name, name, phone: phoneTrim },
       },
     });
+
     setLoading(false);
     if (error) return toast.error(error.message);
     if (!data.session) {
@@ -148,6 +153,13 @@ function AuthPage() {
                   <Label htmlFor="signup-email">Email</Label>
                   <Input id="signup-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
                 </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="signup-phone">Phone number</Label>
+                  <Input id="signup-phone" type="tel" required value={phone} onChange={(e) => setPhone(e.target.value)} />
+                </div>
+
+
 
                 <div className="space-y-2">
                   <Label htmlFor="signup-password">Password</Label>
