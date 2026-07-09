@@ -428,7 +428,7 @@ function Landing() {
   const artButtonLink = (h.art_button_link as string) || "";
   const artImage = (h.art_image as string) || null;
   const bannerImage = (h.banner_image as string) || null;
-  const signatureImage = (h.signature_image as string) || null;
+  
 
   const notesTitle = (h.notes_title as string) || "Discover Your Signature Note";
   const notesSubtitle = (h.notes_subtitle as string) || "";
