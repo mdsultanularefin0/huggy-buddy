@@ -50,8 +50,19 @@ function InvoicePage() {
     try {
       const el = document.getElementById("invoice-document");
       if (!el) throw new Error("Invoice not ready");
+      // Wait for web fonts + images so text metrics match the print view exactly.
+      if (document.fonts?.ready) await document.fonts.ready;
+      const imgs = Array.from(el.querySelectorAll("img"));
+      await Promise.all(
+        imgs.map((img) =>
+          img.complete && img.naturalWidth > 0
+            ? Promise.resolve()
+            : new Promise<void>((res) => { img.addEventListener("load", () => res(), { once: true }); img.addEventListener("error", () => res(), { once: true }); })
+        )
+      );
       const mod = await import("html2pdf.js");
       const html2pdf = (mod as unknown as { default: (...args: unknown[]) => unknown }).default ?? (mod as unknown as (...a: unknown[]) => unknown);
+
       await (html2pdf as unknown as () => { from: (el: HTMLElement) => { set: (o: unknown) => { save: () => Promise<void> } } })()
         .from(el)
         .set({
