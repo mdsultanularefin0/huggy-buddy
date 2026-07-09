@@ -101,23 +101,23 @@ function OrdersList() {
                   params={{ id: o.id }}
                   className="block pr-10"
                 >
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div>
-                      <p className="font-semibold">{o.order_number}</p>
-                      <p className="text-xs text-muted-foreground">
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <p className="font-semibold">{o.order_number}</p>
+                        <p className="font-semibold">{formatBDT(o.total)}</p>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5">
                         {new Date(o.created_at).toLocaleDateString()} · {items} item{items === 1 ? "" : "s"}
                       </p>
                     </div>
-                    <div className="text-right">
-                      <p className="font-semibold">{formatBDT(o.total)}</p>
-                      <div className="mt-1 flex flex-wrap justify-end gap-1">
-                        <Badge variant="outline" className={statusVariant(o.order_status).className}>
-                          {o.order_status}
-                        </Badge>
-                        <Badge variant="outline" className={statusVariant(o.payment_status).className}>
-                          {o.payment_status}
-                        </Badge>
-                      </div>
+                    <div className="flex flex-wrap justify-end gap-1">
+                      <Badge variant="outline" className={statusVariant(o.order_status).className}>
+                        {o.order_status}
+                      </Badge>
+                      <Badge variant="outline" className={statusVariant(o.payment_status).className}>
+                        {o.payment_status}
+                      </Badge>
                     </div>
                   </div>
                 </Link>
