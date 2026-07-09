@@ -400,6 +400,17 @@ function ProductPage() {
             {!product.in_stock ? "Out of stock" : needsVariant && variantIdx === null ? "Select a size" : chosenOut ? "Variant out of stock" : "Add to Cart"}
           </Button>
 
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleWishlist}
+            isLoading={wishMut.isPending}
+            className="mt-2 w-full rounded-2xl py-4 font-semibold h-auto border-[#52277a]/40 text-[#52277a] hover:bg-[#52277a]/5"
+          >
+            <Heart className={`w-4 h-4 mr-2 ${inWishlist ? "fill-[#52277a] text-[#52277a]" : ""}`} />
+            {inWishlist ? "Saved to Wishlist" : "Add to Wishlist"}
+          </Button>
+
           <ProductAccordions />
         </div>
       </div>
