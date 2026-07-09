@@ -208,7 +208,7 @@ function HomepagePage() {
         flash_timer_auto_reset: autoReset,
         flash_timer_duration_days: Math.max(1, Math.floor(durationDays || 1)),
         timer_reset_date: timerEndLocal ? new Date(timerEndLocal).toISOString() : new Date().toISOString(),
-        homepage_category_ids: catIds.filter((id): id is string => Boolean(id)),
+        homepage_category_ids: [],
         signature_title: signatureTitle,
         signature_subtitle: signatureSubtitle,
         signature_image: signatureImage || null,
