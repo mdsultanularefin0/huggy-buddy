@@ -22,12 +22,22 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
   const [searchOpen, setSearchOpen] = useState(false);
 
   const [signedIn, setSignedIn] = useState(false);
+  const navigate = useNavigate();
+  const qc = useQueryClient();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSignedIn(!!data.session));
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSignedIn(!!s));
     return () => sub.subscription.unsubscribe();
   }, []);
+
+  async function signOut() {
+    await qc.cancelQueries();
+    qc.clear();
+    await supabase.auth.signOut();
+    setMobileOpen(false);
+    navigate({ to: "/auth", replace: true });
+  }
 
   const { data: branding, isLoading: brandingLoading } = useQuery(brandingQueryOptions);
 
