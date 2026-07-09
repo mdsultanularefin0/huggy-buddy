@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ShoppingCart, Menu, X, User, Search, LogOut, UserCircle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { useCart, cartCount } from "@/lib/cart-store";
@@ -20,6 +20,29 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
   const count = cartCount(items);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const searchTriggerRef = useRef<HTMLButtonElement>(null);
+  const searchOverlayRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!searchOpen) return;
+    const onDown = (e: MouseEvent | TouchEvent) => {
+      const t = e.target as Node;
+      if (searchOverlayRef.current?.contains(t)) return;
+      if (searchTriggerRef.current?.contains(t)) return;
+      setSearchOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSearchOpen(false);
+    };
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("touchstart", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("touchstart", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [searchOpen]);
 
   const [signedIn, setSignedIn] = useState(false);
   const navigate = useNavigate();
@@ -125,6 +148,7 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
         {/* RIGHT — search, profile, cart */}
         <div className="flex items-center gap-2 shrink-0">
           <button
+            ref={searchTriggerRef}
             type="button"
             onClick={() => setSearchOpen((v) => !v)}
             aria-label="Search"
@@ -190,7 +214,7 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
       </div>
 
       {searchOpen && (
-        <div className="absolute left-0 right-0 top-full z-50 border-t border-white/10 bg-primary px-4 sm:px-6 py-3 shadow-luxe">
+        <div ref={searchOverlayRef} className="absolute left-0 right-0 top-full z-50 border-t border-white/10 bg-primary px-4 sm:px-6 py-3 shadow-luxe">
           <div className="max-w-2xl mx-auto">
             <SearchInline
               autoFocus

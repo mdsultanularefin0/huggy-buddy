@@ -35,16 +35,10 @@ export function SearchInline({
     }
   }, [autoFocus]);
 
-  useEffect(() => {
-    const onDown = (e: MouseEvent) => {
-      if (!wrapRef.current?.contains(e.target as Node)) {
-        setFocused(false);
-        onClose?.();
-      }
-    };
-    document.addEventListener("mousedown", onDown);
-    return () => document.removeEventListener("mousedown", onDown);
-  }, [onClose]);
+  // Outside-click handling is owned by the parent (which knows about the
+  // trigger button); we only handle focus/blur here so the dropdown collapses
+  // when the input loses focus within the same overlay.
+
 
   const term = query.trim();
   const { data, isFetching } = useQuery({
@@ -139,7 +133,18 @@ export function SearchInline({
           onKeyDown={(e) => {
             if (e.key === "Escape") {
               setQuery("");
+              setFocused(false);
               onClose?.();
+              return;
+            }
+            if (e.key === "Enter") {
+              e.preventDefault();
+              const hit = showDropdown ? flat[activeIdx] : undefined;
+              if (hit) {
+                selectHit(hit);
+              } else if (term.length >= 1) {
+                go(() => navigate({ to: "/products", search: { q: term } as never }));
+              }
               return;
             }
             if (!showDropdown || total === 0) return;
@@ -155,10 +160,6 @@ export function SearchInline({
             } else if (e.key === "End") {
               e.preventDefault();
               setActiveIdx(total - 1);
-            } else if (e.key === "Enter") {
-              e.preventDefault();
-              const hit = flat[activeIdx];
-              if (hit) selectHit(hit);
             }
           }}
           placeholder="Search fragrances…"
