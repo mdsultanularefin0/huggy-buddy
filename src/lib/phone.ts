@@ -5,9 +5,8 @@ export function normalizeBdPhone(input: string): string {
   if (!input) return "";
   let d = input.replace(/\D+/g, "");
   if (d.startsWith("00")) d = d.slice(2);
-  if (d.startsWith("880")) d = d.slice(3);
-  if (d.startsWith("0")) d = d.slice(1);
-  if (d.startsWith("1")) d = "0" + d;
+  if (d.startsWith("880")) d = "0" + d.slice(3);
+  else if (d.startsWith("1") && d.length >= 10) d = "0" + d;
   return d.slice(0, 11);
 }
 
