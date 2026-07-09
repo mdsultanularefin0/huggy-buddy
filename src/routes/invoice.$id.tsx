@@ -58,10 +58,19 @@ function InvoicePage() {
           margin: 0,
           filename: `invoice-${data.order.order_number}.pdf`,
           image: { type: "jpeg", quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff", onclone: (doc: Document, el: HTMLElement) => normalizeOklchInClone(doc, el) },
-          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+          html2canvas: {
+            scale: 3,
+            useCORS: true,
+            backgroundColor: "#ffffff",
+            windowWidth: el.scrollWidth,
+            windowHeight: el.scrollHeight,
+            onclone: (doc: Document, el: HTMLElement) => normalizeOklchInClone(doc, el),
+          },
+          jsPDF: { unit: "mm", format: "a4", orientation: "portrait", compress: true },
+          pagebreak: { mode: ["css", "legacy", "avoid-all"] },
         })
         .save();
+
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Download failed");
     } finally {
