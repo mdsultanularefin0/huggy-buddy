@@ -143,13 +143,35 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
 
 
 
-          <Link
-            to={signedIn ? "/account" : "/auth"}
-            aria-label={signedIn ? "My account" : "Sign in"}
-            className="hidden lg:flex w-10 h-10 rounded-full hover:bg-white/10 text-primary-foreground items-center justify-center transition-colors"
-          >
-            <User className="w-5 h-5" />
-          </Link>
+          {signedIn ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  aria-label="My account"
+                  className="hidden lg:flex w-10 h-10 rounded-full hover:bg-white/10 text-primary-foreground items-center justify-center transition-colors"
+                >
+                  <User className="w-5 h-5" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-44">
+                <DropdownMenuItem onClick={() => navigate({ to: "/account" })}>
+                  <UserCircle className="w-4 h-4 mr-2" /> Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={signOut} className="text-destructive focus:text-destructive">
+                  <LogOut className="w-4 h-4 mr-2" /> Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Link
+              to="/auth"
+              aria-label="Sign in"
+              className="hidden lg:flex w-10 h-10 rounded-full hover:bg-white/10 text-primary-foreground items-center justify-center transition-colors"
+            >
+              <User className="w-5 h-5" />
+            </Link>
+          )}
           <button
             onClick={open}
             aria-label="Open cart"
