@@ -25,7 +25,7 @@ import { saveFaqs } from "@/lib/content.functions";
 
 export const Route = createFileRoute("/admin/homepage")({ component: HomepagePage });
 
-const NONE = "__none__";
+
 
 const TAB_VALUES = ["visibility","hero","banner","signature","art","shopcat","newarrivals","notes","whispers","reels","faq"] as const;
 type TabValue = typeof TAB_VALUES[number];
