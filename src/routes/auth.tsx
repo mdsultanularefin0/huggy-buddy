@@ -155,6 +155,13 @@ function AuthPage() {
                 </div>
 
                 <div className="space-y-2">
+                  <Label htmlFor="signup-phone">Phone number</Label>
+                  <Input id="signup-phone" type="tel" required value={phone} onChange={(e) => setPhone(e.target.value)} />
+                </div>
+
+
+
+                <div className="space-y-2">
                   <Label htmlFor="signup-password">Password</Label>
                   <Input id="signup-password" type="password" minLength={6} required value={password} onChange={(e) => setPassword(e.target.value)} />
                 </div>
