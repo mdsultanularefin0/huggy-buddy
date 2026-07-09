@@ -63,7 +63,7 @@ function HomepagePage() {
   const [durationDays, setDurationDays] = useState(7);
   const [timerEndLocal, setTimerEndLocal] = useState("");
   // Signature
-  const [catIds, setCatIds] = useState<(string | null)[]>([null, null, null, null]);
+  
   const [signatureTitle, setSignatureTitle] = useState("");
   const [signatureSubtitle, setSignatureSubtitle] = useState("");
   const [signatureImage, setSignatureImage] = useState("");
