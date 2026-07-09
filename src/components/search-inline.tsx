@@ -133,7 +133,18 @@ export function SearchInline({
           onKeyDown={(e) => {
             if (e.key === "Escape") {
               setQuery("");
+              setFocused(false);
               onClose?.();
+              return;
+            }
+            if (e.key === "Enter") {
+              e.preventDefault();
+              const hit = showDropdown ? flat[activeIdx] : undefined;
+              if (hit) {
+                selectHit(hit);
+              } else if (term.length >= 1) {
+                go(() => navigate({ to: "/products", search: { q: term } as never }));
+              }
               return;
             }
             if (!showDropdown || total === 0) return;
@@ -149,10 +160,6 @@ export function SearchInline({
             } else if (e.key === "End") {
               e.preventDefault();
               setActiveIdx(total - 1);
-            } else if (e.key === "Enter") {
-              e.preventDefault();
-              const hit = flat[activeIdx];
-              if (hit) selectHit(hit);
             }
           }}
           placeholder="Search fragrances…"
