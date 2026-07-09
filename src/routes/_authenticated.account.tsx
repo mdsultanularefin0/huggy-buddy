@@ -65,7 +65,7 @@ function AccountLayout() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="justify-start gap-2 mt-1 text-muted-foreground hover:text-destructive"
+                    className="justify-start gap-2 mt-1 shrink-0 snap-start text-muted-foreground hover:text-destructive focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   >
                     <LogOut className="w-4 h-4" /> Sign out
                   </Button>
