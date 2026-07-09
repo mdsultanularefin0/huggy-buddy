@@ -560,28 +560,6 @@ function HomepagePage() {
             </div>
           </Card>
 
-          <Card className="p-6 space-y-3 shadow-card">
-            <div>
-              <h2 className="text-lg font-semibold">Hero category slots</h2>
-              <p className="text-xs text-muted-foreground">Up to 4 categories shown in the hero grid.</p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {catIds.map((id, i) => (
-                <div key={i} className="space-y-1">
-                  <Label className="text-xs">Slot {i + 1}</Label>
-                  <Select value={id ?? NONE} onValueChange={(v) => setSlot(i, v)}>
-                    <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={NONE}>— Empty —</SelectItem>
-                      {categories.map((c) => (
-                        <SelectItem key={c.id} value={c.id}>{c.name}{!c.is_active ? " (inactive)" : ""}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              ))}
-            </div>
-          </Card>
         </TabsContent>
 
         {/* ART */}
