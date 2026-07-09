@@ -157,6 +157,11 @@ function CheckoutPage() {
   }
 
   useEffect(() => {
+    const userEmail = user?.email ?? savedProfile.data?.email ?? null;
+    if (userEmail) setEmail(userEmail);
+  }, [user?.email, savedProfile.data?.email]);
+
+  useEffect(() => {
     if (autoFilled.current) return;
     const list = savedAddresses.data;
     if (!list || list.length === 0) return;
