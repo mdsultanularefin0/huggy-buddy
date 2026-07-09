@@ -8,6 +8,8 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { AuthLayout } from "@/components/auth-layout";
+import { normalizeBdPhone, isValidBdPhone } from "@/lib/phone";
+
 
 
 export const Route = createFileRoute("/auth")({
