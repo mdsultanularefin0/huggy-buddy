@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,7 +14,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { User, Package, MapPin, Heart, LogOut } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { User, Package, MapPin, Heart, LogOut, Menu } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 
 
@@ -33,6 +40,10 @@ const nav = [
 function AccountLayout() {
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const pathname = useRouterState({ select: (r) => r.location.pathname });
+
+  const active =
+    nav.find((n) => (n.exact ? pathname === n.to : pathname.startsWith(n.to))) ?? nav[0];
 
   async function signOut() {
     await qc.cancelQueries();
@@ -46,16 +57,66 @@ function AccountLayout() {
       <SiteHeader />
       <main className="flex-1 bg-gradient-soft py-8">
         <div className="container max-w-6xl px-4 grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
-          <aside className="rounded-2xl bg-card border p-2 h-fit min-w-0">
-            <nav className="flex lg:flex-col gap-1 overflow-x-auto lg:overflow-visible [-webkit-overflow-scrolling:touch] [scrollbar-width:thin] snap-x snap-mandatory lg:snap-none">
+          {/* Mobile: dropdown nav */}
+          <div className="lg:hidden">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="w-full justify-start gap-2 h-11">
+                  <Menu className="w-4 h-4" />
+                  <active.icon className="w-4 h-4" />
+                  <span className="font-medium">{active.label}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-[calc(100vw-2rem)] sm:w-64">
+                {nav.map(({ to, label, icon: Icon, exact }) => (
+                  <DropdownMenuItem key={to} asChild>
+                    <Link
+                      to={to}
+                      activeOptions={{ exact: !!exact }}
+                      activeProps={{ className: "bg-primary/10 text-primary font-medium" }}
+                      className="flex items-center gap-2 cursor-pointer"
+                    >
+                      <Icon className="w-4 h-4" /> {label}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+                <DropdownMenuSeparator />
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <DropdownMenuItem
+                      onSelect={(e) => e.preventDefault()}
+                      className="text-destructive focus:text-destructive"
+                    >
+                      <LogOut className="w-4 h-4 mr-2" /> Sign out
+                    </DropdownMenuItem>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Sign out?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        You'll need to sign in again to access your account.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={signOut}>Sign out</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
 
+          {/* Desktop: sidebar */}
+          <aside className="hidden lg:block rounded-2xl bg-card border p-2 h-fit min-w-0">
+            <nav className="flex flex-col gap-1">
               {nav.map(({ to, label, icon: Icon, exact }) => (
                 <Link
                   key={to}
                   to={to}
                   activeOptions={{ exact: !!exact }}
                   activeProps={{ className: "bg-primary/10 text-primary font-medium" }}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm whitespace-nowrap shrink-0 snap-start hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                   <Icon className="w-4 h-4" /> {label}
                 </Link>
@@ -65,7 +126,7 @@ function AccountLayout() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="justify-start gap-2 mt-1 shrink-0 snap-start text-muted-foreground hover:text-destructive focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                    className="justify-start gap-2 mt-1 text-muted-foreground hover:text-destructive focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   >
                     <LogOut className="w-4 h-4" /> Sign out
                   </Button>
@@ -83,9 +144,9 @@ function AccountLayout() {
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
-
             </nav>
           </aside>
+
           <section className="rounded-2xl bg-card border p-4 sm:p-6 min-h-[400px] min-w-0">
             <Outlet />
           </section>
