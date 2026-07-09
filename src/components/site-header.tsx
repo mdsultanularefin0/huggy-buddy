@@ -124,22 +124,15 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
 
         {/* RIGHT — search, profile, cart */}
         <div className="flex items-center gap-2 shrink-0">
-          {searchOpen ? (
-            <SearchInline
-              autoFocus
-              onClose={() => setSearchOpen(false)}
-              className="w-56 lg:w-72"
-            />
-          ) : (
-            <button
-              type="button"
-              onClick={() => setSearchOpen(true)}
-              aria-label="Search"
-              className="w-10 h-10 rounded-full hover:bg-white/10 text-primary-foreground flex items-center justify-center transition-colors"
-            >
-              <Search className="w-5 h-5" />
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={() => setSearchOpen((v) => !v)}
+            aria-label="Search"
+            aria-expanded={searchOpen}
+            className="w-10 h-10 rounded-full hover:bg-white/10 text-primary-foreground flex items-center justify-center transition-colors"
+          >
+            <Search className="w-5 h-5" />
+          </button>
 
 
 
@@ -195,6 +188,19 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
           </Button>
         </div>
       </div>
+
+      {searchOpen && (
+        <div className="absolute left-0 right-0 top-full z-50 border-t border-white/10 bg-primary px-4 sm:px-6 py-3 shadow-luxe">
+          <div className="max-w-2xl mx-auto">
+            <SearchInline
+              autoFocus
+              onClose={() => setSearchOpen(false)}
+              className="w-full"
+            />
+          </div>
+        </div>
+      )}
+
 
       {mobileOpen && (
         <div className="lg:hidden border-t border-white/10 bg-primary px-6 py-4 flex flex-col gap-3 text-sm">
