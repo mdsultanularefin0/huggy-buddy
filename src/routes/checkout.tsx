@@ -363,6 +363,33 @@ function CheckoutPage() {
           <div className="space-y-8">
             <section className="space-y-4">
               <h2 className="font-semibold">Contact & Delivery</h2>
+              {user && savedAddresses.data && savedAddresses.data.length > 0 && (
+                <div className="rounded-xl border bg-muted/40 p-3 space-y-2">
+                  <div className="flex items-center gap-2 text-sm font-medium">
+                    <MapPin className="w-4 h-4 text-primary" /> Use a saved address
+                  </div>
+                  <div className="grid sm:grid-cols-2 gap-2">
+                    {savedAddresses.data.map((a) => {
+                      const active = selectedAddressId === a.id;
+                      return (
+                        <button
+                          key={a.id}
+                          type="button"
+                          onClick={() => fillFromAddress(a, savedProfile.data?.email)}
+                          className={`text-left p-3 rounded-lg border text-sm transition ${active ? "border-primary bg-primary/5 ring-1 ring-primary/30" : "border-border hover:border-primary/50"}`}
+                        >
+                          <div className="font-medium flex items-center gap-2">
+                            {a.label || "Address"}
+                            {a.is_default && <span className="text-[10px] uppercase tracking-wide text-primary">Default</span>}
+                          </div>
+                          <div className="text-xs text-muted-foreground truncate">{a.recipient_name} · {a.phone}</div>
+                          <div className="text-xs text-muted-foreground truncate">{a.address_line}, {a.area ? `${a.area}, ` : ""}{a.district}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="name">Full name *</Label>
