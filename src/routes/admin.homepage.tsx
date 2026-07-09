@@ -25,7 +25,7 @@ import { saveFaqs } from "@/lib/content.functions";
 
 export const Route = createFileRoute("/admin/homepage")({ component: HomepagePage });
 
-const NONE = "__none__";
+
 
 const TAB_VALUES = ["visibility","hero","banner","signature","art","shopcat","newarrivals","notes","whispers","reels","faq"] as const;
 type TabValue = typeof TAB_VALUES[number];
@@ -63,7 +63,7 @@ function HomepagePage() {
   const [durationDays, setDurationDays] = useState(7);
   const [timerEndLocal, setTimerEndLocal] = useState("");
   // Signature
-  const [catIds, setCatIds] = useState<(string | null)[]>([null, null, null, null]);
+  
   const [signatureTitle, setSignatureTitle] = useState("");
   const [signatureSubtitle, setSignatureSubtitle] = useState("");
   const [signatureImage, setSignatureImage] = useState("");
@@ -118,17 +118,6 @@ function HomepagePage() {
     },
   });
 
-  const { data: categories = [] } = useQuery({
-    queryKey: ["admin", "categories", "all"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("categories")
-        .select("id, name, is_active")
-        .order("sort_order", { ascending: true });
-      if (error) throw error;
-      return data;
-    },
-  });
 
   const { data: allProducts = [] } = useQuery({
     queryKey: ["admin", "products", "all-min"],
@@ -156,8 +145,6 @@ function HomepagePage() {
     setAutoReset((s.flash_timer_auto_reset as boolean) ?? false);
     setDurationDays((s.flash_timer_duration_days as number) ?? 7);
     setTimerEndLocal(toLocalInput(s.timer_reset_date as string | null));
-    const ids = ((s.homepage_category_ids as string[]) ?? []).slice(0, 4);
-    setCatIds([0, 1, 2, 3].map((i) => ids[i] ?? null));
     setSignatureTitle((s.signature_title as string) ?? "");
     setSignatureSubtitle((s.signature_subtitle as string) ?? "");
     setSignatureImage((s.signature_image as string) ?? "");
@@ -208,7 +195,7 @@ function HomepagePage() {
         flash_timer_auto_reset: autoReset,
         flash_timer_duration_days: Math.max(1, Math.floor(durationDays || 1)),
         timer_reset_date: timerEndLocal ? new Date(timerEndLocal).toISOString() : new Date().toISOString(),
-        homepage_category_ids: catIds.filter((id): id is string => Boolean(id)),
+        homepage_category_ids: [],
         signature_title: signatureTitle,
         signature_subtitle: signatureSubtitle,
         signature_image: signatureImage || null,
@@ -287,9 +274,6 @@ function HomepagePage() {
   }
 
 
-  function setSlot(i: number, value: string) {
-    setCatIds((prev) => prev.map((v, idx) => (idx === i ? (value === NONE ? null : value) : v)));
-  }
 
   if (isLoading) {
     return <div className="p-12 text-center text-muted-foreground"><Loader2 className="w-5 h-5 animate-spin inline mr-2" /> Loading…</div>;
@@ -560,28 +544,6 @@ function HomepagePage() {
             </div>
           </Card>
 
-          <Card className="p-6 space-y-3 shadow-card">
-            <div>
-              <h2 className="text-lg font-semibold">Hero category slots</h2>
-              <p className="text-xs text-muted-foreground">Up to 4 categories shown in the hero grid.</p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {catIds.map((id, i) => (
-                <div key={i} className="space-y-1">
-                  <Label className="text-xs">Slot {i + 1}</Label>
-                  <Select value={id ?? NONE} onValueChange={(v) => setSlot(i, v)}>
-                    <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={NONE}>— Empty —</SelectItem>
-                      {categories.map((c) => (
-                        <SelectItem key={c.id} value={c.id}>{c.name}{!c.is_active ? " (inactive)" : ""}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              ))}
-            </div>
-          </Card>
         </TabsContent>
 
         {/* ART */}
