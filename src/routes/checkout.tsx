@@ -1,8 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useSuspenseQuery, queryOptions, useMutation } from "@tanstack/react-query";
+import { useSuspenseQuery, queryOptions, useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, Check, Loader2, X } from "lucide-react";
+import { ArrowLeft, Check, Loader2, MapPin, X } from "lucide-react";
 import { normalizeBdPhone, isValidBdPhone } from "@/lib/phone";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,11 +15,13 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { useCart, cartSubtotal } from "@/lib/cart-store";
 import { createOrder, validateCoupon, validateReferral } from "@/lib/checkout.functions";
+import { listMyAddresses, getMyProfile } from "@/lib/account.functions";
 import { trackMetaEvent } from "@/lib/meta-pixel.functions";
 import { fbqTrack } from "@/lib/meta-track";
 import { BD_DISTRICTS } from "@/lib/bd-districts";
 import { toast } from "sonner";
 import { friendlyError } from "@/lib/friendly-error";
+import { useSession } from "@/hooks/use-session";
 
 type Zone = {
   id: string; zone_name: string; fee_amount: number; free_shipping_threshold: number | null;
@@ -121,6 +123,48 @@ function CheckoutPage() {
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null);
   const [appliedReferral, setAppliedReferral] = useState<{ code: string; discount: number } | null>(null);
   const [promoError, setPromoError] = useState<string | null>(null);
+
+  // Auto-fill from saved default address for signed-in customers.
+  const { user } = useSession();
+  const fetchAddresses = useServerFn(listMyAddresses);
+  const fetchProfile = useServerFn(getMyProfile);
+  const savedAddresses = useQuery({
+    queryKey: ["checkout-my-addresses", user?.id],
+    queryFn: () => fetchAddresses(),
+    enabled: !!user,
+    staleTime: 60_000,
+  });
+  const savedProfile = useQuery({
+    queryKey: ["checkout-my-profile", user?.id],
+    queryFn: () => fetchProfile(),
+    enabled: !!user,
+    staleTime: 60_000,
+  });
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const autoFilled = useRef(false);
+
+  function fillFromAddress(a: {
+    id: string; recipient_name: string; phone: string; district: string;
+    area: string | null; address_line: string;
+  }, profileEmail?: string | null) {
+    setSelectedAddressId(a.id);
+    setName(a.recipient_name);
+    setPhone(a.phone);
+    setDistrict(a.district);
+    setUpazila(a.area ?? "");
+    setAddress(a.address_line);
+    if (profileEmail && !email) setEmail(profileEmail);
+  }
+
+  useEffect(() => {
+    if (autoFilled.current) return;
+    const list = savedAddresses.data;
+    if (!list || list.length === 0) return;
+    const def = list.find((a) => a.is_default) ?? list[0];
+    autoFilled.current = true;
+    fillFromAddress(def, savedProfile.data?.email);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [savedAddresses.data, savedProfile.data]);
 
   // Auto-pick zone from district: "Dhaka" → Inside Dhaka, anything else → Outside Dhaka.
   const zone = useMemo(() => {
@@ -319,6 +363,33 @@ function CheckoutPage() {
           <div className="space-y-8">
             <section className="space-y-4">
               <h2 className="font-semibold">Contact & Delivery</h2>
+              {user && savedAddresses.data && savedAddresses.data.length > 0 && (
+                <div className="rounded-xl border bg-muted/40 p-3 space-y-2">
+                  <div className="flex items-center gap-2 text-sm font-medium">
+                    <MapPin className="w-4 h-4 text-primary" /> Use a saved address
+                  </div>
+                  <div className="grid sm:grid-cols-2 gap-2">
+                    {savedAddresses.data.map((a) => {
+                      const active = selectedAddressId === a.id;
+                      return (
+                        <button
+                          key={a.id}
+                          type="button"
+                          onClick={() => fillFromAddress(a, savedProfile.data?.email)}
+                          className={`text-left p-3 rounded-lg border text-sm transition ${active ? "border-primary bg-primary/5 ring-1 ring-primary/30" : "border-border hover:border-primary/50"}`}
+                        >
+                          <div className="font-medium flex items-center gap-2">
+                            {a.label || "Address"}
+                            {a.is_default && <span className="text-[10px] uppercase tracking-wide text-primary">Default</span>}
+                          </div>
+                          <div className="text-xs text-muted-foreground truncate">{a.recipient_name} · {a.phone}</div>
+                          <div className="text-xs text-muted-foreground truncate">{a.address_line}, {a.area ? `${a.area}, ` : ""}{a.district}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="name">Full name *</Label>
