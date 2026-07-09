@@ -99,6 +99,17 @@ function AdminInbox() {
     onError: (e) => toast.error(e instanceof Error ? e.message : "Delete failed"),
   });
 
+  const bulkStatus = useServerFn(bulkUpdateContactStatus);
+  const bulkStatusMut = useMutation({
+    mutationFn: (input: { ids: string[]; status: Msg["status"] }) => bulkStatus({ data: input }),
+    onSuccess: (_r, input) => {
+      qc.invalidateQueries({ queryKey: ["contact-messages"] });
+      selection.clear();
+      toast.success(`${input.ids.length} marked ${input.status}`);
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Update failed"),
+  });
+
   const reply = useServerFn(replyToContactMessage);
   const [replyOpen, setReplyOpen] = useState(false);
   const [replySubject, setReplySubject] = useState("");
