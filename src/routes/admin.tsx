@@ -12,6 +12,18 @@ import {
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
+import {
   LayoutDashboard, Package, Boxes, Truck, CreditCard, ShoppingBag,
   Users, Megaphone, Settings, LogOut, Palette, Droplet, ScrollText, Tags, Home, Loader2, FileText, Star, Images, Plug,
   ChevronDown, Store, Mail,
@@ -219,15 +231,31 @@ function AdminSidebar({ email }: { email: string }) {
             <span className="text-xs text-sidebar-foreground/90 truncate">{email}</span>
           </div>
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={signOut}
-          className="w-full justify-start h-8 text-[12px] text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-white/[0.05] group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
-        >
-          <LogOut className="w-3.5 h-3.5 mr-2 group-data-[collapsible=icon]:mr-0" />
-          <span className="group-data-[collapsible=icon]:hidden">Sign out</span>
-        </Button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full justify-start h-8 text-[12px] text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-white/[0.05] group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
+            >
+              <LogOut className="w-3.5 h-3.5 mr-2 group-data-[collapsible=icon]:mr-0" />
+              <span className="group-data-[collapsible=icon]:hidden">Sign out</span>
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Sign out?</AlertDialogTitle>
+              <AlertDialogDescription>
+                You'll need to sign in again to access the admin panel.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={signOut}>Sign out</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
       </SidebarFooter>
     </Sidebar>
   );

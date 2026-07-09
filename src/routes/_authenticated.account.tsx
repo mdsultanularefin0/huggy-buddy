@@ -3,8 +3,20 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { User, Package, MapPin, Heart, LogOut } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
+
 
 export const Route = createFileRoute("/_authenticated/account")({
   head: () => ({ meta: [{ title: "My Account — Veloura Essence" }] }),
@@ -47,14 +59,30 @@ function AccountLayout() {
                   <Icon className="w-4 h-4" /> {label}
                 </Link>
               ))}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={signOut}
-                className="justify-start gap-2 mt-1 text-muted-foreground hover:text-destructive"
-              >
-                <LogOut className="w-4 h-4" /> Sign out
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="justify-start gap-2 mt-1 text-muted-foreground hover:text-destructive"
+                  >
+                    <LogOut className="w-4 h-4" /> Sign out
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Sign out?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      You'll need to sign in again to access your account.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={signOut}>Sign out</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+
             </nav>
           </aside>
           <section className="rounded-2xl bg-card border p-6 min-h-[400px]">
