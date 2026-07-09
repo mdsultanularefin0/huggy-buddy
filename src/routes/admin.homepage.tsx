@@ -526,22 +526,6 @@ function HomepagePage() {
               <Label>Subtitle</Label>
               <Textarea value={signatureSubtitle} onChange={(e) => setSignatureSubtitle(e.target.value)} rows={2} />
             </div>
-            <div className="space-y-2">
-              <Label>Background image</Label>
-              <div className="rounded-lg border flex items-center justify-center bg-muted h-40 overflow-hidden">
-                {signatureImage ? <img src={signatureImage} alt="Signature" className="max-h-full max-w-full object-contain" /> : <span className="text-xs text-muted-foreground">No image</span>}
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <Input value={signatureImage} onChange={(e) => setSignatureImage(e.target.value)} placeholder="Image URL" className="flex-1 min-w-[200px]" />
-                <label className="inline-flex items-center gap-1 cursor-pointer rounded-md border px-3 py-2 text-sm hover:bg-muted">
-                  {uploading === "signature" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-                  <span>Upload</span>
-                  <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f, "signature"); e.target.value = ""; }} />
-                </label>
-                <MediaPicker onPick={setSignatureImage} />
-                {signatureImage ? <Button variant="ghost" size="sm" onClick={() => setSignatureImage("")}>Clear</Button> : null}
-              </div>
-            </div>
           </Card>
 
         </TabsContent>
