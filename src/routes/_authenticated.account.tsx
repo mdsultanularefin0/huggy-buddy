@@ -46,8 +46,8 @@ function AccountLayout() {
       <SiteHeader />
       <main className="flex-1 bg-gradient-soft py-8">
         <div className="container max-w-6xl px-4 grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
-          <aside className="rounded-2xl bg-card border p-2 h-fit min-w-0 overflow-hidden">
-            <nav className="flex lg:flex-col gap-1 overflow-x-auto">
+          <aside className="rounded-2xl bg-card border p-2 h-fit min-w-0">
+            <nav className="flex lg:flex-col gap-1 overflow-x-auto lg:overflow-visible [-webkit-overflow-scrolling:touch] [scrollbar-width:thin] snap-x snap-mandatory lg:snap-none">
 
               {nav.map(({ to, label, icon: Icon, exact }) => (
                 <Link
@@ -55,7 +55,7 @@ function AccountLayout() {
                   to={to}
                   activeOptions={{ exact: !!exact }}
                   activeProps={{ className: "bg-primary/10 text-primary font-medium" }}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm whitespace-nowrap hover:bg-muted transition-colors"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm whitespace-nowrap shrink-0 snap-start hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                   <Icon className="w-4 h-4" /> {label}
                 </Link>
@@ -65,7 +65,7 @@ function AccountLayout() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="justify-start gap-2 mt-1 text-muted-foreground hover:text-destructive"
+                    className="justify-start gap-2 mt-1 shrink-0 snap-start text-muted-foreground hover:text-destructive focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   >
                     <LogOut className="w-4 h-4" /> Sign out
                   </Button>
