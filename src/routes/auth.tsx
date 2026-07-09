@@ -44,7 +44,9 @@ function AuthPage() {
   const search = Route.useSearch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
+
 
   const goNext = () => navigate({ to: search.redirect ?? "/admin" });
 
