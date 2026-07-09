@@ -133,6 +133,9 @@ function AdminLayout() {
             <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
             <div className="h-5 w-px bg-border/70" />
             <span className="text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">Veloura Essence · Admin</span>
+            <div className="ml-auto flex items-center gap-1">
+              <AdminNotifications />
+            </div>
           </header>
           <main className="flex-1 p-3 sm:p-6 lg:p-8">
             <Outlet />
