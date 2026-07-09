@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 
 import { toast } from "sonner";
+import { AdminNotifications } from "@/components/admin-notifications";
 
 export const Route = createFileRoute("/admin")({
   ssr: false,
