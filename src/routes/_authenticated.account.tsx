@@ -45,9 +45,10 @@ function AccountLayout() {
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <main className="flex-1 bg-gradient-soft py-8">
-        <div className="container max-w-6xl px-4 grid gap-6 lg:grid-cols-[240px_1fr]">
-          <aside className="rounded-2xl bg-card border p-2 h-fit">
+        <div className="container max-w-6xl px-4 grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
+          <aside className="rounded-2xl bg-card border p-2 h-fit min-w-0 overflow-hidden">
             <nav className="flex lg:flex-col gap-1 overflow-x-auto">
+
               {nav.map(({ to, label, icon: Icon, exact }) => (
                 <Link
                   key={to}
@@ -85,7 +86,7 @@ function AccountLayout() {
 
             </nav>
           </aside>
-          <section className="rounded-2xl bg-card border p-6 min-h-[400px]">
+          <section className="rounded-2xl bg-card border p-4 sm:p-6 min-h-[400px] min-w-0">
             <Outlet />
           </section>
         </div>
