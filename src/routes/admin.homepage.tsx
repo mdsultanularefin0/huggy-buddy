@@ -531,6 +531,59 @@ function HomepagePage() {
             </div>
           </Card>
 
+          <Card className="p-6 space-y-3 shadow-card">
+            <h2 className="text-lg font-semibold">Signature products</h2>
+            <p className="text-xs text-muted-foreground">
+              Pick up to 8 products. Desktop shows all selected; tablet and mobile show only the first 4.
+            </p>
+            <div className="space-y-2">
+              <Label>Selected products ({signatureIds.length}/8)</Label>
+              {signatureIds.length === 0 ? (
+                <p className="text-xs text-muted-foreground">None selected yet.</p>
+              ) : (
+                <div className="space-y-1">
+                  {signatureIds.map((id, i) => {
+                    const p = allProducts.find((x) => x.id === id);
+                    return (
+                      <div key={id} className="flex items-center justify-between rounded border px-3 py-2 text-sm">
+                        <span className="truncate">{i + 1}. {p?.name ?? "(deleted)"}{p && !p.is_active ? " (inactive)" : ""}</span>
+                        <div className="flex items-center gap-1">
+                          <Button size="sm" variant="ghost" disabled={i === 0} onClick={() => setSignatureIds((arr) => { const n = arr.slice(); [n[i - 1], n[i]] = [n[i], n[i - 1]]; return n; })}>↑</Button>
+                          <Button size="sm" variant="ghost" disabled={i === signatureIds.length - 1} onClick={() => setSignatureIds((arr) => { const n = arr.slice(); [n[i + 1], n[i]] = [n[i], n[i + 1]]; return n; })}>↓</Button>
+                          <Button size="sm" variant="ghost" onClick={() => setSignatureIds((arr) => arr.filter((x) => x !== id))}><Trash2 className="w-3 h-3" /></Button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+            <div className="space-y-2 pt-2 border-t">
+              <Label>Add product</Label>
+              <div className="max-h-72 overflow-y-auto rounded border divide-y">
+                {allProducts.filter((p) => !signatureIds.includes(p.id)).map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    disabled={signatureIds.length >= 8}
+                    onClick={() => setSignatureIds((arr) => (arr.length >= 8 ? arr : [...arr, p.id]))}
+                    className="w-full flex items-center justify-between px-3 py-2 text-sm text-left hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span className="truncate">{p.name}{!p.is_active ? " (inactive)" : ""}</span>
+                    <Plus className="w-3 h-3 shrink-0" />
+                  </button>
+                ))}
+                {allProducts.filter((p) => !signatureIds.includes(p.id)).length === 0 ? (
+                  <p className="px-3 py-2 text-xs text-muted-foreground">All products added.</p>
+                ) : null}
+                {signatureIds.length >= 8 ? (
+                  <p className="px-3 py-2 text-xs text-muted-foreground">Maximum of 8 products reached.</p>
+                ) : null}
+              </div>
+            </div>
+          </Card>
+
+
         </TabsContent>
 
         {/* ART */}
