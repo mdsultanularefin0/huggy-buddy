@@ -167,6 +167,7 @@ export function ListingShell({
   const navigate = useNavigate();
   const scents = normalizeScents(search.scent);
   const maxPrice = search.maxPrice ?? MAX_PRICE_DEFAULT;
+  const minPrice = search.minPrice ?? 0;
 
   const setMaxPrice = (n: number) => {
     void navigate({
@@ -174,6 +175,18 @@ export function ListingShell({
       search: ((prev: Record<string, unknown>) => ({
         ...prev,
         maxPrice: n === MAX_PRICE_DEFAULT ? undefined : n,
+      })) as never,
+      replace: true,
+    });
+  };
+
+  const setPriceRange = (from: number | null, to: number | null) => {
+    void navigate({
+      to: ".",
+      search: ((prev: Record<string, unknown>) => ({
+        ...prev,
+        minPrice: from && from > 0 ? from : undefined,
+        maxPrice: to && to > 0 ? to : undefined,
       })) as never,
       replace: true,
     });
