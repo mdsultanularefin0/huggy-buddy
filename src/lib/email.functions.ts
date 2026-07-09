@@ -417,6 +417,22 @@ export const bulkDeleteContactMessages = createServerFn({ method: "POST" })
     return { ok: true, count: data.ids.length };
   });
 
+const bulkUpdateContactStatusSchema = z.object({
+  ids: z.array(z.string().uuid()).min(1).max(500),
+  status: z.enum(["unread", "read", "resolved"]),
+});
+export const bulkUpdateContactStatus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => bulkUpdateContactStatusSchema.parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId, context.supabase);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("contact_messages").update({ status: data.status }).in("id", data.ids);
+    if (error) throw new Error(error.message);
+    return { ok: true, count: data.ids.length };
+  });
+
 const replySchema = z.object({
   id: z.string().uuid(),
   to: z.string().trim().email(),

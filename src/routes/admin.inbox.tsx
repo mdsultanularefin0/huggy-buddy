@@ -15,7 +15,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useSelection } from "@/hooks/use-selection";
 import { BulkActionBar } from "@/components/bulk-action-bar";
 import { toast } from "sonner";
-import { listContactMessages, updateContactStatus, syncImapInbox, deleteContactMessage, bulkDeleteContactMessages, replyToContactMessage, sendAdminEmail, listSentEmails } from "@/lib/email.functions";
+import { listContactMessages, updateContactStatus, syncImapInbox, deleteContactMessage, bulkDeleteContactMessages, bulkUpdateContactStatus, replyToContactMessage, sendAdminEmail, listSentEmails } from "@/lib/email.functions";
 
 
 export const Route = createFileRoute("/admin/inbox")({
@@ -97,6 +97,17 @@ function AdminInbox() {
       toast.success(`${ids.length} message(s) deleted`);
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Delete failed"),
+  });
+
+  const bulkStatus = useServerFn(bulkUpdateContactStatus);
+  const bulkStatusMut = useMutation({
+    mutationFn: (input: { ids: string[]; status: Msg["status"] }) => bulkStatus({ data: input }),
+    onSuccess: (_r, input) => {
+      qc.invalidateQueries({ queryKey: ["contact-messages"] });
+      selection.clear();
+      toast.success(`${input.ids.length} marked ${input.status}`);
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Update failed"),
   });
 
   const reply = useServerFn(replyToContactMessage);
@@ -322,6 +333,39 @@ function AdminInbox() {
           )}
         </div>
       </Card>
+
+      <BulkActionBar count={selection.selectedIds.length} onClear={selection.clear} label="selected">
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() => bulkStatusMut.mutate({ ids: selection.selectedIds, status: "read" })}
+          disabled={bulkStatusMut.isPending}
+        >
+          <Mail className="w-4 h-4 mr-1.5" /> Read
+        </Button>
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() => bulkStatusMut.mutate({ ids: selection.selectedIds, status: "unread" })}
+          disabled={bulkStatusMut.isPending}
+        >
+          <Mail className="w-4 h-4 mr-1.5" /> Unread
+        </Button>
+        <Button
+          size="sm"
+          variant="ghost"
+          className="text-destructive hover:text-destructive"
+          onClick={() => {
+            if (confirm(`Delete ${selection.selectedIds.length} message(s)?`)) {
+              bulkDelMut.mutate(selection.selectedIds);
+            }
+          }}
+          disabled={bulkDelMut.isPending}
+        >
+          <Trash2 className="w-4 h-4 mr-1.5" /> Delete
+        </Button>
+      </BulkActionBar>
+
 
       <Dialog open={replyOpen} onOpenChange={setReplyOpen}>
         <DialogContent className="max-w-2xl">
