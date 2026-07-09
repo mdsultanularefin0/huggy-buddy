@@ -432,6 +432,7 @@ export const createOrder = createServerFn({ method: "POST" })
         order_status: "Pending",
         referral_used: referralApplied,
         coupon_used: couponApplied,
+        user_id: authUserId,
       })
       .select("id,order_number,total")
       .single();
