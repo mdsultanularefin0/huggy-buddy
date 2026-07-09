@@ -74,16 +74,16 @@ export function InvoiceDocument({
     >
 
       {/* Header */}
-      <div className="flex items-start justify-between gap-6 border-b pb-6">
+      <div className="flex items-start justify-between gap-6 pb-6" style={{ borderBottom: "1px solid #e5e7eb" }}>
         <div className="flex items-start gap-4">
           {branding?.site_logo_url && (
             <img src={branding.site_logo_url} alt={shopName} style={{ height: 56, width: "auto", objectFit: "contain" }} />
           )}
           <div>
             <div className="text-xl font-semibold">{shopName}</div>
-            {branding?.shop_tagline && <div className="text-xs text-gray-500">{branding.shop_tagline}</div>}
-            {branding?.shop_address && <div className="text-xs text-gray-600 mt-1 whitespace-pre-line">{branding.shop_address}</div>}
-            <div className="text-xs text-gray-600">
+            {branding?.shop_tagline && <div className="text-xs" style={{ color: "#6b7280" }}>{branding.shop_tagline}</div>}
+            {branding?.shop_address && <div className="text-xs mt-1 whitespace-pre-line" style={{ color: "#4b5563" }}>{branding.shop_address}</div>}
+            <div className="text-xs" style={{ color: "#4b5563" }}>
               {branding?.shop_phone && <span>{branding.shop_phone}</span>}
               {branding?.shop_phone && branding?.shop_email && <span> · </span>}
               {branding?.shop_email && <span>{branding.shop_email}</span>}
@@ -93,15 +93,16 @@ export function InvoiceDocument({
         <div className="text-right">
           <div className="text-2xl font-bold tracking-wide">INVOICE</div>
           <div className="text-sm font-mono mt-1">INV-{order.order_number}</div>
-          <div className="text-xs text-gray-600 mt-1">
+          <div className="text-xs mt-1" style={{ color: "#4b5563" }}>
             {new Date(order.created_at).toLocaleDateString()}
           </div>
           <div className="text-xs mt-2">
-            <span className="inline-block px-2 py-0.5 rounded bg-gray-100 border">Payment: {order.payment_status}</span>
+            <span className="inline-block px-2 py-0.5 rounded" style={{ background: "#f3f4f6", border: "1px solid #e5e7eb" }}>Payment: {order.payment_status}</span>
           </div>
 
         </div>
       </div>
+
 
       {/* Bill to */}
       <div className="grid grid-cols-2 gap-6 mt-6 text-sm">
