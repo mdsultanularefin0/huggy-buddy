@@ -71,7 +71,7 @@ export function ProductCard({ product, newArrival = false }: { product: ProductC
         <p className="text-[10px] tracking-[0.25em] uppercase text-gray-400 mb-2 font-medium">
           Veloura Essence
         </p>
-        <h3 className="text-base text-[#1a1a1a] mb-3 leading-tight font-serif truncate">
+        <h3 className="text-lg sm:text-xl text-[#1a1a1a] mb-3 leading-tight font-serif truncate">
           {product.name}
         </h3>
         <div className="flex items-center justify-center gap-3">
