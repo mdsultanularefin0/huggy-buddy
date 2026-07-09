@@ -70,19 +70,20 @@ export function InvoiceDocument({
     <div
       id="invoice-document"
       className="bg-white text-black mx-auto p-10 shadow print:shadow-none"
-      style={{ width: "210mm", minHeight: "297mm", boxSizing: "border-box", fontFamily: "system-ui, sans-serif" }}
+      style={{ width: "210mm", minHeight: "297mm", boxSizing: "border-box", fontFamily: "system-ui, sans-serif", borderColor: "#e5e7eb" }}
     >
+
       {/* Header */}
-      <div className="flex items-start justify-between gap-6 border-b pb-6">
+      <div className="flex items-start justify-between gap-6 pb-6" style={{ borderBottom: "1px solid #e5e7eb" }}>
         <div className="flex items-start gap-4">
           {branding?.site_logo_url && (
             <img src={branding.site_logo_url} alt={shopName} style={{ height: 56, width: "auto", objectFit: "contain" }} />
           )}
           <div>
             <div className="text-xl font-semibold">{shopName}</div>
-            {branding?.shop_tagline && <div className="text-xs text-gray-500">{branding.shop_tagline}</div>}
-            {branding?.shop_address && <div className="text-xs text-gray-600 mt-1 whitespace-pre-line">{branding.shop_address}</div>}
-            <div className="text-xs text-gray-600">
+            {branding?.shop_tagline && <div className="text-xs" style={{ color: "#6b7280" }}>{branding.shop_tagline}</div>}
+            {branding?.shop_address && <div className="text-xs mt-1 whitespace-pre-line" style={{ color: "#4b5563" }}>{branding.shop_address}</div>}
+            <div className="text-xs" style={{ color: "#4b5563" }}>
               {branding?.shop_phone && <span>{branding.shop_phone}</span>}
               {branding?.shop_phone && branding?.shop_email && <span> · </span>}
               {branding?.shop_email && <span>{branding.shop_email}</span>}
@@ -92,15 +93,16 @@ export function InvoiceDocument({
         <div className="text-right">
           <div className="text-2xl font-bold tracking-wide">INVOICE</div>
           <div className="text-sm font-mono mt-1">INV-{order.order_number}</div>
-          <div className="text-xs text-gray-600 mt-1">
+          <div className="text-xs mt-1" style={{ color: "#4b5563" }}>
             {new Date(order.created_at).toLocaleDateString()}
           </div>
           <div className="text-xs mt-2">
-            <span className="inline-block px-2 py-0.5 rounded bg-gray-100 border">Payment: {order.payment_status}</span>
+            <span className="inline-block px-2 py-0.5 rounded" style={{ background: "#f3f4f6", border: "1px solid #e5e7eb" }}>Payment: {order.payment_status}</span>
           </div>
 
         </div>
       </div>
+
 
       {/* Bill to */}
       <div className="grid grid-cols-2 gap-6 mt-6 text-sm">
@@ -121,32 +123,32 @@ export function InvoiceDocument({
       </div>
 
       {/* Items */}
-      <table className="w-full mt-8 text-sm border-collapse">
+      <table className="w-full mt-8 text-sm" style={{ borderCollapse: "collapse" }}>
         <thead>
-          <tr className="border-y bg-gray-50">
-            <th className="text-left p-2 font-medium">Item</th>
-            <th className="text-right p-2 font-medium w-16">Qty</th>
-            <th className="text-right p-2 font-medium w-28">Unit</th>
-            <th className="text-right p-2 font-medium w-28">Total</th>
+          <tr>
+            <th className="text-left p-2 font-medium" style={{ background: "#f9fafb", borderTop: "1px solid #e5e7eb", borderBottom: "1px solid #e5e7eb" }}>Item</th>
+            <th className="text-right p-2 font-medium w-16" style={{ background: "#f9fafb", borderTop: "1px solid #e5e7eb", borderBottom: "1px solid #e5e7eb" }}>Qty</th>
+            <th className="text-right p-2 font-medium w-28" style={{ background: "#f9fafb", borderTop: "1px solid #e5e7eb", borderBottom: "1px solid #e5e7eb" }}>Unit</th>
+            <th className="text-right p-2 font-medium w-28" style={{ background: "#f9fafb", borderTop: "1px solid #e5e7eb", borderBottom: "1px solid #e5e7eb" }}>Total</th>
           </tr>
         </thead>
         <tbody>
           {items.map((it, i) => (
-            <tr key={i} className="border-b align-top">
-              <td className="p-2">
+            <tr key={i} className="align-top">
+              <td className="p-2" style={{ borderBottom: "1px solid #e5e7eb" }}>
                 <div className="font-medium">{it.name}</div>
-                {it.size && <div className="text-xs text-gray-500">{it.size}</div>}
+                {it.size && <div className="text-xs" style={{ color: "#6b7280" }}>{it.size}</div>}
                 {it.selections && it.selections.length > 0 && (
-                  <ul className="mt-1 ml-3 text-xs text-gray-600 list-disc list-inside">
+                  <ul className="mt-1 ml-3 text-xs list-disc list-inside" style={{ color: "#4b5563" }}>
                     {it.selections.map((s, si) => (
                       <li key={si}>{s.name}</li>
                     ))}
                   </ul>
                 )}
               </td>
-              <td className="p-2 text-right">{it.qty}</td>
-              <td className="p-2 text-right">{formatBDT(it.price)}</td>
-              <td className="p-2 text-right">{formatBDT(it.price * it.qty)}</td>
+              <td className="p-2 text-right" style={{ borderBottom: "1px solid #e5e7eb" }}>{it.qty}</td>
+              <td className="p-2 text-right" style={{ borderBottom: "1px solid #e5e7eb" }}>{formatBDT(it.price)}</td>
+              <td className="p-2 text-right" style={{ borderBottom: "1px solid #e5e7eb" }}>{formatBDT(it.price * it.qty)}</td>
             </tr>
           ))}
         </tbody>
@@ -155,32 +157,33 @@ export function InvoiceDocument({
       {/* Totals */}
       <div className="flex justify-end mt-4">
         <div className="w-72 text-sm space-y-1">
-          <div className="flex justify-between"><span className="text-gray-600">Subtotal</span><span>{formatBDT(order.subtotal)}</span></div>
-          <div className="flex justify-between"><span className="text-gray-600">Shipping</span><span>{formatBDT(order.shipping_fee)}</span></div>
+          <div className="flex justify-between"><span style={{ color: "#4b5563" }}>Subtotal</span><span>{formatBDT(order.subtotal)}</span></div>
+          <div className="flex justify-between"><span style={{ color: "#4b5563" }}>Shipping</span><span>{formatBDT(order.shipping_fee)}</span></div>
           {order.discount > 0 && (
             <div className="flex justify-between">
-              <span className="text-gray-600">Discount{order.referral_used ? ` (${order.referral_used})` : ""}</span>
+              <span style={{ color: "#4b5563" }}>Discount{order.referral_used ? ` (${order.referral_used})` : ""}</span>
               <span>−{formatBDT(order.discount)}</span>
             </div>
           )}
-          <div className="flex justify-between font-semibold text-base border-t pt-2 mt-1">
+          <div className="flex justify-between font-semibold text-base pt-2 mt-1" style={{ borderTop: "1px solid #e5e7eb" }}>
             <span>Total</span><span>{formatBDT(order.total)}</span>
           </div>
         </div>
       </div>
 
       {/* Footer */}
-      <div className="mt-10 pt-6 border-t text-xs text-gray-600 space-y-1">
-        <div><span className="text-gray-500">Payment method:</span> {order.payment_method}</div>
+      <div className="mt-10 pt-6 text-xs space-y-1" style={{ borderTop: "1px solid #e5e7eb", color: "#4b5563" }}>
+        <div><span style={{ color: "#6b7280" }}>Payment method:</span> {order.payment_method}</div>
         {order.payment_details?.senderNumber && (
-          <div><span className="text-gray-500">Sender number:</span> <span className="font-mono">{order.payment_details.senderNumber}</span></div>
+          <div><span style={{ color: "#6b7280" }}>Sender number:</span> <span className="font-mono">{order.payment_details.senderNumber}</span></div>
         )}
         {order.payment_details?.trxId && (
-          <div><span className="text-gray-500">TrxID:</span> <span className="font-mono">{order.payment_details.trxId}</span></div>
+          <div><span style={{ color: "#6b7280" }}>TrxID:</span> <span className="font-mono">{order.payment_details.trxId}</span></div>
         )}
-        {order.tracking_code && <div><span className="text-gray-500">Tracking:</span> {order.tracking_code}</div>}
-        <div className="pt-3 text-center text-gray-500">Thank you for shopping with {shopName}.</div>
+        {order.tracking_code && <div><span style={{ color: "#6b7280" }}>Tracking:</span> {order.tracking_code}</div>}
+        <div className="pt-3 text-center" style={{ color: "#6b7280" }}>Thank you for shopping with {shopName}.</div>
       </div>
+
     </div>
   );
 }
