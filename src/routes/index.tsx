@@ -535,14 +535,15 @@ function Landing() {
 
   const orderNowButton = (
     <div className="flex justify-center lg:justify-start">
-      <button
-        type="button"
+      <Link
+        to="/products"
         className="bg-[#52277a]/60 backdrop-blur-sm border-2 border-[#a555f0] shadow-[0_0_15px_rgba(165,85,240,0.5)] rounded-xl px-4 py-2 text-sm lg:px-8 lg:py-3 lg:text-lg text-white font-bold hover:bg-[#52277a]/80 transition"
       >
         Order Now
-      </button>
+      </Link>
     </div>
   );
+
 
   const flashTimer = timerEnabled ? (
     <div className="w-full max-w-[340px] sm:max-w-[440px] md:max-w-[560px] mx-auto bg-white rounded-xl shadow-xl overflow-hidden">
