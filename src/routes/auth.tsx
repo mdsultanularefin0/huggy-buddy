@@ -44,7 +44,9 @@ function AuthPage() {
   const search = Route.useSearch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
+
 
   const goNext = () => navigate({ to: search.redirect ?? "/admin" });
 
@@ -60,17 +62,23 @@ function AuthPage() {
 
   async function handleSignUp(e: React.FormEvent) {
     e.preventDefault();
+    const name = fullName.trim();
+    if (!name) return toast.error("Please enter your name");
     setLoading(true);
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: window.location.origin + "/admin" },
+      options: {
+        emailRedirectTo: window.location.origin + "/admin",
+        data: { full_name: name, name },
+      },
     });
     setLoading(false);
     if (error) return toast.error(error.message);
     toast.success("Account created");
     goNext();
   }
+
 
   async function handleForgot() {
     if (!email) return toast.error("Enter your email first");
@@ -128,9 +136,14 @@ function AuthPage() {
             <TabsContent value="signup">
               <form onSubmit={handleSignUp} className="space-y-4">
                 <div className="space-y-2">
+                  <Label htmlFor="signup-name">Full name</Label>
+                  <Input id="signup-name" type="text" required value={fullName} onChange={(e) => setFullName(e.target.value)} />
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="signup-email">Email</Label>
                   <Input id="signup-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
                 </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="signup-password">Password</Label>
                   <Input id="signup-password" type="password" minLength={6} required value={password} onChange={(e) => setPassword(e.target.value)} />
