@@ -344,7 +344,9 @@ export function ListingShell({
                     categories={categories}
                     activeCategorySlug={activeCategorySlug}
                     maxPrice={maxPrice}
+                    minPrice={minPrice}
                     setMaxPrice={setMaxPrice}
+                    setPriceRange={setPriceRange}
                     scents={scents}
                     setScents={setScents}
                   />
