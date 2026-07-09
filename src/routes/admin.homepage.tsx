@@ -147,7 +147,7 @@ function HomepagePage() {
     setTimerEndLocal(toLocalInput(s.timer_reset_date as string | null));
     setSignatureTitle((s.signature_title as string) ?? "");
     setSignatureSubtitle((s.signature_subtitle as string) ?? "");
-    setSignatureImage((s.signature_image as string) ?? "");
+    
 
     setArtEyebrow((s.art_eyebrow as string) ?? "");
     setArtTitle((s.art_title as string) ?? "");
