@@ -96,6 +96,7 @@ export const MAX_PRICE_DEFAULT = 10000;
 export const listingSearchSchema = z.object({
   scent: fallback(z.array(z.string()).or(z.string()).optional(), undefined),
   maxPrice: fallback(z.coerce.number().int().min(0).max(1_000_000), MAX_PRICE_DEFAULT).default(MAX_PRICE_DEFAULT),
+  minPrice: fallback(z.coerce.number().int().min(0).max(1_000_000).optional(), undefined),
 });
 
 export type ListingSearch = z.infer<typeof listingSearchSchema>;
