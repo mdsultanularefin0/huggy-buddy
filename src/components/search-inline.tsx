@@ -35,16 +35,10 @@ export function SearchInline({
     }
   }, [autoFocus]);
 
-  useEffect(() => {
-    const onDown = (e: MouseEvent) => {
-      if (!wrapRef.current?.contains(e.target as Node)) {
-        setFocused(false);
-        onClose?.();
-      }
-    };
-    document.addEventListener("mousedown", onDown);
-    return () => document.removeEventListener("mousedown", onDown);
-  }, [onClose]);
+  // Outside-click handling is owned by the parent (which knows about the
+  // trigger button); we only handle focus/blur here so the dropdown collapses
+  // when the input loses focus within the same overlay.
+
 
   const term = query.trim();
   const { data, isFetching } = useQuery({
