@@ -65,8 +65,9 @@ export async function runImapSync(): Promise<{
         continue;
       }
       try {
-        // Only import UNSEEN messages so previously-synced mail is skipped.
-        const uids = (await client.search({ seen: false }, { uid: true })) || [];
+        // Only import UNSEEN, non-deleted messages so previously-synced
+        // or trashed mail is skipped.
+        const uids = (await client.search({ seen: false, deleted: false }, { uid: true })) || [];
         const remaining = MAX_PER_RUN - stats.fetched;
         const slice = uids.slice(0, remaining);
         for (const uid of slice) {
