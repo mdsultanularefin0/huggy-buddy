@@ -334,6 +334,39 @@ function AdminInbox() {
         </div>
       </Card>
 
+      <BulkActionBar count={selection.selectedIds.length} onClear={selection.clear} label="selected">
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() => bulkStatusMut.mutate({ ids: selection.selectedIds, status: "read" })}
+          disabled={bulkStatusMut.isPending}
+        >
+          <Mail className="w-4 h-4 mr-1.5" /> Read
+        </Button>
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() => bulkStatusMut.mutate({ ids: selection.selectedIds, status: "unread" })}
+          disabled={bulkStatusMut.isPending}
+        >
+          <Mail className="w-4 h-4 mr-1.5" /> Unread
+        </Button>
+        <Button
+          size="sm"
+          variant="ghost"
+          className="text-destructive hover:text-destructive"
+          onClick={() => {
+            if (confirm(`Delete ${selection.selectedIds.length} message(s)?`)) {
+              bulkDelMut.mutate(selection.selectedIds);
+            }
+          }}
+          disabled={bulkDelMut.isPending}
+        >
+          <Trash2 className="w-4 h-4 mr-1.5" /> Delete
+        </Button>
+      </BulkActionBar>
+
+
       <Dialog open={replyOpen} onOpenChange={setReplyOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
