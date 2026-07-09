@@ -287,9 +287,6 @@ function HomepagePage() {
   }
 
 
-  function setSlot(i: number, value: string) {
-    setCatIds((prev) => prev.map((v, idx) => (idx === i ? (value === NONE ? null : value) : v)));
-  }
 
   if (isLoading) {
     return <div className="p-12 text-center text-muted-foreground"><Loader2 className="w-5 h-5 animate-spin inline mr-2" /> Loading…</div>;
