@@ -155,7 +155,7 @@ export function InvoiceDocument({
       </table>
 
       {/* Totals */}
-      <div className="flex justify-end mt-4">
+      <div className="flex justify-end mt-4 pdf-keep" style={{ pageBreakInside: "avoid", breakInside: "avoid" }}>
         <div className="w-72 text-sm space-y-1">
           <div className="flex justify-between"><span style={{ color: "#4b5563" }}>Subtotal</span><span>{formatBDT(order.subtotal)}</span></div>
           <div className="flex justify-between"><span style={{ color: "#4b5563" }}>Shipping</span><span>{formatBDT(order.shipping_fee)}</span></div>
@@ -172,7 +172,7 @@ export function InvoiceDocument({
       </div>
 
       {/* Footer */}
-      <div className="mt-10 pt-6 text-xs space-y-1" style={{ borderTop: "1px solid #e5e7eb", color: "#4b5563" }}>
+      <div className="mt-10 pt-6 text-xs space-y-1 pdf-keep" style={{ borderTop: "1px solid #e5e7eb", color: "#4b5563", pageBreakInside: "avoid", breakInside: "avoid" }}>
         <div><span style={{ color: "#6b7280" }}>Payment method:</span> {order.payment_method}</div>
         {order.payment_details?.senderNumber && (
           <div><span style={{ color: "#6b7280" }}>Sender number:</span> <span className="font-mono">{order.payment_details.senderNumber}</span></div>
@@ -183,6 +183,12 @@ export function InvoiceDocument({
         {order.tracking_code && <div><span style={{ color: "#6b7280" }}>Tracking:</span> {order.tracking_code}</div>}
         <div className="pt-3 text-center" style={{ color: "#6b7280" }}>Thank you for shopping with {shopName}.</div>
       </div>
+
+      <style>{`
+        #invoice-document tr, #invoice-document .pdf-keep { page-break-inside: avoid; break-inside: avoid; }
+        #invoice-document thead { display: table-header-group; }
+      `}</style>
+
 
     </div>
   );
