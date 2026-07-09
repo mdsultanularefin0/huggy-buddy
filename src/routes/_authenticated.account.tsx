@@ -86,7 +86,7 @@ function AccountLayout() {
 
             </nav>
           </aside>
-          <section className="rounded-2xl bg-card border p-6 min-h-[400px]">
+          <section className="rounded-2xl bg-card border p-4 sm:p-6 min-h-[400px] min-w-0">
             <Outlet />
           </section>
         </div>
