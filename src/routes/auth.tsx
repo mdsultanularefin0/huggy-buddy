@@ -67,10 +67,13 @@ function AuthPage() {
   async function handleSignUp(e: React.FormEvent) {
     e.preventDefault();
     const name = fullName.trim();
-    const phoneTrim = phone.trim();
+    const phoneTrim = normalizeBdPhone(phone);
     if (!name) return toast.error("Please enter your name");
-    if (!phoneTrim) return toast.error("Please enter your phone number");
+    if (!isValidBdPhone(phoneTrim)) {
+      return toast.error("Enter a valid Bangladeshi mobile number (e.g. 01712345678)");
+    }
     setLoading(true);
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
