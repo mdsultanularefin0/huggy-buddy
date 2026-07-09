@@ -106,7 +106,7 @@ function HomepagePage() {
   const [newArrivalsEnabled, setNewArrivalsEnabled] = useState(true);
 
 
-  type UploadKind = "hero" | "overlay" | "art" | "banner" | "signature" | `note-${number}`;
+  type UploadKind = "hero" | "overlay" | "art" | "banner" | `note-${number}`;
   const [uploading, setUploading] = useState<null | UploadKind>(null);
 
 
