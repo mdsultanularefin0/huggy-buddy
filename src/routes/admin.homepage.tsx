@@ -102,6 +102,7 @@ function HomepagePage() {
   const [shopcatSubtitle, setShopcatSubtitle] = useState("");
   // New Arrivals
   const [newArrivalIds, setNewArrivalIds] = useState<string[]>([]);
+  const [signatureIds, setSignatureIds] = useState<string[]>([]);
   const [newArrivalsEnabled, setNewArrivalsEnabled] = useState(true);
 
 
