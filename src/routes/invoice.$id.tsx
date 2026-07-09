@@ -67,8 +67,9 @@ function InvoicePage() {
             onclone: (doc: Document, el: HTMLElement) => normalizeOklchInClone(doc, el),
           },
           jsPDF: { unit: "mm", format: "a4", orientation: "portrait", compress: true },
-          pagebreak: { mode: ["css", "legacy", "avoid-all"] },
+          pagebreak: { mode: ["css", "legacy"], avoid: ["tr", ".pdf-keep"] },
         })
+
         .save();
 
     } catch (e) {
