@@ -853,10 +853,13 @@ function Landing() {
                   <Link to="/reviews" className="text-[#52277a] underline">See all</Link>
                 </p>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-10">
-                {whisperCards.map((c, i) => (
-                  <Reveal key={c.key} delay={i * 100}>
-                    <div className="p-8 rounded-2xl bg-gray-50 border border-gray-100 flex flex-col h-full transition-all duration-500 hover:-translate-y-1 hover:shadow-xl hover:border-[#a555f0]/30">
+              <div className="mt-10 group overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)]">
+                <div className="marquee-track gap-8 group-hover:[animation-play-state:paused] [&:active]:[animation-play-state:paused]">
+                  {[...whisperCards, ...whisperCards].map((c, i) => (
+                    <div
+                      key={`${c.key}-${i}`}
+                      className="shrink-0 w-[85vw] sm:w-[380px] p-8 rounded-2xl bg-gray-50 border border-gray-100 flex flex-col transition-all duration-500 hover:-translate-y-1 hover:shadow-xl hover:border-[#a555f0]/30 whitespace-normal"
+                    >
                       <div className="text-[#fbc02d] text-lg mb-3" aria-label={`${c.rating} out of 5`}>
                         {"★".repeat(c.rating)}{"☆".repeat(5 - c.rating)}
                       </div>
@@ -879,8 +882,8 @@ function Landing() {
                         ) : null}
                       </div>
                     </div>
-                  </Reveal>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
           </section>
