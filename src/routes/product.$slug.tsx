@@ -1,7 +1,8 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useSuspenseQuery, useQuery, queryOptions } from "@tanstack/react-query";
+import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
+import { useSuspenseQuery, useQuery, useMutation, useQueryClient, queryOptions } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, Star } from "lucide-react";
+import { ArrowLeft, Heart, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBDT, effectivePrice, hasSale } from "@/lib/currency";
 import { SiteHeader } from "@/components/site-header";
@@ -17,6 +18,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { ProductReviews } from "@/components/product-reviews";
+import { useSession } from "@/hooks/use-session";
+import { listMyWishlist, toggleMyWishlist } from "@/lib/account.functions";
 
 type Variant = {
   id: string;
