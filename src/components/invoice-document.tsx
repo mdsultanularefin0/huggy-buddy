@@ -134,7 +134,7 @@ export function InvoiceDocument({
         </thead>
         <tbody>
           {items.map((it, i) => (
-            <tr key={i} className="align-top">
+            <tr key={i} className="align-top pdf-keep" style={{ pageBreakInside: "avoid", breakInside: "avoid" }}>
               <td className="p-2" style={{ borderBottom: "1px solid #e5e7eb" }}>
                 <div className="font-medium">{it.name}</div>
                 {it.size && <div className="text-xs" style={{ color: "#6b7280" }}>{it.size}</div>}
