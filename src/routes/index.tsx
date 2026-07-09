@@ -144,7 +144,7 @@ function LazyReelTile({ reel, index }: { reel: Reel; index: number }) {
             preload="metadata"
             controlsList="nodownload noremoteplayback"
             disablePictureInPicture
-            className="absolute inset-0 w-full h-full object-cover bg-black"
+            className="absolute inset-0 w-full h-full object-cover bg-black [&:fullscreen]:object-contain [&:-webkit-full-screen]:object-contain"
           />
         ) : src ? (
           <iframe
