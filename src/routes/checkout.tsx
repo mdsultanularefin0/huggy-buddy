@@ -124,6 +124,48 @@ function CheckoutPage() {
   const [appliedReferral, setAppliedReferral] = useState<{ code: string; discount: number } | null>(null);
   const [promoError, setPromoError] = useState<string | null>(null);
 
+  // Auto-fill from saved default address for signed-in customers.
+  const { user } = useSession();
+  const fetchAddresses = useServerFn(listMyAddresses);
+  const fetchProfile = useServerFn(getMyProfile);
+  const savedAddresses = useQuery({
+    queryKey: ["checkout-my-addresses", user?.id],
+    queryFn: () => fetchAddresses(),
+    enabled: !!user,
+    staleTime: 60_000,
+  });
+  const savedProfile = useQuery({
+    queryKey: ["checkout-my-profile", user?.id],
+    queryFn: () => fetchProfile(),
+    enabled: !!user,
+    staleTime: 60_000,
+  });
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const autoFilled = useRef(false);
+
+  function fillFromAddress(a: {
+    id: string; recipient_name: string; phone: string; district: string;
+    area: string | null; address_line: string;
+  }, profileEmail?: string | null) {
+    setSelectedAddressId(a.id);
+    setName(a.recipient_name);
+    setPhone(a.phone);
+    setDistrict(a.district);
+    setUpazila(a.area ?? "");
+    setAddress(a.address_line);
+    if (profileEmail && !email) setEmail(profileEmail);
+  }
+
+  useEffect(() => {
+    if (autoFilled.current) return;
+    const list = savedAddresses.data;
+    if (!list || list.length === 0) return;
+    const def = list.find((a) => a.is_default) ?? list[0];
+    autoFilled.current = true;
+    fillFromAddress(def, savedProfile.data?.email);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [savedAddresses.data, savedProfile.data]);
+
   // Auto-pick zone from district: "Dhaka" → Inside Dhaka, anything else → Outside Dhaka.
   const zone = useMemo(() => {
     if (!district) return undefined;
