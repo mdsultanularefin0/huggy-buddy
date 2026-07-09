@@ -396,17 +396,43 @@ function FiltersPanel({
   categories,
   activeCategorySlug,
   maxPrice,
+  minPrice,
   setMaxPrice,
+  setPriceRange,
   scents,
   setScents,
 }: {
   categories: Cat[];
   activeCategorySlug?: string;
   maxPrice: number;
+  minPrice: number;
   setMaxPrice: (n: number) => void;
+  setPriceRange: (from: number | null, to: number | null) => void;
   scents: string[];
   setScents: (updater: (prev: string[]) => string[]) => void;
 }) {
+  const [fromInput, setFromInput] = useState<string>(minPrice > 0 ? String(minPrice) : "");
+  const [toInput, setToInput] = useState<string>(
+    maxPrice && maxPrice !== MAX_PRICE_DEFAULT ? String(maxPrice) : "",
+  );
+
+  useEffect(() => {
+    setFromInput(minPrice > 0 ? String(minPrice) : "");
+  }, [minPrice]);
+  useEffect(() => {
+    setToInput(maxPrice && maxPrice !== MAX_PRICE_DEFAULT ? String(maxPrice) : "");
+  }, [maxPrice]);
+
+  const applyRange = () => {
+    const from = fromInput.trim() === "" ? null : Math.max(0, Math.floor(Number(fromInput) || 0));
+    const to = toInput.trim() === "" ? null : Math.max(0, Math.floor(Number(toInput) || 0));
+    if (from !== null && to !== null && to < from) {
+      setPriceRange(to, from);
+      return;
+    }
+    setPriceRange(from, to);
+  };
+
   return (
     <>
       <div>
@@ -443,7 +469,53 @@ function FiltersPanel({
           className="w-full accent-[#a555f0]"
         />
         <p className="text-xs text-gray-600 mt-1">Up to {formatBDT(maxPrice)}</p>
+
+        <div className="mt-4 space-y-2">
+          <p className="text-xs font-medium text-gray-700">Custom range (BDT)</p>
+          <div className="flex items-center gap-2">
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              max={1000000}
+              placeholder="From"
+              value={fromInput}
+              onChange={(e) => setFromInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") applyRange(); }}
+              className="w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#a555f0]"
+            />
+            <span className="text-gray-400 text-sm">–</span>
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              max={1000000}
+              placeholder="To"
+              value={toInput}
+              onChange={(e) => setToInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") applyRange(); }}
+              className="w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#a555f0]"
+            />
+          </div>
+          <div className="flex gap-2">
+            <Button type="button" size="sm" onClick={applyRange} className="flex-1 bg-[#52277a] hover:bg-[#3f1d5e] text-white">
+              Apply
+            </Button>
+            {(minPrice > 0 || (maxPrice && maxPrice !== MAX_PRICE_DEFAULT)) && (
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => { setFromInput(""); setToInput(""); setPriceRange(null, null); }}
+              >
+                Clear
+              </Button>
+            )}
+          </div>
+        </div>
       </div>
+
+
 
       <ScentProfileFilter scents={scents} setScents={setScents} />
     </>
