@@ -210,6 +210,15 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
           >
             <User className="w-4 h-4" /> {signedIn ? "My account" : "Sign in"}
           </Link>
+          {signedIn && (
+            <button
+              type="button"
+              onClick={signOut}
+              className="py-1 flex items-center gap-2 text-left text-red-200 hover:text-white"
+            >
+              <LogOut className="w-4 h-4" /> Sign out
+            </button>
+          )}
         </div>
       )}
     </header>
