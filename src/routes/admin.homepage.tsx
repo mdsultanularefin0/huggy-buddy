@@ -264,7 +264,7 @@ function HomepagePage() {
       else if (kind === "overlay") setHeroOverlayUrl(url);
       else if (kind === "art") setArtImage(url);
       else if (kind === "banner") setBannerImage(url);
-      else if (kind === "signature") setSignatureImage(url);
+      
       toast.success("Image uploaded — click Save to apply");
     } catch (e) {
       toast.error((e as Error).message);
