@@ -1,12 +1,18 @@
-import { Link } from "@tanstack/react-router";
-import { ShoppingCart, Menu, X, User, Search } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { ShoppingCart, Menu, X, User, Search, LogOut, UserCircle } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { useCart, cartCount } from "@/lib/cart-store";
 import { brandingQueryOptions } from "@/lib/branding-query";
 import { supabase } from "@/integrations/supabase/client";
 import { SearchInline } from "@/components/search-inline";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { position?: "sticky" | "static" | "floating"; logoUrl?: string | null; logoSize?: number | null } = {}) {
   const items = useCart((s) => s.items);
@@ -16,12 +22,22 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
   const [searchOpen, setSearchOpen] = useState(false);
 
   const [signedIn, setSignedIn] = useState(false);
+  const navigate = useNavigate();
+  const qc = useQueryClient();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSignedIn(!!data.session));
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSignedIn(!!s));
     return () => sub.subscription.unsubscribe();
   }, []);
+
+  async function signOut() {
+    await qc.cancelQueries();
+    qc.clear();
+    await supabase.auth.signOut();
+    setMobileOpen(false);
+    navigate({ to: "/auth", replace: true });
+  }
 
   const { data: branding, isLoading: brandingLoading } = useQuery(brandingQueryOptions);
 
@@ -127,13 +143,35 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
 
 
 
-          <Link
-            to={signedIn ? "/account" : "/auth"}
-            aria-label={signedIn ? "My account" : "Sign in"}
-            className="hidden lg:flex w-10 h-10 rounded-full hover:bg-white/10 text-primary-foreground items-center justify-center transition-colors"
-          >
-            <User className="w-5 h-5" />
-          </Link>
+          {signedIn ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  aria-label="My account"
+                  className="hidden lg:flex w-10 h-10 rounded-full hover:bg-white/10 text-primary-foreground items-center justify-center transition-colors"
+                >
+                  <User className="w-5 h-5" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-44">
+                <DropdownMenuItem onClick={() => navigate({ to: "/account" })}>
+                  <UserCircle className="w-4 h-4 mr-2" /> Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={signOut} className="text-destructive focus:text-destructive">
+                  <LogOut className="w-4 h-4 mr-2" /> Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Link
+              to="/auth"
+              aria-label="Sign in"
+              className="hidden lg:flex w-10 h-10 rounded-full hover:bg-white/10 text-primary-foreground items-center justify-center transition-colors"
+            >
+              <User className="w-5 h-5" />
+            </Link>
+          )}
           <button
             onClick={open}
             aria-label="Open cart"
@@ -172,6 +210,15 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
           >
             <User className="w-4 h-4" /> {signedIn ? "My account" : "Sign in"}
           </Link>
+          {signedIn && (
+            <button
+              type="button"
+              onClick={signOut}
+              className="py-1 flex items-center gap-2 text-left text-red-200 hover:text-white"
+            >
+              <LogOut className="w-4 h-4" /> Sign out
+            </button>
+          )}
         </div>
       )}
     </header>
