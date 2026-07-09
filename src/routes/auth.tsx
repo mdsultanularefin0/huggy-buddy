@@ -8,6 +8,8 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { AuthLayout } from "@/components/auth-layout";
+import { normalizeBdPhone, isValidBdPhone } from "@/lib/phone";
+
 
 
 export const Route = createFileRoute("/auth")({
@@ -65,10 +67,13 @@ function AuthPage() {
   async function handleSignUp(e: React.FormEvent) {
     e.preventDefault();
     const name = fullName.trim();
-    const phoneTrim = phone.trim();
+    const phoneTrim = normalizeBdPhone(phone);
     if (!name) return toast.error("Please enter your name");
-    if (!phoneTrim) return toast.error("Please enter your phone number");
+    if (!isValidBdPhone(phoneTrim)) {
+      return toast.error("Enter a valid Bangladeshi mobile number (e.g. 01712345678)");
+    }
     setLoading(true);
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -156,8 +161,24 @@ function AuthPage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="signup-phone">Phone number</Label>
-                  <Input id="signup-phone" type="tel" required value={phone} onChange={(e) => setPhone(e.target.value)} />
+                  <Input
+                    id="signup-phone"
+                    type="tel"
+                    inputMode="numeric"
+                    autoComplete="tel"
+                    placeholder="01XXXXXXXXX"
+                    required
+                    value={phone}
+                    onChange={(e) => setPhone(normalizeBdPhone(e.target.value))}
+                    aria-invalid={phone.length > 0 && !isValidBdPhone(phone)}
+                  />
+                  {phone.length > 0 && !isValidBdPhone(phone) && (
+                    <p className="text-xs text-destructive">
+                      Enter an 11-digit Bangladeshi mobile number starting with 01.
+                    </p>
+                  )}
                 </div>
+
 
 
 
