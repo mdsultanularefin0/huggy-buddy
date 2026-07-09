@@ -175,6 +175,36 @@ function ProductPage() {
   const [isAdding, setIsAdding] = useState(false);
   const viewFired = useRef(false);
   const addingRef = useRef(false);
+
+  // Wishlist
+  const { user } = useSession();
+  const navigate = useNavigate();
+  const qc = useQueryClient();
+  const fetchWishlist = useServerFn(listMyWishlist);
+  const toggleWishlist = useServerFn(toggleMyWishlist);
+  const { data: wishlist } = useQuery({
+    queryKey: ["my-wishlist", user?.id],
+    queryFn: () => fetchWishlist() as Promise<Array<{ product_id: string }>>,
+    enabled: !!user,
+    staleTime: 60_000,
+  });
+  const inWishlist = !!wishlist?.some((w) => w.product_id === product?.id);
+  const wishMut = useMutation({
+    mutationFn: (productId: string) => toggleWishlist({ data: { productId } }),
+    onSuccess: (res) => {
+      toast.success(res.added ? "Added to wishlist" : "Removed from wishlist");
+      qc.invalidateQueries({ queryKey: ["my-wishlist"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  function handleWishlist() {
+    if (!user) {
+      toast.info("Sign in to save to wishlist");
+      navigate({ to: "/auth" });
+      return;
+    }
+    if (product) wishMut.mutate(product.id);
+  }
   useEffect(() => {
     if (viewFired.current || !product) return;
     viewFired.current = true;
