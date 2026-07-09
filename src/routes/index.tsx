@@ -428,7 +428,7 @@ function Landing() {
   const artButtonLink = (h.art_button_link as string) || "";
   const artImage = (h.art_image as string) || null;
   const bannerImage = (h.banner_image as string) || null;
-  const signatureImage = (h.signature_image as string) || null;
+  
 
   const notesTitle = (h.notes_title as string) || "Discover Your Signature Note";
   const notesSubtitle = (h.notes_subtitle as string) || "";
@@ -649,10 +649,7 @@ function Landing() {
         {signatureEnabled ? (
         <>
         {/* Signature Collection */}
-        <section
-          className="w-full py-16 bg-gray-50 bg-cover bg-center"
-          style={signatureImage ? { backgroundImage: `url(${signatureImage})` } : undefined}
-        >
+        <section className="w-full py-16 bg-gray-50">
 
           <div className="max-w-7xl mx-auto px-4">
             <Reveal>

@@ -66,7 +66,7 @@ function HomepagePage() {
   
   const [signatureTitle, setSignatureTitle] = useState("");
   const [signatureSubtitle, setSignatureSubtitle] = useState("");
-  const [signatureImage, setSignatureImage] = useState("");
+  
   // Art of Veloura
   const [artEyebrow, setArtEyebrow] = useState("");
   const [artTitle, setArtTitle] = useState("");
@@ -147,7 +147,7 @@ function HomepagePage() {
     setTimerEndLocal(toLocalInput(s.timer_reset_date as string | null));
     setSignatureTitle((s.signature_title as string) ?? "");
     setSignatureSubtitle((s.signature_subtitle as string) ?? "");
-    setSignatureImage((s.signature_image as string) ?? "");
+    
 
     setArtEyebrow((s.art_eyebrow as string) ?? "");
     setArtTitle((s.art_title as string) ?? "");
@@ -198,7 +198,7 @@ function HomepagePage() {
         homepage_category_ids: [],
         signature_title: signatureTitle,
         signature_subtitle: signatureSubtitle,
-        signature_image: signatureImage || null,
+        signature_image: null,
 
         art_eyebrow: artEyebrow,
         art_title: artTitle,
@@ -264,7 +264,7 @@ function HomepagePage() {
       else if (kind === "overlay") setHeroOverlayUrl(url);
       else if (kind === "art") setArtImage(url);
       else if (kind === "banner") setBannerImage(url);
-      else if (kind === "signature") setSignatureImage(url);
+      
       toast.success("Image uploaded — click Save to apply");
     } catch (e) {
       toast.error((e as Error).message);
@@ -525,22 +525,6 @@ function HomepagePage() {
             <div className="space-y-2">
               <Label>Subtitle</Label>
               <Textarea value={signatureSubtitle} onChange={(e) => setSignatureSubtitle(e.target.value)} rows={2} />
-            </div>
-            <div className="space-y-2">
-              <Label>Background image</Label>
-              <div className="rounded-lg border flex items-center justify-center bg-muted h-40 overflow-hidden">
-                {signatureImage ? <img src={signatureImage} alt="Signature" className="max-h-full max-w-full object-contain" /> : <span className="text-xs text-muted-foreground">No image</span>}
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <Input value={signatureImage} onChange={(e) => setSignatureImage(e.target.value)} placeholder="Image URL" className="flex-1 min-w-[200px]" />
-                <label className="inline-flex items-center gap-1 cursor-pointer rounded-md border px-3 py-2 text-sm hover:bg-muted">
-                  {uploading === "signature" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-                  <span>Upload</span>
-                  <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f, "signature"); e.target.value = ""; }} />
-                </label>
-                <MediaPicker onPick={setSignatureImage} />
-                {signatureImage ? <Button variant="ghost" size="sm" onClick={() => setSignatureImage("")}>Clear</Button> : null}
-              </div>
             </div>
           </Card>
 
