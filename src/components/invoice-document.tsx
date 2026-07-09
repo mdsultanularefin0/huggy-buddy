@@ -70,8 +70,9 @@ export function InvoiceDocument({
     <div
       id="invoice-document"
       className="bg-white text-black mx-auto p-10 shadow print:shadow-none"
-      style={{ width: "210mm", minHeight: "297mm", boxSizing: "border-box", fontFamily: "system-ui, sans-serif" }}
+      style={{ width: "210mm", minHeight: "297mm", boxSizing: "border-box", fontFamily: "system-ui, sans-serif", borderColor: "#e5e7eb" }}
     >
+
       {/* Header */}
       <div className="flex items-start justify-between gap-6 border-b pb-6">
         <div className="flex items-start gap-4">
