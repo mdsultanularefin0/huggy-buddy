@@ -410,6 +410,9 @@ function Landing() {
     : allCategories;
   const newArrivalIds = (((hero ?? {}) as Record<string, unknown>).homepage_new_arrival_ids as string[] | undefined) ?? [];
   const { data: newArrivals = [] } = useQuery(newArrivalsQueryFor(newArrivalIds));
+  const signatureIds = (((hero ?? {}) as Record<string, unknown>).homepage_signature_ids as string[] | undefined) ?? [];
+  const { data: signatureProducts = [] } = useQuery(newArrivalsQueryFor(signatureIds));
+  const signatureList = signatureIds.length ? signatureProducts : featuredProducts;
 
 
 
