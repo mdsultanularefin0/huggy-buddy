@@ -294,7 +294,7 @@ export function ListingShell({
       }
       return true;
     });
-  }, [combos, maxPrice, scents, activeCategorySlug, activeCategoryId, comboCategoryIds, comboScents]);
+  }, [combos, maxPrice, minPrice, scents, activeCategorySlug, activeCategoryId, comboCategoryIds, comboScents]);
 
 
 
