@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useSuspenseQuery, useQuery, queryOptions } from "@tanstack/react-query";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { SlidersHorizontal } from "lucide-react";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
@@ -96,6 +96,7 @@ export const MAX_PRICE_DEFAULT = 10000;
 export const listingSearchSchema = z.object({
   scent: fallback(z.array(z.string()).or(z.string()).optional(), undefined),
   maxPrice: fallback(z.coerce.number().int().min(0).max(1_000_000), MAX_PRICE_DEFAULT).default(MAX_PRICE_DEFAULT),
+  minPrice: fallback(z.coerce.number().int().min(0).max(1_000_000).optional(), undefined),
 });
 
 export type ListingSearch = z.infer<typeof listingSearchSchema>;
@@ -166,6 +167,7 @@ export function ListingShell({
   const navigate = useNavigate();
   const scents = normalizeScents(search.scent);
   const maxPrice = search.maxPrice ?? MAX_PRICE_DEFAULT;
+  const minPrice = search.minPrice ?? 0;
 
   const setMaxPrice = (n: number) => {
     void navigate({
@@ -173,6 +175,18 @@ export function ListingShell({
       search: ((prev: Record<string, unknown>) => ({
         ...prev,
         maxPrice: n === MAX_PRICE_DEFAULT ? undefined : n,
+      })) as never,
+      replace: true,
+    });
+  };
+
+  const setPriceRange = (from: number | null, to: number | null) => {
+    void navigate({
+      to: ".",
+      search: ((prev: Record<string, unknown>) => ({
+        ...prev,
+        minPrice: from && from > 0 ? from : undefined,
+        maxPrice: to && to > 0 ? to : undefined,
       })) as never,
       replace: true,
     });
@@ -246,6 +260,7 @@ export function ListingShell({
       const sale = min?.sale_price ?? p.sale_price;
       const price = effectivePrice(reg, sale);
       if (price > maxPrice) return false;
+      if (price < minPrice) return false;
       if (activeCategoryId) {
         const cids = productCategoryIds.get(p.id);
         const legacy = p.category_id;
@@ -258,13 +273,15 @@ export function ListingShell({
       }
       return true;
     });
-  }, [products, maxPrice, scents, activeCategoryId, productCategoryIds, productScents]);
+  }, [products, maxPrice, minPrice, scents, activeCategoryId, productCategoryIds, productScents]);
 
   // Combos show when: no scent filter (or a matching scent link exists);
   // and category matches by link, legacy slug rule, or no filter.
   const filteredCombos = useMemo(() => {
     return combos.filter((c) => {
-      if (effectivePrice(c.regular_price, c.sale_price) > maxPrice) return false;
+      const cp = effectivePrice(c.regular_price, c.sale_price);
+      if (cp > maxPrice) return false;
+      if (cp < minPrice) return false;
       if (activeCategorySlug) {
         const linkedCats = comboCategoryIds.get(c.id) ?? new Set<string>();
         const linkMatch = activeCategoryId ? linkedCats.has(activeCategoryId) : false;
@@ -277,7 +294,7 @@ export function ListingShell({
       }
       return true;
     });
-  }, [combos, maxPrice, scents, activeCategorySlug, activeCategoryId, comboCategoryIds, comboScents]);
+  }, [combos, maxPrice, minPrice, scents, activeCategorySlug, activeCategoryId, comboCategoryIds, comboScents]);
 
 
 
@@ -300,7 +317,9 @@ export function ListingShell({
               categories={categories}
               activeCategorySlug={activeCategorySlug}
               maxPrice={maxPrice}
+              minPrice={minPrice}
               setMaxPrice={setMaxPrice}
+              setPriceRange={setPriceRange}
               scents={scents}
               setScents={setScents}
             />
@@ -325,7 +344,9 @@ export function ListingShell({
                     categories={categories}
                     activeCategorySlug={activeCategorySlug}
                     maxPrice={maxPrice}
+                    minPrice={minPrice}
                     setMaxPrice={setMaxPrice}
+                    setPriceRange={setPriceRange}
                     scents={scents}
                     setScents={setScents}
                   />
@@ -375,17 +396,43 @@ function FiltersPanel({
   categories,
   activeCategorySlug,
   maxPrice,
+  minPrice,
   setMaxPrice,
+  setPriceRange,
   scents,
   setScents,
 }: {
   categories: Cat[];
   activeCategorySlug?: string;
   maxPrice: number;
+  minPrice: number;
   setMaxPrice: (n: number) => void;
+  setPriceRange: (from: number | null, to: number | null) => void;
   scents: string[];
   setScents: (updater: (prev: string[]) => string[]) => void;
 }) {
+  const [fromInput, setFromInput] = useState<string>(minPrice > 0 ? String(minPrice) : "");
+  const [toInput, setToInput] = useState<string>(
+    maxPrice && maxPrice !== MAX_PRICE_DEFAULT ? String(maxPrice) : "",
+  );
+
+  useEffect(() => {
+    setFromInput(minPrice > 0 ? String(minPrice) : "");
+  }, [minPrice]);
+  useEffect(() => {
+    setToInput(maxPrice && maxPrice !== MAX_PRICE_DEFAULT ? String(maxPrice) : "");
+  }, [maxPrice]);
+
+  const applyRange = () => {
+    const from = fromInput.trim() === "" ? null : Math.max(0, Math.floor(Number(fromInput) || 0));
+    const to = toInput.trim() === "" ? null : Math.max(0, Math.floor(Number(toInput) || 0));
+    if (from !== null && to !== null && to < from) {
+      setPriceRange(to, from);
+      return;
+    }
+    setPriceRange(from, to);
+  };
+
   return (
     <>
       <div>
@@ -422,7 +469,53 @@ function FiltersPanel({
           className="w-full accent-[#a555f0]"
         />
         <p className="text-xs text-gray-600 mt-1">Up to {formatBDT(maxPrice)}</p>
+
+        <div className="mt-4 space-y-2">
+          <p className="text-xs font-medium text-gray-700">Custom range (BDT)</p>
+          <div className="flex items-center gap-2">
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              max={1000000}
+              placeholder="From"
+              value={fromInput}
+              onChange={(e) => setFromInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") applyRange(); }}
+              className="w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#a555f0]"
+            />
+            <span className="text-gray-400 text-sm">–</span>
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              max={1000000}
+              placeholder="To"
+              value={toInput}
+              onChange={(e) => setToInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") applyRange(); }}
+              className="w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#a555f0]"
+            />
+          </div>
+          <div className="flex gap-2">
+            <Button type="button" size="sm" onClick={applyRange} className="flex-1 bg-[#52277a] hover:bg-[#3f1d5e] text-white">
+              Apply
+            </Button>
+            {(minPrice > 0 || (maxPrice && maxPrice !== MAX_PRICE_DEFAULT)) && (
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => { setFromInput(""); setToInput(""); setPriceRange(null, null); }}
+              >
+                Clear
+              </Button>
+            )}
+          </div>
+        </div>
       </div>
+
+
 
       <ScentProfileFilter scents={scents} setScents={setScents} />
     </>
