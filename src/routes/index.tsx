@@ -667,7 +667,7 @@ function Landing() {
             </Reveal>
             {featuredProducts.length > 0 ? (
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mt-10">
-                {featuredProducts.map((p, i) => (
+                {featuredProducts.slice(0, 8).map((p, i) => (
                   <Reveal key={p.id} delay={i * 80}>
                     <ProductCard product={p as never} />
                   </Reveal>
