@@ -236,6 +236,7 @@ function HomepagePage() {
         shopcat_title: shopcatTitle,
         shopcat_subtitle: shopcatSubtitle,
         homepage_new_arrival_ids: newArrivalIds,
+        homepage_signature_ids: signatureIds.slice(0, 8),
         new_arrivals_enabled: newArrivalsEnabled,
 
 
