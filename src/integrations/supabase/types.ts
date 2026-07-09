@@ -1067,6 +1067,7 @@ export type Database = {
           hero_title: string | null
           homepage_category_ids: string[]
           homepage_new_arrival_ids: string[]
+          homepage_signature_ids: string[]
           id: string
           marquee_text: string
           new_arrivals_enabled: boolean
@@ -1157,6 +1158,7 @@ export type Database = {
           hero_title?: string | null
           homepage_category_ids?: string[]
           homepage_new_arrival_ids?: string[]
+          homepage_signature_ids?: string[]
           id?: string
           marquee_text?: string
           new_arrivals_enabled?: boolean
@@ -1247,6 +1249,7 @@ export type Database = {
           hero_title?: string | null
           homepage_category_ids?: string[]
           homepage_new_arrival_ids?: string[]
+          homepage_signature_ids?: string[]
           id?: string
           marquee_text?: string
           new_arrivals_enabled?: boolean

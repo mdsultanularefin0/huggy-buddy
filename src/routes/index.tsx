@@ -410,6 +410,9 @@ function Landing() {
     : allCategories;
   const newArrivalIds = (((hero ?? {}) as Record<string, unknown>).homepage_new_arrival_ids as string[] | undefined) ?? [];
   const { data: newArrivals = [] } = useQuery(newArrivalsQueryFor(newArrivalIds));
+  const signatureIds = (((hero ?? {}) as Record<string, unknown>).homepage_signature_ids as string[] | undefined) ?? [];
+  const { data: signatureProducts = [] } = useQuery(newArrivalsQueryFor(signatureIds));
+  const signatureList = signatureIds.length ? signatureProducts : featuredProducts;
 
 
 
@@ -662,11 +665,13 @@ function Landing() {
                 ) : null}
               </div>
             </Reveal>
-            {featuredProducts.length > 0 ? (
+            {signatureList.length > 0 ? (
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mt-10">
-                {featuredProducts.slice(0, 8).map((p, i) => (
-                  <Reveal key={p.id} delay={i * 80}>
-                    <ProductCard product={p as never} />
+                {signatureList.slice(0, 8).map((p, i) => (
+                  <Reveal key={p.id as string} delay={i * 80}>
+                    <div className={i >= 4 ? "hidden lg:block" : ""}>
+                      <ProductCard product={p as never} />
+                    </div>
                   </Reveal>
                 ))}
               </div>
