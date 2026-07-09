@@ -52,7 +52,7 @@ function InvoicePage() {
       if (!el) throw new Error("Invoice not ready");
       const mod = await import("html2pdf.js");
       const html2pdf = (mod as unknown as { default: (...args: unknown[]) => unknown }).default ?? (mod as unknown as (...a: unknown[]) => unknown);
-      await (html2pdf as unknown as (opts: unknown) => { from: (el: HTMLElement) => { set: (o: unknown) => { save: () => Promise<void> } } })({})
+      await (html2pdf as unknown as () => { from: (el: HTMLElement) => { set: (o: unknown) => { save: () => Promise<void> } } })()
         .from(el)
         .set({
           margin: 0,
