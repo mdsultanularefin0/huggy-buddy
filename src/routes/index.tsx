@@ -649,10 +649,7 @@ function Landing() {
         {signatureEnabled ? (
         <>
         {/* Signature Collection */}
-        <section
-          className="w-full py-16 bg-gray-50 bg-cover bg-center"
-          
-        >
+        <section className="w-full py-16 bg-gray-50">
 
           <div className="max-w-7xl mx-auto px-4">
             <Reveal>
