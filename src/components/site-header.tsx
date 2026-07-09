@@ -148,6 +148,7 @@ export function SiteHeader({ position = "sticky", logoUrl, logoSize }: { positio
         {/* RIGHT — search, profile, cart */}
         <div className="flex items-center gap-2 shrink-0">
           <button
+            ref={searchTriggerRef}
             type="button"
             onClick={() => setSearchOpen((v) => !v)}
             aria-label="Search"
