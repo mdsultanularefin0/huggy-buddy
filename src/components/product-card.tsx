@@ -30,7 +30,7 @@ export function ProductCard({ product, newArrival = false }: { product: ProductC
       {(newArrival || product.badge || onSale) && !outOfStock && (
         <span
           className={`absolute -top-2 -left-2 sm:-top-3 sm:-left-3 md:-top-4 md:-left-4 z-10 w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 rounded-full text-white flex items-center justify-center text-[7px] sm:text-[8px] md:text-[10px] font-bold tracking-widest uppercase shadow-lg ring-2 sm:ring-4 ring-white text-center leading-tight px-1 ${
-            newArrival ? "bg-emerald-600" : "bg-red-600"
+            newArrival ? "bg-gradient-to-br from-amber-300 to-amber-500 text-amber-950" : "bg-red-600"
           }`}
         >
           {newArrival ? "New" : product.badge || "Sale"}
