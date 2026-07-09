@@ -198,7 +198,7 @@ function HomepagePage() {
         homepage_category_ids: [],
         signature_title: signatureTitle,
         signature_subtitle: signatureSubtitle,
-        signature_image: signatureImage || null,
+        signature_image: null,
 
         art_eyebrow: artEyebrow,
         art_title: artTitle,
