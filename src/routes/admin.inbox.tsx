@@ -15,7 +15,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useSelection } from "@/hooks/use-selection";
 import { BulkActionBar } from "@/components/bulk-action-bar";
 import { toast } from "sonner";
-import { listContactMessages, updateContactStatus, syncImapInbox, deleteContactMessage, bulkDeleteContactMessages, replyToContactMessage, sendAdminEmail, listSentEmails } from "@/lib/email.functions";
+import { listContactMessages, updateContactStatus, syncImapInbox, deleteContactMessage, bulkDeleteContactMessages, bulkUpdateContactStatus, replyToContactMessage, sendAdminEmail, listSentEmails } from "@/lib/email.functions";
 
 
 export const Route = createFileRoute("/admin/inbox")({
