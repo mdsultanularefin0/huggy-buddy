@@ -66,7 +66,7 @@ function HomepagePage() {
   
   const [signatureTitle, setSignatureTitle] = useState("");
   const [signatureSubtitle, setSignatureSubtitle] = useState("");
-  const [signatureImage, setSignatureImage] = useState("");
+  
   // Art of Veloura
   const [artEyebrow, setArtEyebrow] = useState("");
   const [artTitle, setArtTitle] = useState("");
