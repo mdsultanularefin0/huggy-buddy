@@ -51,8 +51,8 @@ export async function runImapSync(): Promise<{
   });
 
   const stats = { fetched: 0, imported: 0, skipped: 0, errors: 0 };
-  const importAll = !!creds.import_all;
   const mailboxes = resolveMailboxes(creds);
+
   await client.connect();
   try {
     for (const mbox of mailboxes) {
