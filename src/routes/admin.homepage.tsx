@@ -178,6 +178,7 @@ function HomepagePage() {
     setShopcatTitle((s.shopcat_title as string) ?? "");
     setShopcatSubtitle((s.shopcat_subtitle as string) ?? "");
     setNewArrivalIds(((s.homepage_new_arrival_ids as string[] | null) ?? []) as string[]);
+    setSignatureIds(((s.homepage_signature_ids as string[] | null) ?? []) as string[]);
   }, [settings]);
 
 
