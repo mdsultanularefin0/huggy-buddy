@@ -1,8 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useSuspenseQuery, queryOptions, useMutation } from "@tanstack/react-query";
+import { useSuspenseQuery, queryOptions, useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, Check, Loader2, X } from "lucide-react";
+import { ArrowLeft, Check, Loader2, MapPin, X } from "lucide-react";
 import { normalizeBdPhone, isValidBdPhone } from "@/lib/phone";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,11 +15,13 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { useCart, cartSubtotal } from "@/lib/cart-store";
 import { createOrder, validateCoupon, validateReferral } from "@/lib/checkout.functions";
+import { listMyAddresses, getMyProfile } from "@/lib/account.functions";
 import { trackMetaEvent } from "@/lib/meta-pixel.functions";
 import { fbqTrack } from "@/lib/meta-track";
 import { BD_DISTRICTS } from "@/lib/bd-districts";
 import { toast } from "sonner";
 import { friendlyError } from "@/lib/friendly-error";
+import { useSession } from "@/hooks/use-session";
 
 type Zone = {
   id: string; zone_name: string; fee_amount: number; free_shipping_threshold: number | null;
