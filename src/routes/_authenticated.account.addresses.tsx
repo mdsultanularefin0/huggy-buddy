@@ -218,17 +218,6 @@ function AddressesPage() {
             >
               <FormField
                 control={form.control}
-                name="label"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Label (optional)</FormLabel>
-                    <FormControl><Input placeholder="Home, Office…" {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
                 name="recipient_name"
                 render={({ field }) => (
                   <FormItem>
