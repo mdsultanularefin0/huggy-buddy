@@ -118,17 +118,6 @@ function HomepagePage() {
     },
   });
 
-  const { data: categories = [] } = useQuery({
-    queryKey: ["admin", "categories", "all"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("categories")
-        .select("id, name, is_active")
-        .order("sort_order", { ascending: true });
-      if (error) throw error;
-      return data;
-    },
-  });
 
   const { data: allProducts = [] } = useQuery({
     queryKey: ["admin", "products", "all-min"],
