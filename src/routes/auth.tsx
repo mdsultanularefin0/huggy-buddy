@@ -62,17 +62,23 @@ function AuthPage() {
 
   async function handleSignUp(e: React.FormEvent) {
     e.preventDefault();
+    const name = fullName.trim();
+    if (!name) return toast.error("Please enter your name");
     setLoading(true);
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: window.location.origin + "/admin" },
+      options: {
+        emailRedirectTo: window.location.origin + "/admin",
+        data: { full_name: name, name },
+      },
     });
     setLoading(false);
     if (error) return toast.error(error.message);
     toast.success("Account created");
     goNext();
   }
+
 
   async function handleForgot() {
     if (!email) return toast.error("Enter your email first");
