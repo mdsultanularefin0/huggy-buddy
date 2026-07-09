@@ -156,8 +156,6 @@ function HomepagePage() {
     setAutoReset((s.flash_timer_auto_reset as boolean) ?? false);
     setDurationDays((s.flash_timer_duration_days as number) ?? 7);
     setTimerEndLocal(toLocalInput(s.timer_reset_date as string | null));
-    const ids = ((s.homepage_category_ids as string[]) ?? []).slice(0, 4);
-    setCatIds([0, 1, 2, 3].map((i) => ids[i] ?? null));
     setSignatureTitle((s.signature_title as string) ?? "");
     setSignatureSubtitle((s.signature_subtitle as string) ?? "");
     setSignatureImage((s.signature_image as string) ?? "");
