@@ -51,8 +51,8 @@ export async function runImapSync(): Promise<{
   });
 
   const stats = { fetched: 0, imported: 0, skipped: 0, errors: 0 };
-  const importAll = !!creds.import_all;
   const mailboxes = resolveMailboxes(creds);
+
   await client.connect();
   try {
     for (const mbox of mailboxes) {
@@ -65,17 +65,13 @@ export async function runImapSync(): Promise<{
         continue;
       }
       try {
-        const criteria = importAll ? { all: true } : { unseen: true };
-        let uids = (await client.search(criteria, { uid: true })) || [];
-        if (!uids.length && !importAll) {
-          // Fallback: some servers don't honor {unseen:true}; fetch all and filter.
-          const all = (await client.search({ all: true }, { uid: true })) || [];
-          uids = all;
-        }
+        // Only import UNSEEN messages so previously-synced mail is skipped.
+        const uids = (await client.search({ seen: false }, { uid: true })) || [];
         const remaining = MAX_PER_RUN - stats.fetched;
         const slice = uids.slice(0, remaining);
         for (const uid of slice) {
           stats.fetched++;
+          let handled = false;
           try {
             const msg = await client.fetchOne(
               String(uid),
@@ -104,22 +100,29 @@ export async function runImapSync(): Promise<{
                 message_id: messageId,
               });
             if (insertErr) {
-              if (insertErr.code === "23505") stats.skipped++;
+              if (insertErr.code === "23505") { stats.skipped++; handled = true; }
               else stats.errors++;
             } else {
               stats.imported++;
-            }
-
-            if (creds.mark_seen && !importAll) {
-              await client.messageFlagsAdd(
-                String(uid), ["\\Seen"], { uid: true },
-              );
+              handled = true;
             }
           } catch {
             stats.errors++;
           }
+
+          // Mark seen on the IMAP server so future syncs skip it. We flag
+          // it after a successful import OR a duplicate skip — errors keep
+          // the message unread so the next run retries it.
+          if (handled) {
+            try {
+              await client.messageFlagsAdd(
+                String(uid), ["\\Seen"], { uid: true },
+              );
+            } catch { /* non-fatal: message stays unseen and retries later */ }
+          }
         }
       } finally {
+
         lock.release();
       }
     }
