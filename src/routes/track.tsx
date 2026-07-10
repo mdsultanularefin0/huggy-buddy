@@ -293,7 +293,7 @@ function TrackPage() {
                         {step.label}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {step.at ? fmtDate(step.at) : step.done ? "Completed" : "Pending"}
+                        {step.at ? fmtDate(step.at) : "Pending"}
                       </p>
                     </div>
                     {step.detail && (
