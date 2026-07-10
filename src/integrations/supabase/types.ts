@@ -1378,6 +1378,7 @@ export type Database = {
       contact_status: "unread" | "read" | "resolved"
       order_status:
         | "Pending"
+        | "Confirmed"
         | "Processing"
         | "Shipped"
         | "Completed"
@@ -1523,6 +1524,7 @@ export const Constants = {
       contact_status: ["unread", "read", "resolved"],
       order_status: [
         "Pending",
+        "Confirmed",
         "Processing",
         "Shipped",
         "Completed",
