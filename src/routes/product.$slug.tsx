@@ -288,8 +288,8 @@ function ProductPage() {
           </nav>
 
           <div className="aspect-square rounded-2xl bg-gray-50 overflow-hidden">
-            {product.image_url ? (
-              <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
+            {(chosen?.image_url || product.image_url) ? (
+              <img src={chosen?.image_url || product.image_url!} alt={product.name} className="w-full h-full object-cover transition-opacity duration-300" />
             ) : (
               <div className="w-full h-full bg-gray-50" aria-hidden="true" />
             )}
