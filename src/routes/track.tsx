@@ -115,7 +115,7 @@ function buildTimeline(o: OrderInfo): Step[] {
     },
     {
       key: "confirmed",
-      label: "Order confirmed",
+      label: "Confirmed",
       at: isConfirmed ? o.updated_at : null,
       Icon: PhoneCall,
       done: isConfirmed,
