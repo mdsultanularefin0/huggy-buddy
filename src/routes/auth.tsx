@@ -85,18 +85,25 @@ function AuthPage() {
     });
 
     setLoading(false);
-    if (error) return toast.error(error.message);
-    // Supabase returns a user with empty identities[] when the email is already registered
-    if (data.user && data.user.identities && data.user.identities.length === 0) {
+
+    const isDuplicate =
+      (error &&
+        ((error as { code?: string }).code === "user_already_exists" ||
+          (error as { code?: string }).code === "email_exists" ||
+          (error as { status?: number }).status === 422 ||
+          /already\s*(registered|exists|in use)|user_already_exists|email_exists|duplicate/i.test(
+            error.message,
+          ))) ||
+      (!error && data.user && data.user.identities && data.user.identities.length === 0);
+
+    if (isDuplicate) {
       toast.error("An account with this email already exists.", {
         description: "Try signing in instead, or reset your password.",
-        action: {
-          label: "Sign in",
-          onClick: () => setTab("signin"),
-        },
+        action: { label: "Sign in", onClick: () => setTab("signin") },
       });
       return;
     }
+    if (error) return toast.error(error.message);
     if (!data.session) {
       toast.success("Check your email to confirm your account");
       return;
