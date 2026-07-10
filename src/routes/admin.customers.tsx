@@ -31,7 +31,7 @@ function CustomersPage() {
   const deleteCustomers = useServerFn(deleteCustomersAdmin);
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState<Customer | null>(null);
-  const [form, setForm] = useState({ name: "", risk_level: "normal" as RiskLevel, notes: "" });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", address: "", risk_level: "normal" as RiskLevel, notes: "" });
 
   const { data: customers = [], isLoading } = useQuery({
     queryKey: ["admin", "customers"],
@@ -47,12 +47,12 @@ function CustomersPage() {
     queryFn: async () => {
       const { data, error } = await supabase.from("orders").select("customer_id,total,order_status");
       if (error) throw error;
-      const stats: Record<string, { count: number; spent: number; cancelled: number }> = {};
+      const stats: Record<string, { count: number; spent: number; delivered: number; cancelled: number }> = {};
       for (const o of data) {
         if (!o.customer_id) continue;
-        const s = stats[o.customer_id] ?? { count: 0, spent: 0, cancelled: 0 };
+        const s = stats[o.customer_id] ?? { count: 0, spent: 0, delivered: 0, cancelled: 0 };
         s.count++;
-        if (o.order_status === "Completed") s.spent += o.total;
+        if (o.order_status === "Completed") { s.spent += o.total; s.delivered++; }
         if (o.order_status === "Cancelled" || o.order_status === "Returned") s.cancelled++;
         stats[o.customer_id] = s;
       }
@@ -66,7 +66,14 @@ function CustomersPage() {
       await updateCustomer({
         data: {
           id: editing.id,
-          patch: { name: form.name || null, risk_level: form.risk_level, notes: form.notes || null },
+          patch: {
+            name: form.name || null,
+            email: form.email || null,
+            phone: form.phone || editing.phone,
+            address: form.address || null,
+            risk_level: form.risk_level,
+            notes: form.notes || null,
+          },
         },
       });
     },
@@ -80,7 +87,14 @@ function CustomersPage() {
 
   function startEdit(c: Customer) {
     setEditing(c);
-    setForm({ name: c.name ?? "", risk_level: c.risk_level, notes: c.notes ?? "" });
+    setForm({
+      name: c.name ?? "",
+      email: c.email ?? "",
+      phone: c.phone ?? "",
+      address: c.address ?? "",
+      risk_level: c.risk_level,
+      notes: c.notes ?? "",
+    });
   }
 
   const filtered = customers.filter((c) => {
@@ -153,7 +167,9 @@ function CustomersPage() {
             </TableHeader>
             <TableBody>
               {filtered.map((c) => {
-                const s = orderStats[c.id] ?? { count: 0, spent: 0, cancelled: 0 };
+                const s = orderStats[c.id] ?? { count: 0, spent: 0, delivered: 0, cancelled: 0 };
+                const fraudRatio = s.count > 0 ? s.cancelled / s.count : 0;
+                const suspicious = s.cancelled >= 2 || fraudRatio >= 0.5;
                 return (
                   <TableRow key={c.id} data-state={selection.isSelected(c.id) ? "selected" : undefined}>
                     <TableCell>
@@ -166,12 +182,29 @@ function CustomersPage() {
                     <TableCell className="font-medium">{c.name ?? "—"}</TableCell>
                     <TableCell className="text-sm">{c.phone}</TableCell>
                     <TableCell>
-                      <div className="text-sm">{s.count}</div>
-                      {s.cancelled > 0 && (
-                        <div className="text-xs text-rose-600 flex items-center gap-1">
-                          <AlertTriangle className="w-3 h-3" /> {s.cancelled} cancelled
+                      <div className="flex items-center gap-2">
+                        {suspicious ? (
+                          <span title={`Fraud check: ${s.cancelled}/${s.count} cancelled (${Math.round(fraudRatio * 100)}%)`}>
+                            <ShieldAlert className="w-4 h-4 text-rose-600 shrink-0" aria-label="Fraud risk" />
+                          </span>
+                        ) : (
+                          <span title={`Fraud check: ${s.delivered}/${s.count} delivered`}>
+                            <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" aria-label="Clean" />
+                          </span>
+                        )}
+                        <div className="text-sm leading-tight">
+                          <div>
+                            <span className="font-medium">{s.count}</span>{" "}
+                            <span className="text-muted-foreground">total</span>
+                          </div>
+                          <div className="text-xs text-emerald-700">{s.delivered} delivered</div>
+                          {s.cancelled > 0 && (
+                            <div className="text-xs text-rose-600 flex items-center gap-1">
+                              <AlertTriangle className="w-3 h-3" /> {s.cancelled} cancelled
+                            </div>
+                          )}
                         </div>
-                      )}
+                      </div>
                     </TableCell>
                     <TableCell className="font-medium">{formatBDT(s.spent)}</TableCell>
                     <TableCell>
@@ -211,8 +244,12 @@ function CustomersPage() {
           <DialogHeader><DialogTitle>Edit customer</DialogTitle></DialogHeader>
           {editing && (
             <div className="space-y-4 py-2">
-              <div className="text-sm text-muted-foreground">{editing.phone}</div>
               <div><Label>Name</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="mt-1" /></div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div><Label>Phone</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="mt-1" /></div>
+                <div><Label>Email</Label><Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="mt-1" /></div>
+              </div>
+              <div><Label>Address</Label><Textarea rows={2} value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className="mt-1" /></div>
               <div>
                 <Label>Risk level</Label>
                 <Select value={form.risk_level} onValueChange={(v) => setForm({ ...form, risk_level: v as RiskLevel })}>

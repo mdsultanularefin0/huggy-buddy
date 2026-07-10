@@ -222,6 +222,9 @@ const customerUpdateSchema = z.object({
   id: z.string().uuid(),
   patch: z.object({
     name: z.string().nullable().optional(),
+    email: z.string().nullable().optional(),
+    phone: z.string().optional(),
+    address: z.string().nullable().optional(),
     risk_level: z.enum(["normal", "high"]).optional(),
     notes: z.string().nullable().optional(),
   }),
