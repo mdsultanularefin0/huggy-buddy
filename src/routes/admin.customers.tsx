@@ -244,8 +244,12 @@ function CustomersPage() {
           <DialogHeader><DialogTitle>Edit customer</DialogTitle></DialogHeader>
           {editing && (
             <div className="space-y-4 py-2">
-              <div className="text-sm text-muted-foreground">{editing.phone}</div>
               <div><Label>Name</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="mt-1" /></div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div><Label>Phone</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="mt-1" /></div>
+                <div><Label>Email</Label><Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="mt-1" /></div>
+              </div>
+              <div><Label>Address</Label><Textarea rows={2} value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className="mt-1" /></div>
               <div>
                 <Label>Risk level</Label>
                 <Select value={form.risk_level} onValueChange={(v) => setForm({ ...form, risk_level: v as RiskLevel })}>
