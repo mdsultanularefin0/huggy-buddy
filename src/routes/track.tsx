@@ -285,18 +285,6 @@ function TrackPage() {
               </div>
             </div>
 
-            {(order.tracking_code || order.consignment_id) && (
-              <div className="mb-6 rounded-lg bg-muted/40 p-3 text-sm flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-primary shrink-0" />
-                <span>
-                  {order.tracking_code ? (
-                    <>Tracking code: <span className="font-mono font-medium">{order.tracking_code}</span></>
-                  ) : (
-                    <>Consignment: <span className="font-mono font-medium">#{order.consignment_id}</span></>
-                  )}
-                </span>
-              </div>
-            )}
 
             <ol className="relative border-l border-border pl-6 space-y-6">
               {buildTimeline(order).map((step) => {
