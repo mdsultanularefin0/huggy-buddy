@@ -122,7 +122,7 @@ function buildTimeline(o: OrderInfo): Step[] {
 
   return base.map((b, i) => {
     const done = i <= currentIndex;
-    const at = i === 0 ? o.created_at : i === currentIndex ? o.updated_at : null;
+    const at = i === 0 ? o.created_at : done ? o.updated_at : null;
     return { ...b, done, active: i === currentIndex, at };
   });
 }
