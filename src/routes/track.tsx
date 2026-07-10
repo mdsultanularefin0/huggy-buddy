@@ -3,13 +3,13 @@ import { useState } from "react";
 import {
   Search,
   Package,
-  CreditCard,
   Truck,
   CheckCircle2,
   XCircle,
   Clock,
   MapPin,
   ExternalLink,
+  PhoneCall,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -85,7 +85,6 @@ type Step = {
 
 function buildTimeline(o: OrderInfo): Step[] {
   const orderStatus = (o.order_status ?? "").toLowerCase();
-  const payStatus = (o.payment_status ?? "").toLowerCase();
   const courier = (o.courier_status ?? "").toLowerCase();
 
   const isCancelled = ["cancelled", "canceled"].includes(orderStatus);
@@ -94,9 +93,9 @@ function buildTimeline(o: OrderInfo): Step[] {
     ["shipped", "in_transit", "on_the_way", "picked_up"].some((s) => courier.includes(s)) ||
     !!o.consignment_id ||
     !!o.tracking_code;
-  const isProcessing = ["processing", "confirmed"].includes(orderStatus) || isShipped || isDelivered;
-  const isPaid = ["paid", "completed"].includes(payStatus);
-  const isPartial = payStatus === "partial";
+  const isConfirmed = ["processing", "confirmed"].includes(orderStatus) || isShipped || isDelivered;
+
+
 
   const steps: Step[] = [
     {
@@ -108,19 +107,19 @@ function buildTimeline(o: OrderInfo): Step[] {
       detail: `Order ${o.order_number}`,
     },
     {
-      key: "payment",
-      label: isPartial ? "Partial payment received" : "Payment confirmed",
-      at: isPaid || isPartial ? o.updated_at : null,
-      Icon: CreditCard,
-      done: isPaid || isPartial,
-      detail: o.payment_method ? `Method: ${o.payment_method}` : undefined,
+      key: "confirmed",
+      label: "Order confirmed",
+      at: isConfirmed ? o.updated_at : null,
+      Icon: PhoneCall,
+      done: isConfirmed,
+      detail: "Confirmed by our team over phone",
     },
     {
       key: "processing",
       label: "Processing",
-      at: isProcessing ? o.updated_at : null,
+      at: isConfirmed ? o.updated_at : null,
       Icon: Clock,
-      done: isProcessing,
+      done: isConfirmed,
     },
     {
       key: "shipped",
@@ -152,10 +151,14 @@ function buildTimeline(o: OrderInfo): Step[] {
 function currentStatusLabel(o: OrderInfo) {
   const parts = [
     o.order_status ? `Order: ${o.order_status}` : null,
-    o.payment_status ? `Payment: ${o.payment_status}` : null,
     o.courier_status ? `Courier: ${o.courier_status}` : null,
   ].filter(Boolean);
   return parts.join(" • ") || "Pending";
+}
+
+function paymentSubtext(o: OrderInfo) {
+  const status = o.payment_status ? o.payment_status : "pending";
+  return o.payment_method ? `Payment: ${status} • ${o.payment_method}` : `Payment: ${status}`;
 }
 
 function TrackPage() {
@@ -270,6 +273,7 @@ function TrackPage() {
                 <p className={`text-sm mt-1 ${statusTone(order.order_status)}`}>
                   {currentStatusLabel(order)}
                 </p>
+                <p className="text-xs text-muted-foreground mt-0.5">{paymentSubtext(order)}</p>
               </div>
               <div className="flex flex-col items-end gap-2">
                 <Link
