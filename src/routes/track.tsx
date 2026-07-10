@@ -7,7 +7,7 @@ import {
   CheckCircle2,
   XCircle,
   Clock,
-  MapPin,
+  
   ExternalLink,
   PhoneCall,
 } from "lucide-react";
@@ -52,7 +52,7 @@ type OrderInfo = {
   };
 };
 
-const CARRIER = "Steadfast";
+
 
 function fmtDate(iso: string) {
   try {
@@ -126,11 +126,6 @@ function buildTimeline(o: OrderInfo): Step[] {
       at: isShipped ? o.updated_at : null,
       Icon: Truck,
       done: isShipped,
-      detail: o.tracking_code
-        ? `${CARRIER} • Tracking ${o.tracking_code}`
-        : o.consignment_id
-          ? `${CARRIER} • Consignment #${o.consignment_id}`
-          : undefined,
     },
     {
       key: "delivered",
@@ -148,11 +143,7 @@ function buildTimeline(o: OrderInfo): Step[] {
 }
 
 function currentStatusLabel(o: OrderInfo) {
-  const parts = [
-    o.order_status ? `Order: ${o.order_status}` : null,
-    o.courier_status ? `Courier: ${o.courier_status}` : null,
-  ].filter(Boolean);
-  return parts.join(" • ") || "Pending";
+  return o.order_status ? `Order: ${o.order_status}` : "Pending";
 }
 
 function paymentSubtext(o: OrderInfo) {
@@ -285,18 +276,6 @@ function TrackPage() {
               </div>
             </div>
 
-            {(order.tracking_code || order.consignment_id) && (
-              <div className="mb-6 rounded-lg bg-muted/40 p-3 text-sm flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-primary shrink-0" />
-                <span>
-                  {order.tracking_code ? (
-                    <>Tracking code: <span className="font-mono font-medium">{order.tracking_code}</span></>
-                  ) : (
-                    <>Consignment: <span className="font-mono font-medium">#{order.consignment_id}</span></>
-                  )}
-                </span>
-              </div>
-            )}
 
             <ol className="relative border-l border-border pl-6 space-y-6">
               {buildTimeline(order).map((step) => {
