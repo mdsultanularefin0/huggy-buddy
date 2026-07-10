@@ -31,7 +31,7 @@ function CustomersPage() {
   const deleteCustomers = useServerFn(deleteCustomersAdmin);
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState<Customer | null>(null);
-  const [form, setForm] = useState({ name: "", risk_level: "normal" as RiskLevel, notes: "" });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", address: "", risk_level: "normal" as RiskLevel, notes: "" });
 
   const { data: customers = [], isLoading } = useQuery({
     queryKey: ["admin", "customers"],
