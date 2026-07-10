@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { z } from "zod";
 import {
   Search,
   Package,
@@ -20,7 +21,13 @@ import { lookupOrder } from "@/lib/orders.functions";
 import { toast } from "sonner";
 import { pageMeta } from "@/lib/seo-meta";
 
+const trackSearch = z.object({
+  order: z.string().optional(),
+  contact: z.string().optional(),
+});
+
 export const Route = createFileRoute("/track")({
+  validateSearch: (s) => trackSearch.parse(s),
   head: () => pageMeta({
     path: "/track",
     title: "Track your order — Veloura Essence",
@@ -152,23 +159,20 @@ function paymentSubtext(o: OrderInfo) {
 }
 
 function TrackPage() {
-  const [orderNumber, setOrderNumber] = useState("");
-  const [contact, setContact] = useState("");
+  const search = Route.useSearch();
+  const [orderNumber, setOrderNumber] = useState(search.order ?? "");
+  const [contact, setContact] = useState(search.contact ?? "");
   const [loading, setLoading] = useState(false);
   const [orders, setOrders] = useState<OrderInfo[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  async function handleLookup(e: React.FormEvent) {
-    e.preventDefault();
+  const runLookup = useCallback(async (orderVal: string, contactVal: string) => {
     setLoading(true);
     setOrders([]);
     setSelectedId(null);
     try {
-      const res = await lookupOrder({ data: { orderNumber, contact } });
-      if (!res.ok) {
-        toast.error(res.error);
-        return;
-      }
+      const res = await lookupOrder({ data: { orderNumber: orderVal, contact: contactVal } });
+      if (!res.ok) { toast.error(res.error); return; }
       setOrders(res.orders);
       setSelectedId(res.orders[0].id);
     } catch (err) {
@@ -176,7 +180,20 @@ function TrackPage() {
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  async function handleLookup(e: React.FormEvent) {
+    e.preventDefault();
+    await runLookup(orderNumber, contact);
   }
+
+  // Auto-lookup when arriving with prefilled search params.
+  useEffect(() => {
+    if (search.order && search.contact) {
+      runLookup(search.order, search.contact);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const order = orders.find((o) => o.id === selectedId) ?? null;
 

@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { formatBDT } from "@/lib/currency";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { getOrderById, lookupOrder, claimGuestOrder } from "@/lib/orders.functions";
+import { getOrderById, claimGuestOrder } from "@/lib/orders.functions";
 import { getInvoiceToken } from "@/lib/invoice.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -194,14 +194,7 @@ function TrackOrderSection() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await lookupOrder({ data: { orderNumber, contact } });
-      if (!res.ok) {
-        toast.error(res.error);
-        return;
-      }
-      navigate({ to: "/order/$id", params: { id: res.id } });
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Lookup failed");
+      navigate({ to: "/track", search: { order: orderNumber, contact } });
     } finally {
       setLoading(false);
     }
