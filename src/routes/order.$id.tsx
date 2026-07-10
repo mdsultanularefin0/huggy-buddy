@@ -194,14 +194,7 @@ function TrackOrderSection() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await lookupOrder({ data: { orderNumber, contact } });
-      if (!res.ok) {
-        toast.error(res.error);
-        return;
-      }
-      navigate({ to: "/order/$id", params: { id: res.id } });
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Lookup failed");
+      navigate({ to: "/track", search: { order: orderNumber, contact } });
     } finally {
       setLoading(false);
     }
