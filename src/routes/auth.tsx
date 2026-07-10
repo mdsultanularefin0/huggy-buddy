@@ -127,7 +127,7 @@ function AuthPage() {
 
 
         <Card className="p-6 shadow-luxe border-border/50">
-          <Tabs defaultValue="signin">
+          <Tabs value={tab} onValueChange={setTab}>
             <TabsList className="grid grid-cols-2 mb-6">
               <TabsTrigger value="signin">Sign in</TabsTrigger>
               <TabsTrigger value="signup">Create account</TabsTrigger>
