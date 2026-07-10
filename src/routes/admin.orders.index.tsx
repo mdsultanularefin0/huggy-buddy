@@ -36,11 +36,12 @@ type Order = Database["public"]["Tables"]["orders"]["Row"];
 type OrderStatus = Database["public"]["Enums"]["order_status"];
 type PaymentStatus = Database["public"]["Enums"]["payment_status"];
 
-const ORDER_STATUSES: OrderStatus[] = ["Pending", "Processing", "Shipped", "Completed", "Cancelled", "Returned"];
+const ORDER_STATUSES: OrderStatus[] = ["Pending", "Confirmed", "Processing", "Shipped", "Completed", "Cancelled", "Returned"];
 const PAYMENT_STATUSES: PaymentStatus[] = ["Pending", "Paid", "Partially Paid", "Failed", "Refunded"];
 
 const STATUS_TONE: Record<OrderStatus, string> = {
   Pending: "bg-amber-100 text-amber-800",
+  Confirmed: "bg-sky-100 text-sky-800",
   Processing: "bg-blue-100 text-blue-800",
   Shipped: "bg-indigo-100 text-indigo-800",
   Completed: "bg-emerald-100 text-emerald-800",
