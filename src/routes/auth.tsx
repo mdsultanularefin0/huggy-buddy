@@ -49,6 +49,7 @@ function AuthPage() {
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
+  const [tab, setTab] = useState("signin");
 
 
 
@@ -87,7 +88,14 @@ function AuthPage() {
     if (error) return toast.error(error.message);
     // Supabase returns a user with empty identities[] when the email is already registered
     if (data.user && data.user.identities && data.user.identities.length === 0) {
-      return toast.error("An account with this email already exists. Please sign in instead.");
+      toast.error("An account with this email already exists.", {
+        description: "Try signing in instead, or reset your password.",
+        action: {
+          label: "Sign in",
+          onClick: () => setTab("signin"),
+        },
+      });
+      return;
     }
     if (!data.session) {
       toast.success("Check your email to confirm your account");
@@ -127,7 +135,7 @@ function AuthPage() {
 
 
         <Card className="p-6 shadow-luxe border-border/50">
-          <Tabs defaultValue="signin">
+          <Tabs value={tab} onValueChange={setTab}>
             <TabsList className="grid grid-cols-2 mb-6">
               <TabsTrigger value="signin">Sign in</TabsTrigger>
               <TabsTrigger value="signup">Create account</TabsTrigger>
