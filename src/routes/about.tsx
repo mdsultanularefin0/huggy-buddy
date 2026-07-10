@@ -5,8 +5,8 @@ import { pageMeta } from "@/lib/seo-meta";
 export const Route = createFileRoute("/about")({
   head: () => pageMeta({
     path: "/about",
-    title: "About — Veloura Essence",
-    description: "Discover the story behind Veloura Essence — luxury perfumes crafted for Bangladesh.",
+    title: "Our Story & Mission | About Veloura Essence",
+    description: "Learn who we are: the founders, values, and craftsmanship philosophy behind Veloura Essence, Bangladesh's boutique luxury perfume house.",
   }),
   component: () => <CmsPage slug="about" fallbackTitle="About Us" />,
 });

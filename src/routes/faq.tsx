@@ -16,8 +16,8 @@ type Faq = { q: string; a: string };
 export const Route = createFileRoute("/faq")({
   head: () => pageMeta({
     path: "/faq",
-    title: "FAQ — Veloura Essence",
-    description: "Answers to common questions about ordering, delivery, and Veloura Essence fragrances.",
+    title: "Frequently Asked Questions | Veloura Essence Help Centre",
+    description: "Answers about payments, cash on delivery, shipping times, returns, authenticity and how to choose the right Veloura Essence perfume.",
   }),
   component: FaqPage,
 });
