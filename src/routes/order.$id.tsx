@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { CheckCircle2, FileText, Search, UserPlus, Loader2, RefreshCw } from "lucide-react";
+import { CheckCircle2, FileText, Search, UserPlus, Loader2, RefreshCw, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -87,8 +87,22 @@ function OrderPage() {
           <CheckCircle2 className="w-14 h-14 text-accent mx-auto" />
           <h1 className="text-3xl font-semibold tracking-tight mt-4">Thank you!</h1>
           <p className="text-muted-foreground mt-2">Your order has been placed successfully.</p>
-          <p className="text-sm mt-3">
+          <p className="text-sm mt-3 inline-flex items-center gap-1.5">
             Order # <span className="font-mono font-semibold">{order.order_number}</span>
+            <button
+              type="button"
+              onClick={() => {
+                navigator.clipboard.writeText(order.order_number).then(
+                  () => toast.success("Order ID copied"),
+                  () => toast.error("Could not copy"),
+                );
+              }}
+              className="inline-flex items-center justify-center rounded-md p-1 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Copy order ID"
+              title="Copy order ID"
+            >
+              <Copy className="w-3.5 h-3.5" />
+            </button>
           </p>
         </div>
 
