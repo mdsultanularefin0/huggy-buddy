@@ -126,11 +126,6 @@ function buildTimeline(o: OrderInfo): Step[] {
       at: isShipped ? o.updated_at : null,
       Icon: Truck,
       done: isShipped,
-      detail: o.tracking_code
-        ? `${CARRIER} • Tracking ${o.tracking_code}`
-        : o.consignment_id
-          ? `${CARRIER} • Consignment #${o.consignment_id}`
-          : undefined,
     },
     {
       key: "delivered",
