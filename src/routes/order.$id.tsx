@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { formatBDT } from "@/lib/currency";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { getOrderById, lookupOrder, claimGuestOrder } from "@/lib/orders.functions";
+import { getOrderById, claimGuestOrder } from "@/lib/orders.functions";
 import { getInvoiceToken } from "@/lib/invoice.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
