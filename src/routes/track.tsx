@@ -112,7 +112,6 @@ function buildTimeline(o: OrderInfo): Step[] {
       at: isConfirmed ? o.updated_at : null,
       Icon: PhoneCall,
       done: isConfirmed,
-      detail: "Confirmed by our team over phone",
     },
     {
       key: "processing",
