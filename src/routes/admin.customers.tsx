@@ -47,12 +47,12 @@ function CustomersPage() {
     queryFn: async () => {
       const { data, error } = await supabase.from("orders").select("customer_id,total,order_status");
       if (error) throw error;
-      const stats: Record<string, { count: number; spent: number; cancelled: number }> = {};
+      const stats: Record<string, { count: number; spent: number; delivered: number; cancelled: number }> = {};
       for (const o of data) {
         if (!o.customer_id) continue;
-        const s = stats[o.customer_id] ?? { count: 0, spent: 0, cancelled: 0 };
+        const s = stats[o.customer_id] ?? { count: 0, spent: 0, delivered: 0, cancelled: 0 };
         s.count++;
-        if (o.order_status === "Completed") s.spent += o.total;
+        if (o.order_status === "Completed") { s.spent += o.total; s.delivered++; }
         if (o.order_status === "Cancelled" || o.order_status === "Returned") s.cancelled++;
         stats[o.customer_id] = s;
       }
@@ -66,7 +66,14 @@ function CustomersPage() {
       await updateCustomer({
         data: {
           id: editing.id,
-          patch: { name: form.name || null, risk_level: form.risk_level, notes: form.notes || null },
+          patch: {
+            name: form.name || null,
+            email: form.email || null,
+            phone: form.phone || editing.phone,
+            address: form.address || null,
+            risk_level: form.risk_level,
+            notes: form.notes || null,
+          },
         },
       });
     },
@@ -80,7 +87,14 @@ function CustomersPage() {
 
   function startEdit(c: Customer) {
     setEditing(c);
-    setForm({ name: c.name ?? "", risk_level: c.risk_level, notes: c.notes ?? "" });
+    setForm({
+      name: c.name ?? "",
+      email: c.email ?? "",
+      phone: c.phone ?? "",
+      address: c.address ?? "",
+      risk_level: c.risk_level,
+      notes: c.notes ?? "",
+    });
   }
 
   const filtered = customers.filter((c) => {
