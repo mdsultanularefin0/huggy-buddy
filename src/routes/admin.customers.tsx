@@ -167,7 +167,9 @@ function CustomersPage() {
             </TableHeader>
             <TableBody>
               {filtered.map((c) => {
-                const s = orderStats[c.id] ?? { count: 0, spent: 0, cancelled: 0 };
+                const s = orderStats[c.id] ?? { count: 0, spent: 0, delivered: 0, cancelled: 0 };
+                const fraudRatio = s.count > 0 ? s.cancelled / s.count : 0;
+                const suspicious = s.cancelled >= 2 || fraudRatio >= 0.5;
                 return (
                   <TableRow key={c.id} data-state={selection.isSelected(c.id) ? "selected" : undefined}>
                     <TableCell>
@@ -180,12 +182,33 @@ function CustomersPage() {
                     <TableCell className="font-medium">{c.name ?? "—"}</TableCell>
                     <TableCell className="text-sm">{c.phone}</TableCell>
                     <TableCell>
-                      <div className="text-sm">{s.count}</div>
-                      {s.cancelled > 0 && (
-                        <div className="text-xs text-rose-600 flex items-center gap-1">
-                          <AlertTriangle className="w-3 h-3" /> {s.cancelled} cancelled
+                      <div className="flex items-center gap-2">
+                        {suspicious ? (
+                          <ShieldAlert
+                            className="w-4 h-4 text-rose-600 shrink-0"
+                            aria-label="Fraud risk"
+                            titleAccess={`Fraud check: ${s.cancelled}/${s.count} cancelled (${Math.round(fraudRatio * 100)}%)`}
+                          />
+                        ) : (
+                          <ShieldCheck
+                            className="w-4 h-4 text-emerald-600 shrink-0"
+                            aria-label="Clean"
+                            titleAccess={`Fraud check: ${s.delivered}/${s.count} delivered`}
+                          />
+                        )}
+                        <div className="text-sm leading-tight">
+                          <div>
+                            <span className="font-medium">{s.count}</span>{" "}
+                            <span className="text-muted-foreground">total</span>
+                          </div>
+                          <div className="text-xs text-emerald-700">{s.delivered} delivered</div>
+                          {s.cancelled > 0 && (
+                            <div className="text-xs text-rose-600 flex items-center gap-1">
+                              <AlertTriangle className="w-3 h-3" /> {s.cancelled} cancelled
+                            </div>
+                          )}
                         </div>
-                      )}
+                      </div>
                     </TableCell>
                     <TableCell className="font-medium">{formatBDT(s.spent)}</TableCell>
                     <TableCell>
