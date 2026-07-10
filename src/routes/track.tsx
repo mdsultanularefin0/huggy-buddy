@@ -152,10 +152,14 @@ function buildTimeline(o: OrderInfo): Step[] {
 function currentStatusLabel(o: OrderInfo) {
   const parts = [
     o.order_status ? `Order: ${o.order_status}` : null,
-    o.payment_status ? `Payment: ${o.payment_status}` : null,
     o.courier_status ? `Courier: ${o.courier_status}` : null,
   ].filter(Boolean);
   return parts.join(" • ") || "Pending";
+}
+
+function paymentSubtext(o: OrderInfo) {
+  const status = o.payment_status ? o.payment_status : "pending";
+  return o.payment_method ? `Payment: ${status} • ${o.payment_method}` : `Payment: ${status}`;
 }
 
 function TrackPage() {
