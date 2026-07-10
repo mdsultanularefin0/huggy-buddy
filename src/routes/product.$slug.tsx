@@ -28,6 +28,7 @@ type Variant = {
   sale_price: number | null;
   stock_quantity: number;
   in_stock: boolean;
+  image_url: string | null;
 };
 type Product = {
   id: string;
@@ -48,7 +49,7 @@ const productOptions = (slug: string) =>
     queryFn: async () => {
       const { data, error } = await (supabase as any)
         .from("products")
-        .select("id,slug,name,short_description,description,regular_price,sale_price,image_url,in_stock,category:categories!products_category_id_fkey(name,slug),product_variants(id,size_label,price,sale_price,stock_quantity,in_stock)")
+        .select("id,slug,name,short_description,description,regular_price,sale_price,image_url,in_stock,category:categories!products_category_id_fkey(name,slug),product_variants(id,size_label,price,sale_price,stock_quantity,in_stock,image_url)")
         .eq("slug", slug)
         .eq("is_active", true)
         .maybeSingle();
@@ -253,7 +254,7 @@ function ProductPage() {
       refId: product.id,
       variantId: chosen?.id ?? null,
       name: product.name,
-      imageUrl: product.image_url,
+      imageUrl: chosen?.image_url || product.image_url,
       unitPrice: price,
       regularPrice: regular,
       quantity: qty,
@@ -287,8 +288,8 @@ function ProductPage() {
           </nav>
 
           <div className="aspect-square rounded-2xl bg-gray-50 overflow-hidden">
-            {product.image_url ? (
-              <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
+            {(chosen?.image_url || product.image_url) ? (
+              <img src={chosen?.image_url || product.image_url!} alt={product.name} className="w-full h-full object-cover transition-opacity duration-300" />
             ) : (
               <div className="w-full h-full bg-gray-50" aria-hidden="true" />
             )}

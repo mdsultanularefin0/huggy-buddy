@@ -33,6 +33,7 @@ type Variant = {
   sale_price: number | null;
   stock_quantity: number;
   in_stock: boolean;
+  image_url?: string | null;
 };
 type ActiveFilter = "all" | "active" | "inactive";
 type StockFilter = "all" | "in" | "out";
@@ -238,6 +239,7 @@ function ProductsPage() {
           sale_price: v.sale_price,
           stock_quantity: v.stock_quantity,
           in_stock: v.in_stock,
+          image_url: v.image_url ?? null,
           sort_order: idx,
         }));
         const { error } = await (supabase as any)
@@ -352,7 +354,7 @@ function ProductsPage() {
     const imgs = Array.isArray(pAny.images_json) ? (pAny.images_json as string[]).filter(Boolean) : [];
     const { data: vRows } = await (supabase as any)
       .from("product_variants")
-      .select("id,size_label,price,sale_price,stock_quantity,in_stock,sort_order")
+      .select("id,size_label,price,sale_price,stock_quantity,in_stock,image_url,sort_order")
       .eq("product_id", p.id)
       .order("sort_order");
     const variants: Variant[] = (vRows ?? []).map((v: Variant) => ({
@@ -362,6 +364,7 @@ function ProductsPage() {
       sale_price: v.sale_price ?? null,
       stock_quantity: v.stock_quantity ?? 0,
       in_stock: v.in_stock ?? ((v.stock_quantity ?? 0) === 0),
+      image_url: v.image_url ?? null,
     }));
     setForm({
       name: p.name,
@@ -814,8 +817,8 @@ function ProductsPage() {
                 <div className="mt-2 -mx-1 overflow-x-auto">
                   <div className="min-w-[560px] px-1">
                     {form.variants.length > 0 && (
-                      <div className="grid grid-cols-[1fr_90px_90px_90px_90px_auto] gap-2 items-center text-xs text-muted-foreground">
-                        <span>Size</span><span>Price</span><span>Sale</span><span>Stock qty</span><span>In stock</span><span></span>
+                      <div className="grid grid-cols-[64px_1fr_90px_90px_90px_90px_auto] gap-2 items-center text-xs text-muted-foreground">
+                        <span>Image</span><span>Size</span><span>Price</span><span>Sale</span><span>Stock qty</span><span>In stock</span><span></span>
                       </div>
                     )}
                     <div className="mt-1 space-y-2">
@@ -823,7 +826,42 @@ function ProductsPage() {
                         const qtyLocked = v.in_stock;
                         const toggleLocked = v.stock_quantity > 0;
                         return (
-                          <div key={v.id ?? `new-${i}`} className="grid grid-cols-[1fr_90px_90px_90px_90px_auto] gap-2 items-center">
+                          <div key={v.id ?? `new-${i}`} className="grid grid-cols-[64px_1fr_90px_90px_90px_90px_auto] gap-2 items-center">
+                            <div className="relative w-16 h-16 rounded-md border bg-muted/30 overflow-hidden flex items-center justify-center">
+                              {v.image_url ? (
+                                <>
+                                  <img src={v.image_url} alt="" className="w-full h-full object-cover" />
+                                  <button
+                                    type="button"
+                                    onClick={() => updateVariant(i, { image_url: null })}
+                                    className="absolute top-0 right-0 bg-black/60 text-white rounded-bl px-1"
+                                    title="Remove image"
+                                  >
+                                    <X className="w-3 h-3" />
+                                  </button>
+                                </>
+                              ) : (
+                                <label className="cursor-pointer text-[10px] text-muted-foreground text-center px-1">
+                                  <Upload className="w-4 h-4 mx-auto mb-0.5" />
+                                  Add
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={async (e) => {
+                                      const f = e.target.files?.[0];
+                                      if (!f) return;
+                                      try {
+                                        const url = await uploadImage("product-images", f);
+                                        updateVariant(i, { image_url: url });
+                                      } catch (err) {
+                                        toast.error((err as Error).message);
+                                      }
+                                    }}
+                                  />
+                                </label>
+                              )}
+                            </div>
                             <Input placeholder="e.g. 50ml" value={v.size_label} onChange={(e) => updateVariant(i, { size_label: e.target.value })} />
                             <Input type="number" min={0} placeholder="Price" value={v.price} onChange={(e) => updateVariant(i, { price: Number(e.target.value) })} />
                             <Input type="number" min={0} placeholder="Sale" value={v.sale_price ?? ""} onChange={(e) => updateVariant(i, { sale_price: e.target.value === "" ? null : Number(e.target.value) })} />
