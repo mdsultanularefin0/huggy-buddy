@@ -33,6 +33,7 @@ type Variant = {
   sale_price: number | null;
   stock_quantity: number;
   in_stock: boolean;
+  image_url?: string | null;
 };
 type ActiveFilter = "all" | "active" | "inactive";
 type StockFilter = "all" | "in" | "out";
