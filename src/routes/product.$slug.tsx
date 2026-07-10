@@ -28,6 +28,7 @@ type Variant = {
   sale_price: number | null;
   stock_quantity: number;
   in_stock: boolean;
+  image_url: string | null;
 };
 type Product = {
   id: string;
