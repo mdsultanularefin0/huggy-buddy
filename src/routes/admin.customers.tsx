@@ -184,17 +184,13 @@ function CustomersPage() {
                     <TableCell>
                       <div className="flex items-center gap-2">
                         {suspicious ? (
-                          <ShieldAlert
-                            className="w-4 h-4 text-rose-600 shrink-0"
-                            aria-label="Fraud risk"
-                            titleAccess={`Fraud check: ${s.cancelled}/${s.count} cancelled (${Math.round(fraudRatio * 100)}%)`}
-                          />
+                          <span title={`Fraud check: ${s.cancelled}/${s.count} cancelled (${Math.round(fraudRatio * 100)}%)`}>
+                            <ShieldAlert className="w-4 h-4 text-rose-600 shrink-0" aria-label="Fraud risk" />
+                          </span>
                         ) : (
-                          <ShieldCheck
-                            className="w-4 h-4 text-emerald-600 shrink-0"
-                            aria-label="Clean"
-                            titleAccess={`Fraud check: ${s.delivered}/${s.count} delivered`}
-                          />
+                          <span title={`Fraud check: ${s.delivered}/${s.count} delivered`}>
+                            <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" aria-label="Clean" />
+                          </span>
                         )}
                         <div className="text-sm leading-tight">
                           <div>
