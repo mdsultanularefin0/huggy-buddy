@@ -49,6 +49,7 @@ function AuthPage() {
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
+  const [tab, setTab] = useState("signin");
 
 
 
