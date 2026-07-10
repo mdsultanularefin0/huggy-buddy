@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { z } from "zod";
 import {
   Search,
   Package,
@@ -20,7 +21,13 @@ import { lookupOrder } from "@/lib/orders.functions";
 import { toast } from "sonner";
 import { pageMeta } from "@/lib/seo-meta";
 
+const trackSearch = z.object({
+  order: z.string().optional(),
+  contact: z.string().optional(),
+});
+
 export const Route = createFileRoute("/track")({
+  validateSearch: (s) => trackSearch.parse(s),
   head: () => pageMeta({
     path: "/track",
     title: "Track your order — Veloura Essence",
