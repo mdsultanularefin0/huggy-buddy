@@ -112,20 +112,15 @@ function generateOrderNumber() {
   return `VE-${day}${month}${year}-${rand}`;
 }
 
-// Normalize Bangladeshi phone numbers to canonical +8801XXXXXXXXX form so
+// Normalize Bangladeshi phone numbers to canonical 01XXXXXXXXX (11 digits) so
 // "01712345678", "8801712345678", "+880 1712-345678" all match the same customer.
 export function normalizePhone(input: string): string {
   if (!input) return "";
-  let digits = input.replace(/\D/g, "");
-  if (digits.startsWith("00")) digits = digits.slice(2);
-  if (digits.startsWith("880")) {
-    // already has country code
-  } else if (digits.startsWith("0")) {
-    digits = "880" + digits.slice(1);
-  } else if (digits.length === 10 && digits.startsWith("1")) {
-    digits = "880" + digits;
-  }
-  return "+" + digits;
+  let d = input.replace(/\D+/g, "");
+  if (d.startsWith("00")) d = d.slice(2);
+  if (d.startsWith("880")) d = "0" + d.slice(3);
+  else if (d.startsWith("1") && d.length >= 10) d = "0" + d;
+  return d.slice(0, 11);
 }
 
 export const createOrder = createServerFn({ method: "POST" })
