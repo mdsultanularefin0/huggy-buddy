@@ -94,7 +94,7 @@ function buildTimeline(o: OrderInfo): Step[] {
     ["shipped", "in_transit", "on_the_way", "picked_up"].some((s) => courier.includes(s)) ||
     !!o.consignment_id ||
     !!o.tracking_code;
-  const isProcessing = ["processing", "confirmed"].includes(orderStatus) || isShipped || isDelivered;
+  const isConfirmed = ["processing", "confirmed"].includes(orderStatus) || isShipped || isDelivered;
   const isPaid = ["paid", "completed"].includes(payStatus);
   const isPartial = payStatus === "partial";
 
@@ -108,12 +108,12 @@ function buildTimeline(o: OrderInfo): Step[] {
       detail: `Order ${o.order_number}`,
     },
     {
-      key: "payment",
-      label: isPartial ? "Partial payment received" : "Payment confirmed",
-      at: isPaid || isPartial ? o.updated_at : null,
-      Icon: CreditCard,
-      done: isPaid || isPartial,
-      detail: o.payment_method ? `Method: ${o.payment_method}` : undefined,
+      key: "confirmed",
+      label: "Order confirmed",
+      at: isConfirmed ? o.updated_at : null,
+      Icon: PhoneCall,
+      done: isConfirmed,
+      detail: "Confirmed by our team over phone",
     },
     {
       key: "processing",
