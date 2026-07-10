@@ -223,7 +223,7 @@ const customerUpdateSchema = z.object({
   patch: z.object({
     name: z.string().nullable().optional(),
     email: z.string().nullable().optional(),
-    phone: z.string().nullable().optional(),
+    phone: z.string().optional(),
     address: z.string().nullable().optional(),
     risk_level: z.enum(["normal", "high"]).optional(),
     notes: z.string().nullable().optional(),
