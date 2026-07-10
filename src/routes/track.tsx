@@ -118,9 +118,9 @@ function buildTimeline(o: OrderInfo): Step[] {
     {
       key: "processing",
       label: "Processing",
-      at: isProcessing ? o.updated_at : null,
+      at: isConfirmed ? o.updated_at : null,
       Icon: Clock,
-      done: isProcessing,
+      done: isConfirmed,
     },
     {
       key: "shipped",
