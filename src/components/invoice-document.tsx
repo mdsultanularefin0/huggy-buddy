@@ -92,7 +92,7 @@ export function InvoiceDocument({
         </div>
         <div className="text-right">
           <div className="text-2xl font-bold tracking-wide">INVOICE</div>
-          <div className="text-sm font-mono mt-1">INV-{order.order_number}</div>
+          <div className="text-sm font-mono mt-1">{/^VE/i.test(order.order_number) ? order.order_number : `INV-${order.order_number}`}</div>
           <div className="text-xs mt-1" style={{ color: "#4b5563" }}>
             {new Date(order.created_at).toLocaleDateString()}
           </div>
