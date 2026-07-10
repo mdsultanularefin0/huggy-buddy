@@ -16,7 +16,7 @@ export const Route = createFileRoute("/invoice/$id")({
   validateSearch: (s) => searchSchema.parse(s),
   head: ({ params }) => ({
     meta: [
-      { title: `Invoice INV-${params.id.slice(0, 8)}` },
+      { title: `Invoice ${params.id.slice(0, 8)}` },
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),
