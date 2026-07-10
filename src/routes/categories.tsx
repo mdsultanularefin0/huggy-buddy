@@ -23,8 +23,8 @@ const allCategoriesQuery = queryOptions({
 export const Route = createFileRoute("/categories")({
   head: () => pageMeta({
     path: "/categories",
-    title: "Shop by Category — Veloura Essence",
-    description: "Browse every fragrance category at Veloura Essence — floral, oud, fresh, and more.",
+    title: "Fragrance Categories: Male, Female & Combo Packs | Veloura",
+    description: "Explore Veloura Essence collections by category — men's EDP, women's perfumes, ready combo packs and custom build-your-own gift sets.",
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(allCategoriesQuery),
 

@@ -20,8 +20,8 @@ import { normalizeBdPhone } from "@/lib/phone";
 export const Route = createFileRoute("/contact")({
   head: () => pageMeta({
     path: "/contact",
-    title: "Contact Us — Veloura Essence",
-    description: "Reach the Veloura Essence team — visit, call, WhatsApp, or send a message.",
+    title: "Contact Customer Support | Veloura Essence Bangladesh",
+    description: "Get in touch with Veloura Essence: phone, WhatsApp, email and store address for order help, wholesale enquiries and fragrance advice.",
   }),
   component: ContactPage,
 });

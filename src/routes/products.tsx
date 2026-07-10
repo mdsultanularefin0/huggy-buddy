@@ -105,9 +105,9 @@ export const Route = createFileRoute("/products")({
   validateSearch: zodValidator(listingSearchSchema),
   head: () => pageMeta({
     path: "/products",
-    title: "All Fragrances — Veloura Essence",
+    title: "Shop All Perfumes & EDP Collection | Veloura Essence",
     description:
-      "Browse every Veloura Essence luxury perfume, curated combo, and signature scent — long-lasting silage, honest pricing, delivered across Bangladesh.",
+      "Shop our full fragrance catalogue: floral, oud, musk, fresh and gourmand EDPs for men and women, plus curated gift combos with long-lasting silage.",
   }),
 
   loader: ({ context }) => context.queryClient.ensureQueryData(productsPageOptions),
