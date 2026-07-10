@@ -91,11 +91,26 @@ function OrderPage() {
             Order # <span className="font-mono font-semibold">{order.order_number}</span>
             <button
               type="button"
-              onClick={() => {
-                navigator.clipboard.writeText(order.order_number).then(
-                  () => toast.success("Order ID copied"),
-                  () => toast.error("Could not copy"),
-                );
+              onClick={async () => {
+                const text = order.order_number;
+                try {
+                  if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(text);
+                  } else {
+                    const ta = document.createElement("textarea");
+                    ta.value = text;
+                    ta.style.position = "fixed";
+                    ta.style.opacity = "0";
+                    document.body.appendChild(ta);
+                    ta.select();
+                    const ok = document.execCommand("copy");
+                    document.body.removeChild(ta);
+                    if (!ok) throw new Error("copy failed");
+                  }
+                  toast.success("Order ID copied");
+                } catch {
+                  toast.error("Could not copy");
+                }
               }}
               className="inline-flex items-center justify-center rounded-md p-1 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
               aria-label="Copy order ID"
