@@ -91,63 +91,42 @@ type Step = {
 };
 
 function buildTimeline(o: OrderInfo): Step[] {
-  const orderStatus = (o.order_status ?? "").toLowerCase();
-  const courier = (o.courier_status ?? "").toLowerCase();
+  const s = (o.order_status ?? "").toLowerCase();
 
-  const isCancelled = ["cancelled", "canceled"].includes(orderStatus);
-  const isDelivered = ["delivered", "completed", "complete"].includes(orderStatus) || courier === "delivered";
-  const isShipped =
-    ["shipped", "in_transit", "on_the_way", "picked_up"].some((s) => courier.includes(s)) ||
-    !!o.consignment_id ||
-    !!o.tracking_code;
-  const isConfirmed = ["processing", "confirmed"].includes(orderStatus) || isShipped || isDelivered;
+  const isCancelled = ["cancelled", "canceled"].includes(s);
+  const statusIndex: Record<string, number> = {
+    pending: 0,
+    placed: 0,
+    confirmed: 1,
+    processing: 2,
+    shipped: 3,
+    in_transit: 3,
+    on_the_way: 3,
+    delivered: 4,
+    completed: 4,
+    complete: 4,
+  };
+  const currentIndex = isCancelled ? 4 : (statusIndex[s] ?? 0);
 
-
-
-  const steps: Step[] = [
-    {
-      key: "placed",
-      label: "Order placed",
-      at: o.created_at,
-      Icon: Package,
-      done: true,
-      detail: `Order ${o.order_number}`,
-    },
-    {
-      key: "confirmed",
-      label: "Confirmed",
-      at: isConfirmed ? o.updated_at : null,
-      Icon: PhoneCall,
-      done: isConfirmed,
-    },
-    {
-      key: "processing",
-      label: "Processing",
-      at: isConfirmed ? o.updated_at : null,
-      Icon: Clock,
-      done: isConfirmed,
-    },
-    {
-      key: "shipped",
-      label: "Shipped",
-      at: isShipped ? o.updated_at : null,
-      Icon: Truck,
-      done: isShipped,
-    },
+  const base: Omit<Step, "done" | "active" | "at">[] = [
+    { key: "placed", label: "Order placed", Icon: Package, detail: `Order ${o.order_number}` },
+    { key: "confirmed", label: "Confirmed", Icon: PhoneCall },
+    { key: "processing", label: "Processing", Icon: Clock },
+    { key: "shipped", label: "Shipped", Icon: Truck },
     {
       key: "delivered",
       label: isCancelled ? "Cancelled" : "Delivered",
-      at: isDelivered || isCancelled ? o.updated_at : null,
       Icon: isCancelled ? XCircle : CheckCircle2,
-      done: isDelivered || isCancelled,
     },
   ];
 
-  // mark the last completed step as "current"
-  const lastDone = [...steps].reverse().find((s) => s.done);
-  if (lastDone) lastDone.active = true;
-  return steps;
+  return base.map((b, i) => {
+    const done = i <= currentIndex;
+    const at = i === 0 ? o.created_at : i === currentIndex ? o.updated_at : null;
+    return { ...b, done, active: i === currentIndex, at };
+  });
 }
+
 
 function currentStatusLabel(o: OrderInfo) {
   return o.order_status ? `Order: ${o.order_status}` : "Pending";
