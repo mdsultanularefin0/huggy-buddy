@@ -85,6 +85,10 @@ function AuthPage() {
 
     setLoading(false);
     if (error) return toast.error(error.message);
+    // Supabase returns a user with empty identities[] when the email is already registered
+    if (data.user && data.user.identities && data.user.identities.length === 0) {
+      return toast.error("An account with this email already exists. Please sign in instead.");
+    }
     if (!data.session) {
       toast.success("Check your email to confirm your account");
       return;
