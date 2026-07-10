@@ -143,11 +143,7 @@ function buildTimeline(o: OrderInfo): Step[] {
 }
 
 function currentStatusLabel(o: OrderInfo) {
-  const parts = [
-    o.order_status ? `Order: ${o.order_status}` : null,
-    o.courier_status ? `Courier: ${o.courier_status}` : null,
-  ].filter(Boolean);
-  return parts.join(" • ") || "Pending";
+  return o.order_status ? `Order: ${o.order_status}` : "Pending";
 }
 
 function paymentSubtext(o: OrderInfo) {
