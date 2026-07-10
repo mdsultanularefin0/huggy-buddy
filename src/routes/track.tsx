@@ -274,6 +274,7 @@ function TrackPage() {
                 <p className={`text-sm mt-1 ${statusTone(order.order_status)}`}>
                   {currentStatusLabel(order)}
                 </p>
+                <p className="text-xs text-muted-foreground mt-0.5">{paymentSubtext(order)}</p>
               </div>
               <div className="flex flex-col items-end gap-2">
                 <Link
