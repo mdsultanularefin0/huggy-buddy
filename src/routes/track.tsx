@@ -94,8 +94,8 @@ function buildTimeline(o: OrderInfo): Step[] {
     !!o.consignment_id ||
     !!o.tracking_code;
   const isConfirmed = ["processing", "confirmed"].includes(orderStatus) || isShipped || isDelivered;
-  const isPaid = ["paid", "completed"].includes(payStatus);
-  const isPartial = payStatus === "partial";
+
+
 
   const steps: Step[] = [
     {
