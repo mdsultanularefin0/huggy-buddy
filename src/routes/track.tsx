@@ -85,7 +85,6 @@ type Step = {
 
 function buildTimeline(o: OrderInfo): Step[] {
   const orderStatus = (o.order_status ?? "").toLowerCase();
-  const payStatus = (o.payment_status ?? "").toLowerCase();
   const courier = (o.courier_status ?? "").toLowerCase();
 
   const isCancelled = ["cancelled", "canceled"].includes(orderStatus);
