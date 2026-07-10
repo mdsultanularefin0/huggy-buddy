@@ -52,7 +52,7 @@ type OrderInfo = {
   };
 };
 
-const CARRIER = "Steadfast";
+
 
 function fmtDate(iso: string) {
   try {
