@@ -254,7 +254,7 @@ function ProductPage() {
       refId: product.id,
       variantId: chosen?.id ?? null,
       name: product.name,
-      imageUrl: product.image_url,
+      imageUrl: chosen?.image_url || product.image_url,
       unitPrice: price,
       regularPrice: regular,
       quantity: qty,
