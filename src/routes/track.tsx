@@ -7,7 +7,7 @@ import {
   CheckCircle2,
   XCircle,
   Clock,
-  MapPin,
+  
   ExternalLink,
   PhoneCall,
 } from "lucide-react";
