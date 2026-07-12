@@ -53,7 +53,6 @@ import { Route as AdminCouponsRouteImport } from './routes/admin.coupons'
 import { Route as AdminCombosRouteImport } from './routes/admin.combos'
 import { Route as AdminColorPresetsRouteImport } from './routes/admin.color-presets'
 import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
-import { Route as AdminAuditLogsRouteImport } from './routes/admin.audit-logs'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated.account'
 import { Route as AdminOrdersIndexRouteImport } from './routes/admin.orders.index'
 import { Route as AuthenticatedAccountIndexRouteImport } from './routes/_authenticated.account.index'
@@ -287,11 +286,6 @@ const AdminCategoriesRoute = AdminCategoriesRouteImport.update({
   path: '/categories',
   getParentRoute: () => AdminRoute,
 } as any)
-const AdminAuditLogsRoute = AdminAuditLogsRouteImport.update({
-  id: '/audit-logs',
-  path: '/audit-logs',
-  getParentRoute: () => AdminRoute,
-} as any)
 const AuthenticatedAccountRoute = AuthenticatedAccountRouteImport.update({
   id: '/account',
   path: '/account',
@@ -377,7 +371,6 @@ export interface FileRoutesByFullPath {
   '/track': typeof TrackRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/account': typeof AuthenticatedAccountRouteWithChildren
-  '/admin/audit-logs': typeof AdminAuditLogsRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/color-presets': typeof AdminColorPresetsRoute
   '/admin/combos': typeof AdminCombosRoute
@@ -433,7 +426,6 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/track': typeof TrackRoute
   '/unsubscribe': typeof UnsubscribeRoute
-  '/admin/audit-logs': typeof AdminAuditLogsRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/color-presets': typeof AdminColorPresetsRoute
   '/admin/combos': typeof AdminCombosRoute
@@ -493,7 +485,6 @@ export interface FileRoutesById {
   '/track': typeof TrackRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/_authenticated/account': typeof AuthenticatedAccountRouteWithChildren
-  '/admin/audit-logs': typeof AdminAuditLogsRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/color-presets': typeof AdminColorPresetsRoute
   '/admin/combos': typeof AdminCombosRoute
@@ -553,7 +544,6 @@ export interface FileRouteTypes {
     | '/track'
     | '/unsubscribe'
     | '/account'
-    | '/admin/audit-logs'
     | '/admin/categories'
     | '/admin/color-presets'
     | '/admin/combos'
@@ -609,7 +599,6 @@ export interface FileRouteTypes {
     | '/terms'
     | '/track'
     | '/unsubscribe'
-    | '/admin/audit-logs'
     | '/admin/categories'
     | '/admin/color-presets'
     | '/admin/combos'
@@ -668,7 +657,6 @@ export interface FileRouteTypes {
     | '/track'
     | '/unsubscribe'
     | '/_authenticated/account'
-    | '/admin/audit-logs'
     | '/admin/categories'
     | '/admin/color-presets'
     | '/admin/combos'
@@ -1046,13 +1034,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCategoriesRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/admin/audit-logs': {
-      id: '/admin/audit-logs'
-      path: '/audit-logs'
-      fullPath: '/admin/audit-logs'
-      preLoaderRoute: typeof AdminAuditLogsRouteImport
-      parentRoute: typeof AdminRoute
-    }
     '/_authenticated/account': {
       id: '/_authenticated/account'
       path: '/account'
@@ -1184,7 +1165,6 @@ const AdminOrdersIdRouteWithChildren = AdminOrdersIdRoute._addFileChildren(
 )
 
 interface AdminRouteChildren {
-  AdminAuditLogsRoute: typeof AdminAuditLogsRoute
   AdminCategoriesRoute: typeof AdminCategoriesRoute
   AdminColorPresetsRoute: typeof AdminColorPresetsRoute
   AdminCombosRoute: typeof AdminCombosRoute
@@ -1212,7 +1192,6 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
-  AdminAuditLogsRoute: AdminAuditLogsRoute,
   AdminCategoriesRoute: AdminCategoriesRoute,
   AdminColorPresetsRoute: AdminColorPresetsRoute,
   AdminCombosRoute: AdminCombosRoute,

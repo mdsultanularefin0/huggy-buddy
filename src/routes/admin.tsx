@@ -25,7 +25,7 @@ import {
 
 import {
   LayoutDashboard, Package, Boxes, Truck, CreditCard, ShoppingBag,
-  Users, Megaphone, Settings, LogOut, Palette, Droplet, ScrollText, Tags, Home, Loader2, FileText, Star, Images, Plug,
+  Users, Megaphone, Settings, LogOut, Palette, Droplet, Tags, Home, Loader2, FileText, Star, Images, Plug,
   ChevronDown, Store, Mail,
 } from "lucide-react";
 
