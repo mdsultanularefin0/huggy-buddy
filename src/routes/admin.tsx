@@ -109,7 +109,7 @@ const NAV_GROUPS: NavGroup[] = [
     label: "System",
     items: [
       { to: "/admin/integrations", label: "Integrations", icon: Plug },
-      { to: "/admin/audit-logs", label: "Audit Logs", icon: ScrollText },
+      
       { to: "/admin/settings", label: "Site Settings", icon: Settings },
     ],
   },
