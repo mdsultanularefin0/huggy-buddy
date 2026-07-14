@@ -391,7 +391,7 @@ export const getAdminDashboardStats = createServerFn({ method: "GET" })
       }
     }
 
-    const statusBreakdown = ["Pending", "Processing", "Shipped", "Completed", "Cancelled", "Returned"].map((s) => ({
+    const statusBreakdown = ["Pending", "Confirmed", "Processing", "Shipped", "Completed", "Cancelled", "Returned"].map((s) => ({
       status: s,
       count: rows30.filter((o) => o.order_status === s).length,
     }));
