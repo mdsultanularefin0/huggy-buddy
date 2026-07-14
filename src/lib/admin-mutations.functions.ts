@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-const orderStatusSchema = z.enum(["Pending", "Processing", "Shipped", "Completed", "Cancelled", "Returned"]);
+const orderStatusSchema = z.enum(["Pending", "Confirmed", "Processing", "Shipped", "Completed", "Cancelled", "Returned"]);
 
 async function assertAdmin(userId: string, supabase: unknown) {
   const { assertAdmin: check } = await import("@/lib/admin-guard.server");
@@ -391,7 +391,7 @@ export const getAdminDashboardStats = createServerFn({ method: "GET" })
       }
     }
 
-    const statusBreakdown = ["Pending", "Processing", "Shipped", "Completed", "Cancelled", "Returned"].map((s) => ({
+    const statusBreakdown = ["Pending", "Confirmed", "Processing", "Shipped", "Completed", "Cancelled", "Returned"].map((s) => ({
       status: s,
       count: rows30.filter((o) => o.order_status === s).length,
     }));

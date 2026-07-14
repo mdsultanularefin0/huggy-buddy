@@ -13,7 +13,7 @@ const exportOrdersSchema = z.object({
   from: z.string().nullable().optional(),
   to: z.string().nullable().optional(),
   statusFilter: z
-    .enum(["Pending", "Processing", "Shipped", "Completed", "Cancelled", "Returned", "all"])
+    .enum(["Pending", "Confirmed", "Processing", "Shipped", "Completed", "Cancelled", "Returned", "all"])
     .default("all"),
 });
 
