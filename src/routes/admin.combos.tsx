@@ -89,6 +89,15 @@ function CombosPage() {
     variantsByProduct.set(v.product_id, arr);
   }
 
+  // Sizes shared by EVERY included product (prebuilt combos only).
+  const includedProductIds = Array.from(new Set(form.products_json.map((it) => it.product_id))).filter(Boolean);
+  const commonSizes: string[] = (() => {
+    if (form.combo_type !== "prebuilt" || includedProductIds.length === 0) return [];
+    const lists = includedProductIds.map((pid) => variantsByProduct.get(pid) ?? []);
+    if (lists.some((l) => l.length === 0)) return [];
+    return lists[0].filter((s) => lists.every((l) => l.includes(s)));
+  })();
+
   const { data: categories = [] } = useQuery({
     queryKey: ["admin", "combos", "categories"],
     queryFn: async () => {
