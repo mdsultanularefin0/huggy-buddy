@@ -256,6 +256,9 @@ function CombosPage() {
       is_active: c.is_active,
       max_items_allowed: c.max_items_allowed,
       products_json: Array.isArray(c.products_json) ? (c.products_json as unknown as ComboItem[]) : [],
+      size_pricing_json: Array.isArray(c.size_pricing_json)
+        ? (c.size_pricing_json as unknown as ComboSizePrice[])
+        : [],
       category_ids: catIdsByCombo.get(c.id) ?? [],
       note_ids: noteIdsByCombo.get(c.id) ?? [],
     });
