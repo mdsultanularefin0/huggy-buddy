@@ -171,6 +171,9 @@ function CombosPage() {
             ? Number(form.max_items_allowed)
             : null,
         products_json: form.products_json as never,
+        size_pricing_json: (form.combo_type === "prebuilt"
+          ? form.size_pricing_json.filter((sp) => commonSizes.includes(sp.size_label) && sp.regular_price > 0)
+          : []) as never,
       };
       let comboId: string;
       if (editing) {
