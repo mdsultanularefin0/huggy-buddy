@@ -11,11 +11,13 @@ import { useCart } from "@/lib/cart-store";
 import { toast } from "sonner";
 
 type ComboItem = { product_id: string; size_label?: string | null };
+type ComboSizePrice = { size_label: string; regular_price: number; sale_price: number | null };
 type Combo = {
   id: string; title: string; description: string | null;
   combo_type: "prebuilt" | "byob";
   regular_price: number; sale_price: number | null;
   products_json: ComboItem[];
+  size_pricing_json?: ComboSizePrice[] | null;
   image_url: string | null; max_items_allowed: number | null;
 };
 type ProductMini = { id: string; name: string; image_url: string | null; in_stock: boolean };
@@ -115,22 +117,38 @@ function ComboPage() {
   const [selected, setSelected] = useState<string[]>([]);
   const [activeCat, setActiveCat] = useState<string>("all");
   const [search, setSearch] = useState("");
-  const [sizes, setSizes] = useState<Record<number, string>>({});
+  const [chosenSize, setChosenSize] = useState<string | null>(null);
   const [qty, setQty] = useState(1);
   const add = useCart((s) => s.add);
   const navigate = useNavigate();
 
   if (!data) return null;
   const { combo, products, categories, productCatMap, variantMap } = data;
-  const price = effectivePrice(combo.regular_price, combo.sale_price);
   const isByob = combo.combo_type === "byob";
   const limit = combo.max_items_allowed ?? products.length;
   const isComplete = selected.length === limit;
 
-  const sizeFor = (i: number, ci: ComboItem) => {
-    const opts = variantMap[ci.product_id] ?? [];
-    return sizes[i] ?? ci.size_label ?? opts[0]?.size_label ?? null;
-  };
+  // Sizes shared by every included product (prebuilt only).
+  const sizePricing = (combo.size_pricing_json ?? []).filter((sp) => sp?.size_label);
+  const sharedSizes: string[] = (() => {
+    if (isByob) return [];
+    const ids = Array.from(new Set(combo.products_json.map((ci) => ci.product_id)));
+    if (!ids.length) return [];
+    const lists = ids.map((pid) => (variantMap[pid] ?? []).filter((v) => v.in_stock).map((v) => v.size_label));
+    if (lists.some((l) => l.length === 0)) return [];
+    return lists[0].filter((s) => lists.every((l) => l.includes(s)));
+  })();
+  const sizeOptions = sizePricing.length
+    ? sizePricing.map((sp) => sp.size_label).filter((s) => !sharedSizes.length || sharedSizes.includes(s))
+    : sharedSizes;
+  const activeSize = chosenSize ?? sizeOptions[0] ?? combo.products_json[0]?.size_label ?? null;
+  const activePricing = sizePricing.find((sp) => sp.size_label === activeSize) ?? null;
+  const baseRegular = activePricing?.regular_price ?? combo.regular_price;
+  const baseSale = activePricing ? activePricing.sale_price : combo.sale_price;
+  const price = effectivePrice(baseRegular, baseSale);
+
+  const sizeFor = (ci: ComboItem) => activeSize ?? ci.size_label ?? null;
+
 
   const toggle = (pid: string) => {
     setSelected((prev) => {
@@ -149,22 +167,23 @@ function ComboPage() {
           const p = products.find((x) => x.id === pid)!;
           return { productId: pid, name: p.name };
         })
-      : combo.products_json.map((ci, i) => {
+      : combo.products_json.map((ci) => {
           const p = products.find((x) => x.id === ci.product_id);
-          const size = sizeFor(i, ci);
+          const size = sizeFor(ci);
           return { productId: ci.product_id, name: `${p?.name ?? ""}${size ? ` (${size})` : ""}` };
         });
     const hash = isByob
       ? selected.slice().sort().join("-").slice(0, 16)
-      : combo.products_json.map((ci, i) => sizeFor(i, ci) ?? "-").join("|").slice(0, 40);
+      : `${activeSize ?? "-"}`.slice(0, 40);
     return {
       lineId: `${isByob ? "byob" : "combo"}:${combo.id}:${hash}`,
       kind: (isByob ? "byob" : "combo") as "byob" | "combo",
       refId: combo.id,
-      name: combo.title,
+      name: `${combo.title}${!isByob && activeSize ? ` (${activeSize})` : ""}`,
       imageUrl: combo.image_url,
       unitPrice: price,
-      regularPrice: combo.regular_price,
+      regularPrice: baseRegular,
+      size: !isByob ? activeSize : null,
       quantity: isByob ? 1 : qty,
       selections,
     };
@@ -210,39 +229,54 @@ function ComboPage() {
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight">{combo.title}</h1>
               <div className="flex items-baseline gap-3 mt-3">
                 <span className="text-xl sm:text-2xl font-semibold">{formatBDT(price)}</span>
-                {hasSale(combo.regular_price, combo.sale_price) && (
-                  <span className="text-sm sm:text-base text-muted-foreground line-through">{formatBDT(combo.regular_price)}</span>
+                {hasSale(baseRegular, baseSale) && (
+                  <span className="text-sm sm:text-base text-muted-foreground line-through">{formatBDT(baseRegular)}</span>
                 )}
               </div>
               {combo.description && (
                 <p className="text-sm text-muted-foreground mt-4 sm:mt-5 whitespace-pre-line">{combo.description}</p>
               )}
+
+              {sizeOptions.length > 0 && (
+                <div className="mt-6">
+                  <p className="text-sm font-medium mb-3">Size</p>
+                  <div className="flex flex-wrap gap-2">
+                    {sizeOptions.map((s) => {
+                      const active = s === activeSize;
+                      return (
+                        <button
+                          key={s}
+                          type="button"
+                          onClick={() => setChosenSize(s)}
+                          aria-pressed={active}
+                          className={`px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
+                            active
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : "border-border hover:border-primary/50 hover:bg-muted"
+                          }`}
+                        >
+                          {s}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               <div className="mt-6 sm:mt-8">
                 <p className="text-sm font-medium mb-3">Includes</p>
                 <div className="space-y-2">
                   {combo.products_json.map((ci, i) => {
                     const p = products.find((x) => x.id === ci.product_id);
                     if (!p) return null;
-                    const opts = (variantMap[ci.product_id] ?? []).filter((v) => v.in_stock);
-                    const current = sizeFor(i, ci);
+                    const current = sizeFor(ci);
                     return (
                       <div key={`${ci.product_id}-${i}`} className="flex items-center gap-3 p-3 rounded-xl border border-border">
                         <div className="w-12 h-12 rounded-lg bg-muted overflow-hidden flex-shrink-0">
                           {p.image_url && <img src={p.image_url} alt={p.name} loading="lazy" className="w-full h-full object-cover" />}
                         </div>
                         <span className="flex-1 text-sm font-medium min-w-0 truncate">{p.name}</span>
-                        {opts.length > 1 ? (
-                          <select
-                            aria-label={`Size for ${p.name}`}
-                            value={current ?? ""}
-                            onChange={(e) => setSizes((s) => ({ ...s, [i]: e.target.value }))}
-                            className="shrink-0 rounded-lg border border-border bg-background px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-primary/40"
-                          >
-                            {opts.map((v) => (
-                              <option key={v.id} value={v.size_label}>{v.size_label}</option>
-                            ))}
-                          </select>
-                        ) : current ? (
+                        {current ? (
                           <span className="shrink-0 text-xs text-muted-foreground">{current}</span>
                         ) : null}
                       </div>

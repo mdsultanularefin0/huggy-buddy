@@ -25,6 +25,7 @@ import type { Database } from "@/integrations/supabase/types";
 type Combo = Database["public"]["Tables"]["combos"]["Row"];
 type ComboType = Database["public"]["Enums"]["combo_type"];
 type ComboItem = { product_id: string; size_label?: string | null };
+type ComboSizePrice = { size_label: string; regular_price: number; sale_price: number | null };
 
 export const Route = createFileRoute("/admin/combos")({ component: CombosPage });
 
@@ -38,6 +39,7 @@ const empty = {
   is_active: true,
   max_items_allowed: null as number | null,
   products_json: [] as ComboItem[],
+  size_pricing_json: [] as ComboSizePrice[],
   category_ids: [] as string[],
   note_ids: [] as string[],
 };
@@ -86,6 +88,15 @@ function CombosPage() {
     arr.push(v.size_label);
     variantsByProduct.set(v.product_id, arr);
   }
+
+  // Sizes shared by EVERY included product (prebuilt combos only).
+  const includedProductIds = Array.from(new Set(form.products_json.map((it) => it.product_id))).filter(Boolean);
+  const commonSizes: string[] = (() => {
+    if (form.combo_type !== "prebuilt" || includedProductIds.length === 0) return [];
+    const lists = includedProductIds.map((pid) => variantsByProduct.get(pid) ?? []);
+    if (lists.some((l) => l.length === 0)) return [];
+    return lists[0].filter((s) => lists.every((l) => l.includes(s)));
+  })();
 
   const { data: categories = [] } = useQuery({
     queryKey: ["admin", "combos", "categories"],
@@ -160,6 +171,9 @@ function CombosPage() {
             ? Number(form.max_items_allowed)
             : null,
         products_json: form.products_json as never,
+        size_pricing_json: (form.combo_type === "prebuilt"
+          ? form.size_pricing_json.filter((sp) => commonSizes.includes(sp.size_label) && sp.regular_price > 0)
+          : []) as never,
       };
       let comboId: string;
       if (editing) {
@@ -242,6 +256,9 @@ function CombosPage() {
       is_active: c.is_active,
       max_items_allowed: c.max_items_allowed,
       products_json: Array.isArray(c.products_json) ? (c.products_json as unknown as ComboItem[]) : [],
+      size_pricing_json: Array.isArray(c.size_pricing_json)
+        ? (c.size_pricing_json as unknown as ComboSizePrice[])
+        : [],
       category_ids: catIdsByCombo.get(c.id) ?? [],
       note_ids: noteIdsByCombo.get(c.id) ?? [],
     });
@@ -592,6 +609,72 @@ function CombosPage() {
                 {form.products_json.length} item{form.products_json.length === 1 ? "" : "s"} in {form.combo_type === "byob" ? "pool" : "bundle"}.
               </p>
             </div>
+
+            {form.combo_type === "prebuilt" && (
+              <div>
+                <Label>Size pricing</Label>
+                <p className="text-xs text-muted-foreground">
+                  Only sizes available on <em>every</em> included product are shown. Set a price per size; the customer picks one size for the whole bundle. Leave empty to use the base price above.
+                </p>
+                {includedProductIds.length === 0 ? (
+                  <p className="text-sm text-muted-foreground mt-2">Add included products first.</p>
+                ) : commonSizes.length === 0 ? (
+                  <p className="text-sm text-muted-foreground mt-2">
+                    The included products don’t share a common size variation, so size pricing is unavailable.
+                  </p>
+                ) : (
+                  <div className="mt-2 space-y-2">
+                    {commonSizes.map((s) => {
+                      const row = form.size_pricing_json.find((sp) => sp.size_label === s);
+                      const patch = (p: Partial<ComboSizePrice>) =>
+                        setForm((f) => {
+                          const exists = f.size_pricing_json.some((sp) => sp.size_label === s);
+                          const base: ComboSizePrice = row ?? { size_label: s, regular_price: 0, sale_price: null };
+                          const next = { ...base, ...p };
+                          return {
+                            ...f,
+                            size_pricing_json: exists
+                              ? f.size_pricing_json.map((sp) => (sp.size_label === s ? next : sp))
+                              : [...f.size_pricing_json, next],
+                          };
+                        });
+                      return (
+                        <div key={s} className="flex items-center gap-2">
+                          <span className="w-24 text-sm font-medium">{s}</span>
+                          <Input
+                            type="number"
+                            placeholder="Regular price"
+                            value={row?.regular_price ?? ""}
+                            onChange={(e) => patch({ regular_price: Number(e.target.value) })}
+                          />
+                          <Input
+                            type="number"
+                            placeholder="Sale price (optional)"
+                            value={row?.sale_price ?? ""}
+                            onChange={(e) =>
+                              patch({ sale_price: e.target.value === "" ? null : Number(e.target.value) })
+                            }
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() =>
+                              setForm((f) => ({
+                                ...f,
+                                size_pricing_json: f.size_pricing_json.filter((sp) => sp.size_label !== s),
+                              }))
+                            }
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>

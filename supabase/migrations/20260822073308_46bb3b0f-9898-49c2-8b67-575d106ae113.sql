@@ -1,0 +1,1 @@
+ALTER TABLE public.combos ADD COLUMN IF NOT EXISTS size_pricing_json jsonb NOT NULL DEFAULT '[]'::jsonb;
