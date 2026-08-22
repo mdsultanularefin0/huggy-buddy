@@ -39,6 +39,7 @@ const empty = {
   is_active: true,
   max_items_allowed: null as number | null,
   products_json: [] as ComboItem[],
+  size_pricing_json: [] as ComboSizePrice[],
   category_ids: [] as string[],
   note_ids: [] as string[],
 };
