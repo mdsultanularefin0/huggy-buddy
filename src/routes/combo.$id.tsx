@@ -167,22 +167,23 @@ function ComboPage() {
           const p = products.find((x) => x.id === pid)!;
           return { productId: pid, name: p.name };
         })
-      : combo.products_json.map((ci, i) => {
+      : combo.products_json.map((ci) => {
           const p = products.find((x) => x.id === ci.product_id);
-          const size = sizeFor(i, ci);
+          const size = sizeFor(ci);
           return { productId: ci.product_id, name: `${p?.name ?? ""}${size ? ` (${size})` : ""}` };
         });
     const hash = isByob
       ? selected.slice().sort().join("-").slice(0, 16)
-      : combo.products_json.map((ci, i) => sizeFor(i, ci) ?? "-").join("|").slice(0, 40);
+      : `${activeSize ?? "-"}`.slice(0, 40);
     return {
       lineId: `${isByob ? "byob" : "combo"}:${combo.id}:${hash}`,
       kind: (isByob ? "byob" : "combo") as "byob" | "combo",
       refId: combo.id,
-      name: combo.title,
+      name: `${combo.title}${!isByob && activeSize ? ` (${activeSize})` : ""}`,
       imageUrl: combo.image_url,
       unitPrice: price,
-      regularPrice: combo.regular_price,
+      regularPrice: baseRegular,
+      size: !isByob ? activeSize : null,
       quantity: isByob ? 1 : qty,
       selections,
     };
