@@ -206,6 +206,7 @@ export type Database = {
           products_json: Json
           regular_price: number
           sale_price: number | null
+          size_pricing_json: Json
           title: string
           updated_at: string
         }
@@ -220,6 +221,7 @@ export type Database = {
           products_json?: Json
           regular_price?: number
           sale_price?: number | null
+          size_pricing_json?: Json
           title: string
           updated_at?: string
         }
@@ -234,6 +236,7 @@ export type Database = {
           products_json?: Json
           regular_price?: number
           sale_price?: number | null
+          size_pricing_json?: Json
           title?: string
           updated_at?: string
         }
