@@ -30,13 +30,20 @@ const comboOptions = (id: string) =>
       if (error) throw error;
       if (!combo) return null;
       const productIds = ((combo.products_json as ComboItem[]) ?? []).map((p) => p.product_id);
-      const [productsRes, prodCatsRes] = await Promise.all([
+      const [productsRes, prodCatsRes, variantsRes] = await Promise.all([
         productIds.length
           ? supabase.from("products").select("id,name,image_url,in_stock").in("id", productIds)
           : Promise.resolve({ data: [] as ProductMini[] } as { data: ProductMini[] }),
         productIds.length
           ? supabase.from("product_categories").select("product_id,category_id").in("product_id", productIds)
           : Promise.resolve({ data: [] as { product_id: string; category_id: string }[] }),
+        productIds.length
+          ? supabase
+              .from("product_variants")
+              .select("id,product_id,size_label,in_stock,sort_order")
+              .in("product_id", productIds)
+              .order("sort_order")
+          : Promise.resolve({ data: [] as VariantMini[] }),
       ]);
       const catIds = Array.from(new Set((prodCatsRes.data ?? []).map((r) => r.category_id)));
       const { data: cats } = catIds.length
@@ -46,12 +53,18 @@ const comboOptions = (id: string) =>
       (prodCatsRes.data ?? []).forEach((r) => {
         (productCatMap[r.product_id] ||= []).push(r.category_id);
       });
+      const variantMap: Record<string, VariantMini[]> = {};
+      ((variantsRes.data ?? []) as VariantMini[]).forEach((v) => {
+        (variantMap[v.product_id] ||= []).push(v);
+      });
       return {
         combo: combo as unknown as Combo,
         products: (productsRes.data ?? []) as ProductMini[],
         categories: (cats ?? []) as CategoryMini[],
         productCatMap,
+        variantMap,
       };
+
     },
   });
 
