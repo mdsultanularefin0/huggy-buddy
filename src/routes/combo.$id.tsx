@@ -19,6 +19,7 @@ type Combo = {
   image_url: string | null; max_items_allowed: number | null;
 };
 type ProductMini = { id: string; name: string; image_url: string | null; in_stock: boolean };
+type VariantMini = { id: string; product_id: string; size_label: string; in_stock: boolean; sort_order: number };
 type CategoryMini = { id: string; name: string };
 
 const comboOptions = (id: string) =>
