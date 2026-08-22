@@ -35,9 +35,8 @@ export const Route = createFileRoute("/auth")({
       throw redirect({ to: redirectTo });
     }
   },
-  validateSearch: (s: Record<string, unknown>) => ({
-    redirect: typeof s.redirect === "string" ? s.redirect : undefined,
-  }),
+  validateSearch: (s: Record<string, unknown>): { redirect?: string } =>
+    typeof s.redirect === "string" ? { redirect: s.redirect } : {},
   component: AuthPage,
 });
 

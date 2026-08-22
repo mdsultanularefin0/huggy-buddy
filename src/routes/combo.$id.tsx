@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { useState } from "react";
-import { ArrowLeft, Gift, Check } from "lucide-react";
+import { ArrowLeft, Gift, Check, Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBDT, effectivePrice, hasSale } from "@/lib/currency";
@@ -19,6 +19,7 @@ type Combo = {
   image_url: string | null; max_items_allowed: number | null;
 };
 type ProductMini = { id: string; name: string; image_url: string | null; in_stock: boolean };
+type VariantMini = { id: string; product_id: string; size_label: string; in_stock: boolean; sort_order: number };
 type CategoryMini = { id: string; name: string };
 
 const comboOptions = (id: string) =>
@@ -30,13 +31,20 @@ const comboOptions = (id: string) =>
       if (error) throw error;
       if (!combo) return null;
       const productIds = ((combo.products_json as ComboItem[]) ?? []).map((p) => p.product_id);
-      const [productsRes, prodCatsRes] = await Promise.all([
+      const [productsRes, prodCatsRes, variantsRes] = await Promise.all([
         productIds.length
           ? supabase.from("products").select("id,name,image_url,in_stock").in("id", productIds)
           : Promise.resolve({ data: [] as ProductMini[] } as { data: ProductMini[] }),
         productIds.length
           ? supabase.from("product_categories").select("product_id,category_id").in("product_id", productIds)
           : Promise.resolve({ data: [] as { product_id: string; category_id: string }[] }),
+        productIds.length
+          ? supabase
+              .from("product_variants")
+              .select("id,product_id,size_label,in_stock,sort_order")
+              .in("product_id", productIds)
+              .order("sort_order")
+          : Promise.resolve({ data: [] as VariantMini[] }),
       ]);
       const catIds = Array.from(new Set((prodCatsRes.data ?? []).map((r) => r.category_id)));
       const { data: cats } = catIds.length
@@ -46,12 +54,18 @@ const comboOptions = (id: string) =>
       (prodCatsRes.data ?? []).forEach((r) => {
         (productCatMap[r.product_id] ||= []).push(r.category_id);
       });
+      const variantMap: Record<string, VariantMini[]> = {};
+      ((variantsRes.data ?? []) as VariantMini[]).forEach((v) => {
+        (variantMap[v.product_id] ||= []).push(v);
+      });
       return {
         combo: combo as unknown as Combo,
         products: (productsRes.data ?? []) as ProductMini[],
         categories: (cats ?? []) as CategoryMini[],
         productCatMap,
+        variantMap,
       };
+
     },
   });
 
@@ -101,15 +115,22 @@ function ComboPage() {
   const [selected, setSelected] = useState<string[]>([]);
   const [activeCat, setActiveCat] = useState<string>("all");
   const [search, setSearch] = useState("");
+  const [sizes, setSizes] = useState<Record<number, string>>({});
+  const [qty, setQty] = useState(1);
   const add = useCart((s) => s.add);
   const navigate = useNavigate();
 
   if (!data) return null;
-  const { combo, products, categories, productCatMap } = data;
+  const { combo, products, categories, productCatMap, variantMap } = data;
   const price = effectivePrice(combo.regular_price, combo.sale_price);
   const isByob = combo.combo_type === "byob";
   const limit = combo.max_items_allowed ?? products.length;
   const isComplete = selected.length === limit;
+
+  const sizeFor = (i: number, ci: ComboItem) => {
+    const opts = variantMap[ci.product_id] ?? [];
+    return sizes[i] ?? ci.size_label ?? opts[0]?.size_label ?? null;
+  };
 
   const toggle = (pid: string) => {
     setSelected((prev) => {
@@ -128,11 +149,14 @@ function ComboPage() {
           const p = products.find((x) => x.id === pid)!;
           return { productId: pid, name: p.name };
         })
-      : combo.products_json.map((ci) => {
+      : combo.products_json.map((ci, i) => {
           const p = products.find((x) => x.id === ci.product_id);
-          return { productId: ci.product_id, name: p?.name ?? "" };
+          const size = sizeFor(i, ci);
+          return { productId: ci.product_id, name: `${p?.name ?? ""}${size ? ` (${size})` : ""}` };
         });
-    const hash = isByob ? selected.slice().sort().join("-").slice(0, 16) : "fixed";
+    const hash = isByob
+      ? selected.slice().sort().join("-").slice(0, 16)
+      : combo.products_json.map((ci, i) => sizeFor(i, ci) ?? "-").join("|").slice(0, 40);
     return {
       lineId: `${isByob ? "byob" : "combo"}:${combo.id}:${hash}`,
       kind: (isByob ? "byob" : "combo") as "byob" | "combo",
@@ -141,10 +165,11 @@ function ComboPage() {
       imageUrl: combo.image_url,
       unitPrice: price,
       regularPrice: combo.regular_price,
-      quantity: 1,
+      quantity: isByob ? 1 : qty,
       selections,
     };
   };
+
 
   const handleAdd = () => {
     if (isByob && !isComplete) {
@@ -166,9 +191,6 @@ function ComboPage() {
 
   // Prebuilt: keep original two-column layout
   if (!isByob) {
-    const included = combo.products_json
-      .map((ci) => products.find((p) => p.id === ci.product_id))
-      .filter(Boolean) as ProductMini[];
     return (
       <div className="min-h-screen bg-background">
         <SiteHeader />
@@ -198,19 +220,65 @@ function ComboPage() {
               <div className="mt-6 sm:mt-8">
                 <p className="text-sm font-medium mb-3">Includes</p>
                 <div className="space-y-2">
-                  {included.map((p) => (
-                    <div key={p.id} className="flex items-center gap-3 p-3 rounded-xl border border-border">
-                      <div className="w-12 h-12 rounded-lg bg-muted overflow-hidden flex-shrink-0">
-                        {p.image_url && <img src={p.image_url} alt={p.name} loading="lazy" className="w-full h-full object-cover" />}
+                  {combo.products_json.map((ci, i) => {
+                    const p = products.find((x) => x.id === ci.product_id);
+                    if (!p) return null;
+                    const opts = (variantMap[ci.product_id] ?? []).filter((v) => v.in_stock);
+                    const current = sizeFor(i, ci);
+                    return (
+                      <div key={`${ci.product_id}-${i}`} className="flex items-center gap-3 p-3 rounded-xl border border-border">
+                        <div className="w-12 h-12 rounded-lg bg-muted overflow-hidden flex-shrink-0">
+                          {p.image_url && <img src={p.image_url} alt={p.name} loading="lazy" className="w-full h-full object-cover" />}
+                        </div>
+                        <span className="flex-1 text-sm font-medium min-w-0 truncate">{p.name}</span>
+                        {opts.length > 1 ? (
+                          <select
+                            aria-label={`Size for ${p.name}`}
+                            value={current ?? ""}
+                            onChange={(e) => setSizes((s) => ({ ...s, [i]: e.target.value }))}
+                            className="shrink-0 rounded-lg border border-border bg-background px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-primary/40"
+                          >
+                            {opts.map((v) => (
+                              <option key={v.id} value={v.size_label}>{v.size_label}</option>
+                            ))}
+                          </select>
+                        ) : current ? (
+                          <span className="shrink-0 text-xs text-muted-foreground">{current}</span>
+                        ) : null}
                       </div>
-                      <span className="flex-1 text-sm font-medium min-w-0 truncate">{p.name}</span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
+
+              <div className="mt-6 flex items-center gap-4">
+                <span className="text-sm font-medium">Quantity</span>
+                <div className="inline-flex items-center rounded-full border border-border overflow-hidden">
+                  <button
+                    type="button"
+                    aria-label="Decrease quantity"
+                    onClick={() => setQty((q) => Math.max(1, q - 1))}
+                    className="px-3 py-2 hover:bg-muted disabled:opacity-40"
+                    disabled={qty <= 1}
+                  >
+                    <Minus className="w-4 h-4" />
+                  </button>
+                  <span className="px-4 text-sm font-semibold tabular-nums">{qty}</span>
+                  <button
+                    type="button"
+                    aria-label="Increase quantity"
+                    onClick={() => setQty((q) => Math.min(20, q + 1))}
+                    className="px-3 py-2 hover:bg-muted"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
               <Button variant="hero" size="lg" className="w-full mt-6 sm:mt-8" onClick={handleAdd}>
-                Add to cart — {formatBDT(price)}
+                Add to cart — {formatBDT(price * qty)}
               </Button>
+
             </div>
           </div>
         </div>
