@@ -191,9 +191,6 @@ function ComboPage() {
 
   // Prebuilt: keep original two-column layout
   if (!isByob) {
-    const included = combo.products_json
-      .map((ci) => products.find((p) => p.id === ci.product_id))
-      .filter(Boolean) as ProductMini[];
     return (
       <div className="min-h-screen bg-background">
         <SiteHeader />
@@ -223,19 +220,65 @@ function ComboPage() {
               <div className="mt-6 sm:mt-8">
                 <p className="text-sm font-medium mb-3">Includes</p>
                 <div className="space-y-2">
-                  {included.map((p) => (
-                    <div key={p.id} className="flex items-center gap-3 p-3 rounded-xl border border-border">
-                      <div className="w-12 h-12 rounded-lg bg-muted overflow-hidden flex-shrink-0">
-                        {p.image_url && <img src={p.image_url} alt={p.name} loading="lazy" className="w-full h-full object-cover" />}
+                  {combo.products_json.map((ci, i) => {
+                    const p = products.find((x) => x.id === ci.product_id);
+                    if (!p) return null;
+                    const opts = (variantMap[ci.product_id] ?? []).filter((v) => v.in_stock);
+                    const current = sizeFor(i, ci);
+                    return (
+                      <div key={`${ci.product_id}-${i}`} className="flex items-center gap-3 p-3 rounded-xl border border-border">
+                        <div className="w-12 h-12 rounded-lg bg-muted overflow-hidden flex-shrink-0">
+                          {p.image_url && <img src={p.image_url} alt={p.name} loading="lazy" className="w-full h-full object-cover" />}
+                        </div>
+                        <span className="flex-1 text-sm font-medium min-w-0 truncate">{p.name}</span>
+                        {opts.length > 1 ? (
+                          <select
+                            aria-label={`Size for ${p.name}`}
+                            value={current ?? ""}
+                            onChange={(e) => setSizes((s) => ({ ...s, [i]: e.target.value }))}
+                            className="shrink-0 rounded-lg border border-border bg-background px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-primary/40"
+                          >
+                            {opts.map((v) => (
+                              <option key={v.id} value={v.size_label}>{v.size_label}</option>
+                            ))}
+                          </select>
+                        ) : current ? (
+                          <span className="shrink-0 text-xs text-muted-foreground">{current}</span>
+                        ) : null}
                       </div>
-                      <span className="flex-1 text-sm font-medium min-w-0 truncate">{p.name}</span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
+
+              <div className="mt-6 flex items-center gap-4">
+                <span className="text-sm font-medium">Quantity</span>
+                <div className="inline-flex items-center rounded-full border border-border overflow-hidden">
+                  <button
+                    type="button"
+                    aria-label="Decrease quantity"
+                    onClick={() => setQty((q) => Math.max(1, q - 1))}
+                    className="px-3 py-2 hover:bg-muted disabled:opacity-40"
+                    disabled={qty <= 1}
+                  >
+                    <Minus className="w-4 h-4" />
+                  </button>
+                  <span className="px-4 text-sm font-semibold tabular-nums">{qty}</span>
+                  <button
+                    type="button"
+                    aria-label="Increase quantity"
+                    onClick={() => setQty((q) => Math.min(20, q + 1))}
+                    className="px-3 py-2 hover:bg-muted"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
               <Button variant="hero" size="lg" className="w-full mt-6 sm:mt-8" onClick={handleAdd}>
-                Add to cart — {formatBDT(price)}
+                Add to cart — {formatBDT(price * qty)}
               </Button>
+
             </div>
           </div>
         </div>
