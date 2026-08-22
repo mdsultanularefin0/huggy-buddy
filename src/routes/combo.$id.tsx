@@ -115,15 +115,22 @@ function ComboPage() {
   const [selected, setSelected] = useState<string[]>([]);
   const [activeCat, setActiveCat] = useState<string>("all");
   const [search, setSearch] = useState("");
+  const [sizes, setSizes] = useState<Record<number, string>>({});
+  const [qty, setQty] = useState(1);
   const add = useCart((s) => s.add);
   const navigate = useNavigate();
 
   if (!data) return null;
-  const { combo, products, categories, productCatMap } = data;
+  const { combo, products, categories, productCatMap, variantMap } = data;
   const price = effectivePrice(combo.regular_price, combo.sale_price);
   const isByob = combo.combo_type === "byob";
   const limit = combo.max_items_allowed ?? products.length;
   const isComplete = selected.length === limit;
+
+  const sizeFor = (i: number, ci: ComboItem) => {
+    const opts = variantMap[ci.product_id] ?? [];
+    return sizes[i] ?? ci.size_label ?? opts[0]?.size_label ?? null;
+  };
 
   const toggle = (pid: string) => {
     setSelected((prev) => {
@@ -142,11 +149,14 @@ function ComboPage() {
           const p = products.find((x) => x.id === pid)!;
           return { productId: pid, name: p.name };
         })
-      : combo.products_json.map((ci) => {
+      : combo.products_json.map((ci, i) => {
           const p = products.find((x) => x.id === ci.product_id);
-          return { productId: ci.product_id, name: p?.name ?? "" };
+          const size = sizeFor(i, ci);
+          return { productId: ci.product_id, name: `${p?.name ?? ""}${size ? ` (${size})` : ""}` };
         });
-    const hash = isByob ? selected.slice().sort().join("-").slice(0, 16) : "fixed";
+    const hash = isByob
+      ? selected.slice().sort().join("-").slice(0, 16)
+      : combo.products_json.map((ci, i) => sizeFor(i, ci) ?? "-").join("|").slice(0, 40);
     return {
       lineId: `${isByob ? "byob" : "combo"}:${combo.id}:${hash}`,
       kind: (isByob ? "byob" : "combo") as "byob" | "combo",
@@ -155,10 +165,11 @@ function ComboPage() {
       imageUrl: combo.image_url,
       unitPrice: price,
       regularPrice: combo.regular_price,
-      quantity: 1,
+      quantity: isByob ? 1 : qty,
       selections,
     };
   };
+
 
   const handleAdd = () => {
     if (isByob && !isComplete) {
