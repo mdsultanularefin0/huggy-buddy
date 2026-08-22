@@ -25,6 +25,7 @@ import type { Database } from "@/integrations/supabase/types";
 type Combo = Database["public"]["Tables"]["combos"]["Row"];
 type ComboType = Database["public"]["Enums"]["combo_type"];
 type ComboItem = { product_id: string; size_label?: string | null };
+type ComboSizePrice = { size_label: string; regular_price: number; sale_price: number | null };
 
 export const Route = createFileRoute("/admin/combos")({ component: CombosPage });
 
