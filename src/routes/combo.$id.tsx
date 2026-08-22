@@ -117,22 +117,38 @@ function ComboPage() {
   const [selected, setSelected] = useState<string[]>([]);
   const [activeCat, setActiveCat] = useState<string>("all");
   const [search, setSearch] = useState("");
-  const [sizes, setSizes] = useState<Record<number, string>>({});
+  const [chosenSize, setChosenSize] = useState<string | null>(null);
   const [qty, setQty] = useState(1);
   const add = useCart((s) => s.add);
   const navigate = useNavigate();
 
   if (!data) return null;
   const { combo, products, categories, productCatMap, variantMap } = data;
-  const price = effectivePrice(combo.regular_price, combo.sale_price);
   const isByob = combo.combo_type === "byob";
   const limit = combo.max_items_allowed ?? products.length;
   const isComplete = selected.length === limit;
 
-  const sizeFor = (i: number, ci: ComboItem) => {
-    const opts = variantMap[ci.product_id] ?? [];
-    return sizes[i] ?? ci.size_label ?? opts[0]?.size_label ?? null;
-  };
+  // Sizes shared by every included product (prebuilt only).
+  const sizePricing = (combo.size_pricing_json ?? []).filter((sp) => sp?.size_label);
+  const sharedSizes: string[] = (() => {
+    if (isByob) return [];
+    const ids = Array.from(new Set(combo.products_json.map((ci) => ci.product_id)));
+    if (!ids.length) return [];
+    const lists = ids.map((pid) => (variantMap[pid] ?? []).filter((v) => v.in_stock).map((v) => v.size_label));
+    if (lists.some((l) => l.length === 0)) return [];
+    return lists[0].filter((s) => lists.every((l) => l.includes(s)));
+  })();
+  const sizeOptions = sizePricing.length
+    ? sizePricing.map((sp) => sp.size_label).filter((s) => !sharedSizes.length || sharedSizes.includes(s))
+    : sharedSizes;
+  const activeSize = chosenSize ?? sizeOptions[0] ?? combo.products_json[0]?.size_label ?? null;
+  const activePricing = sizePricing.find((sp) => sp.size_label === activeSize) ?? null;
+  const baseRegular = activePricing?.regular_price ?? combo.regular_price;
+  const baseSale = activePricing ? activePricing.sale_price : combo.sale_price;
+  const price = effectivePrice(baseRegular, baseSale);
+
+  const sizeFor = (ci: ComboItem) => activeSize ?? ci.size_label ?? null;
+
 
   const toggle = (pid: string) => {
     setSelected((prev) => {
