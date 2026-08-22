@@ -610,6 +610,72 @@ function CombosPage() {
               </p>
             </div>
 
+            {form.combo_type === "prebuilt" && (
+              <div>
+                <Label>Size pricing</Label>
+                <p className="text-xs text-muted-foreground">
+                  Only sizes available on <em>every</em> included product are shown. Set a price per size; the customer picks one size for the whole bundle. Leave empty to use the base price above.
+                </p>
+                {includedProductIds.length === 0 ? (
+                  <p className="text-sm text-muted-foreground mt-2">Add included products first.</p>
+                ) : commonSizes.length === 0 ? (
+                  <p className="text-sm text-muted-foreground mt-2">
+                    The included products don’t share a common size variation, so size pricing is unavailable.
+                  </p>
+                ) : (
+                  <div className="mt-2 space-y-2">
+                    {commonSizes.map((s) => {
+                      const row = form.size_pricing_json.find((sp) => sp.size_label === s);
+                      const patch = (p: Partial<ComboSizePrice>) =>
+                        setForm((f) => {
+                          const exists = f.size_pricing_json.some((sp) => sp.size_label === s);
+                          const base: ComboSizePrice = row ?? { size_label: s, regular_price: 0, sale_price: null };
+                          const next = { ...base, ...p };
+                          return {
+                            ...f,
+                            size_pricing_json: exists
+                              ? f.size_pricing_json.map((sp) => (sp.size_label === s ? next : sp))
+                              : [...f.size_pricing_json, next],
+                          };
+                        });
+                      return (
+                        <div key={s} className="flex items-center gap-2">
+                          <span className="w-24 text-sm font-medium">{s}</span>
+                          <Input
+                            type="number"
+                            placeholder="Regular price"
+                            value={row?.regular_price ?? ""}
+                            onChange={(e) => patch({ regular_price: Number(e.target.value) })}
+                          />
+                          <Input
+                            type="number"
+                            placeholder="Sale price (optional)"
+                            value={row?.sale_price ?? ""}
+                            onChange={(e) =>
+                              patch({ sale_price: e.target.value === "" ? null : Number(e.target.value) })
+                            }
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() =>
+                              setForm((f) => ({
+                                ...f,
+                                size_pricing_json: f.size_pricing_json.filter((sp) => sp.size_label !== s),
+                              }))
+                            }
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label>Categories</Label>
