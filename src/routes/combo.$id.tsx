@@ -11,11 +11,13 @@ import { useCart } from "@/lib/cart-store";
 import { toast } from "sonner";
 
 type ComboItem = { product_id: string; size_label?: string | null };
+type ComboSizePrice = { size_label: string; regular_price: number; sale_price: number | null };
 type Combo = {
   id: string; title: string; description: string | null;
   combo_type: "prebuilt" | "byob";
   regular_price: number; sale_price: number | null;
   products_json: ComboItem[];
+  size_pricing_json?: ComboSizePrice[] | null;
   image_url: string | null; max_items_allowed: number | null;
 };
 type ProductMini = { id: string; name: string; image_url: string | null; in_stock: boolean };
