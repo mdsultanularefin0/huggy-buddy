@@ -231,8 +231,7 @@ function ProductsPage() {
         if (error) throw error;
       }
       if (cleanVariants.length) {
-        const rows = cleanVariants.map((v, idx) => ({
-          ...(v.id ? { id: v.id } : {}),
+        const base = (v: (typeof cleanVariants)[number], idx: number) => ({
           product_id: productId,
           size_label: v.size_label,
           price: v.price,
@@ -241,12 +240,25 @@ function ProductsPage() {
           in_stock: v.in_stock,
           image_url: v.image_url ?? null,
           sort_order: idx,
-        }));
-        const { error } = await (supabase as any)
-          .from("product_variants")
-          .upsert(rows, { onConflict: "id" });
-        if (error) throw error;
+        });
+        // New rows must NOT include an id key (PostgREST sends null for missing
+        // keys in a mixed batch, which violates the not-null id constraint).
+        const newRows = cleanVariants.map((v, idx) => (v.id ? null : base(v, idx))).filter(Boolean) as object[];
+        const existingRows = cleanVariants
+          .map((v, idx) => (v.id ? { id: v.id, ...base(v, idx) } : null))
+          .filter(Boolean) as object[];
+        if (newRows.length) {
+          const { error } = await (supabase as any).from("product_variants").insert(newRows);
+          if (error) throw error;
+        }
+        if (existingRows.length) {
+          const { error } = await (supabase as any)
+            .from("product_variants")
+            .upsert(existingRows, { onConflict: "id" });
+          if (error) throw error;
+        }
       }
+
 
       // Sync category & note assignments (many-to-many)
       await supabase.from("product_categories").delete().eq("product_id", productId);
